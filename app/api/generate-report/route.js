@@ -1,9 +1,3 @@
-/**
- * app/api/generate-report/route.js
- * Estates AI Tool — Report Generation API Route
- * Version 2.0 — Two-Layer Architecture
- */
-
 import { getRates, buildRatesPrompt, getBcisFactorForRegion } from '@/lib/parseRates'
 
 export async function POST(request) {
@@ -11,89 +5,83 @@ export async function POST(request) {
     const body = await request.json()
     const { answers, sections, confirmedContradictions } = body
 
-    if (!answers) {
-      return Response.json({ error: 'Missing answers' }, { status: 400 })
-    }
+    if (!answers) return Response.json({ error: 'Missing answers' }, { status: 400 })
 
     const required = ['q2_1_objective', 'q1_2_projectType', 'q1_1_postcode']
     const missing = required.filter(f => !answers[f])
     if (missing.length > 0) {
-      return Response.json(
-        { error: `Missing required fields: ${missing.join(', ')}` },
-        { status: 400 }
-      )
+      return Response.json({ error: `Missing required fields: ${missing.join(', ')}` }, { status: 400 })
     }
 
     let ratesPromptSection = ''
     let bcisFactor = 0.94
     try {
       const rates = await getRates()
-      const projectType = resolveProjectType(answers.q1_2_projectType)
+      const sheetNames = Object.keys(rates)
+      console.log('[rates] ✅ Loaded successfully')
+      console.log('[rates] Sheet names:', sheetNames)
+      sheetNames.forEach(name => {
+        const rowCount = rates[name]?.length ?? 0
+        console.log(`[rates] Sheet "${name}": ${rowCount} rows`)
+        if (rowCount > 0) {
+          console.log(`[rates] Sheet "${name}" first row:`, JSON.stringify(rates[name][0]))
+        }
+      })
       bcisFactor = getBcisFactorForRegion(answers.q1_1_postcode)
-      ratesPromptSection = buildRatesPrompt(rates, projectType, 'standard', bcisFactor)
-    } catch (ratesError) {
-      console.error('[generate-report] Rates fetch failed:', ratesError.message)
-      ratesPromptSection = '=== RATES UNAVAILABLE — use general UK construction cost knowledge for Q2 2026 ==='
+      console.log('[rates] BCIS factor for', answers.q1_1_postcode, '→', bcisFactor)
+      ratesPromptSection = buildRatesPrompt(rates, resolveProjectType(answers.q1_2_projectType), 'standard', bcisFactor)
+      console.log('[rates] Prompt section length:', ratesPromptSection.length, 'chars')
+    } catch (e) {
+      console.error('[rates] ❌ Failed:', e.message)
+      ratesPromptSection = '=== RATES UNAVAILABLE — use general UK construction cost knowledge Q2 2026 ==='
     }
 
-    const layer1Result = await runLayer1(answers, bcisFactor)
-    if (!layer1Result.success) {
-      return Response.json(
-        { error: 'Validation call failed', detail: layer1Result.error },
-        { status: 500 }
-      )
-    }
+    const layer1 = await runLayer1(answers, bcisFactor)
+    if (!layer1.success) return Response.json({ error: 'Validation failed', detail: layer1.error }, { status: 500 })
 
-    const intelligence = layer1Result.intelligence
+    const intel = layer1.intelligence
 
-    if (
-      intelligence.contradictions &&
-      intelligence.contradictions.length > 0 &&
-      !confirmedContradictions
-    ) {
+    if (intel.contradictions?.length > 0 && !confirmedContradictions) {
       return Response.json({
         requiresConfirmation: true,
-        contradictions: intelligence.contradictions,
-        confidence: intelligence.confidenceScore,
+        contradictions: intel.contradictions,
+        confidence: intel.confidenceScore,
         message: 'Please review the following before your report is generated.',
       })
     }
 
-    const reportResult = await runLayer2(answers, sections, intelligence, ratesPromptSection)
-    if (!reportResult.success) {
-      return Response.json(
-        { error: 'Report generation failed', detail: reportResult.error },
-        { status: 500 }
-      )
-    }
+    const layer2 = await runLayer2(answers, sections, intel, ratesPromptSection)
+    if (!layer2.success) return Response.json({ error: 'Report generation failed', detail: layer2.error }, { status: 500 })
 
     return Response.json({
       success: true,
-      report: reportResult.report,
+      report: layer2.report,
+      projectName: answers.q1_0_projectName || intel.projectName || 'Estates Project',
+      intel: intel,
       meta: {
-        confidenceScore: intelligence.confidenceScore,
-        confidenceLabel: intelligence.confidenceLabel,
-        specLevel: intelligence.specLevel,
-        riskLevel: intelligence.percentageAdditions?.risk?.riskLevel || 'Medium',
+        confidenceScore: intel.confidenceScore,
+        confidenceLabel: intel.confidenceLabel,
+        specLevel: intel.specLevel,
+        riskLevel: intel.percentageAdditions?.risk?.riskLevel || 'Medium',
         contradictionsConfirmed: confirmedContradictions || false,
-        ratesSource: 'GitHub — NRM1_Cost_Estimate_Tool_v2.xlsx',
         generatedAt: new Date().toISOString(),
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
+        gifa: answers.q1_5_size,
+        annualBenefit: answers.q5_2_annualBenefit || null,
+        benefitType: Array.isArray(answers.q5_1_financialBenefit)
+          ? answers.q5_1_financialBenefit[0] || null
+          : answers.q5_1_financialBenefit || null,
       }
     })
-
   } catch (error) {
-    console.error('[generate-report] Error:', error)
-    return Response.json(
-      { error: 'Report generation failed', detail: error.message },
-      { status: 500 }
-    )
+    console.error('[generate-report]', error)
+    return Response.json({ error: 'Report generation failed', detail: error.message }, { status: 500 })
   }
 }
 
 async function runLayer1(answers, bcisFactor) {
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -101,26 +89,28 @@ async function runLayer1(answers, bcisFactor) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
+        model: 'claude-sonnet-4-6',
+        max_tokens: 8000,
         system: LAYER1_SYSTEM_PROMPT,
         messages: [{ role: 'user', content: buildLayer1Prompt(answers, bcisFactor) }],
       }),
     })
-    if (!response.ok) throw new Error(`Claude API error: ${response.status}`)
-    const data = await response.json()
-    const rawText = data.content?.[0]?.text || ''
-    const clean = rawText.replace(/```json|```/g, '').trim()
-    const intelligence = JSON.parse(clean)
-    return { success: true, intelligence }
-  } catch (error) {
-    return { success: false, error: error.message }
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}))
+      throw new Error(`Claude API ${res.status}: ${JSON.stringify(errBody)}`)
+    }
+    const data = await res.json()
+    const clean = (data.content?.[0]?.text || '').replace(/```json|```/g, '').trim()
+    return { success: true, intelligence: JSON.parse(clean) }
+  } catch (e) {
+    console.error('[layer1 error]', e.message)
+    return { success: false, error: e.message }
   }
 }
 
-async function runLayer2(answers, sections, intelligence, ratesSection) {
+async function runLayer2(answers, sections, intel, ratesSection) {
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -128,24 +118,23 @@ async function runLayer2(answers, sections, intelligence, ratesSection) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8000,
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
         system: LAYER2_SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: buildLayer2Prompt(answers, sections, intelligence, ratesSection) }],
+        messages: [{ role: 'user', content: buildLayer2Prompt(answers, sections, intel, ratesSection) }],
       }),
     })
-    if (!response.ok) throw new Error(`Claude API error: ${response.status}`)
-    const data = await response.json()
+    if (!res.ok) throw new Error(`Claude API ${res.status}`)
+    const data = await res.json()
     return { success: true, report: data.content?.[0]?.text || '' }
-  } catch (error) {
-    return { success: false, error: error.message }
+  } catch (e) {
+    return { success: false, error: e.message }
   }
 }
 
 const LAYER1_SYSTEM_PROMPT = `You are a specialist UK construction cost and feasibility consultant.
-Analyse questionnaire answers for a RIBA Stage 0-1 feasibility project and return a structured JSON intelligence object.
-You do NOT write any report text. You ONLY return a JSON object.
-CRITICAL: Return ONLY valid JSON. No preamble, no explanation, no markdown fences.
+Analyse questionnaire answers and return a structured JSON intelligence object.
+Return ONLY valid JSON. No preamble, no markdown fences.
 
 Return this exact structure:
 {
@@ -166,7 +155,7 @@ Return this exact structure:
     "fees": {"low":number,"high":number,"rationale":"string"},
     "devCosts": {"low":number,"high":number,"rationale":"string"},
     "risk": {"low":number,"high":number,"rationale":"string","riskLevel":"Low|Medium|High"},
-    "contingency": {"fixed":5,"rationale":"Fixed at 5% — standard client contingency at RIBA Stage 0-1"},
+    "contingency": {"fixed":5,"rationale":"Fixed at 5% standard RIBA Stage 0-1"},
     "inflation": {"low":number,"high":number,"rationale":"string"}
   },
   "programmeFlags": {
@@ -186,8 +175,9 @@ Return this exact structure:
     "conflicts": "string|null"
   },
   "topRiskSignals": [
-    {"ref":"R01","category":"string","description":"string","likelihood":"High|Medium|Low",
-     "impact":"High|Medium|Low","rating":"High|Medium|Low","mitigation":"string","owner":"string"}
+    {"ref":"R01","category":"string","description":"string",
+     "likelihood":"High|Medium|Low","impact":"High|Medium|Low",
+     "rating":"High|Medium|Low","mitigation":"string","owner":"string"}
   ],
   "fundingFlags": "string|null",
   "utilitiesFlags": "string|null",
@@ -196,235 +186,354 @@ Return this exact structure:
 }`
 
 function buildLayer1Prompt(answers, bcisFactor) {
-  return `Analyse these project questionnaire answers and return the intelligence JSON.
+  return `Analyse these answers and return the intelligence JSON.
 
-PROJECT ANSWERS:
 Q1.0 Project Name: ${answers.q1_0_projectName || 'Not provided'}
 Q1.1 Postcode: ${answers.q1_1_postcode}
 Q1.2 Project Type: ${answers.q1_2_projectType}
 Q1.3 Building Use: ${answers.q1_3_buildingUse || 'Not provided'}
-Q1.3a Residential Units: ${answers.q1_3a_units || 'N/A'}
+Q1.3 Building Sub-type: ${answers.q1_3_buildingSubtype || 'N/A'}
+Q1.3a Units: ${answers.q1_3a_units || 'N/A'}
 Q1.3b Storeys: ${answers.q1_3b_storeys || 'N/A'}
 Q1.4 Building Age: ${answers.q1_4_buildingAge || 'Not provided'}
 Q1.5 Size: ${answers.q1_5_size ? answers.q1_5_size + ' m²' : 'Not provided'}
 Q2.1 Objective: ${answers.q2_1_objective}
 Q2.2 Scope: ${formatList(answers.q2_2_scopeItems)}
-Q2.3 Intervention Level: ${answers.q2_3_interventionLevel || 'Not provided'}
-Q2.4 Standards: ${formatList(answers.q2_4_standards)}
+Q2.3a Nature of Works: ${answers.q2_3a_natureOfWorks || 'Not provided'}
+Q2.3b Specification Level: ${answers.q2_3b_specLevel || 'Not provided'}
+Q2.4 Standards: ${answers.q2_4_standards || 'None stated'}
 Q3.1 Known Issues: ${formatList(answers.q3_1_knownIssues)}
-Q3.2 Recent Works: ${answers.q3_2_recentWorks || 'None'}
+Q3.2 Previous Works: ${answers.q3_2_previousWorks || 'None'}
 Q3.3 Surveys: ${formatList(answers.q3_3_surveys)}
 Q3.4 Planning: ${formatList(answers.q3_4_planningConsents)}
 Q3.5 Access: ${formatList(answers.q3_5_accessConstraints)}
 Q3.6 Occupation: ${answers.q3_6_occupation || 'Not specified'}
 Q3.7 Additional Context: ${answers.q3_7_additionalContext || 'None'}
 Q4.1 Target Date: ${answers.q4_1_targetDate || 'No deadline'}
-Q4.2 Budget Known: ${answers.q4_2_budgetKnown || 'No'}
-Q4.3 Budget: ${answers.q4_3_budgetFigure ? '£' + Number(answers.q4_3_budgetFigure).toLocaleString() : 'N/A'}
-Q4.3 Includes: ${formatList(answers.q4_3_budgetIncludes)}
-Q4.4 Anything Else: ${answers.q4_4_anythingElse || 'Nothing'}
+Q4.2 Budget: ${answers.q4_2_budgetFigure ? '£' + Number(answers.q4_2_budgetFigure).toLocaleString() + ' (' + formatList(answers.q4_2_budgetIncludes) + ')' : 'Not provided'}
 Q4.5 Priorities: ${formatList(answers.q4_5_priorities)}
 Q4.6 Design Stage: ${answers.q4_6_designStage || 'Stage 0-1'}
 Q4.7 Phasing: ${answers.q4_7_phasing || 'Single phase'}
 Q4.8 Utilities: ${formatList(answers.q4_8_utilities)}
 Q4.9 Funding: ${formatList(answers.q4_9_funding)}
 Q5.1 Financial Benefit: ${formatList(answers.q5_1_financialBenefit)}
-Q5.2 Annual Benefit: ${answers.q5_2_annualBenefit || 'Not provided'}
+Q5.2 Annual Benefit: ${answers.q5_2_annualBenefit || 'N/A'}
 Q6.2 Report Instructions: ${answers.q6_2_reportInstructions || 'None'}
 BCIS Factor: ${bcisFactor}
 
-ANALYSIS RULES:
+CONFIDENCE: A=surveys+clear scope+known budget+Stage2+. B=some surveys+defined scope. C=no surveys+broad scope. D=no surveys+specialist+occupied+unknowns+hard deadline.
 
-CONFIDENCE SCORE:
-A = Surveys available + clear scope + known budget + Stage 2+ + standard project type
-B = Some surveys + defined scope + standard project + minor unknowns
-C = No surveys + broad scope + Stage 0-1 + conflicting inputs
-D = No surveys + specialist + fully occupied + multiple unknowns + hard deadline
+SPEC LEVEL — derive from Q2.3b primarily:
+Budget spec → basic. Standard spec → standard. Enhanced spec → high. Prestige spec → specialist rates.
 
-SPEC LEVEL:
-basic = light touch + residential/storage + maintenance objective
-standard = full refurb + office/education + normal commercial quality
-high = flagship/premium objective + public-facing + bespoke standards
-specialist = lab/healthcare/data centre + specialist fit-out + technical standards
+NATURE OF WORKS — derive from Q2.3a:
+Like-for-like → minimal design, lower fees, shorter programme.
+Improvement → standard design team, standard programme.
+Reconfiguration/change of use → full design team, longer programme, planning risk flagged.
+Complete repurpose → full specialist team, longest programme, highest fees.
 
-CONTRADICTIONS (check all seven):
-C1 (blocker): light touch + full M&E replacement items ticked
-C2 (blocker): light touch + structural alterations ticked
+RATE BAND SELECTION — combine Q2.3a + Q2.3b to select a NARROW rate band (max 25-30% spread):
+Like-for-like + Budget → bottom 20% of rate range
+Like-for-like + Standard → lower-mid range
+Improvement + Standard → mid range
+Reconfiguration + Enhanced → upper-mid range
+Complete repurpose + Prestige → top 25% of rate range
+The AI must select a SPECIFIC narrow band — not the full low-to-high range.
+This is critical to keeping the cost estimate variance under 30%.
+
+CONTRADICTIONS:
+C1 (blocker): light touch scope + full M&E replacement ticked in Q2.2
+C2 (blocker): Budget spec level + structural alterations in scope
 C3 (warning): new build + building age answered
 C4 (warning): asbestos suspected + no surveys + fully occupied + pre-2000
-C5 (blocker): complete strip-out + fully occupied throughout
+C5 (blocker): complete repurpose + fully occupied throughout
 C6 (warning): grant funding + no design done + hard deadline within 6 months
 C7 (blocker): size under 20m² + multiple major M&E and structural items
 
-NRM1 MAPPING (Q2.2 checkboxes → NRM1 groups):
+NRM1 MAPPING:
 Demolition/strip-out, ground remediation → Group 0
 Substructure/foundations → Group 1
-Structural frame, alterations, roof, facade, windows, waterproofing, internal partitions, internal doors → Group 2
-Wall finishes, floor finishes, ceiling finishes, redecoration → Group 3 (ALWAYS include Group 3)
-Joinery, kitchens, toilets, lab fit-out, clinical fit-out, data centre → Group 4
-All mechanical + electrical services, IT, AV, solar, battery, EV, lift, BEMS → Group 5
+Structural frame, alterations, roof, facade, windows, external doors, waterproofing → Group 2
+Wall finishes, floor finishes, ceiling finishes, redecoration → Group 3 (ALWAYS include)
+Internal partitions, internal doors and ironmongery → Group 2
+Joinery, kitchens, toilets, lab, clinical, data centre fit-out → Group 4
+All M&E services, IT, AV, solar, battery, EV, BEMS → Group 5
+Lift or platform lift → Group 5
 Repairs, making good (refurb only) → Group 7
 External works, landscaping, car parking, external lighting → Group 8
 
 PERCENTAGE RULES:
 Prelims 8-10%: baseline 8%. +1.0% fully occupied. +0.5% partially occupied. +0.5% restricted access. +0.5% 6-18mo programme. +1.0% over 18mo. Cap 10%.
-OH&P 8-12%: over £5M=8-9%. £1M-£5M=9-10%. under £1M=10-12%. Lower if lowest cost priority. Higher if speed/flexibility.
-Fees 5-15%: Stage 0-1=12-15%. Stage 2=10-13%. Stage 3=7-10%. Stage 4=5-7%. +1-2% M&E in scope. +1-2% structural. +2% pre-1900/listed. +1-2% BREEAM/specialist standard.
-Dev Costs 2-4%: full planning=3-4%. listed+full=4%. permitted dev=2%. unsure=3%. +0.5% no surveys.
-Risk 5-10%: start 5%. +2.0% no surveys. +1.0% some surveys. +1.5% asbestos. +1.0% structural. +0.5% ageing M&E. +1.5% contaminated. +1.5% pre-1900/listed. +0.5% 1900-1980. +0.5% fully occupied. +1.0% hard deadline. +0.5% damp. +0.5% fire safety. +1.5% poor ground. Cap 10%.
-Contingency: always 5% fixed.
-Inflation 2-12%: Component 1 (tender): <3mo=1-2%, 3-9mo=2-4%, 9-18mo=3-6%, 18+mo=5-8%. Component 2 (construction): <6mo=0.5-1%, 6-12mo=1-2%, 12-24mo=2-4%, >24mo=3-5%. Sum both. Cap 12%.
+OH&P 8-12%: over £5M=8-9%. £1M-£5M=9-10%. under £1M=10-12%.
+Fees — USE Q2.3a AND Q2.3b TOGETHER:
+  Like-for-like + Budget = 8-10%. Like-for-like + Standard = 10-12%.
+  Improvement + Standard = 11-13%. Reconfiguration + Enhanced = 13-15%.
+  Complete repurpose + Prestige = 15-18%. Apply Stage adjustments on top.
+Dev Costs 2-4%: full planning=3-4%. listed=4%. permitted dev=2%. unsure=3%. +0.5% no surveys.
+Risk 5-10%: baseline 5%. +2.0% no surveys. +1.5% asbestos. +1.0% structural. +0.5% ageing M&E.
+  +1.5% contaminated. +1.5% pre-1900/listed. +0.5% 1900-1980. +0.5% occupied. +1.0% hard deadline.
+  +0.5% damp. +0.5% fire safety. +1.5% poor ground. Cap 10%.
+Contingency: 5% fixed always.
+Inflation 2-12%: tender component + construction mid-point component. Cap 12%.
 
-PROGRAMME: Calculate minimum duration from surveys + design stages + planning + tender + construction.
-Fully occupied = +25% construction. Partially occupied = +10-15%.
-Tender: over £100k = 10-12 weeks formal. Under £100k = 6 weeks.
-Compare against Q4.1 target date.
+PROGRAMME DURATION MATRIX — use this table exactly, not generic formulas. NEVER apply office durations to residential flat projects.
 
-PROCUREMENT: Derive from Q4.5 + Q4.6.
-Fixed price = Traditional JCT SBC. Speed = D&B. Flexibility = PCSA. Design quality = Traditional.
-Stage 0-1 concept only = PCSA or D&B viable. Stage 4 complete = Traditional viable.
+CONSTRUCTION DURATION (base, before occupation uplift):
+Residential flat, like-for-like, under 100m²    → 6-8 weeks
+Residential flat, full refurb, under 100m²       → 8-10 weeks
+Residential flat, strip-out/rebuild, under 100m² → 10-12 weeks
+Residential house, like-for-like, under 150m²    → 8-10 weeks
+Residential house, full refurb, under 150m²      → 10-13 weeks
+Office/Education, like-for-like, 100-500m²       → 10-14 weeks
+Office/Education, full refurb, 100-500m²         → 12-18 weeks
+Office/Education, reconfiguration, 100-500m²     → 14-20 weeks
+Office/Education, complete repurpose, 100-500m²  → 18-24 weeks
+Healthcare/Lab/Specialist, any size              → 16-28 weeks
+New build, under 500m²                           → 20-36 weeks
+New build, over 500m²                            → 36-60 weeks
+External works, any                              → 6-16 weeks
+Renewable energy, any                            → 4-10 weeks
 
-RISKS: Generate minimum 8, maximum 15 from all trigger signals.
+OCCUPATION UPLIFT (multiply base construction duration):
+Fully occupied throughout → ×1.25
+Partially occupied / phased → ×1.10–1.15
+Full decant or vacant → ×1.00
 
-Return ONLY the JSON object.`
+DESIGN DURATION (Stages 2–4 combined, parallel with planning):
+Residential flat, like-for-like → 6-8 weeks
+Residential flat, full refurb   → 8-10 weeks
+Office/Education, like-for-like → 10-14 weeks
+Office/Education, full refurb   → 12-16 weeks
+Office/Education, reconfiguration → 14-18 weeks
+Complete repurpose, any type    → 18-24 weeks
+New build, under 500m²          → 20-26 weeks
+New build, over 500m²           → 24-36 weeks
+
+TENDER DURATION:
+Works cost under £100k → 6 weeks (direct quotation)
+Works cost over £100k  → 10-12 weeks (competitive tender)
+
+PRE-DESIGN SURVEYS:
+No surveys commissioned    → 3-4 weeks
+Asbestos register only     → 2-3 weeks (R&D survey still needed)
+Full survey pack available → 0 weeks
+Partial surveys            → 2 weeks
+
+HANDOVER: Always 1 week.
+TOTAL = surveys + design + tender + construction + handover.
+
+EXAMPLE — 84m² flat, like-for-like, partial occupation, asbestos register only:
+Surveys 2-3w + Design 6-8w + Tender 6w + Construction 7w×1.15=8w + Handover 1w = 23-26w TOTAL.
+This is the correct answer. 44 weeks would be wrong for this project type.
+
+PROCUREMENT: Q4.5 + Q4.6. Fixed price = Traditional. Speed = D&B. Flexibility = PCSA.
+
+RISKS: minimum 8, maximum 15. Build from all trigger signals.
+
+Return ONLY the JSON.`
 }
 
-const LAYER2_SYSTEM_PROMPT = `You are an expert UK construction and estates consultant specialising in RIBA Stage 0-1 feasibility reports.
-Write in clear British English suitable for university estates teams, senior management, and funders.
-CRITICAL: All intelligence has been pre-validated. Use it exactly. Do not recalculate.
-Present all costs as LOW–HIGH ranges. Never single-point estimates.
-Include the mandatory disclaimer on every cost estimate.
-Keep executive summary to 3-4 paragraphs maximum.
-Follow any report instructions from Q6.2 regarding tone and audience.`
+const LAYER2_SYSTEM_PROMPT = `You are a UK construction feasibility consultant producing a concise RIBA Stage 0-1 report.
+Write in clear British English for university estates directors and finance teams.
 
-function buildLayer2Prompt(answers, sections, intelligence, ratesSection) {
+CRITICAL RULES — follow every one:
+1. CONCISE: total narrative text (excluding tables) must not exceed 500 words.
+2. No preambles, no introductory sentences, no closing remarks — start each section with content immediately.
+3. Do NOT repeat information across sections.
+4. Use pre-validated intelligence exactly — do not recalculate any numbers.
+5. Costs as LOW–HIGH ranges only. Range spread must not exceed 30%.
+6. Tables: standard markdown pipe format with separator row.
+7. Risk mitigations: max 10 words per row.
+8. Follow Q6.2 report tone instructions.`
+
+function buildLayer2Prompt(answers, sections, intel, ratesSection) {
   const requestedSections = sections || ['executive-summary','scope-of-works','risk-register','programme','cost-estimate','recommendations']
-  const hasROI = answers.q5_1_financialBenefit && !answers.q5_1_financialBenefit.includes('No direct financial return')
+  const hasROI = answers.q5_1_financialBenefit && !answers.q5_1_financialBenefit.includes('No direct financial return — strategic or compliance project')
   const hasProcurement = requestedSections.includes('procurement')
   const hasConstraints = requestedSections.includes('constraints')
 
-  return `Generate a RIBA Stage 1 Feasibility Report. All calculations are pre-validated — use them exactly.
+  return `Generate a RIBA Stage 1 Feasibility Report. Use pre-validated intelligence exactly.
 
 PROJECT:
-Name: ${intelligence.projectName || answers.q1_0_projectName || 'Estates Project'}
+Name: ${intel.projectName || answers.q1_0_projectName || 'Estates Project'}
 Type: ${answers.q1_2_projectType} | Location: ${answers.q1_1_postcode} | Size: ${answers.q1_5_size}m²
-Building Use: ${answers.q1_3_buildingUse} | Age: ${answers.q1_4_buildingAge}
-Intervention Level: ${answers.q2_3_interventionLevel}
+Building: ${answers.q1_3_buildingUse} ${answers.q1_3_buildingSubtype || ''} | Age: ${answers.q1_4_buildingAge || 'N/A'}
+Nature of Works: ${answers.q2_3a_natureOfWorks || 'N/A'}
+Specification Level: ${answers.q2_3b_specLevel || 'N/A'}
 Objective: ${answers.q2_1_objective}
 Scope: ${formatList(answers.q2_2_scopeItems)}
-Standards: ${formatList(answers.q2_4_standards)}
+Standards: ${answers.q2_4_standards || 'Building Regulations only'}
 Target Date: ${answers.q4_1_targetDate} | Occupation: ${answers.q3_6_occupation}
-Known Issues: ${formatList(answers.q3_1_knownIssues)}
-Recent Works: ${answers.q3_2_recentWorks || 'None'}
-Surveys: ${formatList(answers.q3_3_surveys)}
-Planning: ${formatList(answers.q3_4_planningConsents)}
-Access: ${formatList(answers.q3_5_accessConstraints)}
-Utilities: ${formatList(answers.q4_8_utilities)}
-Funding: ${formatList(answers.q4_9_funding)}
-Priorities: ${formatList(answers.q4_5_priorities)}
+Issues: ${formatList(answers.q3_1_knownIssues)} | Previous Works: ${answers.q3_2_previousWorks || 'None'}
+Surveys: ${formatList(answers.q3_3_surveys)} | Planning: ${formatList(answers.q3_4_planningConsents)}
+Access: ${formatList(answers.q3_5_accessConstraints)} | Utilities: ${formatList(answers.q4_8_utilities)}
+Funding: ${formatList(answers.q4_9_funding)} | Priorities: ${formatList(answers.q4_5_priorities)}
 Design Stage: ${answers.q4_6_designStage}
-Budget: ${answers.q4_2_budgetKnown === 'Yes — I have a budget figure in mind' ? '£' + Number(answers.q4_3_budgetFigure).toLocaleString() : 'Not specified'}
-Financial Benefit: ${formatList(answers.q5_1_financialBenefit)}
-Annual Benefit: ${answers.q5_2_annualBenefit || 'N/A'}
+Budget: ${answers.q4_2_budgetFigure ? '£' + Number(answers.q4_2_budgetFigure).toLocaleString() : 'Not specified'}
+Financial Benefit: ${formatList(answers.q5_1_financialBenefit)} | Annual: ${answers.q5_2_annualBenefit || 'N/A'}
 Additional Context: ${answers.q3_7_additionalContext || 'None'}
 Report Instructions: ${answers.q6_2_reportInstructions || 'None'}
 
-INTELLIGENCE BRIEF (USE EXACTLY):
-Confidence: ${intelligence.confidenceScore} — ${intelligence.confidenceLabel}: ${intelligence.confidenceRationale}
-Spec Level: ${intelligence.specLevel} — ${intelligence.specLevelRationale}
-BCIS: ${intelligence.bcisRegion} | Factor: ${intelligence.bcisFactor}
+INTELLIGENCE (USE EXACTLY):
+Confidence: ${intel.confidenceScore} — ${intel.confidenceLabel}: ${intel.confidenceRationale}
+Spec Level: ${intel.specLevel} — ${intel.specLevelRationale}
+BCIS: ${intel.bcisRegion} | Factor: ${intel.bcisFactor}
 
 NRM1 INCLUSIONS:
-${intelligence.nrm1Inclusions?.map(i => `Group ${i.group} — ${i.element}: ${i.reason}`).join('\n') || 'See scope'}
+${intel.nrm1Inclusions?.map(i => `Group ${i.group} — ${i.element}: ${i.reason}`).join('\n') || 'See scope'}
 
 NRM1 EXCLUSIONS:
-${intelligence.nrm1Exclusions?.map(e => `Group ${e.group} — ${e.element}: ${e.reason}`).join('\n') || 'None'}
+${intel.nrm1Exclusions?.map(e => `Group ${e.group} — ${e.element}: ${e.reason}`).join('\n') || 'None'}
 
-ADDITIONS:
-Prelims: ${intelligence.percentageAdditions?.prelims?.low}%–${intelligence.percentageAdditions?.prelims?.high}% | ${intelligence.percentageAdditions?.prelims?.rationale}
-OH&P: ${intelligence.percentageAdditions?.ohp?.low}%–${intelligence.percentageAdditions?.ohp?.high}% | ${intelligence.percentageAdditions?.ohp?.rationale}
-Fees: ${intelligence.percentageAdditions?.fees?.low}%–${intelligence.percentageAdditions?.fees?.high}% | ${intelligence.percentageAdditions?.fees?.rationale}
-Dev Costs: ${intelligence.percentageAdditions?.devCosts?.low}%–${intelligence.percentageAdditions?.devCosts?.high}% | ${intelligence.percentageAdditions?.devCosts?.rationale}
-Risk: ${intelligence.percentageAdditions?.risk?.low}%–${intelligence.percentageAdditions?.risk?.high}% (${intelligence.percentageAdditions?.risk?.riskLevel}) | ${intelligence.percentageAdditions?.risk?.rationale}
+ADDITIONS (USE EXACTLY — DO NOT RECALCULATE):
+Prelims: ${intel.percentageAdditions?.prelims?.low}%–${intel.percentageAdditions?.prelims?.high}% | ${intel.percentageAdditions?.prelims?.rationale}
+OH&P: ${intel.percentageAdditions?.ohp?.low}%–${intel.percentageAdditions?.ohp?.high}% | ${intel.percentageAdditions?.ohp?.rationale}
+Fees: ${intel.percentageAdditions?.fees?.low}%–${intel.percentageAdditions?.fees?.high}% | ${intel.percentageAdditions?.fees?.rationale}
+Dev Costs: ${intel.percentageAdditions?.devCosts?.low}%–${intel.percentageAdditions?.devCosts?.high}% | ${intel.percentageAdditions?.devCosts?.rationale}
+Risk: ${intel.percentageAdditions?.risk?.low}%–${intel.percentageAdditions?.risk?.high}% (${intel.percentageAdditions?.risk?.riskLevel}) | ${intel.percentageAdditions?.risk?.rationale}
 Contingency: 5% fixed
-Inflation: ${intelligence.percentageAdditions?.inflation?.low}%–${intelligence.percentageAdditions?.inflation?.high}% | ${intelligence.percentageAdditions?.inflation?.rationale}
+Inflation: ${intel.percentageAdditions?.inflation?.low}%–${intel.percentageAdditions?.inflation?.high}% | ${intel.percentageAdditions?.inflation?.rationale}
 
 PROGRAMME:
-Target achievable: ${intelligence.programmeFlags?.targetDateAchievable ? 'YES' : 'NO'} — ${intelligence.programmeFlags?.targetDateRationale}
-Minimum: ${intelligence.programmeFlags?.minimumProgrammeWeeks} weeks total
-Surveys: ${intelligence.programmeFlags?.surveyAllowanceWeeks}w | Planning: ${intelligence.programmeFlags?.planningAllowanceWeeks}w | Tender: ${intelligence.programmeFlags?.tenderAllowanceWeeks}w | Construction: ${intelligence.programmeFlags?.constructionAllowanceWeeks}w
-Uplift: ${intelligence.programmeFlags?.programmeUpliftReason || 'None'}
+Achievable: ${intel.programmeFlags?.targetDateAchievable ? 'YES' : 'NO'} — ${intel.programmeFlags?.targetDateRationale}
+Total: ${intel.programmeFlags?.minimumProgrammeWeeks} weeks | Surveys: ${intel.programmeFlags?.surveyAllowanceWeeks}w | Planning: ${intel.programmeFlags?.planningAllowanceWeeks}w | Tender: ${intel.programmeFlags?.tenderAllowanceWeeks}w | Construction: ${intel.programmeFlags?.constructionAllowanceWeeks}w
+Uplift: ${intel.programmeFlags?.programmeUpliftReason || 'None'}
 
-PROCUREMENT: ${intelligence.procurementRecommendation?.route} | ${intelligence.procurementRecommendation?.contractForm}
-Rationale: ${intelligence.procurementRecommendation?.rationale}
-${intelligence.procurementRecommendation?.conflicts ? 'Conflicts: ' + intelligence.procurementRecommendation.conflicts : ''}
+PROCUREMENT: ${intel.procurementRecommendation?.route} | ${intel.procurementRecommendation?.contractForm}
+${intel.procurementRecommendation?.rationale}
+${intel.procurementRecommendation?.conflicts ? 'Conflicts: ' + intel.procurementRecommendation.conflicts : ''}
 
-FUNDING FLAGS: ${intelligence.fundingFlags || 'None'}
-UTILITIES FLAGS: ${intelligence.utilitiesFlags || 'None'}
+RISKS:
+${intel.topRiskSignals?.map(r => `${r.ref} [${r.category}] ${r.description} | L:${r.likelihood} I:${r.impact} Rating:${r.rating} | ${r.mitigation} | ${r.owner}`).join('\n') || 'None'}
 
-TOP RISK SIGNALS:
-${intelligence.topRiskSignals?.map(r => `${r.ref} [${r.category}] ${r.description} | L:${r.likelihood} I:${r.impact} Rating:${r.rating} | ${r.mitigation} | Owner: ${r.owner}`).join('\n') || 'See questionnaire inputs'}
-
-SHOWSTOPPERS: ${intelligence.showstoppers?.join(' | ') || 'None'}
-IMMEDIATE ACTIONS: ${intelligence.immediateActions?.join(' | ') || 'None'}
+SHOWSTOPPERS: ${intel.showstoppers?.join(' | ') || 'None'}
+IMMEDIATE ACTIONS: ${intel.immediateActions?.join(' | ') || 'None'}
+FUNDING FLAGS: ${intel.fundingFlags || 'None'}
+UTILITIES FLAGS: ${intel.utilitiesFlags || 'None'}
 
 ${ratesSection}
 
 SECTIONS: ${requestedSections.join(', ')}
 
-GENERATE EACH SECTION NOW:
+GENERATE REPORT NOW:
+
+# ${intel.projectName || answers.q1_0_projectName || 'Feasibility Report'}
 
 ## Executive Summary
-3-4 paragraphs. Include: project description + location + size + objective. Indicative Total Project Cost range. Confidence score: ${intelligence.confidenceScore} — ${intelligence.confidenceLabel}. Target date achievable: ${intelligence.programmeFlags?.targetDateAchievable ? 'YES' : 'NO'}. Top 2-3 risks. Recommended procurement route. Key immediate actions. One-line recommendation.
+COST CONSISTENCY — calculate the total project cost table FIRST (mentally), then use that exact same £LOW–£HIGH figure here. A discrepancy destroys client confidence.
+
+Write exactly 2 short paragraphs (max 60 words each):
+Paragraph 1: project description (type, location, size, objective) and total project cost (excl. VAT) — must exactly match the cost table total row.
+Paragraph 2: confidence score, target date achievable/not, top risk in one phrase, procurement route, one-line recommendation.
+
+After the 2 paragraphs, write:
+
+**Key Findings**
+1. [Most critical finding — cost driver, budget gap, or major risk]
+2. [Programme finding — whether target date is achievable and why]
+3. [Procurement or surveys finding]
+4. [One other significant finding from the intelligence data]
+
+Each finding: exactly one sentence. Bold the key term at the start of each sentence.
 
 ## Scope of Works
-Two columns — INCLUDED and EXCLUDED. Expand each ticked scope item professionally. List all major excluded items with reason. Note any recently completed works that reduce scope.
+**Included** — group items under trade headings. Use ONLY headings that have items. Format each group:
+
+TRADE HEADING (pick from: ENABLING & DEMOLITION | STRUCTURAL & CIVIL | FABRIC & ENVELOPE | MECHANICAL SERVICES | ELECTRICAL SERVICES | INTERNAL FIT-OUT & FINISHES | TECHNOLOGY & DATA | ACCESSIBILITY)
+✓ Item one
+✓ Item two
+
+Map these NRM1 items to the correct trade heading:
+${intel.nrm1Inclusions?.map(i => `Group ${i.group}: ${i.element}`).join('\n') || '- See scope items'}
+
+**Excluded**
+${intel.nrm1Exclusions?.map(e => `- ${e.element}`).join('\n') || '- Loose furniture and fittings\n- IT and AV equipment\n- Land acquisition costs'}
+
+**Assumptions**
+- Write 3 key scope assumptions as dash-bullets. One line each.
 
 ## Top Risks Register
-Use EXACTLY the risk signals provided. Table format: Ref | Category | Risk Description | Likelihood | Impact | Rating | Mitigation | Owner. Minimum 8 risks. Flag HIGH risks prominently. ${intelligence.confidenceScore === 'C' || intelligence.confidenceScore === 'D' ? 'Add note: This risk register is based on limited information. Additional risks may be identified once surveys are completed.' : ''}
+${intel.confidenceScore === 'C' || intel.confidenceScore === 'D' ? '> ⚠️ Register based on limited information — additional risks will emerge once surveys are complete.\n\n' : ''}| Ref | Risk | Category | L | I | Rating | Mitigation |
+|-----|------|----------|---|---|--------|------------|
+${intel.topRiskSignals?.map(r => `| ${r.ref} | ${r.description} | ${r.category} | ${r.likelihood} | ${r.impact} | ${r.rating} | ${r.mitigation} |`).join('\n') || '| R01 | Risk data not available | General | Medium | Medium | Medium | Undertake surveys to identify risks |'}
 
 ## High-Level Programme
-RIBA stage-based timeline in weeks from project start (not calendar dates). Include: pre-design surveys, Stage 2, Stage 3, Stage 4, Tender, Construction, Handover, Gateway decision points. State whether target date achievable. List programme assumptions.
+Programme: ${intel.programmeFlags?.minimumProgrammeWeeks || '—'} weeks total (Surveys ${intel.programmeFlags?.surveyAllowanceWeeks || '—'}w | Design/Planning ${intel.programmeFlags?.planningAllowanceWeeks || '—'}w | Tender ${intel.programmeFlags?.tenderAllowanceWeeks || '—'}w | Construction ${intel.programmeFlags?.constructionAllowanceWeeks || '—'}w).
+Target date ${intel.programmeFlags?.targetDateAchievable ? '**is achievable**' : '**is NOT achievable**'}: ${intel.programmeFlags?.targetDateRationale || ''}
+
+**Programme assumptions**
+- Write 3 concise programme assumptions as dash-bullets.
+${intel.programmeFlags?.programmeUpliftReason ? `- ${intel.programmeFlags.programmeUpliftReason}` : ''}
 
 ## Order of Cost Estimate (NRM1)
-Use ONLY the NRM1 groups from inclusions list. For each group: Code | Element | Low £/m² | High £/m² | Low Total £ | High Total £ | Rationale. Apply spec level: ${intelligence.specLevel}. Apply BCIS factor: ${intelligence.bcisFactor}. Group 3 ALWAYS included. Group 5 marked as KEY ELEMENT.
+CRITICAL: LOW to HIGH range must NOT exceed 30%. Spec level: ${intel.specLevel}. BCIS factor: ${intel.bcisFactor}.
 
-Calculation sequence (use EXACTLY these percentages):
-1. Works Cost = sum of all included groups
-2. Prelims A = Works Cost × ${intelligence.percentageAdditions?.prelims?.low}%–${intelligence.percentageAdditions?.prelims?.high}%
-3. OH&P B = Works Cost × ${intelligence.percentageAdditions?.ohp?.low}%–${intelligence.percentageAdditions?.ohp?.high}%
-4. Construction Cost = Works Cost + A + B
-5. Fees C = Construction Cost × ${intelligence.percentageAdditions?.fees?.low}%–${intelligence.percentageAdditions?.fees?.high}%
-6. Dev Costs D = Construction Cost × ${intelligence.percentageAdditions?.devCosts?.low}%–${intelligence.percentageAdditions?.devCosts?.high}%
-7. Risk E = Works Cost × ${intelligence.percentageAdditions?.risk?.low}%–${intelligence.percentageAdditions?.risk?.high}%
-8. Contingency H = Works Cost × 5%
-9. Inflation F = Works Cost × ${intelligence.percentageAdditions?.inflation?.low}%–${intelligence.percentageAdditions?.inflation?.high}%
-10. TOTAL PROJECT COST = Construction Cost + C + D + E + H + F (EXCLUDES VAT)
-11. VAT = Total × 20% — shown separately for reference only
-Round all totals to nearest £1,000.
+**Section 1 — Works Cost**
+Output a single table with GROUP HEADER ROWS between NRM1 groups. Group header rows use bold text in the Code cell. Replace ALL [calc] with actual calculated £ figures — never leave [calc] in the output.
 
-Show assumptions and exclusions after the table.
-DISCLAIMER: This order of cost estimate is indicative only, produced at RIBA Stage 0-1 without measured quantities or detailed design information. Rates are based on BCIS £/m² benchmarks adjusted by regional location factor. This estimate should be reviewed and validated by a Chartered Quantity Surveyor before use in any business case, budget approval, or funding application.
+| Code | Element | Low £/m² | High £/m² | Low Total £ | High Total £ |
+|------|---------|----------|----------|------------|-------------|
+| **GRP** | **GROUP 0 — ENABLING & DEMOLITION** | | | | |
+[items from Group 0 if included]
+| **GRP** | **GROUP 2 — FABRIC & ENVELOPE** | | | | |
+[items from Group 2 if included]
+| **GRP** | **GROUP 3 — INTERNAL FINISHES** | | | | |
+[items from Group 3 — ALWAYS include]
+| **GRP** | **GROUP 5 — SERVICES (M&E) ★ KEY ELEMENT** | | | | |
+[items from Group 5 if included]
+[continue for any other included groups]
+| | **WORKS COST SUBTOTAL** | | | **[calc]** | **[calc]** |
+
+Only include group header rows for groups that have items in scope. Replace [items from Group N] with the actual line items.
+
+**Section 2 — Construction Cost**
+| Item | Rate | Low £ | High £ |
+|------|------|-------|--------|
+| Prelims (A) | ${intel.percentageAdditions?.prelims?.low}%–${intel.percentageAdditions?.prelims?.high}% of Works | [calc] | [calc] |
+| OH&P (B) | ${intel.percentageAdditions?.ohp?.low}%–${intel.percentageAdditions?.ohp?.high}% of Works | [calc] | [calc] |
+| **Construction Cost Subtotal** | | **[calc]** | **[calc]** |
+
+**Section 3 — Total Project Cost**
+| Item | Rate | Low £ | High £ |
+|------|------|-------|--------|
+| Professional Fees (C) | ${intel.percentageAdditions?.fees?.low}%–${intel.percentageAdditions?.fees?.high}% | [calc] | [calc] |
+| Developer Costs (D) | ${intel.percentageAdditions?.devCosts?.low}%–${intel.percentageAdditions?.devCosts?.high}% | [calc] | [calc] |
+| Risk Allowance (E) | ${intel.percentageAdditions?.risk?.low}%–${intel.percentageAdditions?.risk?.high}% | [calc] | [calc] |
+| Contingency (H) | 5% fixed | [calc] | [calc] |
+| Inflation (F) | ${intel.percentageAdditions?.inflation?.low}%–${intel.percentageAdditions?.inflation?.high}% | [calc] | [calc] |
+| **TOTAL PROJECT COST (excl. VAT)** | | **[calc]** | **[calc]** |
+| *VAT @ 20% (for reference only)* | | *[calc]* | *[calc]* |
+
+IMPORTANT: Replace every [calc] with the actual calculated £ figure. Round to nearest £1,000.
+
+**Assumptions**
+- Write 3–4 key cost assumptions as dash-bullets.
+
+*Disclaimer: This order of cost estimate is indicative only, produced at RIBA Stage 0–1 without measured quantities. Rates based on BCIS £/m² benchmarks adjusted for region. Review by a Chartered Quantity Surveyor required before use in any budget approval or funding application.*
 
 ${hasROI ? `## ROI & Financial Case
-Annual benefit: ${answers.q5_2_annualBenefit}. Type: ${formatList(answers.q5_1_financialBenefit)}.
-Calculate: Simple payback, Simple ROI %, NPV at 5% discount rate. State all assumptions. Note principal financial risk.` : ''}
+Annual benefit: ${answers.q5_2_annualBenefit}. Write 2 sentences only: state simple payback period and simple ROI %. One sentence on key financial risk.` : ''}
 
 ${hasProcurement ? `## Procurement Recommendation
-Route: ${intelligence.procurementRecommendation?.route}. Contract: ${intelligence.procurementRecommendation?.contractForm}.
-Rationale: ${intelligence.procurementRecommendation?.rationale}.
-List 4-6 key commercial considerations specific to this project.
-${intelligence.fundingFlags ? 'Funding: ' + intelligence.fundingFlags : ''}` : ''}
+Write 2 sentences: why this route suits this project. Then list 3 bullet commercial considerations.` : ''}
 
 ${hasConstraints ? `## Constraints Summary
-Group by: Occupancy, Access, Building Condition, Planning, Utilities, Funding. State impact of each on cost, programme, or procurement.` : ''}
+List each constraint as a bullet. Format: **Category — Title**: one-line impact. Max 8 constraints.` : ''}
 
 ## Recommendations & Next Steps
-1. SHOWSTOPPERS — must be resolved before proceeding
-2. IMMEDIATE ACTIONS — numbered list
-3. GATEWAY CONDITIONS — Stage 2, Stage 3, Stage 4
+Do NOT repeat procurement content here — it is already in Section 7.
+This section has THREE sub-sections only:
 
-End report here. No additional commentary after final section.`
+**SHOWSTOPPERS — Must be resolved before proceeding to Stage 2:**
+${intel.showstoppers?.length ? intel.showstoppers.map(s => `- ${s}`).join('\n') : '- No critical showstoppers identified. Project is clear to proceed to RIBA Stage 2 subject to the immediate actions below.'}
+
+**IMMEDIATE ACTIONS — steps the client must take in the next 2-4 weeks:**
+${intel.immediateActions?.map((a, i) => `${i + 1}. ${a}`).join('\n') || '1. Commission outstanding surveys\n2. Confirm project scope and agree brief\n3. Appoint project manager and QS'}
+
+**GATEWAY CONDITIONS:**
+- Gateway 2 (End of Concept Design): [3-4 specific conditions that must be met before Stage 3 begins — e.g. surveys complete, brief signed off, budget confirmed, Stage 2 report approved]
+- Gateway 3 (End of Developed Design): [3-4 conditions before Stage 4 — e.g. planning approved, specification agreed, pre-tender estimate within budget, client sign-off obtained]
+- Gateway 4 (Pre-Construction): [3-4 conditions before construction starts — e.g. tender returned and accepted, contract executed, CDM appointments confirmed, decant complete]`
 }
 
 function formatList(items) {
@@ -433,14 +542,14 @@ function formatList(items) {
   return String(items)
 }
 
-function resolveProjectType(projectType) {
-  if (!projectType) return 'refurb'
-  const t = projectType.toLowerCase()
-  if (t.includes('new build') || t.includes('newbuild')) return 'newbuild'
-  if (t.includes('extension')) return 'extension'
-  if (t.includes('external')) return 'external'
-  if (t.includes('fit-out') || t.includes('fitout')) return 'fitout'
-  if (t.includes('renewable')) return 'renewable'
-  if (t.includes('demolition')) return 'demolition'
+function resolveProjectType(t) {
+  if (!t) return 'refurb'
+  const s = t.toLowerCase()
+  if (s.includes('new build')) return 'newbuild'
+  if (s.includes('extension')) return 'extension'
+  if (s.includes('external')) return 'external'
+  if (s.includes('fit-out') || s.includes('fitout')) return 'fitout'
+  if (s.includes('renewable')) return 'renewable'
+  if (s.includes('demolition')) return 'demolition'
   return 'refurb'
 }
