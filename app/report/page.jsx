@@ -472,14 +472,16 @@ function S4_Programme({ intel, md }) {
   }
 
   const total = pf.minimumProgrammeWeeks || 0
-  // Planning overlaps with design — don't subtract planningAllowanceWeeks from design
-  const designWks = Math.max(2,
-    total
-    - (pf.surveyAllowanceWeeks || 0)
-    - (pf.tenderAllowanceWeeks || 0)
-    - (pf.constructionAllowanceWeeks || 0)
-    - 1 // handover
-  )
+  // Use explicit designAllowanceWeeks if available; fall back to deriving from total
+  const designWks = pf.designAllowanceWeeks
+    ? pf.designAllowanceWeeks
+    : Math.max(2,
+        total
+        - (pf.surveyAllowanceWeeks || 0)
+        - (pf.tenderAllowanceWeeks || 0)
+        - (pf.constructionAllowanceWeeks || 0)
+        - 1 // handover
+      )
 
   // Stage colours from spec: Surveys=amber, Design=navy, Tender=grey, Construction=green, Handover=blue
   const stages = [

@@ -166,6 +166,7 @@ Return this exact structure:
     "targetDateRationale": "string",
     "minimumProgrammeWeeks": number,
     "surveyAllowanceWeeks": number,
+    "designAllowanceWeeks": number,
     "planningAllowanceWeeks": number,
     "tenderAllowanceWeeks": number,
     "constructionAllowanceWeeks": number,
@@ -325,9 +326,17 @@ Partial surveys            → 2 weeks
 HANDOVER: Always 1 week.
 TOTAL = surveys + design + tender + construction + handover.
 
+Set programmeFlags fields as follows:
+- surveyAllowanceWeeks = pre-design survey weeks (from PRE-DESIGN SURVEYS table)
+- designAllowanceWeeks = design weeks from DESIGN DURATION table (stages 2-4)
+- tenderAllowanceWeeks = tender weeks from TENDER DURATION table
+- constructionAllowanceWeeks = construction weeks from CONSTRUCTION DURATION table × occupation uplift
+- minimumProgrammeWeeks = surveyAllowanceWeeks + designAllowanceWeeks + tenderAllowanceWeeks + constructionAllowanceWeeks + 1 (handover)
+
 EXAMPLE — 84m² flat, like-for-like, partial occupation, asbestos register only:
-Surveys 2-3w + Design 6-8w + Tender 6w + Construction 7w×1.15=8w + Handover 1w = 23-26w TOTAL.
-This is the correct answer. 44 weeks would be wrong for this project type.
+surveyAllowanceWeeks=3, designAllowanceWeeks=7, tenderAllowanceWeeks=6, constructionAllowanceWeeks=8, minimumProgrammeWeeks=25.
+Surveys 3w + Design 7w + Tender 6w + Construction 7w×1.15=8w + Handover 1w = 25w TOTAL.
+This is the correct answer. 17 or 44 weeks would both be wrong for this project type.
 
 PROCUREMENT: Q4.5 + Q4.6. Fixed price = Traditional. Speed = D&B. Flexibility = PCSA.
 
