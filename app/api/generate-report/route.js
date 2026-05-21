@@ -1,5 +1,8 @@
 import { getRates, buildRatesPrompt, getBcisFactorForRegion } from '@/lib/parseRates'
 
+// Strip BOM from API key in case env var was saved with UTF-8 BOM
+const ANTHROPIC_KEY = (process.env.ANTHROPIC_API_KEY || '').replace(/^﻿/, '')
+
 export async function POST(request) {
   try {
     const body = await request.json()
@@ -85,7 +88,7 @@ async function runLayer1(answers, bcisFactor) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': ANTHROPIC_KEY,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
@@ -114,7 +117,7 @@ async function runLayer2(answers, sections, intel, ratesSection) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': ANTHROPIC_KEY,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
