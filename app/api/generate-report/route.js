@@ -534,18 +534,13 @@ List each constraint as a bullet. Format: **Category — Title**: one-line impac
 
 ## Recommendations & Next Steps
 Do NOT repeat procurement content here — it is already in Section 7.
-This section has THREE sub-sections only:
 
 **SHOWSTOPPERS — Must be resolved before proceeding to Stage 2:**
-${intel.showstoppers?.length ? intel.showstoppers.map(s => `- ${s}`).join('\n') : '- No critical showstoppers identified. Project is clear to proceed to RIBA Stage 2 subject to the immediate actions below.'}
+${intel.showstoppers?.length
+  ? intel.showstoppers.map(s => `- ${s}`).join('\n')
+  : '- No critical showstoppers identified. This project is clear to proceed to RIBA Stage 2.'}
 
-**IMMEDIATE ACTIONS — steps the client must take in the next 2-4 weeks:**
-${intel.immediateActions?.map((a, i) => `${i + 1}. ${a}`).join('\n') || '1. Commission outstanding surveys\n2. Confirm project scope and agree brief\n3. Appoint project manager and QS'}
-
-**GATEWAY CONDITIONS:**
-- Gateway 2 (End of Concept Design): [3-4 specific conditions that must be met before Stage 3 begins — e.g. surveys complete, brief signed off, budget confirmed, Stage 2 report approved]
-- Gateway 3 (End of Developed Design): [3-4 conditions before Stage 4 — e.g. planning approved, specification agreed, pre-tender estimate within budget, client sign-off obtained]
-- Gateway 4 (Pre-Construction): [3-4 conditions before construction starts — e.g. tender returned and accepted, contract executed, CDM appointments confirmed, decant complete]`
+Do NOT add Immediate Actions. Do NOT add Gateway Conditions. Showstoppers only.`
 }
 
 function formatList(items) {
