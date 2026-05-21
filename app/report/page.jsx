@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -816,35 +816,6 @@ function S9_Recommendations({ intel, md, num }) {
         </div>
       )}
 
-      {/* Immediate actions */}
-      {actions.length > 0 && (
-        <White className="mb-4">
-          <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: NAVY }}>Immediate Actions</p>
-          <ol className="space-y-2">
-            {actions.map((a, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                  style={{ backgroundColor: NAVY }}>{i + 1}</span>
-                <span className="text-sm pt-0.5" style={{ color: '#1A1A1A' }}>{a}</span>
-              </li>
-            ))}
-          </ol>
-        </White>
-      )}
-
-      {/* Gateway conditions */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { gw: 2, text: 'Surveys and investigations complete. Scope confirmed and agreed. Stage 2 design brief issued.' },
-          { gw: 3, text: 'Planning consent secured. Stage 3 design approved by client. Cost plan within budget.' },
-          { gw: 4, text: 'Stage 4 technical design complete. Contract documentation ready. Tender return received.' },
-        ].map(({ gw, text }) => (
-          <div key={gw} className="bg-white rounded-xl p-4" style={{ border: '1px solid #E2E8F0' }}>
-            <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: BLUE }}>Gateway {gw}</p>
-            <p className="text-xs leading-relaxed" style={{ color: '#64748B' }}>{text}</p>
-          </div>
-        ))}
-      </div>
     </Card>
   )
 }
@@ -1014,9 +985,7 @@ async function buildDocxContent(reportText, projectName) {
 export default function ReportPage() {
   const router = useRouter()
   const [data, setData] = useState(null)
-  const [pdfGenerating, setPdfGenerating] = useState(false)
   const [wordGenerating, setWordGenerating] = useState(false)
-  const reportRef = useRef(null)
 
   useEffect(() => {
     try {
@@ -1026,36 +995,9 @@ export default function ReportPage() {
     } catch { router.push('/questionnaire') }
   }, [router])
 
-  async function downloadPDF() {
-    if (!reportRef.current) return
-    setPdfGenerating(true)
-    try {
-      const { default: jsPDF }      = await import('jspdf')
-      const { default: html2canvas } = await import('html2canvas')
-
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff',
-      })
-      const imgData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-      const pw = pdf.internal.pageSize.getWidth()
-      const ph = pdf.internal.pageSize.getHeight()
-      const margin = 10
-      const iw = pw - margin * 2
-      const ih = (canvas.height * iw) / canvas.width
-
-      let y = 0
-      while (y < ih) {
-        if (y > 0) pdf.addPage()
-        pdf.addImage(imgData, 'PNG', margin, margin - y, iw, ih)
-        y += ph - margin * 2
-      }
-
-      const name = (data?.projectName || 'Project').replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_')
-      const date = new Date().toISOString().split('T')[0]
-      pdf.save(`${name}_RIBA_Stage1_${date}.pdf`)
-    } catch { alert('PDF generation failed. Please try again.') }
-    finally { setPdfGenerating(false) }
+  function downloadPDF() {
+    // Use browser print — produces proper page breaks and a compact PDF
+    window.print()
   }
 
   async function downloadWord() {
@@ -1103,6 +1045,18 @@ export default function ReportPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F0F4F8' }}>
+      {/* Print CSS — hides header, sets page breaks, white background */}
+      <style>{`
+        @media print {
+          header { display: none !important; }
+          body { background: white !important; }
+          .min-h-screen { background: white !important; }
+          #report-body { box-shadow: none !important; border-radius: 0 !important; }
+          .rounded-xl { border-radius: 4px !important; }
+          section, .section-break { page-break-inside: avoid; }
+        }
+      `}</style>
+
       {/* Sticky app header */}
       <header className="sticky top-0 z-10 shadow" style={{ backgroundColor: NAVY }}>
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
@@ -1116,10 +1070,10 @@ export default function ReportPage() {
               className="text-sm hover:underline" style={{ color: '#D5E8F0' }}>
               New Report
             </button>
-            <button onClick={downloadPDF} disabled={pdfGenerating}
-              className="flex items-center gap-1.5 rounded-lg font-semibold disabled:opacity-60"
+            <button onClick={downloadPDF}
+              className="flex items-center gap-1.5 rounded-lg font-semibold"
               style={{ backgroundColor: BLUE, color: '#FFFFFF', fontSize: '14px', padding: '8px 16px' }}>
-              {pdfGenerating ? <><Spinner /> Generating…</> : 'Download PDF'}
+              Download PDF
             </button>
             <button onClick={downloadWord} disabled={wordGenerating}
               className="flex items-center gap-1.5 rounded-lg font-semibold disabled:opacity-60"
@@ -1132,7 +1086,7 @@ export default function ReportPage() {
 
       {/* Report body */}
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div id="report-body" ref={reportRef} className="rounded-xl overflow-hidden shadow-lg bg-white">
+        <div id="report-body" className="rounded-xl overflow-hidden shadow-lg bg-white">
 
           {/* Cover */}
           <CoverPage projectName={projectName} generatedDate={generatedDate} score={score} meta={meta} />

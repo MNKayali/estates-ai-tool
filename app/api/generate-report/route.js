@@ -186,7 +186,17 @@ Return this exact structure:
   "fundingFlags": "string|null",
   "utilitiesFlags": "string|null",
   "immediateActions": ["string"],
-  "showstoppers": ["string"]
+  "showstoppers": ["string"],
+  "costBenchmark": {
+    "blendedWorksRateLow": number,
+    "blendedWorksRateHigh": number,
+    "worksLow": number,
+    "worksHigh": number,
+    "constructionCostLow": number,
+    "constructionCostHigh": number,
+    "totalLow": number,
+    "totalHigh": number
+  }
 }`
 
 function buildLayer1Prompt(answers, bcisFactor) {
@@ -340,6 +350,23 @@ This is the correct answer. 17 or 44 weeks would both be wrong for this project 
 
 PROCUREMENT: Q4.5 + Q4.6. Fixed price = Traditional. Speed = D&B. Flexibility = PCSA.
 
+COST BENCHMARK — calculate and output in costBenchmark:
+1. Estimate a blended works rate per m² for this exact project (building type, nature of works, spec level, BCIS factor already applied).
+   Use these base UK rates (before BCIS factor) as a guide:
+   Residential flat, like-for-like: £650–£850/m²
+   Residential flat, full refurb: £900–£1,200/m²
+   Residential house, like-for-like: £700–£950/m²
+   Office, like-for-like: £800–£1,100/m²
+   Office, full refurb: £1,100–£1,600/m²
+   Then multiply by BCIS factor (${bcisFactor}) to get the location-adjusted rate.
+   Range spread must not exceed 30% (high/low ≤ 1.30).
+2. worksLow = blendedWorksRateLow × GIFA. Round to nearest £1,000.
+3. worksHigh = blendedWorksRateHigh × GIFA. Round to nearest £1,000.
+4. constructionCostLow = worksLow × (1 + prelims_low/100 + ohp_low/100)
+5. constructionCostHigh = worksHigh × (1 + prelims_high/100 + ohp_high/100)
+6. totalLow = constructionCostLow + (fees_low + devCosts_low + risk_low + 5 + inflation_low)/100 × constructionCostLow. Round to nearest £1,000.
+7. totalHigh = constructionCostHigh + (fees_high + devCosts_high + risk_high + 5 + inflation_high)/100 × constructionCostHigh. Round to nearest £1,000.
+
 RISKS: minimum 8, maximum 15. Build from all trigger signals.
 
 Return ONLY the JSON.`
@@ -391,6 +418,13 @@ Confidence: ${intel.confidenceScore} — ${intel.confidenceLabel}: ${intel.confi
 Spec Level: ${intel.specLevel} — ${intel.specLevelRationale}
 BCIS: ${intel.bcisRegion} | Factor: ${intel.bcisFactor}
 
+PRE-VALIDATED COST TOTALS — USE THESE EXACT FIGURES EVERYWHERE:
+Blended works rate: £${intel.costBenchmark?.blendedWorksRateLow || '—'}–£${intel.costBenchmark?.blendedWorksRateHigh || '—'}/m²
+Works Cost: £${(intel.costBenchmark?.worksLow || 0).toLocaleString()} – £${(intel.costBenchmark?.worksHigh || 0).toLocaleString()}
+Construction Cost: £${(intel.costBenchmark?.constructionCostLow || 0).toLocaleString()} – £${(intel.costBenchmark?.constructionCostHigh || 0).toLocaleString()}
+TOTAL PROJECT COST (excl. VAT): £${(intel.costBenchmark?.totalLow || 0).toLocaleString()} – £${(intel.costBenchmark?.totalHigh || 0).toLocaleString()}
+These figures are FINAL. The Executive Summary and Section 5 TOTAL row MUST use these exact numbers. Do NOT recalculate.
+
 NRM1 INCLUSIONS:
 ${intel.nrm1Inclusions?.map(i => `Group ${i.group} — ${i.element}: ${i.reason}`).join('\n') || 'See scope'}
 
@@ -432,10 +466,8 @@ GENERATE REPORT NOW:
 # ${intel.projectName || answers.q1_0_projectName || 'Feasibility Report'}
 
 ## Executive Summary
-COST CONSISTENCY — calculate the total project cost table FIRST (mentally), then use that exact same £LOW–£HIGH figure here. A discrepancy destroys client confidence.
-
 Write exactly 2 short paragraphs (max 60 words each):
-Paragraph 1: project description (type, location, size, objective) and total project cost (excl. VAT) — must exactly match the cost table total row.
+Paragraph 1: project description (type, location, size, objective) and total project cost — use EXACTLY £${(intel.costBenchmark?.totalLow || 0).toLocaleString()}–£${(intel.costBenchmark?.totalHigh || 0).toLocaleString()} (excl. VAT). This is the pre-validated figure.
 Paragraph 2: confidence score, target date achievable/not, top risk in one phrase, procurement route, one-line recommendation.
 
 After the 2 paragraphs, write:
@@ -465,12 +497,10 @@ ${intel.nrm1Exclusions?.map(e => `- ${e.element}`).join('\n') || '- Loose furnit
 - Write 3 key scope assumptions as dash-bullets. One line each.
 
 ## Top Risks Register
-${intel.confidenceScore === 'C' || intel.confidenceScore === 'D' ? '> ⚠️ Register based on limited information — additional risks will emerge once surveys are complete.\n\n' : ''}| Ref | Risk | Category | L | I | Rating | Mitigation |
-|-----|------|----------|---|---|--------|------------|
-${intel.topRiskSignals?.map(r => `| ${r.ref} | ${r.description} | ${r.category} | ${r.likelihood} | ${r.impact} | ${r.rating} | ${r.mitigation} |`).join('\n') || '| R01 | Risk data not available | General | Medium | Medium | Medium | Undertake surveys to identify risks |'}
+Risk data rendered from structured intelligence object. ${intel.topRiskSignals?.length || 0} risks identified.
 
 ## High-Level Programme
-Programme: ${intel.programmeFlags?.minimumProgrammeWeeks || '—'} weeks total (Surveys ${intel.programmeFlags?.surveyAllowanceWeeks || '—'}w | Design/Planning ${intel.programmeFlags?.planningAllowanceWeeks || '—'}w | Tender ${intel.programmeFlags?.tenderAllowanceWeeks || '—'}w | Construction ${intel.programmeFlags?.constructionAllowanceWeeks || '—'}w).
+Programme: ${intel.programmeFlags?.minimumProgrammeWeeks || '—'} weeks total (Surveys ${intel.programmeFlags?.surveyAllowanceWeeks || '—'}w | Design ${intel.programmeFlags?.designAllowanceWeeks || '—'}w | Tender ${intel.programmeFlags?.tenderAllowanceWeeks || '—'}w | Construction ${intel.programmeFlags?.constructionAllowanceWeeks || '—'}w | Handover 1w).
 Target date ${intel.programmeFlags?.targetDateAchievable ? '**is achievable**' : '**is NOT achievable**'}: ${intel.programmeFlags?.targetDateRationale || ''}
 
 **Programme assumptions**
@@ -478,7 +508,9 @@ Target date ${intel.programmeFlags?.targetDateAchievable ? '**is achievable**' :
 ${intel.programmeFlags?.programmeUpliftReason ? `- ${intel.programmeFlags.programmeUpliftReason}` : ''}
 
 ## Order of Cost Estimate (NRM1)
-CRITICAL: LOW to HIGH range must NOT exceed 30%. Spec level: ${intel.specLevel}. BCIS factor: ${intel.bcisFactor}.
+CRITICAL: Use the PRE-VALIDATED COST TOTALS above. The TOTAL PROJECT COST row MUST show exactly £${(intel.costBenchmark?.totalLow || 0).toLocaleString()} | £${(intel.costBenchmark?.totalHigh || 0).toLocaleString()}.
+Works Cost row MUST show exactly £${(intel.costBenchmark?.worksLow || 0).toLocaleString()} | £${(intel.costBenchmark?.worksHigh || 0).toLocaleString()}.
+Spec level: ${intel.specLevel}. BCIS factor: ${intel.bcisFactor}. Range spread must NOT exceed 30%.
 
 **Section 1 — Works Cost**
 Output a single table with GROUP HEADER ROWS between NRM1 groups. Group header rows use bold text in the Code cell. Replace ALL [calc] with actual calculated £ figures — never leave [calc] in the output.
