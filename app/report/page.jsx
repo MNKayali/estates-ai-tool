@@ -66,7 +66,7 @@ function DataBox({ label, value }) {
 
 function Card({ num, title, children }) {
   return (
-    <div className="mb-8 rounded-2xl overflow-hidden" style={{ backgroundColor: '#F5F7FA' }}>
+    <div className="mb-8 rounded-2xl overflow-hidden section-card" style={{ backgroundColor: '#F5F7FA' }}>
       <div className="flex items-center gap-3 px-6 py-4">
         <span className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
           style={{ backgroundColor: NAVY }}>{num}</span>
@@ -159,7 +159,7 @@ function CoverPage({ projectName, generatedDate, score, meta }) {
   }[score] || { bg: AMBER, text: '#1A1A1A', label: 'Limited Confidence' }
 
   return (
-    <div className="px-10 py-14" style={{ backgroundColor: NAVY }}>
+    <div id="cover-page" className="px-10 py-14" style={{ backgroundColor: NAVY }}>
       <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: '#94B4CC' }}>
         RIBA Stage 0–1 Feasibility Report
       </p>
@@ -838,12 +838,105 @@ function Disclaimer() {
 }
 
 // ─── Word export ──────────────────────────────────────────────────────────────
-async function buildDocxContent(reportText, projectName) {
+async function buildDocxContent(reportText, projectName, meta) {
   const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
           HeadingLevel, AlignmentType, BorderStyle, WidthType, ShadingType } = await import('docx')
 
-  const lines = reportText.split('\n')
+  // ── Inline markdown parser — converts **bold** and *italic* into TextRun arrays ──
+  function parseInline(text, baseOpts = {}) {
+    const runs = []
+    const pattern = /(\*\*(.+?)\*\*|\*(.+?)\*)/g
+    let last = 0, m
+    while ((m = pattern.exec(text)) !== null) {
+      if (m.index > last) runs.push(new TextRun({ text: text.slice(last, m.index), ...baseOpts }))
+      if (m[0].startsWith('**')) runs.push(new TextRun({ text: m[2], ...baseOpts, bold: true }))
+      else                        runs.push(new TextRun({ text: m[3], ...baseOpts, italics: true }))
+      last = m.index + m[0].length
+    }
+    if (last < text.length) runs.push(new TextRun({ text: text.slice(last), ...baseOpts }))
+    return runs.length > 0 ? runs : [new TextRun({ text, ...baseOpts })]
+  }
+
+  const pageProps = {
+    page: { size: { width: 11906, height: 16838 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } },
+  }
+
+  const commonStyles = {
+    numbering: {
+      config: [{
+        reference: 'default-numbering',
+        levels: [{ level: 0, format: 'decimal', text: '%1.', alignment: AlignmentType.LEFT }],
+      }],
+    },
+    styles: {
+      default: { document: { run: { font: 'Arial', size: 20, color: '1A1A1A' } } },
+      paragraphStyles: [
+        { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', run: { font: 'Arial', size: 36, bold: true, color: '1F3864' }, paragraph: { spacing: { after: 200 } } },
+        { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', run: { font: 'Arial', size: 26, bold: true, color: '1F3864' }, paragraph: { spacing: { before: 400, after: 150 } } },
+        { id: 'Heading3', name: 'Heading 3', basedOn: 'Normal', run: { font: 'Arial', size: 22, bold: true, color: '1F3864' }, paragraph: { spacing: { before: 200, after: 100 } } },
+      ],
+    },
+  }
+
+  // ── Cover page ──────────────────────────────────────────────────────────────
+  const generatedDate = meta?.generatedAt
+    ? new Date(meta.generatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  const score = meta?.confidenceScore || 'C'
+  const confLabel = { A: 'High Confidence', B: 'Moderate Confidence', C: 'Limited Confidence', D: 'High Uncertainty' }[score] || 'Limited Confidence'
+
+  const coverChildren = [
+    new Paragraph({ text: '', spacing: { after: 800 } }),
+    new Paragraph({
+      children: [new TextRun({ text: 'RIBA STAGE 0–1 FEASIBILITY REPORT', font: 'Arial', size: 22, bold: true, color: '64748B', allCaps: true })],
+      spacing: { after: 240 },
+    }),
+    new Paragraph({
+      children: [new TextRun({ text: projectName, font: 'Arial', size: 56, bold: true, color: '1F3864' })],
+      spacing: { after: 560 },
+    }),
+    new Paragraph({
+      border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: '1F3864' } },
+      spacing: { after: 480 },
+      children: [new TextRun({ text: '' })],
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({ text: 'Generated:  ', font: 'Arial', size: 20, bold: true, color: '64748B' }),
+        new TextRun({ text: generatedDate, font: 'Arial', size: 20, color: '1A1A1A' }),
+      ],
+      spacing: { after: 160 },
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({ text: 'Standard:   ', font: 'Arial', size: 20, bold: true, color: '64748B' }),
+        new TextRun({ text: 'RIBA Stage 0–1', font: 'Arial', size: 20, color: '1A1A1A' }),
+      ],
+      spacing: { after: 160 },
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({ text: 'Confidence: ', font: 'Arial', size: 20, bold: true, color: '64748B' }),
+        new TextRun({ text: `${score} — ${confLabel}`, font: 'Arial', size: 20, color: '1A1A1A' }),
+      ],
+      spacing: { after: 160 },
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({ text: 'Produced by:', font: 'Arial', size: 20, bold: true, color: '64748B' }),
+        new TextRun({ text: ' Estates AI Tool', font: 'Arial', size: 20, color: '1A1A1A' }),
+      ],
+      spacing: { after: 800 },
+    }),
+    new Paragraph({
+      children: [new TextRun({ text: 'This report is indicative only and has not been produced from measured quantities or detailed design. Refer to the disclaimer at the end of this report.', font: 'Arial', size: 18, italics: true, color: '94A3B8' })],
+      spacing: { after: 0 },
+    }),
+  ]
+
+  // ── Report body ─────────────────────────────────────────────────────────────
   const children = []
+  const lines = reportText.split('\n')
   let i = 0
 
   while (i < lines.length) {
@@ -867,7 +960,7 @@ async function buildDocxContent(reportText, projectName) {
     }
     if (line.startsWith('- ') || line.startsWith('* ') || line.startsWith('• ')) {
       children.push(new Paragraph({
-        text: line.slice(2).trim(),
+        children: parseInline(line.slice(2).trim(), { font: 'Arial', size: 20, color: '1A1A1A' }),
         bullet: { level: 0 },
         spacing: { after: 60 },
       }))
@@ -875,7 +968,7 @@ async function buildDocxContent(reportText, projectName) {
     }
     if (/^\d+\.\s/.test(line)) {
       children.push(new Paragraph({
-        text: line.replace(/^\d+\.\s/, '').trim(),
+        children: parseInline(line.replace(/^\d+\.\s/, '').trim(), { font: 'Arial', size: 20, color: '1A1A1A' }),
         numbering: { reference: 'default-numbering', level: 0 },
         spacing: { after: 60 },
       }))
@@ -897,7 +990,7 @@ async function buildDocxContent(reportText, projectName) {
           rows: rows.map((cells, rowIdx) => new TableRow({
             children: cells.map(cell => new TableCell({
               children: [new Paragraph({
-                children: [new TextRun({ text: cell, font: 'Arial', size: 18, bold: rowIdx === 0, color: rowIdx === 0 ? 'FFFFFF' : '1A1A1A' })],
+                children: parseInline(cell, { font: 'Arial', size: 18, bold: rowIdx === 0, color: rowIdx === 0 ? 'FFFFFF' : '1A1A1A' }),
               })],
               shading: rowIdx === 0
                 ? { type: ShadingType.SOLID, color: '1F3864', fill: '1F3864' }
@@ -916,7 +1009,7 @@ async function buildDocxContent(reportText, projectName) {
 
     if (line.toUpperCase().includes('DISCLAIMER:')) {
       children.push(new Paragraph({
-        children: [new TextRun({ text: line.trim(), font: 'Arial', size: 18, color: '1A1A1A' })],
+        children: parseInline(line.trim(), { font: 'Arial', size: 18, color: '1A1A1A' }),
         shading: { type: ShadingType.SOLID, color: 'FFF3CD', fill: 'FFF3CD' },
         spacing: { before: 200, after: 200 },
         border: {
@@ -930,9 +1023,8 @@ async function buildDocxContent(reportText, projectName) {
     }
 
     if (line.trim()) {
-      const clean = line.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1')
       children.push(new Paragraph({
-        children: [new TextRun({ text: clean, font: 'Arial', size: 20, color: '1A1A1A' })],
+        children: parseInline(line.trim(), { font: 'Arial', size: 20, color: '1A1A1A' }),
         spacing: { after: 120 },
       }))
     }
@@ -956,26 +1048,11 @@ async function buildDocxContent(reportText, projectName) {
   }))
 
   const doc = new Document({
-    numbering: {
-      config: [{
-        reference: 'default-numbering',
-        levels: [{ level: 0, format: 'decimal', text: '%1.', alignment: AlignmentType.LEFT }],
-      }],
-    },
-    styles: {
-      default: { document: { run: { font: 'Arial', size: 20, color: '1A1A1A' } } },
-      paragraphStyles: [
-        { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', run: { font: 'Arial', size: 32, bold: true, color: '1F3864' }, paragraph: { spacing: { after: 200 } } },
-        { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', run: { font: 'Arial', size: 24, bold: true, color: '1F3864' }, paragraph: { spacing: { before: 400, after: 150 } } },
-        { id: 'Heading3', name: 'Heading 3', basedOn: 'Normal', run: { font: 'Arial', size: 22, bold: true, color: '1F3864' }, paragraph: { spacing: { before: 200, after: 100 } } },
-      ],
-    },
-    sections: [{
-      properties: {
-        page: { size: { width: 11906, height: 16838 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } },
-      },
-      children,
-    }],
+    ...commonStyles,
+    sections: [
+      { properties: pageProps, children: coverChildren },
+      { properties: pageProps, children },
+    ],
   })
 
   return Packer.toBuffer(doc)
@@ -1004,7 +1081,7 @@ export default function ReportPage() {
     if (!data?.report) return
     setWordGenerating(true)
     try {
-      const buffer = await buildDocxContent(data.report, data.projectName || 'Estates Project')
+      const buffer = await buildDocxContent(data.report, data.projectName || 'Estates Project', data.meta)
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -1045,15 +1122,25 @@ export default function ReportPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F0F4F8' }}>
-      {/* Print CSS — hides header, sets page breaks, white background */}
+      {/* Print CSS — PDF layout */}
       <style>{`
         @media print {
+          @page { size: A4; margin: 1.2cm; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           header { display: none !important; }
-          body { background: white !important; }
+          button { display: none !important; }
+          body { background: white !important; margin: 0 !important; }
           .min-h-screen { background: white !important; }
-          #report-body { box-shadow: none !important; border-radius: 0 !important; }
-          .rounded-xl { border-radius: 4px !important; }
-          section, .section-break { page-break-inside: avoid; }
+          .max-w-4xl { max-width: 100% !important; padding: 0 !important; }
+          .py-8 { padding-top: 0 !important; padding-bottom: 0 !important; }
+          .px-4 { padding-left: 0 !important; padding-right: 0 !important; }
+          #report-body { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
+          #cover-page { page-break-after: always; min-height: 85vh; display: flex; flex-direction: column; justify-content: center; }
+          .section-card { page-break-inside: avoid; break-inside: avoid; border-radius: 4px !important; margin-bottom: 10px !important; }
+          .rounded-xl, .rounded-2xl { border-radius: 4px !important; }
+          h1, h2, h3 { page-break-after: avoid; break-after: avoid; }
+          table { page-break-inside: avoid; break-inside: avoid; width: 100% !important; }
+          tr { page-break-inside: avoid; break-inside: avoid; }
         }
       `}</style>
 
