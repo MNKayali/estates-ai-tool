@@ -1,4 +1,4 @@
-import { getRates, buildRatesPrompt, getBcisFactorForRegion } from '@/lib/parseRates'
+import { getRates, buildRatesPrompt, getBcisFactorForRegion, resolveSpecLevel } from '@/lib/parseRates'
 
 // Strip BOM from API key in case env var was saved with UTF-8 BOM
 const ANTHROPIC_KEY = (process.env.ANTHROPIC_API_KEY || '').replace(/^﻿/, '')
@@ -20,23 +20,19 @@ export async function POST(request) {
     let bcisFactor = 0.94
     try {
       const rates = await getRates()
-      const sheetNames = Object.keys(rates)
-      console.log('[rates] ✅ Loaded successfully')
-      console.log('[rates] Sheet names:', sheetNames)
-      sheetNames.forEach(name => {
-        const rowCount = rates[name]?.length ?? 0
-        console.log(`[rates] Sheet "${name}": ${rowCount} rows`)
-        if (rowCount > 0) {
-          console.log(`[rates] Sheet "${name}" first row:`, JSON.stringify(rates[name][0]))
-        }
-      })
       bcisFactor = getBcisFactorForRegion(answers.q1_1_postcode)
-      console.log('[rates] BCIS factor for', answers.q1_1_postcode, '→', bcisFactor)
-      ratesPromptSection = buildRatesPrompt(rates, resolveProjectType(answers.q1_2_projectType), 'standard', bcisFactor)
+      console.log('[rates] ✅ Loaded | BCIS factor for', answers.q1_1_postcode, '→', bcisFactor)
+      const specLevel = resolveSpecLevel(answers.q2_3b_specLevel)
+      console.log('[rates] Spec level resolved:', answers.q2_3b_specLevel, '→', specLevel)
+      ratesPromptSection = buildRatesPrompt(rates, resolveProjectType(answers.q1_2_projectType), specLevel, bcisFactor)
       console.log('[rates] Prompt section length:', ratesPromptSection.length, 'chars')
     } catch (e) {
       console.error('[rates] ❌ Failed:', e.message)
-      ratesPromptSection = '=== RATES UNAVAILABLE — use general UK construction cost knowledge Q2 2026 ==='
+      // No silent fallback — rates are required for consistent cost estimates
+      return Response.json({
+        error: 'Rates file unavailable: ' + e.message,
+        detail: 'Please contact support. The cost rates database could not be loaded.'
+      }, { status: 500 })
     }
 
     const layer1 = await runLayer1(answers, bcisFactor)
