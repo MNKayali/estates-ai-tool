@@ -42,9 +42,11 @@ export default function ContradictionPage() {
       const result = await res.json()
       if (result.success) {
         sessionStorage.setItem('estatesAI_report', JSON.stringify({
-          report: result.report,
+          reportText: result.report,
+          intel: result.intel,
+          answers: data.answers,
+          reportSections: data.sections,
           meta: result.meta,
-          projectName: data.answers.q1_0_projectName,
         }))
         sessionStorage.removeItem('estatesAI_contradictions')
         router.push('/report')

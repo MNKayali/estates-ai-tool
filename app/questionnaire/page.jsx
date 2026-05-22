@@ -858,9 +858,11 @@ export default function QuestionnairePage() {
 
       if (data.success) {
         sessionStorage.setItem('estatesAI_report', JSON.stringify({
-          report: data.report,
+          reportText: data.report,
+          intel: data.intel,
+          answers: processedAnswers,
+          reportSections: allSections,
           meta: data.meta,
-          projectName: data.projectName || answers.q1_0_projectName,
         }))
         router.push('/report')
       } else {

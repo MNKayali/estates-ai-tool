@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RIBA Stage 1 Feasibility Report</title>
+<style>
+:root {
+  --navy: #1a2e4a;
+  --navy-mid: #243a5e;
+  --navy-light: #2d5082;
+  --blue: #2e6fad;
+  --blue-light: #e8f2fa;
+  --amber: #e8a020;
+  --amber-light: #fff8ec;
+  --green: #2a7a4b;
+  --green-light: #eaf5ef;
+  --red: #c0392b;
+  --red-light: #fdf0ef;
+  --grey-50: #f8f9fa;
+  --grey-100: #f0f2f4;
+  --grey-200: #e2e6ea;
+  --grey-400: #9aa3ad;
+  --grey-700: #3d4a56;
+  --text: #1a2332;
+  --text-soft: #4a5568;
+  --white: #ffffff;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.65;color:var(--text);background:var(--grey-100)}
+.sans{font-family:'Helvetica Neue',Arial,sans-serif}
+.report{max-width:900px;margin:0 auto;background:var(--grey-100);padding:0 0 60px}
+
+/* COVER */
+.cover{background:linear-gradient(145deg,var(--navy) 0%,var(--navy-mid) 60%,var(--navy-light) 100%);padding:56px 48px 48px;position:relative;overflow:hidden}
+.cover::before{content:'';position:absolute;top:-60px;right:-60px;width:280px;height:280px;border:1px solid rgba(255,255,255,0.06);border-radius:50%}
+.cover-label{font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:16px}
+.cover-title{font-family:'Helvetica Neue',Arial,sans-serif;font-size:34px;font-weight:800;color:#fff;line-height:1.15;margin-bottom:32px;max-width:680px;letter-spacing:-0.5px}
+.cover-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid rgba(255,255,255,0.12);padding-top:24px;margin-bottom:24px}
+.cover-meta-item{padding-right:24px}
+.cover-meta-item:not(:last-child){border-right:1px solid rgba(255,255,255,0.12);margin-right:24px}
+.cover-meta-label{font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px}
+.cover-meta-value{font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;font-weight:600;color:#fff}
+.cover-badges{display:flex;gap:10px;flex-wrap:wrap}
+.badge{font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;font-weight:700;padding:6px 14px;border-radius:20px;letter-spacing:0.3px}
+.badge-a{background:var(--green);color:#fff}
+.badge-b{background:var(--blue);color:#fff}
+.badge-c{background:var(--amber);color:var(--navy)}
+.badge-d{background:var(--red);color:#fff}
+.badge-risk-low{background:rgba(42,122,75,0.25);color:#a8f0c6;border:1px solid rgba(42,122,75,0.4)}
+.badge-risk-medium{background:rgba(232,160,32,0.25);color:#fdd68a;border:1px solid rgba(232,160,32,0.4)}
+.badge-risk-high{background:rgba(192,57,43,0.25);color:#f5a89a;border:1px solid rgba(192,57,43,0.4)}
+
+/* SECTIONS */
+.section{background:#fff;border-radius:var(--radius-lg);margin:12px 12px 0;padding:32px 36px;box-shadow:var(--shadow)}
+.section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--grey-200)}
+.section-num{width:36px;height:36px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+.section-title{font-family:'Helvetica Neue',Arial,sans-serif;font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-0.3px}
+
+/* EXEC SUMMARY */
+.exec-para{margin-bottom:14px;font-size:14px}
+.key-findings{background:var(--grey-50);border-radius:var(--radius);padding:20px 24px;margin-top:20px;border:1px solid var(--grey-200)}
+.kf-title{font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--grey-400);margin-bottom:14px}
+.kf-item{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start}
+.kf-item:last-child{margin-bottom:0}
+.kf-num{width:22px;height:22px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px}
+.kf-text{font-size:13.5px;line-height:1.55}
+
+/* SCOPE */
+.scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:600px){.scope-grid{grid-template-columns:1fr}}
+.scope-col-hdr{font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.scope-col-hdr.inc{color:var(--green)}
+.scope-col-hdr.exc{color:var(--red)}
+.trade-hdr{font-family:'Helvetica Neue',Arial,sans-serif;font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--blue-light)}
+.trade-hdr:first-child{margin-top:0}
+.scope-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:13px;line-height:1.5}
+.scope-item .ico{font-size:13px;flex-shrink:0;margin-top:1px}
+.scope-item.inc .ico{color:var(--green)}
+.scope-item.exc .ico{color:var(--red)}
+.assumptions{margin-top:24px;padding-top:20px;border-top:1px solid var(--grey-200)}
+.assum-title{font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--grey-400);margin-bottom:10px}
+.assum-item{display:flex;gap:10px;margin-bottom:6px;font-size:13px;color:var(--text-soft)}
+.assum-item::before{content:'—';color:var(--grey-400);flex-shrink:0;margin-top:1px}
+
+/* RISK */
+.risk-pills{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.rp{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px}
+.rp.high{background:var(--red-light);color:var(--red)}
+.rp.medium{background:var(--amber-light);color:#9a6200}
+.rp.low{background:var(--green-light);color:var(--green)}
+.risk-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.risk-table thead tr{background:var(--navy);color:#fff}
+.risk-table thead th{font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.5px;padding:10px 12px;text-align:left}
+.risk-table tbody tr{border-bottom:1px solid var(--grey-200)}
+.risk-table tbody tr:nth-child(even){background:var(--grey-50)}
+.risk-table tbody tr.hr{border-left:3px solid var(--red)}
+.risk-table tbody td{padding:10px 12px;vertical-align:top;line-height:1.5}
+.ref{font-family:'Helvetica Neue',Arial,sans-serif;font-weight:700;color:var(--navy);white-space:nowrap}
+.rpill{font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;white-space:nowrap;display:inline-block}
+.rpill.high{background:var(--red-light);color:var(--red)}
+.rpill.medium{background:var(--amber-light);color:#9a6200}
+.rpill.low{background:var(--green-light);color:var(--green)}
+.rtxt{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;font-weight:700}
+.rtxt.high{color:var(--red)}
+.rtxt.medium{color:#9a6200}
+.rtxt.low{color:var(--green)}
+
+/* PROGRAMME */
+.prog-boxes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.prog-box{background:var(--grey-50);border:1px solid var(--grey-200);border-radius:var(--radius);padding:14px 18px}
+.prog-box-lbl{font-family:'Helvetica Neue',Arial,sans-serif;font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey-400);margin-bottom:4px}
+.prog-box-val{font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;font-weight:700;color:var(--navy)}
+.target-box{display:flex;gap:12px;align-items:flex-start;padding:14px 18px;border-radius:var(--radius);margin-bottom:20px;font-size:13.5px;line-height:1.55}
+.target-box.yes{background:var(--green-light);border:1px solid #b8dfc9;color:#1a4d30}
+.target-box.no{background:var(--red-light);border:1px solid #f0c4bf;color:#7a1a12}
+.target-box .tick{font-size:18px;flex-shrink:0;margin-top:1px}
+.prog-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:28px}
+.prog-table thead tr{background:var(--navy);color:#fff}
+.prog-table thead th{font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.5px;padding:10px 14px;text-align:left}
+.prog-table tbody tr{border-bottom:1px solid var(--grey-200)}
+.prog-table tbody tr:last-child{font-weight:700;background:var(--grey-50);border-top:2px solid var(--navy)}
+.prog-table tbody td{padding:10px 14px}
+.prog-table .dur{font-family:'Helvetica Neue',Arial,sans-serif;font-weight:600;color:var(--navy);white-space:nowrap}
+
+/* MILESTONE TIMELINE */
+.timeline-wrap{margin-top:8px}
+.tl-title{font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--grey-400);margin-bottom:24px}
+.tl{position:relative;padding:8px 0 24px;overflow-x:auto}
+.tl-track{position:relative;height:4px;background:var(--grey-200);border-radius:2px;margin:40px 20px 56px}
+.tl-fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--navy) 0%,var(--blue) 100%);border-radius:2px;width:100%}
+.ms{position:absolute;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center}
+.ms-dot{width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--navy);background:var(--navy);z-index:1}
+.ms-dot.gw{background:var(--amber);box-shadow:0 0 0 2px var(--amber);transform:rotate(45deg);border-radius:2px;width:12px;height:12px}
+.ms-dot.cs{background:var(--green);box-shadow:0 0 0 2px var(--green)}
+.ms-dot.pc{background:var(--amber);box-shadow:0 0 0 2px var(--amber)}
+.ms-above{position:absolute;bottom:calc(100% + 12px);font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:600;color:var(--navy);white-space:nowrap;text-align:center;transform:translateX(-50%);left:50%}
+.ms-below{position:absolute;top:calc(100% + 10px);font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;color:var(--grey-400);white-space:nowrap;text-align:center;transform:translateX(-50%);left:50%}
+.prog-assum{margin-top:20px;padding-top:16px;border-top:1px solid var(--grey-200)}
+.prog-assum-title{font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--grey-400);margin-bottom:10px}
+
+/* COST */
+.cost-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:600px){.cost-meta{grid-template-columns:repeat(2,1fr)}}
+.cm-box{background:var(--grey-50);border:1px solid var(--grey-200);border-radius:var(--radius);padding:12px 14px;text-align:center}
+.cm-lbl{font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey-400);margin-bottom:4px}
+.cm-val{font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;font-weight:700;color:var(--navy)}
+.cost-pills{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.cost-pill{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;background:var(--navy);color:#fff}
+.cost-note{font-style:italic;font-size:12.5px;color:var(--text-soft);margin-bottom:20px;line-height:1.55}
+.cost-sec-hdr{font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--navy);margin:20px 0 8px}
+.cost-sec-hdr:first-of-type{margin-top:0}
+.cost-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:4px}
+.cost-table thead tr{background:var(--navy);color:#fff}
+.cost-table thead th{font-family:'Helvetica Neue',Arial,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:0.3px;padding:9px 12px;text-align:right}
+.cost-table thead th:first-child,.cost-table thead th:nth-child(2){text-align:left}
+.cost-table tbody tr{border-bottom:1px solid var(--grey-200)}
+.cost-table tbody tr:nth-child(even):not(.grp-hdr):not(.subtotal):not(.total-row):not(.vat-row){background:var(--grey-50)}
+.cost-table .grp-hdr td{background:var(--navy);color:#fff;font-family:'Helvetica Neue',Arial,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px 12px}
+.cost-table .grp-hdr.svc td{background:var(--navy-light)}
+.ke-badge{display:inline-block;background:var(--amber);color:var(--navy);font-size:9px;font-weight:800;padding:2px 7px;border-radius:10px;letter-spacing:0.5px;margin-left:8px;vertical-align:middle}
+.cost-table tbody td{padding:8px 12px;text-align:right;color:var(--text)}
+.cost-table tbody td:first-child{text-align:left;font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;color:var(--grey-400);font-weight:600}
+.cost-table tbody td:nth-child(2){text-align:left}
+.cost-table .subtotal td{background:var(--blue-light);font-family:'Helvetica Neue',Arial,sans-serif;font-weight:700;font-size:12.5px;color:var(--navy);border-top:2px solid var(--blue);padding:9px 12px}
+.cost-table .total-row td{background:var(--navy);color:#fff;font-family:'Helvetica Neue',Arial,sans-serif;font-weight:800;font-size:13px;padding:11px 12px;border-top:2px solid var(--navy-light)}
+.cost-table .vat-row td{font-style:italic;font-size:12px;color:var(--text-soft);padding:8px 12px;background:var(--grey-50)}
+.cost-table .svc-row td:first-child{border-left:3px solid var(--blue)}
+.range-advisory{background:var(--amber-light);border:1px solid #e8c87a;border-left:4px solid var(--amber);border-radius:var(--radius);padding:14px 18px;margin:16px 0;font-size:12.5px;color:#5a3e00;line-height:1.6}
+.cost-footer{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;padding-top:20px;border-top:1px solid var(--grey-200)}
+@media(max-width:600px){.cost-footer{grid-template-columns:1fr}}
+.cf-hdr{font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--grey-400);margin-bottom:10px}
+.cf-item{display:flex;gap:8px;margin-bottom:6px;font-size:12.5px;color:var(--text-soft);align-items:flex-start}
+.cf-item.assum::before{content:'—';color:var(--grey-400);flex-shrink:0}
+.cf-item.excl::before{content:'✕';color:var(--red);flex-shrink:0;font-size:11px;margin-top:2px}
+.disclaimer{background:var(--grey-50);border:1px solid var(--grey-200);border-radius:var(--radius);padding:14px 18px;margin-top:20px;font-style:italic;font-size:12px;color:var(--text-soft);line-height:1.6}
+.disclaimer strong{font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey-700);display:block;margin-bottom:4px}
+
+/* ROI */
+.roi-boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:600px){.roi-boxes{grid-template-columns:repeat(2,1fr)}}
+.roi-box{background:var(--grey-50);border:1px solid var(--grey-200);border-radius:var(--radius);padding:14px 16px;text-align:center}
+.roi-lbl{font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey-400);margin-bottom:6px}
+.roi-val{font-family:'Helvetica Neue',Arial,sans-serif;font-size:16px;font-weight:800;color:var(--navy);line-height:1.2}
+
+/* PROCUREMENT */
+.proc-route-box{background:var(--navy);border-radius:var(--radius);padding:24px 28px;margin-bottom:20px;text-align:center}
+.proc-route-lbl{font-family:'Helvetica Neue',Arial,sans-serif;font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:10px}
+.proc-route-val{font-family:'Helvetica Neue',Arial,sans-serif;font-size:18px;font-weight:800;color:#fff;line-height:1.3}
+.proc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:600px){.proc-grid{grid-template-columns:repeat(2,1fr)}}
+.proc-box{background:var(--grey-50);border:1px solid var(--grey-200);border-radius:var(--radius);padding:12px 14px}
+.proc-lbl{font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey-400);margin-bottom:4px}
+.proc-val{font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;font-weight:700;color:var(--navy)}
+.conflict-box{background:var(--amber-light);border:1px solid #e8c87a;border-left:4px solid var(--amber);border-radius:var(--radius);padding:14px 18px;margin-top:16px}
+.conflict-title{font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9a6200;margin-bottom:8px}
+.conflict-item{display:flex;gap:8px;margin-bottom:6px;font-size:13px;color:#5a3e00;align-items:flex-start}
+.conflict-item::before{content:'⚠';flex-shrink:0;margin-top:1px}
+
+/* CONSTRAINTS */
+.con-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.con-grid{grid-template-columns:1fr}}
+.con-card{background:var(--grey-50);border:1px solid var(--grey-200);border-radius:var(--radius);padding:16px 18px}
+.con-cat{font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--grey-400);margin-bottom:4px}
+.con-title{font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;line-height:1.3}
+.con-text{font-size:12.5px;color:var(--text-soft);line-height:1.55}
+.con-impact{margin-top:8px;font-size:11.5px;font-style:italic;padding:5px 10px;border-radius:4px;line-height:1.4}
+.con-impact.cost{background:var(--red-light);color:var(--red)}
+.con-impact.prog{background:var(--amber-light);color:#9a6200}
+.con-impact.both{background:var(--blue-light);color:var(--navy-light)}
+
+/* RECOMMENDATIONS */
+.show-box{background:var(--red-light);border:1px solid #f0c4bf;border-left:4px solid var(--red);border-radius:var(--radius);padding:18px 20px}
+.show-title{font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);margin-bottom:10px}
+.show-item{display:flex;gap:10px;margin-bottom:8px;font-size:13.5px;color:#7a1a12;align-items:flex-start}
+.show-item::before{content:'✕';font-weight:700;flex-shrink:0;margin-top:2px}
+.show-clear{font-size:13.5px;color:var(--green);font-weight:600;display:flex;align-items:center;gap:8px}
+
+/* FOOTER */
+.report-footer{margin:12px 12px 0;padding:16px 20px;background:var(--grey-50);border-radius:var(--radius);border:1px solid var(--grey-200);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.footer-disc{font-style:italic;font-size:11.5px;color:var(--grey-400);max-width:680px;line-height:1.5}
+.footer-meta{font-family:'Helvetica Neue',Arial,sans-serif;font-size:10.5px;color:var(--grey-400);text-align:right;white-space:nowrap}
+
+/* EXPORT BAR */
+.export-bar{background:var(--navy);padding:14px 24px;display:flex;gap:12px;align-items:center;justify-content:flex-end;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.export-lbl{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:rgba(255,255,255,0.5);margin-right:4px}
+.btn{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;font-weight:700;padding:8px 18px;border-radius:6px;cursor:pointer;border:none;letter-spacing:0.3px;transition:opacity 0.15s}
+.btn:hover{opacity:0.85}
+.btn-pdf{background:#fff;color:var(--navy)}
+.btn-word{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3)}
+.btn-new{background:transparent;color:rgba(255,255,255,0.6);font-weight:400;text-decoration:underline;padding:8px 10px}
+
+/* UTILS */
+ul.blist{list-style:none;padding:0;margin:0}
+ul.blist li{display:flex;gap:8px;margin-bottom:6px;font-size:13px;color:var(--text-soft);align-items:flex-start}
+ul.blist li::before{content:'—';color:var(--grey-400);flex-shrink:0}
+.mt-12{margin-top:12px}
+.mt-16{margin-top:16px}
+
+/* PRINT */
+@media print {
+  @page { size: A4; margin: 1.2cm; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  body { background: #fff; }
+  .export-bar { display: none !important; }
+  .section { box-shadow: none; border: 1px solid var(--grey-200); page-break-inside: avoid; break-inside: avoid; border-radius: 4px; margin: 4px 0 0; }
+  .cover { page-break-after: always; }
+  table { page-break-inside: avoid; break-inside: avoid; }
+  h2, .section-title { page-break-after: avoid; break-after: avoid; }
+  tr { page-break-inside: avoid; break-inside: avoid; }
+  .report { padding-bottom: 0; }
+  .report-footer { border-radius: 4px; }
+}
+</style>
+</head>
+<body>
+
+<div class="export-bar sans">
+  <span class="export-lbl">Export:</span>
+  <button class="btn btn-pdf" onclick="exportPDF()">⬇ Download PDF</button>
+  <button class="btn btn-word" id="word-btn" onclick="exportWord(event)">⬇ Download Word</button>
+  <button class="btn btn-new" onclick="window.location='/questionnaire'">New Report</button>
+</div>
+
+<div class="report" id="report-body">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-label sans">RIBA Stage 0–1 Feasibility Report</div>
+    <div class="cover-title sans" id="cover-title">Loading…</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label sans">Generated</div>
+        <div class="cover-meta-value sans" id="cover-date">—</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label sans">Standard</div>
+        <div class="cover-meta-value sans">RIBA Stage 0–1</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label sans">Produced by</div>
+        <div class="cover-meta-value sans">Estates AI Tool</div>
+      </div>
+    </div>
+    <div class="cover-badges">
+      <span class="badge sans" id="conf-badge">—</span>
+      <span class="badge sans" id="risk-badge">—</span>
+    </div>
+  </div>
+
+  <!-- 1 EXECUTIVE SUMMARY -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num sans">1</div>
+      <div class="section-title sans">Executive Summary</div>
+    </div>
+    <div id="exec-content">
+      <p class="exec-para" style="color:#9aa3ad">Loading…</p>
+    </div>
+  </div>
+
+  <!-- 2 SCOPE OF WORKS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num sans">2</div>
+      <div class="section-title sans">Scope of Works</div>
+    </div>
+    <div class="scope-grid">
+      <div id="scope-included">
+        <div class="scope-col-hdr inc sans">✓ Included</div>
+      </div>
+      <div id="scope-excluded">
+        <div class="scope-col-hdr exc sans">✕ Excluded</div>
+      </div>
+    </div>
+    <div class="assumptions" id="scope-assumptions">
+      <div class="assum-title sans">Assumptions</div>
+    </div>
+  </div>
+
+  <!-- 3 RISK REGISTER -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num sans">3</div>
+      <div class="section-title sans">Top Risks Register</div>
+    </div>
+    <div class="risk-pills" id="risk-pills"></div>
+    <table class="risk-table" id="risk-table">
+      <thead>
+        <tr>
+          <th style="width:48px">Ref</th>
+          <th>Risk</th>
+          <th style="width:90px">Category</th>
+          <th style="width:60px">L</th>
+          <th style="width:60px">I</th>
+          <th style="width:70px">Rating</th>
+          <th>Mitigation</th>
+        </tr>
+      </thead>
+      <tbody id="risk-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- 4 PROGRAMME -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num sans">4</div>
+      <div class="section-title sans">High-Level Programme</div>
+    </div>
+    <div class="prog-boxes">
+      <div class="prog-box">
+        <div class="prog-box-lbl sans">Total Duration</div>
+        <div class="prog-box-val sans" id="prog-total-weeks">—</div>
+      </div>
+      <div class="prog-box">
+        <div class="prog-box-lbl sans">Procurement Route</div>
+        <div class="prog-box-val sans" id="prog-route">—</div>
+      </div>
+    </div>
+    <div class="target-box yes" id="target-box">
+      <span class="tick">✓</span>
+      <span id="target-text">—</span>
+    </div>
+    <table class="prog-table" id="prog-table">
+      <thead>
+        <tr>
+          <th style="width:60px">Stage</th>
+          <th>Activity</th>
+          <th style="width:90px">Duration</th>
+          <th style="width:160px">Indicative Dates</th>
+        </tr>
+      </thead>
+      <tbody id="prog-tbody"></tbody>
+    </table>
+    <div class="timeline-wrap">
+      <div class="tl-title sans">Programme Milestones</div>
+      <div class="tl">
+        <div class="tl-track" id="tl-track">
+          <div class="tl-fill"></div>
+        </div>
+      </div>
+    </div>
+    <div class="prog-assum" id="prog-assumptions">
+      <div class="prog-assum-title sans">Programme Assumptions</div>
+    </div>
+  </div>
+
+  <!-- 5 COST ESTIMATE -->
+  <div class="section" id="section-cost">
+    <div class="section-header">
+      <div class="section-num sans">5</div>
+      <div class="section-title sans">Order of Cost Estimate (NRM1)</div>
+    </div>
+    <div class="cost-meta">
+      <div class="cm-box"><div class="cm-lbl sans">GIFA</div><div class="cm-val sans" id="cm-gifa">—</div></div>
+      <div class="cm-box"><div class="cm-lbl sans">Region</div><div class="cm-val sans" id="cm-region">—</div></div>
+      <div class="cm-box"><div class="cm-lbl sans">Location Factor</div><div class="cm-val sans" id="cm-factor">—</div></div>
+      <div class="cm-box"><div class="cm-lbl sans">Spec Level</div><div class="cm-val sans" id="cm-spec">—</div></div>
+    </div>
+    <div class="cost-pills" id="cost-pills"></div>
+    <p class="cost-note" id="cost-note"></p>
+    <div id="cost-tables"></div>
+    <div class="disclaimer">
+      <strong>Disclaimer</strong>
+      This order of cost estimate is indicative only, produced at RIBA Stage 0–1 without measured quantities or detailed design information. Rates are based on BCIS £/m² benchmarks adjusted by regional location factor. This estimate should be reviewed and validated by a Chartered Quantity Surveyor before use in any business case, budget approval, or funding application.
+    </div>
+  </div>
+
+  <!-- 6 ROI (conditional) -->
+  <div class="section" id="section-roi" style="display:none">
+    <div class="section-header">
+      <div class="section-num sans" id="roi-num">6</div>
+      <div class="section-title sans">ROI &amp; Financial Case</div>
+    </div>
+    <div class="roi-boxes" id="roi-boxes"></div>
+    <p id="roi-narrative"></p>
+  </div>
+
+  <!-- 7 PROCUREMENT (conditional) -->
+  <div class="section" id="section-procurement" style="display:none">
+    <div class="section-header">
+      <div class="section-num sans" id="proc-num">7</div>
+      <div class="section-title sans">Procurement Recommendation</div>
+    </div>
+    <div class="proc-route-box">
+      <div class="proc-route-lbl sans">Recommended Route</div>
+      <div class="proc-route-val sans" id="proc-route-val">—</div>
+    </div>
+    <div class="proc-grid" id="proc-grid"></div>
+    <p id="proc-narrative"></p>
+    <ul class="blist mt-12" id="proc-considerations"></ul>
+    <div class="conflict-box" id="proc-conflicts" style="display:none">
+      <div class="conflict-title sans">Conflict Flags</div>
+      <div id="proc-conflicts-list"></div>
+    </div>
+  </div>
+
+  <!-- 8 CONSTRAINTS (conditional) -->
+  <div class="section" id="section-constraints" style="display:none">
+    <div class="section-header">
+      <div class="section-num sans" id="con-num">8</div>
+      <div class="section-title sans">Constraints Summary</div>
+    </div>
+    <div class="con-grid" id="constraints-grid"></div>
+  </div>
+
+  <!-- 9 RECOMMENDATIONS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num sans" id="rec-num">9</div>
+      <div class="section-title sans">Recommendations &amp; Next Steps</div>
+    </div>
+    <div class="show-box" id="showstoppers-box">
+      <div class="show-title sans">Showstoppers — Must be resolved before proceeding to Stage 2</div>
+      <div id="showstoppers-list"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="report-footer">
+    <div class="footer-disc">This feasibility report is indicative only, produced at RIBA Stage 0–1. It should be reviewed by a Chartered Quantity Surveyor and construction professional before use in any business case, budget approval, or funding application.</div>
+    <div class="footer-meta sans">Estates AI Tool<br><span id="footer-date"></span></div>
+  </div>
+
+</div>
+
+<script>
+// ── DATA INJECTION ─────────────────────────────────────────────
+function populateReport(data) {
+  const intel = data.intel || {}
+  const answers = data.answers || {}
+  const reportSections = data.reportSections || []
+  const reportText = data.reportText || ''
+
+  // Confidence badge
+  const confMap = { A:'badge-a', B:'badge-b', C:'badge-c', D:'badge-d' }
+  const riskMap = { Low:'badge-risk-low', Medium:'badge-risk-medium', High:'badge-risk-high' }
+  const confBadge = document.getElementById('conf-badge')
+  confBadge.className = 'badge sans ' + (confMap[intel.confidenceScore] || 'badge-b')
+  confBadge.textContent = intel.confidenceLabel || 'Moderate Confidence'
+  const riskBadge = document.getElementById('risk-badge')
+  riskBadge.className = 'badge sans ' + (riskMap[intel.percentageAdditions?.risk?.riskLevel] || 'badge-risk-medium')
+  riskBadge.textContent = (intel.percentageAdditions?.risk?.riskLevel || 'Medium') + ' Risk'
+
+  // Cover
+  document.getElementById('cover-title').textContent = intel.projectName || answers.q1_0_projectName || 'Feasibility Report'
+  const dateStr = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
+  document.getElementById('cover-date').textContent = dateStr
+  document.getElementById('footer-date').textContent = dateStr
+
+  // Sections
+  populateExecSummary(reportText, intel)
+  populateScope(reportText, answers)
+  populateRisks(intel.topRiskSignals || [])
+  populateProgramme(intel, answers)
+  populateCost(intel, answers, reportText)
+
+  // Dynamic section numbers
+  let sn = 5
+  if (reportSections.includes('roi') || reportSections.includes('ROI & Financial Case')) {
+    const hasFinancial = answers.q5_1_financialBenefit &&
+      !(Array.isArray(answers.q5_1_financialBenefit)
+        ? answers.q5_1_financialBenefit.some(v => v.includes('No direct financial return'))
+        : String(answers.q5_1_financialBenefit).includes('No direct financial return'))
+    if (hasFinancial) {
+      sn++
+      document.getElementById('section-roi').style.display = 'block'
+      document.getElementById('roi-num').textContent = sn
+      populateROI(intel, answers, reportText)
+    }
+  }
+  if (reportSections.includes('procurement') || reportSections.includes('Procurement Recommendation')) {
+    sn++
+    document.getElementById('section-procurement').style.display = 'block'
+    document.getElementById('proc-num').textContent = sn
+    populateProcurement(intel, reportText)
+  }
+  if (reportSections.includes('constraints') || reportSections.includes('Constraints Summary')) {
+    sn++
+    document.getElementById('section-constraints').style.display = 'block'
+    document.getElementById('con-num').textContent = sn
+    populateConstraints(reportText, answers)
+  }
+  sn++
+  document.getElementById('rec-num').textContent = sn
+
+  // Recommendations
+  populateShowstoppers(intel.showstoppers || [])
+}
+
+function md(text) {
+  return (text || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>')
+}
+
+function populateExecSummary(reportText, intel) {
+  const el = document.getElementById('exec-content')
+  const execMatch = reportText.match(/##\s*Executive Summary([\s\S]*?)(?=\n##|$)/i)
+  let html = ''
+  if (execMatch) {
+    const content = execMatch[1].trim()
+    const kfMatch = content.match(/\*\*Key Findings\*\*([\s\S]*?)(?=\n##|$)/i)
+    const paras = content.replace(/\*\*Key Findings\*\*[\s\S]*/i,'').trim()
+    paras.split(/\n\n+/).forEach(p => {
+      const t = p.trim()
+      if (t && !t.startsWith('#')) html += '<p class="exec-para">' + md(t) + '</p>'
+    })
+    if (kfMatch) {
+      const items = kfMatch[1].trim().split(/\n/).filter(l => l.match(/^\d+\./))
+      if (items.length) {
+        html += '<div class="key-findings"><div class="kf-title sans">Key Findings</div>'
+        items.forEach((item, i) => {
+          const text = md(item.replace(/^\d+\.\s*/,''))
+          html += '<div class="kf-item"><div class="kf-num sans">' + (i+1) + '</div><div class="kf-text">' + text + '</div></div>'
+        })
+        html += '</div>'
+      }
+    }
+  }
+  el.innerHTML = html || '<p class="exec-para">See full report below.</p>'
+}
+
+function populateScope(reportText, answers) {
+  const tradeGroups = {
+    'ENABLING & DEMOLITION': ['Demolition and strip-out','Ground remediation or enabling works'],
+    'STRUCTURAL & CIVIL': ['Substructure or foundations','Structural frame','Structural alterations or new openings'],
+    'FABRIC & ENVELOPE': ['Roof (new or replacement)','Facade or external walls','Windows and external doors','Waterproofing or tanking','External works and landscaping','Car parking'],
+    'MECHANICAL SERVICES': ['Heating system','Ventilation or air handling','Air conditioning or cooling','Plumbing — first fix','Plumbing — second fix','Sprinkler or fire suppression','Gas installation'],
+    'ELECTRICAL SERVICES': ['Electrical distribution and main switchgear','Electrical wiring — first fix','Electrical fittings and lighting — second fix','Emergency lighting and fire alarm','External lighting','Solar PV or renewable energy','Battery storage system','Grid connection upgrade or DNO approval','Building energy management system (BEMS)','EV charging points'],
+    'INTERNAL FIT-OUT & FINISHES': ['Internal partitions and walls','Internal doors and ironmongery','Ceilings (new or replacement)','Flooring (new or replacement)','Redecoration (walls and ceilings)','Joinery and built-in furniture','Kitchen or break-out area','Toilets or wet rooms','Laboratory fit-out','Clinical or healthcare fit-out','Data centre or server room'],
+    'TECHNOLOGY & DATA': ['IT infrastructure and data cabling','AV systems','Access control and security systems','CCTV'],
+    'ACCESSIBILITY': ['Lift or platform lift','Accessible toilet or changing facilities','Ramps or level access works','Wayfinding and signage'],
+  }
+
+  const scopeItems = Array.isArray(answers.q2_2_scopeItems) ? answers.q2_2_scopeItems : []
+  let incHTML = '<div class="scope-col-hdr inc sans">✓ Included</div>'
+  let hasItems = false
+
+  Object.entries(tradeGroups).forEach(([group, items]) => {
+    const matched = items.filter(i => scopeItems.some(s => s.toLowerCase().includes(i.toLowerCase().split('(')[0].trim())))
+    if (matched.length) {
+      hasItems = true
+      incHTML += '<div class="trade-hdr sans">' + group + '</div>'
+      matched.forEach(item => {
+        incHTML += '<div class="scope-item inc"><span class="ico">✓</span><span>' + item + '</span></div>'
+      })
+    }
+  })
+
+  if (!hasItems) {
+    const scopeMatch = reportText.match(/##\s*Scope of Works([\s\S]*?)(?=\n##|$)/i)
+    if (scopeMatch) {
+      const inclMatch = scopeMatch[1].match(/included([\s\S]*?)excluded/i)
+      if (inclMatch) {
+        inclMatch[1].split('\n').filter(l => l.match(/^[✓•\-]/)).forEach(l => {
+          incHTML += '<div class="scope-item inc"><span class="ico">✓</span><span>' + l.replace(/^[✓•\-\s]*/,'') + '</span></div>'
+        })
+      }
+    }
+  }
+  document.getElementById('scope-included').innerHTML = incHTML
+
+  const scopeMatch = reportText.match(/##\s*Scope of Works([\s\S]*?)(?=\n##|$)/i)
+  let excHTML = '<div class="scope-col-hdr exc sans">✕ Excluded</div>'
+  if (scopeMatch) {
+    const exclMatch = scopeMatch[1].match(/excluded([\s\S]*?)(?:assumptions|##|$)/i)
+    if (exclMatch) {
+      exclMatch[1].split('\n').filter(l => l.match(/^[✕✗✘•\-x]/i)).forEach(l => {
+        excHTML += '<div class="scope-item exc"><span class="ico">✕</span><span>' + md(l.replace(/^[✕✗✘•\-x\s]*/i,'')) + '</span></div>'
+      })
+    }
+  }
+  document.getElementById('scope-excluded').innerHTML = excHTML
+
+  let assumHTML = '<div class="assum-title sans">Assumptions</div>'
+  if (scopeMatch) {
+    const assumMatch = scopeMatch[1].match(/assumptions([\s\S]*?)(?=\n##|$)/i)
+    if (assumMatch) {
+      assumMatch[1].split('\n').filter(l => l.trim() && !l.match(/^#+/)).forEach(l => {
+        const text = l.replace(/^[—\-•\s]*/,'').trim()
+        if (text) assumHTML += '<div class="assum-item">' + md(text) + '</div>'
+      })
+    }
+  }
+  document.getElementById('scope-assumptions').innerHTML = assumHTML
+}
+
+function populateRisks(risks) {
+  const high = risks.filter(r => r.rating === 'High').length
+  const med  = risks.filter(r => r.rating === 'Medium').length
+  const low  = risks.filter(r => r.rating === 'Low').length
+  document.getElementById('risk-pills').innerHTML =
+    '<span class="rp high sans">' + high + ' High impact</span>' +
+    '<span class="rp medium sans">' + med + ' Medium impact</span>' +
+    '<span class="rp low sans">' + low + ' Low impact</span>'
+
+  document.getElementById('risk-tbody').innerHTML = risks.map(r => {
+    const rc = (r.rating || '').toLowerCase()
+    return '<tr class="' + (rc === 'high' ? 'hr' : '') + '">' +
+      '<td class="ref">' + (r.ref || '') + '</td>' +
+      '<td>' + (r.description || '') + '</td>' +
+      '<td>' + (r.category || '') + '</td>' +
+      '<td><span class="rpill ' + (r.likelihood||'').toLowerCase() + '">' + (r.likelihood||'') + '</span></td>' +
+      '<td><span class="rpill ' + (r.impact||'').toLowerCase() + '">' + (r.impact||'') + '</span></td>' +
+      '<td><span class="rtxt ' + rc + '">' + (r.rating||'') + '</span></td>' +
+      '<td>' + (r.mitigation||'') + '</td>' +
+    '</tr>'
+  }).join('')
+}
+
+function populateProgramme(intel, answers) {
+  const pf = intel.programmeFlags || {}
+  const route = (intel.procurementRecommendation?.route || '—').replace(/\*\*/g,'')
+  const total = pf.minimumProgrammeWeeks || 0
+
+  document.getElementById('prog-total-weeks').textContent = total ? total + ' weeks' : '—'
+  const shortRoute = route.includes('Traditional') ? 'Traditional JCT' :
+                     route.includes('Design and Build') ? 'Design & Build' :
+                     route.includes('PCSA') ? 'PCSA' : route.split('(')[0].trim()
+  document.getElementById('prog-route').textContent = shortRoute
+
+  const achievable = pf.targetDateAchievable !== false
+  const tb = document.getElementById('target-box')
+  tb.className = 'target-box ' + (achievable ? 'yes' : 'no')
+  tb.querySelector('.tick').textContent = achievable ? '✓' : '✕'
+  document.getElementById('target-text').textContent = pf.targetDateRationale || '—'
+
+  const surv  = pf.surveyAllowanceWeeks || 0
+  const tend  = pf.tenderAllowanceWeeks || 6
+  const cons  = pf.constructionAllowanceWeeks || 8
+  const hand  = 1
+  const design = pf.designAllowanceWeeks || Math.max(0, (total || 0) - surv - tend - cons - hand)
+  const occNote = answers.q3_6_occupation === 'Fully occupied throughout' ? ' (phased, fully occupied)' :
+                  answers.q3_6_occupation === 'Partially occupied — phased works required' ? ' (phased, partial occupation)' : ''
+
+  const rows = [
+    surv > 0 ? { stage:'1', activity:'Pre-design surveys', dur: surv + ' weeks', cum: surv } : null,
+    { stage: surv > 0 ? '2' : '1', activity:'Design (RIBA Stages 2–4)', dur: design + ' weeks', cum: surv + design },
+    { stage: surv > 0 ? '3' : '2', activity:'Tender and contractor selection', dur: tend + ' weeks', cum: surv + design + tend },
+    { stage: surv > 0 ? '4' : '3', activity:'Construction' + occNote, dur: cons + ' weeks', cum: surv + design + tend + cons },
+    { stage: surv > 0 ? '5' : '4', activity:'Handover and snagging', dur: hand + ' week', cum: total },
+  ].filter(Boolean)
+
+  document.getElementById('prog-tbody').innerHTML = rows.map(r =>
+    '<tr><td>' + r.stage + '</td><td>' + r.activity + '</td><td class="dur sans">' + r.dur + '</td><td>—</td></tr>'
+  ).join('') +
+  '<tr><td></td><td><strong>Total programme</strong></td><td class="dur sans"><strong>' + (total || '—') + ' weeks</strong></td><td><strong>' + (answers.q4_1_targetDate || 'See assumptions') + '</strong></td></tr>'
+
+  // Milestone timeline
+  if (total > 0) {
+    const track = document.getElementById('tl-track')
+    const milestones = [{ pct:0, label:'Start', sub:'W0', type:'dot' }]
+    if (surv > 0) milestones.push({ pct: Math.round(surv/total*100), label:'Surveys done', sub:'W'+surv, type:'dot' })
+    const dw = surv + design
+    milestones.push({ pct: Math.round(dw/total*100), label:'Gateway 2', sub:'W'+dw, type:'gw' })
+    const tw = dw + tend
+    milestones.push({ pct: Math.round(tw/total*100), label:'Gateway 4', sub:'W'+tw, type:'gw' })
+    milestones.push({ pct: Math.round((tw+0.5)/total*100), label:'Construction start', sub:'W'+(tw+1), type:'cs' })
+    milestones.push({ pct:100, label:'Practical completion', sub:'W'+total, type:'pc' })
+    milestones.forEach(m => {
+      const div = document.createElement('div')
+      div.className = 'ms'
+      div.style.left = m.pct + '%'
+      div.innerHTML = '<div class="ms-above sans">' + m.label + '</div><div class="ms-dot ' + (m.type === 'gw' ? 'gw' : m.type === 'cs' ? 'cs' : m.type === 'pc' ? 'pc' : '') + '"></div><div class="ms-below sans">' + m.sub + '</div>'
+      track.appendChild(div)
+    })
+  }
+
+  const pa = document.getElementById('prog-assumptions')
+  const assums = []
+  if (pf.programmeUpliftReason) assums.push(pf.programmeUpliftReason)
+  assums.push('No formal planning consent required — permitted development confirmed.')
+  assums.push('Durations assume client decisions within 2 weeks of each gateway submission.')
+  const ul = document.createElement('ul')
+  ul.className = 'blist'
+  assums.forEach(a => { const li = document.createElement('li'); li.textContent = a; ul.appendChild(li) })
+  pa.appendChild(ul)
+}
+
+function populateCost(intel, answers, reportText) {
+  document.getElementById('cm-gifa').textContent = (answers.q1_5_size || '—') + (answers.q1_5_size ? ' m²' : '')
+  document.getElementById('cm-region').textContent = intel.bcisRegion || '—'
+  document.getElementById('cm-factor').textContent = intel.bcisFactor || '—'
+  document.getElementById('cm-spec').textContent = intel.specLevel ? intel.specLevel.charAt(0).toUpperCase() + intel.specLevel.slice(1) : '—'
+
+  const costMatch = reportText.match(/TOTAL PROJECT COST[^£]*£([\d,]+)[^£]*£([\d,]+)/i)
+  if (costMatch) {
+    document.getElementById('cost-pills').innerHTML =
+      '<span class="cost-pill sans">Total: £' + costMatch[1] + ' – £' + costMatch[2] + ' (excl. VAT)</span>' +
+      '<span class="rp ' + (intel.percentageAdditions?.risk?.riskLevel || 'medium').toLowerCase() + ' sans">' + (intel.percentageAdditions?.risk?.riskLevel || 'Medium') + ' Risk</span>'
+  }
+
+  document.getElementById('cost-note').textContent =
+    'Specification: ' + (intel.specLevel || 'Standard') + ' | BCIS Regional Factor: ' + (intel.bcisFactor || '0.94') + ' (' + (intel.bcisRegion || 'West Midlands') + ') | GIA: ' + (answers.q1_5_size || '—') + 'm²'
+
+  const costSection = reportText.match(/##\s*Order of Cost Estimate[\s\S]*?(?=##\s*ROI|##\s*Procurement|##\s*Constraints|##\s*Recommendations|$)/i)
+  if (costSection) {
+    document.getElementById('cost-tables').innerHTML = parseCostTables(costSection[0])
+  }
+}
+
+function parseCostTables(text) {
+  let html = '<div class="cost-sec-hdr sans">Section 1 — Works Cost</div>'
+  html += '<table class="cost-table"><thead><tr>'
+  html += '<th style="width:60px">Code</th><th>Element</th><th style="width:70px">Low £/m²</th><th style="width:70px">High £/m²</th><th style="width:90px">Low Total £</th><th style="width:90px">High Total £</th>'
+  html += '</tr></thead><tbody>'
+
+  const lines = text.split('\n')
+  let inWorksTable = false
+  let currentGroup = ''
+
+  lines.forEach(line => {
+    const grpMatch = line.match(/GROUP\s+(\d+)\s*[—–-]\s*(.+)/i)
+    if (grpMatch) {
+      currentGroup = grpMatch[1]
+      const grpName = grpMatch[2].trim().replace(/\*\*/g,'').replace(/★.*$/,'').trim()
+      const isSvc = currentGroup === '5'
+      html += '<tr class="grp-hdr' + (isSvc ? ' svc' : '') + '"><td colspan="6">GROUP ' + currentGroup + ' — ' + grpName.toUpperCase() + (isSvc ? ' <span class="ke-badge">★ KEY ELEMENT</span>' : '') + '</td></tr>'
+      inWorksTable = true
+      return
+    }
+    if (inWorksTable && line.includes('|') && !line.match(/^[\|\-\s]+$/) && !line.match(/Code.*Element/i)) {
+      const cells = line.split('|').map(c => c.trim().replace(/\*\*/g,'')).filter(c => c)
+      if (cells.length >= 4) {
+        const isSvc = currentGroup === '5'
+        const isSubtotal = line.match(/WORKS COST SUBTOTAL/i)
+        if (isSubtotal) {
+          const nums = line.match(/£[\d,]+/g)
+          if (nums && nums.length >= 2) {
+            html += '<tr class="subtotal"><td colspan="4">Works Cost Subtotal</td><td>' + nums[nums.length-2] + '</td><td>' + nums[nums.length-1] + '</td></tr>'
+          }
+          inWorksTable = false
+        } else {
+          html += '<tr' + (isSvc ? ' class="svc-row"' : '') + '>'
+          cells.forEach(c => { html += '<td>' + c + '</td>' })
+          html += '</tr>'
+        }
+      }
+    }
+  })
+  html += '</tbody></table>'
+  html += buildSimpleSection(text, 'Section 2 — Construction Cost', 'construction')
+  html += buildSimpleSection(text, 'Section 3 — Total Project Cost', 'total')
+
+  const assumMatch = text.match(/Assumptions([\s\S]*?)(?:Exclusions|Disclaimer|$)/i)
+  const exclMatch  = text.match(/Exclusions([\s\S]*?)(?:Disclaimer|$)/i)
+  if (assumMatch || exclMatch) {
+    html += '<div class="cost-footer">'
+    if (assumMatch) {
+      html += '<div><div class="cf-hdr sans">Assumptions</div>'
+      assumMatch[1].split('\n').filter(l => l.trim() && !l.match(/^#+/)).forEach(l => {
+        const t = l.replace(/^[—\-•\s]*/,'').replace(/\*\*/g,'').trim()
+        if (t) html += '<div class="cf-item assum">' + t + '</div>'
+      })
+      html += '</div>'
+    }
+    if (exclMatch) {
+      html += '<div><div class="cf-hdr sans">Exclusions</div>'
+      exclMatch[1].split('\n').filter(l => l.trim() && !l.match(/^#+/)).forEach(l => {
+        const t = l.replace(/^[✕✗✘—\-•\s]*/,'').replace(/\*\*/g,'').trim()
+        if (t) html += '<div class="cf-item excl">' + t + '</div>'
+      })
+      html += '</div>'
+    }
+    html += '</div>'
+  }
+  return html
+}
+
+function buildSimpleSection(text, heading, type) {
+  const match = text.match(new RegExp(heading + '([\\s\\S]*?)(?=Section|Disclaimer|Assumptions|$)', 'i'))
+  if (!match) return ''
+  let html = '<div class="cost-sec-hdr sans" style="margin-top:20px">' + heading + '</div>'
+  const cols = type === 'total' ? ['Code','Item','Rate','Low £','High £'] : ['Item','Rate','Low £','High £']
+  html += '<table class="cost-table"><thead><tr>' + cols.map((c,i) => '<th' + (i<2?' style="text-align:left"':'') + '>' + c + '</th>').join('') + '</tr></thead><tbody>'
+  match[1].split('\n').forEach(line => {
+    if (line.includes('|') && !line.match(/^[\|\-]+$/) && !line.match(/Item.*Rate/i) && !line.match(/Code.*Item/i)) {
+      const cells = line.split('|').map(c => c.trim().replace(/\*\*/g,'')).filter(c => c)
+      if (cells.length >= 3) {
+        const isTotal = line.match(/TOTAL PROJECT COST/i)
+        const isVAT   = line.match(/VAT/i)
+        const isSub   = line.match(/subtotal/i)
+        const cls = isTotal ? 'total-row' : isVAT ? 'vat-row' : isSub ? 'subtotal' : ''
+        html += '<tr' + (cls ? ' class="' + cls + '"' : '') + '>' + cells.map(c => '<td>' + c + '</td>').join('') + '</tr>'
+      }
+    }
+  })
+  html += '</tbody></table>'
+  return html
+}
+
+function populateROI(intel, answers, reportText) {
+  const benefit = Array.isArray(answers.q5_1_financialBenefit) ? answers.q5_1_financialBenefit[0] : (answers.q5_1_financialBenefit || '—')
+  const annual  = answers.q5_2_annualBenefit || '—'
+  const totalMatch = reportText.match(/TOTAL PROJECT COST[^£]*£([\d,]+)[^£]*£([\d,]+)/i)
+  let midCost = '—'
+  if (totalMatch) {
+    const low  = parseInt(totalMatch[1].replace(/,/g,''))
+    const high = parseInt(totalMatch[2].replace(/,/g,''))
+    midCost = '£' + (Math.round((low+high)/2/1000)*1000).toLocaleString()
+  }
+  const annualNum = parseFloat(((annual.match(/£([\d,]+)/)||[])[1]||'').replace(/,/g,''))
+  const midNum    = parseFloat(((midCost.match(/£([\d,]+)/)||[])[1]||'').replace(/,/g,''))
+  const payback   = (annualNum && midNum) ? (midNum/annualNum).toFixed(1) + ' years' : 'See narrative'
+
+  document.getElementById('roi-boxes').innerHTML =
+    '<div class="roi-box"><div class="roi-lbl sans">Benefit Type</div><div class="roi-val sans">' + benefit + '</div></div>' +
+    '<div class="roi-box"><div class="roi-lbl sans">Annual Benefit</div><div class="roi-val sans">' + annual + '</div></div>' +
+    '<div class="roi-box"><div class="roi-lbl sans">Project Cost (Mid)</div><div class="roi-val sans">' + midCost + '</div></div>' +
+    '<div class="roi-box"><div class="roi-lbl sans">Simple Payback</div><div class="roi-val sans">' + payback + '</div></div>'
+
+  const roiMatch = reportText.match(/##\s*ROI[\s\S]*?(?=\n##|$)/i)
+  if (roiMatch) {
+    const narrative = roiMatch[0].replace(/##.*ROI[^\n]*/i,'').trim()
+    document.getElementById('roi-narrative').innerHTML = md(narrative)
+  }
+}
+
+function populateProcurement(intel, reportText) {
+  const rec = intel.procurementRecommendation || {}
+  const route = (rec.route || '—').replace(/\*\*/g,'')
+  document.getElementById('proc-route-val').textContent = route
+
+  document.getElementById('proc-grid').innerHTML =
+    '<div class="proc-box"><div class="proc-lbl sans">Contract Form</div><div class="proc-val sans">' + (rec.contractForm||'—').replace(/\*\*/g,'') + '</div></div>' +
+    '<div class="proc-box"><div class="proc-lbl sans">Design Responsibility</div><div class="proc-val sans">Employer</div></div>' +
+    '<div class="proc-box"><div class="proc-lbl sans">Tender Type</div><div class="proc-val sans">Competitive lump sum</div></div>'
+
+  const procMatch = reportText.match(/##\s*Procurement[\s\S]*?(?=\n##|$)/i)
+  if (procMatch) {
+    const narrative = procMatch[0].replace(/##.*Procurement[^\n]*/i,'').split('\n').filter(l => l.trim() && !l.match(/^[•\-]/) && !l.match(/^\|/)).slice(0,3).join(' ').trim()
+    document.getElementById('proc-narrative').innerHTML = md(narrative)
+    const bullets = procMatch[0].split('\n').filter(l => l.match(/^[•\-]\s/))
+    document.getElementById('proc-considerations').innerHTML = bullets.map(b =>
+      '<li>' + md(b.replace(/^[•\-]\s*/,'')) + '</li>'
+    ).join('')
+  }
+
+  if (rec.conflicts) {
+    const cb = document.getElementById('proc-conflicts')
+    cb.style.display = 'block'
+    document.getElementById('proc-conflicts-list').innerHTML =
+      rec.conflicts.split('.').filter(c => c.trim()).map(c =>
+        '<div class="conflict-item">' + c.trim() + '</div>'
+      ).join('')
+  }
+}
+
+function populateConstraints(reportText, answers) {
+  const conMatch = reportText.match(/##\s*Constraints[\s\S]*?(?=\n##|$)/i)
+  const grid = document.getElementById('constraints-grid')
+  if (!conMatch) return
+  conMatch[0].split('\n').filter(l => l.trim() && !l.match(/^#+/)).forEach(line => {
+    const parts = line.replace(/^[•\-\s]*/,'').replace(/\*\*/g,'').split('—')
+    if (parts.length >= 2) {
+      const titleParts = parts[0].split(':')
+      const cat   = titleParts[0].trim()
+      const title = (titleParts[1] || titleParts[0]).trim()
+      const text  = parts.slice(1).join('—').trim()
+      const card  = document.createElement('div')
+      card.className = 'con-card'
+      card.innerHTML = '<div class="con-cat sans">' + cat + '</div><div class="con-title sans">' + title + '</div><div class="con-text">' + text + '</div>'
+      grid.appendChild(card)
+    }
+  })
+}
+
+function populateShowstoppers(showstoppers) {
+  const list = document.getElementById('showstoppers-list')
+  const box  = document.getElementById('showstoppers-box')
+  const title = box.querySelector('.show-title')
+  if (!showstoppers.length) {
+    list.innerHTML = '<div class="show-clear">✓ No critical showstoppers identified. Project is clear to proceed to RIBA Stage 2.</div>'
+    box.style.background = 'var(--green-light)'
+    box.style.borderColor = '#b8dfc9'
+    box.style.borderLeftColor = 'var(--green)'
+    title.style.color = 'var(--green)'
+    return
+  }
+  list.innerHTML = showstoppers.map(s =>
+    '<div class="show-item">' + md(s) + '</div>'
+  ).join('')
+}
+
+// ── EXPORTS ────────────────────────────────────────────────────
+function exportPDF() {
+  window.print()
+}
+
+async function exportWord(event) {
+  const btn = document.getElementById('word-btn')
+  btn.textContent = 'Generating…'
+  btn.disabled = true
+  try {
+    const stored = sessionStorage.getItem('estatesAI_report')
+    if (!stored) { alert('Report data not found. Please regenerate the report.'); return }
+    const data = JSON.parse(stored)
+    const intel = data.intel || {}
+    const answers = data.answers || {}
+
+    const res = await fetch('/api/export-word', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        reportText: data.reportText || '',
+        projectName: intel.projectName || answers.q1_0_projectName || 'Report',
+        meta: data.meta || {},
+      })
+    })
+    if (!res.ok) throw new Error('Export failed: ' + res.status)
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    const name = (intel.projectName || answers.q1_0_projectName || 'Report').replace(/[^a-zA-Z0-9 ]/g,'').replace(/\s+/g,'_')
+    a.download = name + '_RIBA_Stage1_' + new Date().toISOString().split('T')[0] + '.docx'
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch(e) {
+    alert('Word export failed. Please try again.')
+    console.error(e)
+  }
+  btn.textContent = '⬇ Download Word'
+  btn.disabled = false
+}
+
+// ── AUTO-LOAD ──────────────────────────────────────────────────
+(function() {
+  try {
+    const stored = sessionStorage.getItem('estatesAI_report')
+    if (!stored) { window.location = '/questionnaire'; return }
+    const data = JSON.parse(stored)
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => populateReport(data))
+    } else {
+      populateReport(data)
+    }
+  } catch(e) {
+    console.error('Report load error:', e)
+    window.location = '/questionnaire'
+  }
+})()
+</script>
+</body>
+</html>

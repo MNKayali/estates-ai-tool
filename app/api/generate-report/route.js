@@ -246,14 +246,25 @@ Improvement → standard design team, standard programme.
 Reconfiguration/change of use → full design team, longer programme, planning risk flagged.
 Complete repurpose → full specialist team, longest programme, highest fees.
 
-RATE BAND SELECTION — combine Q2.3a + Q2.3b to select a NARROW rate band (max 25-30% spread):
-Like-for-like + Budget → bottom 20% of rate range
-Like-for-like + Standard → lower-mid range
-Improvement + Standard → mid range
-Reconfiguration + Enhanced → upper-mid range
-Complete repurpose + Prestige → top 25% of rate range
-The AI must select a SPECIFIC narrow band — not the full low-to-high range.
-This is critical to keeping the cost estimate variance under 30%.
+RATE BAND SELECTION — CRITICAL:
+You must select a SPECIFIC narrow rate band for each NRM1 element.
+Do NOT use the full low-to-high range from BCIS benchmarks.
+Maximum spread between low and high rate: 30%.
+
+Use this matrix to select the band midpoint, then set:
+  low rate  = midpoint × 0.87
+  high rate = midpoint × 1.13
+
+BAND MIDPOINTS by Q2.3a + Q2.3b combination:
+Like-for-like + Budget:     use 20th percentile of BCIS range as midpoint
+Like-for-like + Standard:   use 35th percentile as midpoint
+Improvement + Standard:     use 50th percentile as midpoint
+Improvement + Enhanced:     use 65th percentile as midpoint
+Reconfiguration + Enhanced: use 75th percentile as midpoint
+Complete repurpose + Prestige: use 85th percentile as midpoint
+
+Apply this to EVERY line item. The resulting low-to-high spread will be
+approximately 26% — well within the 30% target.
 
 CONTRADICTIONS:
 C1 (blocker): light touch scope + full M&E replacement ticked in Q2.2
@@ -383,7 +394,8 @@ CRITICAL RULES — follow every one:
 5. Costs as LOW–HIGH ranges only. Range spread must not exceed 30%.
 6. Tables: standard markdown pipe format with separator row.
 7. Risk mitigations: max 10 words per row.
-8. Follow Q6.2 report tone instructions.`
+8. Follow Q6.2 report tone instructions.
+9. FORMATTING: Do NOT use markdown bold markers (**) in the Procurement Recommendation section. Write the recommended route and contract form as plain text without any asterisks. Bold formatting is applied by the template.`
 
 function buildLayer2Prompt(answers, sections, intel, ratesSection) {
   const requestedSections = sections || ['executive-summary','scope-of-works','risk-register','programme','cost-estimate','recommendations']
