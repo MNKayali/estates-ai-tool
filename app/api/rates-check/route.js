@@ -1,49 +1,60 @@
-import { getRates } from '@/lib/parseRates'
+/**
+ * GET /api/rates-check
+ * Health check — confirms all three data files load correctly from GitHub.
+ */
+import { getRatesWorkbookInfo } from '@/lib/costCalculator'
+import { getTemplateInfo } from '@/lib/reportBuilder'
 
 export async function GET() {
-  try {
-    const rates = await getRates()
-    const sheets = Object.keys(rates)
-    const summary = {}
-
-    sheets.forEach(name => {
-      const data = rates[name]
-      const dataRows = data.filter(r =>
-        Array.isArray(r) && r.length > 2 &&
-        typeof r[0] === 'string' && !isNaN(r[0]) && r[0].trim() !== ''
-      )
-      summary[name] = {
-        totalRows: data.length,
-        dataRows: dataRows.length,
-        firstRow: data[0] || null,
-        sampleDataRows: dataRows.slice(0, 3),
-      }
-    })
-
-    // Quick sanity check on Rates Reference Table
-    const rrt = rates['Rates Reference Table']
-    const rrtCheck = rrt
-      ? {
-          found: true,
-          rows: rrt.length,
-          headerRow: rrt[3] || null,
-          firstGroupRow: rrt[4] || null,
-          firstDataRow: rrt.find(r => Array.isArray(r) && typeof r[0] === 'string' && !isNaN(r[0]) && r[0].trim() !== '' && r.length > 4) || null,
-        }
-      : { found: false }
-
-    return Response.json({
-      status: 'OK',
-      message: 'Excel rates file loaded successfully from filesystem',
-      sheetsFound: sheets,
-      ratesReferenceTable: rrtCheck,
-      summary,
-    })
-  } catch (e) {
-    return Response.json({
-      status: 'ERROR',
-      error: e.message,
-      hint: 'Check that NRM1_Cost_Estimate_Tool_v2.xlsx exists at the project root and is committed to git',
-    }, { status: 500 })
+  const results = {
+    ratesOk: false,
+    programmeOk: false,
+    templateOk: false,
+    ratesRows: 0,
+    ruleRows: 0,
+    bcisRegions: 0,
+    sampleRate: null,
+    templateTags: 0,
+    missingTags: [],
+    fetchedAt: new Date().toISOString(),
+    errors: [],
   }
+
+  // Check NRM1 rates workbook
+  try {
+    const info = await getRatesWorkbookInfo()
+    results.ratesOk     = info.ratesRows > 0
+    results.ratesRows   = info.ratesRows
+    results.ruleRows    = info.ruleRows
+    results.bcisRegions = info.bcisRegions
+    results.sampleRate  = info.sampleRate
+  } catch (e) {
+    results.errors.push('NRM1 workbook: ' + e.message)
+  }
+
+  // Check programme workbook
+  try {
+    const url = process.env.PROGRAMME_FILE_URL
+    if (!url) throw new Error('PROGRAMME_FILE_URL not set')
+    const res = await fetch(url, { cache: 'no-store' })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const buf = await res.arrayBuffer()
+    results.programmeOk = buf.byteLength > 1000
+  } catch (e) {
+    results.errors.push('Programme workbook: ' + e.message)
+  }
+
+  // Check Word template
+  try {
+    const info = await getTemplateInfo()
+    results.templateOk   = info.templateOk
+    results.templateTags = info.templateTags
+    results.missingTags  = info.missingTags || []
+    if (info.error) results.errors.push('Template: ' + info.error)
+  } catch (e) {
+    results.errors.push('Template: ' + e.message)
+  }
+
+  const status = (results.ratesOk && results.programmeOk) ? 200 : 503
+  return Response.json(results, { status })
 }

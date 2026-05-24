@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "docx": "^9.6.1",
+    "docxtemplater": "^3.68.7",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "next": "16.2.6",
+    "pizzip": "^3.2.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-markdown": "^10.1.0",
