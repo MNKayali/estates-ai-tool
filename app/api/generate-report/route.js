@@ -13,7 +13,10 @@ import { calculateCost } from '@/lib/costCalculator'
 import { calculateProgramme } from '@/lib/programmeCalculator'
 import { buildReport } from '@/lib/reportBuilder'
 
-const ANTHROPIC_KEY = (process.env.ANTHROPIC_API_KEY || '').replace(/^﻿/, '')
+// Read inside handler so it picks up env vars after module init
+function getAnthropicKey() {
+  return (process.env.AI_API_KEY || '').replace(/^﻿/, '')
+}
 
 export async function POST(request) {
   try {
@@ -118,7 +121,7 @@ async function callClaudeForProse(answers, cost, programme) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_KEY,
+      'x-api-key': getAnthropicKey(),
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
