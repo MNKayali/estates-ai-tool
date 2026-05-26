@@ -196,10 +196,26 @@ const STANDARDS_OPTIONS = [
 ]
 
 const INTERVENTION_LEVELS = [
-  { value: 'Like-for-like replacement', description: 'Replace a specific item in kind (e.g. boiler, windows). Minimal design — priced on Item/Nr rates only.' },
-  { value: 'Light touch', description: 'Cosmetic works only — decoration, minor repairs, patch-and-make-good. Limited design required.' },
-  { value: 'Refurbishment', description: 'Major refurbishment — systems replaced or upgraded, layout largely retained, full design team required.' },
-  { value: 'Strip-out and rebuild', description: 'Gut refurbishment — strip to structure, all services removed and replaced, new layout. Maximum design and survey allowance.' },
+  {
+    value: 'Fabric and finishes only',
+    signal: 'Lower cost · Minimal design',
+    description: 'Decoration, floor and wall finishes, ceilings, fixtures and fittings replaced in-place. No mechanical or electrical work whatsoever. No walls moved.',
+  },
+  {
+    value: 'Finishes with minor services',
+    signal: 'Moderate cost · Light design',
+    description: 'All of the above, plus light-touch M&E: replacement light fittings, sockets and switches, or 2nd fix fixtures only. Existing wiring and pipework stays. No new systems installed.',
+  },
+  {
+    value: 'Full systems replacement',
+    signal: 'Higher cost · Moderate design',
+    description: 'Complete replacement of heating, plumbing and electrical systems throughout. Everything replaced in the same position — no layout changes, no structural alterations. The building is essentially rewired and re-plumbed.',
+  },
+  {
+    value: 'Reconfiguration or full redesign',
+    signal: 'Highest cost · Full design team required',
+    description: 'Layout changes, walls moved or removed, or the building is stripped back to structure and redesigned. Requires architect, structural engineer, building control, and possibly planning consent.',
+  },
 ]
 
 const SPEC_LEVELS = [
@@ -734,7 +750,8 @@ export default function QuestionnairePage() {
                         className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ accentColor: '#2E75B6' }} />
                       <div>
                         <div className="font-bold" style={{ color: '#1F3864' }}>{opt.value}</div>
-                        <div style={{ color: '#555', fontSize: '14px' }}>{opt.description}</div>
+                        <div style={{ color: '#2E75B6', fontSize: '12px', fontWeight: 500, marginTop: '2px' }}>{opt.signal}</div>
+                        <div style={{ color: '#555', fontSize: '14px', marginTop: '2px' }}>{opt.description}</div>
                       </div>
                     </label>
                   ))}

@@ -30,6 +30,21 @@ export async function POST(request) {
       return Response.json({ error: `Missing required fields: ${missing.join(', ')}` }, { status: 400 })
     }
 
+    // ── Q2.3 validation (refurb/fit-out/extension only) ───────────────────────
+    const refurbTypes = ['Refurbishment', 'Fit-out', 'Extension']
+    const validInterventionLevels = [
+      'Fabric and finishes only',
+      'Finishes with minor services',
+      'Full systems replacement',
+      'Reconfiguration or full redesign',
+    ]
+    if (refurbTypes.includes(answers.q1_2_projectType) && !validInterventionLevels.includes(answers.q2_3_interventionLevel)) {
+      return Response.json({
+        error: 'Q2.3 — Level of works is required. Please select one of the four options.',
+        field: 'q2_3_interventionLevel',
+      }, { status: 400 })
+    }
+
     // ── Step 1: Deterministic cost calculation ────────────────────────────────
     console.log('[Step 1] Running cost calculator...')
     let cost

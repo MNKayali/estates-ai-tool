@@ -6,7 +6,18 @@
 import * as XLSX from 'xlsx'
 
 const NEW_ELEMENTS = ['5.2L', '5.7a', '5.8a', '5.8b', '5.8c', '5.9a', '5.9b']
-const Q2_3_OPTIONS = ['Like-for-like replacement', 'Light touch', 'Refurbishment', 'Strip-out and rebuild']
+const Q2_3_OPTIONS = [
+  'Fabric and finishes only',
+  'Finishes with minor services',
+  'Full systems replacement',
+  'Reconfiguration or full redesign',
+]
+const Q2_3_MULTIPLIERS = {
+  'Fabric and finishes only':         0.80,
+  'Finishes with minor services':     0.90,
+  'Full systems replacement':         1.00,
+  'Reconfiguration or full redesign': 1.15,
+}
 const PROGRAMME_SIZE_BANDS = ['Very Small', 'Small', 'Medium', 'Large']
 
 async function loadWorkbook(url, label) {
@@ -45,7 +56,8 @@ export async function GET() {
     sampleRate_4_3_unit:   null,
     sampleRate_4_3_rfbStd: null,
     programmeSizeBands: PROGRAMME_SIZE_BANDS,
-    q2_3_options_in_programme: Q2_3_OPTIONS,
+    q2_3_options: Q2_3_OPTIONS,
+    q2_3_multipliers: Q2_3_MULTIPLIERS,
     fetchedAt: new Date().toISOString(),
     errors: [],
   }
