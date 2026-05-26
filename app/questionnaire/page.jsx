@@ -784,11 +784,6 @@ export default function QuestionnairePage() {
                 ))}
               </div>
               {validationErrors.q2_4_specLevel && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q2_4_specLevel}</p>}
-              <label className="flex items-center gap-3 cursor-pointer mt-3" style={{ minHeight: '44px' }}>
-                <input type="checkbox" checked={!!answers.q2_4_breeam} onChange={e => set('q2_4_breeam', e.target.checked)}
-                  className="w-5 h-5 flex-shrink-0 rounded" style={{ accentColor: '#2E75B6' }} />
-                <span style={{ color: '#1A1A1A', fontSize: '16px' }}>BREEAM or equivalent sustainability certification required</span>
-              </label>
             </div>
 
             <div>
