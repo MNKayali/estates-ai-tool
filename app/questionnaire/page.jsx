@@ -103,7 +103,8 @@ const SCOPE_GROUPS = [
     items: [
       { code: '5.7',  label: 'Main LV panel and switchgear', desc: 'New main distribution board, LV panel, incoming metering and earthing' },
       { code: '5.7a', label: 'Sub-distribution and containment', desc: 'Sub-DBs, cable tray, trunking, conduit runs and busbar trunking throughout the building' },
-      { code: '__WIRING__', isWiringSection: true },
+      { code: '5.8a', label: '1st fix wiring', desc: 'New circuit cables and containment throughout; existing sockets and switches retained', isWiringItem: true },
+      { code: '5.8b', label: '2nd fix wiring', desc: 'Replacement sockets, switches and FCUs; existing circuit wiring reused', isWiringItem: true },
       { code: '5.8c', label: '2nd fix lighting', desc: 'New luminaires, lighting layout and controls' },
       { code: '5.9a', label: 'Fire alarm system', desc: 'Detection, call points, sounders and control panel — L1 to L3 system' },
       { code: '5.9b', label: 'Emergency lighting', desc: 'Maintained and non-maintained emergency luminaires with central test facility' },
@@ -582,6 +583,17 @@ export default function QuestionnairePage() {
                   const cleaned = scopeArr.filter(v => !['5.2', '5.2L', '5.5'].includes(v))
                   set('q2_2_scopeItems', type === '5.2' ? [...cleaned, '5.2', '5.5'] : [...cleaned, '5.2L'])
                 }
+                // Wiring checkboxes: 5.8a and 5.8b are independent; if both ticked = full rewire (5.8)
+                const toggleWiring = (code) => {
+                  const newScope = scopeArr.includes(code)
+                    ? scopeArr.filter(v => v !== code)
+                    : [...scopeArr, code]
+                  const has8a = newScope.includes('5.8a')
+                  const has8b = newScope.includes('5.8b')
+                  const newWiring = (has8a && has8b) ? '5.8' : has8a ? '5.8a' : has8b ? '5.8b' : 'none'
+                  set('q2_2_scopeItems', newScope)
+                  set('q2_2_wiring', newWiring)
+                }
                 // Inline styles (no external CSS needed)
                 const S = {
                   grpBlock: { marginBottom: 16 },
@@ -646,38 +658,15 @@ export default function QuestionnairePage() {
                                 </div>
                               )
                             }
-                            // ── WIRING sentinel ───────────────────────────────
-                            if (item.isWiringSection) {
-                              return (
-                                <div key="__wiring__" style={S.subgroup}>
-                                  <span style={S.subgroupLabel}>Electrical wiring — select one option</span>
-                                  {[
-                                    { value: '5.8',  label: 'Full rewire', desc: 'All-new circuits, cables and fittings — 1st and 2nd fix complete' },
-                                    { value: '5.8a', label: '1st fix wiring only', desc: 'New circuit cables and containment; existing sockets and switches retained' },
-                                    { value: '5.8b', label: '2nd fix only', desc: 'Replacement sockets, switches and FCUs; existing wiring reused' },
-                                    { value: 'none', label: 'Not included', desc: '' },
-                                  ].map(opt => (
-                                    <label key={opt.value} style={S.radioRow}>
-                                      <input type="radio" value={opt.value}
-                                        checked={(answers.q2_2_wiring || 'none') === opt.value}
-                                        onChange={() => set('q2_2_wiring', opt.value)}
-                                        style={S.radioCheck} />
-                                      <div style={S.itemText}>
-                                        <span style={S.radioLabel}>{opt.label}</span>
-                                        {opt.desc && <span style={S.radioDesc}>{opt.desc}</span>}
-                                      </div>
-                                    </label>
-                                  ))}
-                                </div>
-                              )
-                            }
                             // ── Regular checkbox item ──────────────────────────
                             const isTicked = scopeArr.includes(item.code)
                             const qItem = QUANTITY_ITEMS[item.code]
                             return (
                               <div key={item.code}>
                                 <label style={S.itemRow}>
-                                  <input type="checkbox" checked={isTicked} onChange={() => toggleScope(item.code)} style={S.itemCheck} />
+                                  <input type="checkbox" checked={isTicked}
+                                    onChange={() => item.isWiringItem ? toggleWiring(item.code) : toggleScope(item.code)}
+                                    style={S.itemCheck} />
                                   <div style={S.itemText}>
                                     <span style={S.itemLabel}>{item.label}</span>
                                     {item.desc && <span style={S.itemDesc}>{item.desc}</span>}
