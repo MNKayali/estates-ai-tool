@@ -823,6 +823,12 @@ export default function QuestionnairePage() {
               <Label>Q3.5 — Access constraints</Label>
               <HelpText>Tick all that apply. These affect the contractor's preliminaries allowance.</HelpText>
               <CheckboxGroup options={ACCESS_OPTIONS} values={answers.q3_5_accessConstraints} onChange={v => set('q3_5_accessConstraints', v)} />
+              {Array.isArray(answers.q3_5_accessConstraints) && answers.q3_5_accessConstraints.includes('Other') && (
+                <div className="mt-2 ml-8">
+                  <Textarea value={answers.q3_5_accessConstraintsOther} onChange={v => set('q3_5_accessConstraintsOther', v)}
+                    placeholder="Please describe the access constraint" rows={2} />
+                </div>
+              )}
             </div>
             <div>
               <Label>Q3.6 — Occupation during works</Label>
