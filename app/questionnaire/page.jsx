@@ -776,18 +776,9 @@ export default function QuestionnairePage() {
 
             <div>
               <Label>Q2.5 — Standards and compliance requirements</Label>
-              <HelpText>Select all that apply. Standards and funder conditions add cost and programme allowances.</HelpText>
-              <CheckboxGroup
-                options={STANDARDS_OPTIONS}
-                values={answers.q2_5_standards}
-                onChange={v => set('q2_5_standards', v)}
-              />
-              {Array.isArray(answers.q2_5_standards) && answers.q2_5_standards.includes('Other') && (
-                <div className="mt-2 ml-8">
-                  <Textarea value={answers.q2_5_standardsOther} onChange={v => set('q2_5_standardsOther', v)}
-                    placeholder="Please describe the standard or requirement" rows={2} />
-                </div>
-              )}
+              <HelpText>List any standards, certifications or funder conditions that apply — e.g. BREEAM, PAS 2035, NHS design guide, net zero, MCS, DNO requirements.</HelpText>
+              <Textarea value={answers.q2_5_standards} onChange={v => set('q2_5_standards', v)}
+                placeholder="e.g. BREEAM Very Good required by funder; PAS 2035 for retrofit works" rows={2} />
             </div>
           </div>
         )}
