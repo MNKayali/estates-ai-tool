@@ -103,42 +103,43 @@ export default function ReportPage() {
           </div>
         )}
 
-        {/* Cover */}
+        {/* Cover — navy with summary grid */}
         <div className="rounded-xl p-8 mb-8 text-white" style={{ backgroundColor: '#1F3864' }}>
-          <p className="text-sm uppercase tracking-widest opacity-70 mb-2">RIBA Stage 1 Feasibility Report</p>
-          <h1 className="text-3xl font-bold mb-4">{projectName}</h1>
-          <div className="flex flex-wrap gap-4">
-            <span className="px-3 py-1 rounded-full text-sm font-bold" style={{ backgroundColor: confidenceBadgeColor[grade] || '#2E75B6' }}>
+          <p className="text-xs uppercase tracking-widest mb-2" style={{ opacity: 0.7 }}>RIBA Stage 1 Feasibility Report</p>
+          <h1 className="font-bold mb-5" style={{ fontSize: '36px', lineHeight: '1.2' }}>{projectName}</h1>
+          <div className="flex flex-wrap gap-2 mb-6">
+            <span className="px-3 py-1 rounded text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.15)' }}>
               Grade {grade} — {aiProse?.confidenceLabel || 'Moderate Confidence'}
             </span>
-            <span className="px-3 py-1 rounded-full text-sm font-bold" style={{ backgroundColor: cost?.percentages?.riskLevel === 'High' ? '#C00000' : cost?.percentages?.riskLevel === 'Low' ? '#375623' : '#D97706' }}>
+            <span className="px-3 py-1 rounded text-xs font-semibold" style={{
+              background: cost?.percentages?.riskLevel === 'High' ? '#C00000' : cost?.percentages?.riskLevel === 'Low' ? '#375623' : '#D97706'
+            }}>
               {cost?.percentages?.riskLevel || 'Medium'} Cost Risk
             </span>
-            <span className="text-sm opacity-70">Generated {new Date(generatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+            <span className="text-xs" style={{ opacity: 0.7, alignSelf: 'center' }}>
+              Generated {new Date(generatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </span>
           </div>
-        </div>
-
-        {/* Total cost callout */}
-        <div className="rounded-xl p-6 mb-8" style={{ backgroundColor: '#EEF4FA', border: '2px solid #2E75B6' }}>
-          <div className="flex flex-wrap gap-6 items-center justify-between">
-            <div>
-              <p className="text-sm font-medium mb-1" style={{ color: '#1F3864' }}>Total Project Cost Range</p>
-              <p className="text-3xl font-bold" style={{ color: '#1F3864' }}>
-                {f1k(cost?.total?.low)} – {f1k(cost?.total?.high)}
-              </p>
-              <p className="text-sm mt-1" style={{ color: '#555' }}>Excluding VAT | {f1k(cost?.vat)} VAT at 20% (reference only)</p>
+          {/* Summary grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="sm:col-span-1 p-5 rounded-lg" style={{ background: 'rgba(255,255,255,0.1)' }}>
+              <p className="text-xs uppercase tracking-wider mb-1" style={{ opacity: 0.7 }}>Total Project Cost Range</p>
+              <p className="font-bold text-2xl">{f1k(cost?.total?.low)} – {f1k(cost?.total?.high)}</p>
+              <p className="text-xs mt-1" style={{ opacity: 0.7 }}>Excl. VAT &nbsp;|&nbsp; {f1k(cost?.vat)} VAT at 20% (ref)</p>
             </div>
-            <div>
-              <p className="text-sm font-medium mb-1" style={{ color: '#1F3864' }}>Programme</p>
-              <p className="text-2xl font-bold" style={{ color: '#1F3864' }}>{programme?.totalWeeks} weeks</p>
-              <p className="text-sm mt-1" style={{ color: programme?.targetStatus === 'at-risk' ? '#C00000' : '#375623' }}>
-                {programme?.targetStatus === 'achievable' ? 'Target date achievable' : programme?.targetStatus === 'at-risk' ? 'Target date NOT achievable' : 'No target date specified'}
+            <div className="p-5 rounded-lg" style={{ background: 'rgba(255,255,255,0.1)' }}>
+              <p className="text-xs uppercase tracking-wider mb-1" style={{ opacity: 0.7 }}>Programme</p>
+              <p className="font-bold text-2xl">{programme?.totalWeeks} weeks</p>
+              <p className="text-xs mt-1" style={{ color: programme?.targetStatus === 'at-risk' ? '#FF6B6B' : 'rgba(255,255,255,0.7)' }}>
+                {programme?.targetStatus === 'achievable' ? '✓ Target date achievable'
+                  : programme?.targetStatus === 'at-risk' ? '✕ Target date NOT achievable'
+                  : 'No target date specified'}
               </p>
             </div>
-            <div>
-              <p className="text-sm font-medium mb-1" style={{ color: '#1F3864' }}>BCIS Region</p>
-              <p className="text-lg font-bold" style={{ color: '#1F3864' }}>{cost?.bcisRegion}</p>
-              <p className="text-sm mt-1" style={{ color: '#555' }}>Factor: {cost?.bcisFactor}</p>
+            <div className="p-5 rounded-lg" style={{ background: 'rgba(255,255,255,0.1)' }}>
+              <p className="text-xs uppercase tracking-wider mb-1" style={{ opacity: 0.7 }}>BCIS Region</p>
+              <p className="font-bold text-xl">{cost?.bcisRegion}</p>
+              <p className="text-xs mt-1" style={{ opacity: 0.7 }}>Location factor: {cost?.bcisFactor}</p>
             </div>
           </div>
         </div>
@@ -163,13 +164,38 @@ export default function ReportPage() {
 
         {/* ── Section 2: Scope ─── */}
         <Section title="2. Scope of Works">
-          <p className="font-bold mb-2" style={{ color: '#1F3864' }}>Included Elements</p>
-          {cost?.lineItems && cost.lineItems.length > 0 ? (
-            <div className="overflow-x-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
+            {/* Included */}
+            <div>
+              <p className="font-bold mb-2" style={{ color: '#1F3864' }}>✓ Included</p>
+              {cost?.lineItems && cost.lineItems.length > 0 ? (
+                buildScopeGroupedList(cost.lineItems)
+              ) : (
+                <p style={{ color: '#555' }}>No scope items calculated. Please check your inputs.</p>
+              )}
+            </div>
+            {/* Excluded */}
+            <div>
+              <p className="font-bold mb-2" style={{ color: '#1F3864' }}>✕ Excluded</p>
+              <ul className="flex flex-col gap-1 text-sm" style={{ color: '#555' }}>
+                {['Loose furniture, fittings and equipment (FF&E)',
+                  'IT and AV equipment (unless explicitly scoped)',
+                  'Land acquisition, legal fees and stamp duty',
+                  'VAT (reference figure shown separately)',
+                  'Asbestos removal beyond the risk allowance',
+                  'Party wall awards and neighbourly matters',
+                  'Unforeseen ground conditions beyond risk allowance',
+                ].map((e, i) => <li key={i}>— {e}</li>)}
+              </ul>
+            </div>
+          </div>
+          {/* Works cost table — with Low/High columns */}
+          {cost?.lineItems && cost.lineItems.length > 0 && (
+            <div className="overflow-x-auto mt-4">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr style={{ backgroundColor: '#1F3864' }}>
-                    {['Code', 'Element', 'Unit', 'Rate (£)', 'Qty', 'Total (£)'].map(h => (
+                    {['Code', 'Element', 'Unit', 'Rate', 'Qty', 'Low £', 'High £'].map(h => (
                       <th key={h} className="text-left px-3 py-2 text-white font-medium">{h}</th>
                     ))}
                   </tr>
@@ -179,8 +205,6 @@ export default function ReportPage() {
                 </tbody>
               </table>
             </div>
-          ) : (
-            <p style={{ color: '#555' }}>No scope items calculated. Please check your inputs.</p>
           )}
           {aiProse?.scopeAssumptions?.length > 0 && (
             <div className="mt-4">
@@ -257,7 +281,7 @@ export default function ReportPage() {
                     <tr key={i} style={{ backgroundColor: s.stage === 'Gateway' ? '#EEF4FA' : i % 2 === 0 ? '#F9FAFB' : '#FFF', borderBottom: '1px solid #E5E7EB' }}>
                       <td className="px-3 py-2 font-medium" style={{ color: s.stage === 'Gateway' ? '#2E75B6' : '#1F3864' }}>{s.stage}</td>
                       <td className="px-3 py-2" style={{ color: '#333' }}>{s.activity}</td>
-                      <td className="px-3 py-2 font-bold" style={{ color: '#1F3864' }}>{s.durationWks}</td>
+                      <td className="px-3 py-2 font-bold" style={{ color: '#1F3864' }}>{s.weeks ?? s.durationWks}</td>
                     </tr>
                   ))}
                   <tr style={{ backgroundColor: '#1F3864' }}>
@@ -266,6 +290,29 @@ export default function ReportPage() {
                   </tr>
                 </tbody>
               </table>
+            </div>
+          )}
+          {/* Programme milestones */}
+          {programme?.milestones?.length > 0 && (
+            <div className="mt-4">
+              <p className="font-bold mb-2" style={{ color: '#1F3864' }}>Key Milestones</p>
+              <ul className="flex flex-col gap-1 text-sm">
+                {programme.milestones.map((m, i) => <li key={i} style={{ color: '#333' }}>— {m}</li>)}
+              </ul>
+            </div>
+          )}
+          {/* Programme assumptions */}
+          {(programme?.assumptions || programme?.standardAssumptions)?.length > 0 && (
+            <div className="mt-4 p-4 rounded-lg" style={{ backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+              <p className="font-bold mb-2 text-sm" style={{ color: '#1F3864' }}>Programme Assumptions</p>
+              <ol className="flex flex-col gap-1 text-sm" style={{ color: '#555' }}>
+                {(programme.assumptions || programme.standardAssumptions).map((a, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span style={{ color: '#2E75B6', fontWeight: 600, flexShrink: 0 }}>{i + 1}.</span>
+                    <span>{a}</span>
+                  </li>
+                ))}
+              </ol>
             </div>
           )}
         </Section>
@@ -284,14 +331,14 @@ export default function ReportPage() {
           {/* Section 2 — Construction Cost */}
           <p className="font-bold mb-2" style={{ color: '#1F3864' }}>Construction Cost</p>
           <SimpleTable
-            headers={['Item', 'Rate', 'Amount (£)']}
+            headers={['Item', 'Rate', 'Low (£)', 'High (£)']}
             rows={buildConstructionRows(cost)}
           />
 
           {/* Section 3 — Total Project Cost */}
           <p className="font-bold mb-2 mt-6" style={{ color: '#1F3864' }}>Total Project Cost</p>
           <SimpleTable
-            headers={['Item', 'Rate', 'Amount (£)']}
+            headers={['Item', 'Rate', 'Low (£)', 'High (£)']}
             rows={buildTotalRows(cost)}
             highlightLast
           />
@@ -384,10 +431,20 @@ export default function ReportPage() {
 // ─── Helper components ────────────────────────────────────────────────────────
 
 function Section({ title, children }) {
+  // Extract the number prefix from title like "1. Executive Summary"
+  const match = title.match(/^(\d+)[.\s](.+)$/)
+  const num = match ? match[1] : ''
+  const label = match ? match[2] : title
   return (
     <div className="mb-8 rounded-xl overflow-hidden" style={{ backgroundColor: '#FFF', border: '1px solid #E5E7EB' }}>
-      <div className="px-6 py-4" style={{ backgroundColor: '#1F3864' }}>
-        <h2 className="text-lg font-bold text-white">{title}</h2>
+      <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: '2px solid #1F3864' }}>
+        {num && (
+          <div className="flex-shrink-0 flex items-center justify-center font-bold text-sm text-white rounded-full"
+            style={{ width: '32px', height: '32px', backgroundColor: '#1F3864', fontSize: '14px' }}>
+            {num}
+          </div>
+        )}
+        <h2 className="text-lg font-semibold" style={{ color: '#1F3864', margin: 0 }}>{label}</h2>
       </div>
       <div className="px-6 py-5">{children}</div>
     </div>
@@ -400,14 +457,15 @@ function SimpleTable({ headers, rows, highlightLast = false }) {
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr style={{ backgroundColor: '#1F3864' }}>
-            {headers.map(h => <th key={h} className="text-left px-3 py-2 text-white font-medium">{h}</th>)}
+            {headers.map((h, hi) => (
+              <th key={h} className={`px-3 py-2 text-white font-medium ${hi >= 2 ? 'text-right' : 'text-left'}`}>{h}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {rows.map((row, i) => {
-            const isLast = i === rows.length - 1
             const isTotal = typeof row[0] === 'string' && (row[0].includes('TOTAL') || row[0].includes('COST'))
-            const isVat = typeof row[0] === 'string' && row[0].includes('VAT')
+            const isVat   = typeof row[0] === 'string' && row[0].includes('VAT')
             return (
               <tr key={i} style={{
                 backgroundColor: isTotal && !isVat ? '#1F3864' : isVat ? '#F9FAFB' : i % 2 === 0 ? '#F9FAFB' : '#FFF',
@@ -415,7 +473,10 @@ function SimpleTable({ headers, rows, highlightLast = false }) {
                 fontStyle: isVat ? 'italic' : 'normal',
               }}>
                 {row.map((cell, j) => (
-                  <td key={j} className="px-3 py-2 font-medium" style={{ color: isTotal && !isVat ? '#FFF' : '#333', fontWeight: isTotal ? 'bold' : 'normal' }}>{cell}</td>
+                  <td key={j} className={`px-3 py-2 ${j >= 2 ? 'text-right' : ''}`}
+                    style={{ color: isTotal && !isVat ? '#FFF' : '#333', fontWeight: isTotal ? 'bold' : 'normal' }}>
+                    {cell}
+                  </td>
                 ))}
               </tr>
             )
@@ -441,7 +502,7 @@ function buildWorksTableRows(lineItems) {
       lastGroup = item.group
       rows.push(
         <tr key={`g${item.group}`} style={{ backgroundColor: '#1F3864' }}>
-          <td colSpan={6} className="px-3 py-1.5 font-bold text-xs text-white/80">{groupNames[item.group] || `GROUP ${item.group}`}</td>
+          <td colSpan={7} className="px-3 py-1.5 font-bold text-xs text-white/80">{groupNames[item.group] || `GROUP ${item.group}`}</td>
         </tr>
       )
     }
@@ -452,50 +513,103 @@ function buildWorksTableRows(lineItems) {
         <td className="px-3 py-2 text-center" style={{ color: '#555' }}>{item.unit}</td>
         <td className="px-3 py-2 text-right" style={{ color: '#333' }}>{f(item.rate)}</td>
         <td className="px-3 py-2 text-right" style={{ color: '#555' }}>{item.qty}</td>
-        <td className="px-3 py-2 text-right font-medium" style={{ color: '#1F3864' }}>{f1k(item.lineMid)}</td>
+        <td className="px-3 py-2 text-right" style={{ color: '#666' }}>{f1k(item.lineLow)}</td>
+        <td className="px-3 py-2 text-right font-medium" style={{ color: '#1F3864' }}>{f1k(item.lineHigh)}</td>
       </tr>
     )
   })
-  const total = lineItems.reduce((s, i) => s + (i.lineMid || 0), 0)
+  const totalLow  = lineItems.reduce((s, i) => s + (i.lineLow  || 0), 0)
+  const totalHigh = lineItems.reduce((s, i) => s + (i.lineHigh || 0), 0)
   rows.push(
     <tr key="works-total" style={{ backgroundColor: '#1F3864' }}>
       <td colSpan={5} className="px-3 py-2 font-bold text-white">WORKS COST TOTAL</td>
-      <td className="px-3 py-2 font-bold text-white text-right">{f1k(total)}</td>
+      <td className="px-3 py-2 font-bold text-white text-right">{f1k(totalLow)}</td>
+      <td className="px-3 py-2 font-bold text-white text-right">{f1k(totalHigh)}</td>
     </tr>
   )
   return rows
 }
 
+// ─── Scope grouped list (for the two-column included/excluded layout) ──────────
+function buildScopeGroupedList(lineItems) {
+  if (!lineItems || lineItems.length === 0) return null
+  const groupNames = {
+    0: 'Group 0 — Facilitating Works',
+    1: 'Group 1 — Substructure',
+    2: 'Group 2 — Superstructure & Envelope',
+    3: 'Group 3 — Internal Finishes',
+    4: 'Group 4 — Fittings, Furnishings & Equipment',
+    5: 'Group 5 — Mechanical & Electrical Services',
+    6: 'Group 6 — Specialist Structures',
+    7: 'Group 7 — Work to Existing Buildings',
+    8: 'Group 8 — External Works',
+  }
+  const groups = {}
+  for (const item of lineItems) {
+    const grp = item.group
+    if (!groups[grp]) groups[grp] = []
+    groups[grp].push(item.description)
+  }
+  return (
+    <div className="text-sm">
+      {Object.entries(groups).map(([grp, items]) => (
+        <div key={grp} className="mb-2">
+          <p className="font-semibold mb-1" style={{ color: '#1F3864', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+            {groupNames[Number(grp)] || `Group ${grp}`}
+          </p>
+          <ul className="flex flex-col gap-0.5">
+            {items.map((desc, i) => <li key={i} style={{ color: '#333' }}>— {desc}</li>)}
+          </ul>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function buildConstructionRows(cost) {
   if (!cost) return []
+  const p = cost.percentages
+  const w = cost.works
+  const c = cost.construction
   return [
-    ['Works Cost', '', f1k(cost.works?.mid)],
-    [`Contractor's Preliminaries (A)`, `${pct(cost.percentages?.prelims)} of Works`, f1k(cost.breakdown?.prelims)],
-    ['Overheads & Profit (B)', `${pct(cost.percentages?.ohp)} of Works`, f1k(cost.breakdown?.ohp)],
-    ['CONSTRUCTION COST TOTAL', '', f1k(cost.construction?.mid)],
+    ['Works Cost', '', f1k(w?.low), f1k(w?.high)],
+    [`Contractor's Preliminaries (A)`, `${pct(p?.prelims)} of Works`, f1k(w?.low * (p?.prelims || 0) / 100), f1k(w?.high * (p?.prelims || 0) / 100)],
+    ['Overheads & Profit (B)', `${pct(p?.ohp)} of Works`, f1k(w?.low * (p?.ohp || 0) / 100), f1k(w?.high * (p?.ohp || 0) / 100)],
+    ['CONSTRUCTION COST TOTAL', '', f1k(c?.low), f1k(c?.high)],
   ]
 }
 
 function buildTotalRows(cost) {
   if (!cost) return []
-  return [
-    ['Construction Cost', '', f1k(cost.construction?.mid)],
-    ['Professional Fees (C)', `${pct(cost.percentages?.fees)} of Construction`, f1k(cost.breakdown?.fees)],
-    ['Developer & Project Costs (D)', `${pct(cost.percentages?.devCosts)} of Construction`, f1k(cost.breakdown?.devCosts)],
-    ['Risk Allowance (E)', `${pct(cost.percentages?.risk)} of Works`, f1k(cost.breakdown?.risk)],
-    ['Client Contingency (H)', `${pct(cost.percentages?.contingency)} of Works`, f1k(cost.breakdown?.contingency)],
-    ['Inflation Allowance (F)', `${pct(cost.percentages?.inflation)} of Works`, f1k(cost.breakdown?.inflation)],
-    ['TOTAL PROJECT COST (excl. VAT)', '', f1k(cost.total?.mid)],
-    ['VAT @ 20% (reference only)', '20%', f1k(cost.vat)],
+  const p = cost.percentages
+  const c = cost.construction
+  const w = cost.works
+  const t = cost.total
+  const rows = [
+    ['Construction Cost', '', f1k(c?.low), f1k(c?.high)],
+    ['Professional Fees (C)', `${pct(p?.fees)} of Construction`, f1k(c?.low * (p?.fees || 0) / 100), f1k(c?.high * (p?.fees || 0) / 100)],
   ]
+  if ((cost.breakdown?.devCosts || 0) > 0) {
+    rows.push(['Developer & Project Costs (D)', `${pct(p?.devCosts)} of Construction`, f1k(c?.low * (p?.devCosts || 0) / 100), f1k(c?.high * (p?.devCosts || 0) / 100)])
+  }
+  rows.push(
+    ['Risk Allowance (E)', `${pct(p?.risk)} of Works`, f1k(w?.low * (p?.risk || 0) / 100), f1k(w?.high * (p?.risk || 0) / 100)],
+    ['Client Contingency (H)', '5% of Works', f1k(w?.low * 0.05), f1k(w?.high * 0.05)],
+    ['Inflation Allowance (F)', `${pct(p?.inflation)} of Works`, f1k(w?.low * (p?.inflation || 0) / 100), f1k(w?.high * (p?.inflation || 0) / 100)],
+    ['TOTAL PROJECT COST (excl. VAT)', '', f1k(t?.low), f1k(t?.high)],
+    ['VAT @ 20% (reference only)', '20%', f1k(t?.low * 0.20), f1k(t?.high * 0.20)],
+  )
+  return rows
 }
 
 function ratingBadge(val, bold = false) {
-  const colors = { High: { bg: '#FEE2E2', text: '#C00000' }, Medium: { bg: '#FEF9C3', text: '#92400E' }, Low: { bg: '#DCFCE7', text: '#166534' } }
-  const c = colors[val] || { bg: '#F3F4F6', text: '#374151' }
-  return (
-    <span className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: c.bg, color: c.text, fontWeight: bold ? 'bold' : 'normal' }}>
-      {val}
-    </span>
-  )
+  // Solid RAG colours for ratings, lighter tones for likelihood/impact
+  const solidColors = { High: '#C00000', Medium: '#ED7D31', Low: '#70AD47' }
+  const lightColors = { High: { bg: '#FEE2E2', text: '#C00000' }, Medium: { bg: '#FEF9C3', text: '#92400E' }, Low: { bg: '#DCFCE7', text: '#166534' } }
+  if (bold) {
+    const bg = solidColors[val] || '#6B7280'
+    return <span className="px-2 py-0.5 rounded text-xs font-bold text-white" style={{ backgroundColor: bg }}>{val}</span>
+  }
+  const c = lightColors[val] || { bg: '#F3F4F6', text: '#374151' }
+  return <span className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: c.bg, color: c.text }}>{val}</span>
 }

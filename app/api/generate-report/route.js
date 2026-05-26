@@ -30,7 +30,9 @@ export async function POST(request) {
       return Response.json({ error: `Missing required fields: ${missing.join(', ')}` }, { status: 400 })
     }
 
-    // ── Q2.3 validation (refurb/fit-out/extension only) ───────────────────────
+    // ── Fix 9: Validation guards ──────────────────────────────────────────────
+
+    // Guard 1 — Q2.3 must be recognised (refurb/fit-out/extension only)
     const refurbTypes = ['Refurbishment', 'Fit-out', 'Extension']
     const validInterventionLevels = [
       'Fabric and finishes only',
@@ -45,6 +47,14 @@ export async function POST(request) {
       }, { status: 400 })
     }
 
+    // Guard 2 — scope must have at least one item
+    if (!answers.q2_2_scopeItems || answers.q2_2_scopeItems.length === 0) {
+      return Response.json({
+        error: 'At least one scope item must be selected in Q2.2.',
+        field: 'q2_2_scopeItems',
+      }, { status: 400 })
+    }
+
     // ── Step 1: Deterministic cost calculation ────────────────────────────────
     console.log('[Step 1] Running cost calculator...')
     let cost
@@ -56,6 +66,14 @@ export async function POST(request) {
       return Response.json({ error: 'Cost calculation failed: ' + e.message }, { status: 500 })
     }
 
+    // Guard 3 — cost calculator must return line items
+    if (!cost.lineItems || cost.lineItems.length === 0) {
+      return Response.json({
+        error: 'Cost calculator returned no line items. Check scope inputs and workbook connection.',
+        debug: { scope: answers.q2_2_scopeItems, interventionLevel: answers.q2_3_interventionLevel },
+      }, { status: 500 })
+    }
+
     // ── Step 2: Deterministic programme calculation ────────────────────────────
     console.log('[Step 2] Running programme calculator...')
     let programme
@@ -64,6 +82,18 @@ export async function POST(request) {
     } catch (e) {
       console.error('[Step 2 error]', e.message)
       return Response.json({ error: 'Programme calculation failed: ' + e.message }, { status: 500 })
+    }
+
+    // Guard 4 — tender stage must not be zero
+    const tenderStage = (programme.stages || []).find(s => s.stage === 'Tender / Procurement')
+    if (!tenderStage || (tenderStage.weeks || 0) === 0) {
+      console.error('[Guard 4] Tender period is zero — getTenderWeeks() may have failed')
+    }
+
+    // Guard 5 — assumptions must have no unfilled placeholders
+    const allAssumptionText = (programme.assumptions || []).join(' ')
+    if (allAssumptionText.includes('[') && allAssumptionText.includes(']')) {
+      console.warn('[Guard 5] Unfilled placeholder found in programme assumptions')
     }
 
     // ── Re-run cost with programme weeks (for inflation + prelims cap) ────────
@@ -248,9 +278,11 @@ Return this exact JSON structure:
 }`
 }
 
-// ─── Serialisers (safe for JSON response — remove buffer) ─────────────────────
+// ─── Serialisers ──────────────────────────────────────────────────────────────
+// Fix 1: include lineItems and stages so the HTML report page has all data
 function serializeCost(cost) {
   return {
+    lineItems: cost.lineItems,          // Fix 2: needed by scope section in HTML
     works: cost.works,
     construction: cost.construction,
     total: cost.total,
@@ -263,15 +295,29 @@ function serializeCost(cost) {
     bandFactor: cost.bandFactor,
     percentages: cost.percentages,
     breakdown: cost.breakdown,
-    lineItemCount: (cost.lineItems || []).length,
   }
 }
 
 function serializeProgramme(programme) {
-  const { stages, milestones, standardAssumptions, ...rest } = programme
   return {
-    ...rest,
-    stageCount: (stages || []).length,
-    milestoneCount: (milestones || []).length,
+    stages:              programme.stages,
+    milestones:          programme.milestones,
+    assumptions:         programme.assumptions,
+    standardAssumptions: programme.standardAssumptions,
+    totalWeeks:          programme.totalWeeks,
+    surveyWeeks:         programme.surveyWeeks,
+    designWeeks:         programme.designWeeks,
+    tenderWeeks:         programme.tenderWeeks,
+    constructionWeeks:   programme.constructionWeeks,
+    handoverWeeks:       programme.handoverWeeks,
+    planningWeeks:       programme.planningWeeks,
+    bcWeeks:             programme.bcWeeks,
+    targetStatus:        programme.targetStatus,
+    targetNote:          programme.targetNote,
+    procurementRoute:    programme.procurementRoute,
+    occupationUplift:    programme.occupationUplift,
+    constructionType:    programme.constructionType,
+    grantGovernanceWeeks: programme.grantGovernanceWeeks,
+    procurementNote:     programme.procurementNote,
   }
 }
