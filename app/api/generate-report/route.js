@@ -158,7 +158,7 @@ Specification level: ${cost.specLevel} | Level of intervention: ${cost.intervent
 Objective: ${answers.q2_1_objective || 'Not stated'}
 Scope items: ${(answers.q2_2_scopeItems || []).join(', ') || 'None specified'}
 Known issues: ${(answers.q3_1_knownIssues || []).join(', ') || 'None identified'}
-Surveys: ${answers.q3_3_surveys || 'Not stated'} | Planning: ${answers.q3_4_planningConsents || 'Not stated'}
+Surveys: ${Array.isArray(answers.q3_3_surveys) ? answers.q3_3_surveys.join(', ') : (answers.q3_3_surveys || 'Not stated')} | Planning: ${Array.isArray(answers.q3_4_planningConsents) ? answers.q3_4_planningConsents.join(', ') : (answers.q3_4_planningConsents || 'Not stated')}
 Access constraints: ${(answers.q3_5_accessConstraints || []).join(', ') || 'None'}
 Occupation during works: ${answers.q3_6_occupation || 'Not stated'}
 Target date: ${answers.q4_1_targetDate || 'None specified'} | Budget: ${answers.q4_2_budgetFigure ? f(answers.q4_2_budgetFigure) : 'Not stated'}

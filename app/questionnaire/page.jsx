@@ -26,126 +26,172 @@ const LOADING_MESSAGES = [
 const PROJECT_TYPES = ['New Build', 'Refurbishment', 'Fit-out', 'Extension', 'External Works', 'Renewable Energy', 'Demolition', 'Mixed']
 const BUILDING_AGES = ['Pre-1900', '1900–1945', '1945–1980', '1980–2000', 'Post-2000', 'Not applicable (new build)']
 
-// ─── Section 2 data — NAMES MUST MATCH TAB 7 EXACTLY ─────────────────────────
+// ─── Section 2 data — NRM1 v3.2 codes ────────────────────────────────────────
+// Each item: { code, label, unit, applies }
+// Special sentinel: { code: '__WIRING__', isWiringSection: true }
 const SCOPE_GROUPS = [
   {
-    group: 'ENABLING & DEMOLITION',
+    id: 'GRP0',
+    group: 'GRP 0 — FACILITATING WORKS',
+    note: 'Refurbishment · Demolition · Brownfield new build',
     items: [
-      'Demolition and strip-out',
-      'Ground remediation or enabling works',
+      { code: '0.1', label: 'Asbestos and hazardous material removal', unit: 'Item', applies: 'Rfb · Demo' },
+      { code: '0.2', label: 'Demolition, strip-out or structural alterations', unit: 'Item', applies: 'All' },
+      { code: '0.3', label: 'Contaminated land treatment and remediation', unit: 'Item', applies: 'NB · Ext · Demo' },
     ],
   },
   {
-    group: 'STRUCTURAL & CIVIL',
+    id: 'GRP1',
+    group: 'GRP 1 — SUBSTRUCTURE',
+    note: 'New build and extension only',
     items: [
-      'Substructure or foundations',
-      'Structural frame',
-      'Structural alterations or new openings',
+      { code: '1.1-1.3', label: 'Foundations and ground floor slab — inc DPM and insulation', unit: 'm²', applies: 'NB · Ext' },
+      { code: '1.4', label: 'Basement excavation and structure', unit: 'Item', applies: 'NB · Ext' },
     ],
   },
   {
-    group: 'FABRIC & ENVELOPE',
+    id: 'GRP2',
+    group: 'GRP 2 — SUPERSTRUCTURE & ENVELOPE',
+    note: 'Structure, fabric, openings and waterproofing',
     items: [
-      'Roof (new or replacement)',
-      'Facade or external walls',
-      'Windows and external doors',
-      'Waterproofing or tanking',
+      { code: '2.1-2.2', label: 'Structural frame and upper floors', unit: 'm²', applies: 'NB · Ext · Rfb' },
+      { code: '2.3', label: 'Roof — new structure, replacement covering or major repair', unit: 'm²', applies: 'All' },
+      { code: '2.5', label: 'External walls and facade — new build, overcladding or repair', unit: 'm²', applies: 'NB · Ext · Rfb' },
+      { code: '2.6', label: 'Windows and external doors — replacement or new', unit: 'm²', applies: 'All' },
+      { code: '2.7', label: 'Internal partitions and doors — new layout or relocation', unit: 'm²', applies: 'All' },
+      { code: '2.9', label: 'Waterproofing and tanking — flat roof membrane, basement or wet area tanking', unit: 'm²', applies: 'All' },
     ],
   },
   {
-    group: 'EXTERNAL WORKS',
+    id: 'GRP3',
+    group: 'GRP 3 — INTERNAL FINISHES',
+    note: 'Tick the finishes in scope — specification level (Q2.4) controls the rate applied',
     items: [
-      'External works and landscaping',
-      'Car parking',
-      'External lighting',
+      { code: '3.1', label: 'Wall finishes — plaster skim, paint, tiling, dry lining, wall boarding', unit: 'm²', applies: 'All' },
+      { code: '3.2', label: 'Floor finishes — screeds, vinyl, carpet, ceramic tile, timber, stone', unit: 'm²', applies: 'All' },
+      { code: '3.3', label: 'Ceiling finishes — plasterboard, suspended grid and tile, acoustic treatment', unit: 'm²', applies: 'All' },
     ],
   },
   {
-    group: 'MECHANICAL SERVICES',
+    id: 'GRP4',
+    group: 'GRP 4 — FITTINGS, FURNISHINGS & EQUIPMENT',
+    note: 'FF&E and specialist fit-out',
     items: [
-      'Heating system',
-      'Gas boiler or plant — like-for-like replacement',
-      'Ventilation or air handling',
-      'Air conditioning or cooling',
-      'Plumbing first fix',
-      'Plumbing second fix and fittings',
-      'Sprinkler or fire suppression',
-      'Gas installation',
+      { code: '4.1', label: 'Joinery and built-in furniture — reception counters, shelving, worktops, wardrobes', unit: 'Item', applies: 'All' },
+      { code: '4.2', label: 'Sanitary fittings and toilet fit-out — inc accessible, changing and assisted facilities', unit: 'Nr', applies: 'All' },
+      { code: '4.3', label: 'Kitchen, servery or break-out area — units, worktops and appliances', unit: 'Nr', applies: 'All' },
+      { code: '4.4', label: 'Specialist or process equipment — lab, clinical, retail, data centre, plant room', unit: 'Item', applies: 'All' },
     ],
   },
   {
-    group: 'ELECTRICAL SERVICES',
+    id: 'GRP5A',
+    group: 'GRP 5A — MECHANICAL SERVICES',
     items: [
-      'Electrical distribution and switchgear',
-      'Sub-distribution and containment',
-      '2nd fix lighting',
-      'Fire alarm system',
-      'Emergency lighting',
-    ],
-    hasWiringRadio: true,
-  },
-  {
-    group: 'LOW CARBON & ENERGY',
-    items: [
-      'Solar PV or renewable energy',
-      'Battery storage system',
-      'Grid connection upgrade or DNO approval',
-      'Building energy management system (BEMS)',
-      'EV charging points',
+      { code: '5.1',  label: 'Plumbing — HWS, cold water supply, drainage and waste (1st and 2nd fix)', unit: 'm²', applies: 'All' },
+      { code: '5.2',  label: 'Heating — new or upgraded system: LTHW, heat pump, underfloor heating, radiators', unit: 'm²', applies: 'All' },
+      { code: '5.2L', label: 'Gas boiler or plant — like-for-like replacement of end-of-life boiler or heat source only (no new pipework)', unit: 'Item', applies: 'Rfb' },
+      { code: '5.5',  label: 'Gas installation — new supply pipework, meter, gas service extension or boosted service', unit: 'Item', applies: 'All' },
+      { code: '5.3',  label: 'Ventilation and air handling — AHU, MVHR, heat recovery, mechanical extract, lab or healthcare ventilation', unit: 'm²', applies: 'All' },
+      { code: '5.4',  label: 'Air conditioning, cooling or refrigeration — VRF, splits, chilled beam, cold store, process cooling', unit: 'm²', applies: 'All' },
+      { code: '5.6',  label: 'Sprinkler or fire suppression system', unit: 'm²', applies: 'All' },
     ],
   },
   {
-    group: 'INTERNAL FIT-OUT & FINISHES',
-    note: 'Wall, floor and ceiling finishes are always included in the cost estimate.',
+    id: 'GRP5B',
+    group: 'GRP 5B — ELECTRICAL SERVICES',
     items: [
-      'Internal partitions and walls',
-      'Internal doors and ironmongery',
-      'Ceilings',
-      'Flooring',
-      'Redecoration',
-      'Joinery and built-in furniture',
-      'Kitchen or break-out area',
-      'Toilets or wet rooms',
+      { code: '5.7',  label: 'Main LV panel and switchgear — new main distribution board, LV panel, incoming metering and earthing', unit: 'Item', applies: 'All' },
+      { code: '5.7a', label: 'Sub-distribution and containment — sub-DBs, busbar trunking, cable tray, trunking and conduit runs', unit: 'm²', applies: 'All' },
+      { code: '__WIRING__', isWiringSection: true },
+      { code: '5.8c', label: '2nd fix lighting — new luminaires, lighting layout, lighting controls and occupancy sensors', unit: 'm²', applies: 'All' },
+      { code: '5.9a', label: 'Fire alarm system — new or upgraded detection, call points, sounders, visual alarms and control panel (L1–L3)', unit: 'm²', applies: 'All' },
+      { code: '5.9b', label: 'Emergency lighting — maintained and non-maintained emergency luminaires, central test system', unit: 'm²', applies: 'All' },
     ],
   },
   {
-    group: 'SPECIALIST FIT-OUT',
+    id: 'GRP5C',
+    group: 'GRP 5C — LOW CARBON & RENEWABLES',
     items: [
-      'Laboratory fit-out',
-      'Clinical or healthcare fit-out',
-      'Data centre or server room',
+      { code: '5.11', label: 'Solar PV — panels, inverters and racking  ★ state kWp in Q1.5', unit: 'kWp', applies: 'All' },
+      { code: '5.12', label: 'Battery energy storage (BESS)  ★ state kWh capacity in Q1.5', unit: 'kWh', applies: 'All' },
+      { code: '5.13', label: 'Grid connection or DNO upgrade — new supply, reinforcement, protection relays and metering', unit: 'Item', applies: 'All' },
+      { code: '5.14', label: 'BEMS — building energy management system, controls, remote monitoring and sub-metering', unit: 'm²', applies: 'All' },
+      { code: '5.15', label: 'EV charging points  ★ state number of charging points in Q1.5', unit: 'Nr', applies: 'All' },
     ],
   },
   {
-    group: 'TECHNOLOGY & SECURITY',
+    id: 'GRP5D',
+    group: 'GRP 5D — COMMUNICATIONS, SECURITY & TRANSPORT',
     items: [
-      'IT infrastructure and data cabling',
-      'AV systems',
-      'Access control and security',
-      'CCTV',
+      { code: '5.16', label: 'IT and data infrastructure — Cat6A cabling, containment, patch panels and comms rooms', unit: 'm²', applies: 'All' },
+      { code: '5.18', label: 'Access control, CCTV and security — door access, cameras, intruder alarm, PA', unit: 'm²', applies: 'All' },
+      { code: '5.19', label: 'Lift or platform lift  ★ state number of installations in Q1.5', unit: 'Nr', applies: 'All' },
     ],
   },
   {
-    group: 'ACCESSIBILITY',
+    id: 'GRP6',
+    group: 'GRP 6 — SPECIALIST STRUCTURES',
+    note: 'Office, industrial and data-centre projects',
     items: [
-      'Lift or platform lift',
-      'Accessible toilet or changing facilities',
-      'Ramps or level access',
-      'Wayfinding and signage',
+      { code: '6.2', label: 'Raised access floor or mezzanine structure — inc supports and infill panels', unit: 'Item', applies: 'All' },
+    ],
+  },
+  {
+    id: 'GRP7',
+    group: 'GRP 7 — WORK TO EXISTING BUILDINGS',
+    note: 'Refurbishment and extension only — not applicable to new build',
+    items: [
+      { code: '7.1', label: 'Structural repairs — crack stitching, bearing repairs, beam or column strengthening', unit: 'Item', applies: 'Rfb · Ext' },
+      { code: '7.2', label: 'Fabric and envelope repairs — repointing, render, weathertight works, overcladding patch', unit: 'Item', applies: 'Rfb · Ext' },
+      { code: '7.3', label: 'Damp proof course treatment and damp remediation', unit: 'Item', applies: 'Rfb · Ext' },
+      { code: '7.4', label: 'M&E overhaul — like-for-like replacement of end-of-life plant and distribution (not new installation)', unit: 'Item', applies: 'Rfb · Ext' },
+      { code: '7.5', label: 'Making good after structural works — patch plaster, redecoration, fire stopping', unit: 'Item', applies: 'Rfb · Ext' },
+    ],
+  },
+  {
+    id: 'GRP8',
+    group: 'GRP 8 — EXTERNAL WORKS',
+    note: 'Always consider — primary scope for External Works projects',
+    items: [
+      { code: '8.1', label: 'Site preparation and clearance — strip topsoil, temporary fencing and hoarding', unit: 'Item', applies: 'All' },
+      { code: '8.2', label: 'Roads, paths and hard paving — macadam, block paving, edging', unit: 'm²', applies: 'All' },
+      { code: '8.3', label: 'Car parking — surfacing, line marking, disabled bays  ★ state number of spaces in Q1.5', unit: 'Nr', applies: 'All' },
+      { code: '8.4', label: 'Drainage — surface water, foul drainage and sewer connections', unit: 'Item', applies: 'All' },
+      { code: '8.6', label: 'External utility services — gas, water and electric diversions or new connections', unit: 'Item', applies: 'All' },
+      { code: '8.7', label: 'Soft landscaping — planting, seeding, topsoil, planters', unit: 'm²', applies: 'All' },
+      { code: '8.8', label: 'Boundary enclosures — security fencing, gates, walls, bollards', unit: 'Item', applies: 'All' },
+      { code: '8.9', label: 'External lighting — site-wide column or wall-mounted lighting', unit: 'Item', applies: 'All' },
     ],
   },
 ]
 
-// Items that need a quantity field when ticked
+// Items that need a quantity sub-prompt when ticked — keyed by NRM1 code
 const QUANTITY_ITEMS = {
-  'Solar PV or renewable energy':    { field: 'q2_5_pvKwp',     label: 'Approximate solar PV capacity (kWp)', unit: 'kWp', placeholder: 'e.g. 50' },
-  'Battery storage system':          { field: 'q2_5_battKwh',   label: 'Approximate battery capacity (kWh)', unit: 'kWh', placeholder: 'e.g. 100' },
-  'EV charging points':              { field: 'q2_5_evNr',      label: 'Number of EV charging points', unit: 'Nr', placeholder: 'e.g. 10' },
-  'Lift or platform lift':           { field: 'q2_5_liftNr',    label: 'Number of lifts or platform lifts', unit: 'Nr', placeholder: 'e.g. 1' },
-  'Car parking':                     { field: 'q2_5_carParksNr',label: 'Number of car parking spaces', unit: 'Nr', placeholder: 'e.g. 20' },
-  'Toilets or wet rooms':            { field: 'q2_2_bathrooms', label: 'How many bathrooms or wet rooms?', unit: 'Nr', placeholder: 'e.g. 2 (1 bathroom + 1 en-suite = 2)' },
-  'Kitchen or break-out area':       { field: 'q2_2_kitchens',  label: 'How many kitchens or kitchenettes?', unit: 'Nr', placeholder: 'e.g. 1' },
+  '4.2':  { field: 'q2_2_bathrooms',  label: 'How many bathroom / sanitary fit-out suites?', unit: 'Nr', placeholder: 'e.g. 4' },
+  '4.3':  { field: 'q2_2_kitchens',   label: 'How many kitchens or serveries?', unit: 'Nr', placeholder: 'e.g. 1' },
+  '5.11': { field: 'q2_5_pvKwp',      label: 'Solar PV capacity (kWp)', unit: 'kWp', placeholder: 'e.g. 50' },
+  '5.12': { field: 'q2_5_battKwh',    label: 'Battery storage capacity (kWh)', unit: 'kWh', placeholder: 'e.g. 100' },
+  '5.15': { field: 'q2_5_evNr',       label: 'Number of EV charging points', unit: 'Nr', placeholder: 'e.g. 10' },
+  '5.19': { field: 'q2_5_liftNr',     label: 'Number of lifts or platform lifts', unit: 'Nr', placeholder: 'e.g. 1' },
+  '8.3':  { field: 'q2_5_carParksNr', label: 'Number of car parking spaces', unit: 'Nr', placeholder: 'e.g. 20' },
 }
+
+// Q2.5 — Standards and compliance requirements
+const STANDARDS_OPTIONS = [
+  'BREEAM',
+  'PAS 2035',
+  'NHS design guide',
+  'Net zero',
+  'University design guide',
+  'Acoustic',
+  'Food hygiene',
+  'MCS',
+  'DNO',
+  'Highways',
+  'Dark sky',
+  'None',
+  'Other',
+]
 
 const INTERVENTION_LEVELS = [
   { value: 'Like-for-like replacement', description: 'Replace a specific item in kind (e.g. boiler, windows). Minimal design — priced on Item/Nr rates only.' },
@@ -174,56 +220,65 @@ const KNOWN_ISSUES = [
 ]
 
 const SURVEY_OPTIONS = [
-  'Full survey pack available',
-  'Partial surveys',
-  'Asbestos register only',
-  'None yet',
+  'Asbestos register',
+  'Structural',
+  'Condition',
+  'Topographic',
+  'Ground investigation',
+  'Energy audit',
+  'Fire risk assessment',
+  'None',
+  'Other',
 ]
 
-// VALUES must match conditions checked in costCalculator.js
+// Multi-select — VALUES match substring checks in costCalculator.js
 const PLANNING_OPTIONS = [
   'Full planning',
-  'Full planning + Listed Building Consent',
-  'Change of use consent',
+  'Listed Building Consent',
   'Prior approval',
+  'Change of use',
   'Permitted development',
-  'Unsure / pre-application',
-  'No consent required',
+  'Unsure',
 ]
 
-// VALUES must match conditions checked in costCalculator.js
+// VALUES match substring checks in costCalculator.js and programmeCalculator.js
 const ACCESS_OPTIONS = [
   'Restricted working hours',
   'Shared access with other occupiers',
-  'Term-time only working',
   'No vehicle access or restricted deliveries',
-  'No constraints',
+  'Height or weight restrictions on site',
+  'Scaffold licence or highway encroachment required',
+  'Term-time only working',
+  'No access constraints',
+  'Other',
 ]
 
-// VALUES must match conditions checked in costCalculator.js
+// VALUES match substring checks in costCalculator.js and programmeCalculator.js
 const OCCUPATION_OPTIONS = [
-  'Fully occupied throughout',
+  'Fully occupied',
   'Partially occupied',
-  'Fully decanted before works begin',
-  'Not applicable (new build)',
+  'Full decant',
+  'Currently vacant',
+  'Not applicable',
 ]
 
 // ─── Section 4 data ───────────────────────────────────────────────────────────
 const PRIORITIES = [
-  'Keeping costs as low as possible',
-  'Fixed price and cost certainty',
-  'Completing as quickly as possible',
-  'High quality design and finish',
-  'Minimising disruption to occupants',
-  'Meeting a funder or compliance deadline',
+  'Lowest cost',
+  'Fixed / certain final cost',
+  'Speed',
+  'Design quality',
+  'Flexibility',
+  'Minimise disruption',
+  'Funder / compliance requirement',
 ]
 
-// VALUES must match conditions checked in costCalculator.js
+// Full labels as displayed — backend uses .includes('Stage N') substring check
 const DESIGN_STAGE_OPTIONS = [
-  'Stage 0–1',
-  'Stage 2',
-  'Stage 3',
-  'Stage 4',
+  'Concept only (Stage 0–1)',
+  'Concept complete (Stage 2)',
+  'Developed design (Stage 3)',
+  'Technical complete (Stage 4)',
 ]
 
 const UTILITIES_OPTIONS = [
@@ -503,55 +558,80 @@ export default function QuestionnairePage() {
 
             <div>
               <Label>Q2.2 — Scope of works</Label>
-              <HelpText>Tick every element you expect to be included. Wall, floor and ceiling finishes are always priced. Tick items even if uncertain — you can exclude them later.</HelpText>
-              {SCOPE_GROUPS.map(grp => (
-                <div key={grp.group} className="mb-5">
-                  <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#2E75B6' }}>{grp.group}</p>
-                  {grp.note && <p className="text-xs italic mb-2" style={{ color: '#777' }}>{grp.note}</p>}
-                  <CheckboxGroup
-                    options={grp.items}
-                    values={answers.q2_2_scopeItems}
-                    onChange={v => set('q2_2_scopeItems', v)}
-                  />
-                  {/* Electrical wiring — mutually exclusive radio group */}
-                  {grp.hasWiringRadio && (
-                    <div className="mt-3 p-3 rounded-lg" style={{ backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
-                      <p className="text-sm font-bold mb-2" style={{ color: '#1F3864' }}>Electrical wiring scope (select one):</p>
-                      <div className="flex flex-col gap-2">
-                        {[
-                          { value: '5.8',  label: 'Full electrical rewire — 1st and 2nd fix complete' },
-                          { value: '5.8a', label: 'Electrical 1st fix wiring only — new cables, existing outlets retained' },
-                          { value: '5.8b', label: 'Electrical 2nd fix only — replacement outlets, existing wiring reused' },
-                          { value: 'none', label: 'Not included' },
-                        ].map(opt => (
-                          <label key={opt.value} className="flex items-center gap-3 cursor-pointer" style={{ minHeight: '40px' }}>
-                            <input type="radio" value={opt.value}
-                              checked={(answers.q2_2_wiring || 'none') === opt.value}
-                              onChange={() => set('q2_2_wiring', opt.value)}
-                              className="w-5 h-5 flex-shrink-0" style={{ accentColor: '#2E75B6' }} />
-                            <span style={{ color: '#1A1A1A', fontSize: '15px' }}>{opt.label}</span>
-                          </label>
-                        ))}
-                      </div>
+              <HelpText>Tick every NRM1 element that applies. Wall, floor and ceiling finishes (GRP 3) are always included in the estimate — tick them if they are explicitly in scope. Use the Other / Specialist field below for anything not listed.</HelpText>
+              {SCOPE_GROUPS.map(grp => {
+                const scopeArr = Array.isArray(answers.q2_2_scopeItems) ? answers.q2_2_scopeItems : []
+                const toggleScope = code => {
+                  set('q2_2_scopeItems', scopeArr.includes(code) ? scopeArr.filter(v => v !== code) : [...scopeArr, code])
+                }
+                return (
+                  <div key={grp.id} className="mb-6">
+                    <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: '#2E75B6' }}>{grp.group}</p>
+                    {grp.note && <p className="text-xs italic mb-2" style={{ color: '#777' }}>{grp.note}</p>}
+                    <div className="flex flex-col gap-1">
+                      {grp.items.map(item => {
+                        if (item.isWiringSection) {
+                          return (
+                            <div key="__wiring__" className="my-2 p-3 rounded-lg" style={{ backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+                              <p className="text-sm font-bold mb-2" style={{ color: '#1F3864' }}>Electrical wiring — select ONE option (5.8 / 5.8a / 5.8b are mutually exclusive):</p>
+                              <div className="flex flex-col gap-2">
+                                {[
+                                  { value: '5.8',  label: 'Full electrical rewire — 1st and 2nd fix complete: all new circuits, wiring and fittings', unit: 'm²' },
+                                  { value: '5.8a', label: 'Electrical 1st fix wiring only — new circuit cables and containment; existing sockets and luminaires retained', unit: 'm²' },
+                                  { value: '5.8b', label: 'Electrical 2nd fix only — replacement sockets, switches and FCUs; existing circuit wiring reused', unit: 'm²' },
+                                  { value: 'none', label: 'Not included' },
+                                ].map(opt => (
+                                  <label key={opt.value} className="flex items-start gap-3 cursor-pointer" style={{ minHeight: '40px' }}>
+                                    <input type="radio" value={opt.value}
+                                      checked={(answers.q2_2_wiring || 'none') === opt.value}
+                                      onChange={() => set('q2_2_wiring', opt.value)}
+                                      className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ accentColor: '#2E75B6' }} />
+                                    <span style={{ color: '#1A1A1A', fontSize: '14px' }}>
+                                      {opt.unit && <span className="font-mono text-xs mr-1" style={{ color: '#2E75B6' }}>{opt.value !== 'none' ? opt.value : ''}</span>}
+                                      {opt.label}
+                                      {opt.unit && <span className="ml-1" style={{ color: '#888', fontSize: '12px' }}>{opt.unit}</span>}
+                                    </span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          )
+                        }
+                        const isTicked = scopeArr.includes(item.code)
+                        const qItem = QUANTITY_ITEMS[item.code]
+                        return (
+                          <div key={item.code}>
+                            <label className="flex items-start gap-3 cursor-pointer py-1" style={{ minHeight: '36px' }}>
+                              <input type="checkbox" checked={isTicked} onChange={() => toggleScope(item.code)}
+                                className="w-5 h-5 flex-shrink-0 mt-0.5 rounded" style={{ accentColor: '#2E75B6' }} />
+                              <span style={{ color: '#1A1A1A', fontSize: '14px', lineHeight: '1.4' }}>
+                                <span className="font-mono font-bold mr-1.5" style={{ color: '#2E75B6', fontSize: '12px' }}>{item.code}</span>
+                                {item.label}
+                                <span className="ml-1.5" style={{ color: '#888', fontSize: '12px' }}>{item.unit} · {item.applies}</span>
+                              </span>
+                            </label>
+                            {isTicked && qItem && (
+                              <div className="mt-1 ml-8 mb-2 p-3 rounded-lg" style={{ backgroundColor: '#EEF4FA', border: '1px solid #B8D3ED' }}>
+                                <Label>{qItem.label}</Label>
+                                <div className="flex items-center gap-2">
+                                  <NumberInput value={answers[qItem.field]} onChange={v => set(qItem.field, v)} placeholder={qItem.placeholder} min={0} />
+                                  <span className="text-sm font-medium" style={{ color: '#1F3864', whiteSpace: 'nowrap' }}>{qItem.unit}</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
                     </div>
-                  )}
-                  {/* Quantity fields for items needing quantities */}
-                  {grp.items.filter(item =>
-                    QUANTITY_ITEMS[item] && Array.isArray(answers.q2_2_scopeItems) && answers.q2_2_scopeItems.includes(item)
-                  ).map(item => {
-                    const q = QUANTITY_ITEMS[item]
-                    return (
-                      <div key={q.field} className="mt-2 ml-8 p-3 rounded-lg" style={{ backgroundColor: '#EEF4FA', border: '1px solid #B8D3ED' }}>
-                        <Label>{q.label}</Label>
-                        <div className="flex items-center gap-2">
-                          <NumberInput value={answers[q.field]} onChange={v => set(q.field, v)} placeholder={q.placeholder} min={0} />
-                          <span className="text-sm font-medium" style={{ color: '#1F3864', whiteSpace: 'nowrap' }}>{q.unit}</span>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              ))}
+                  </div>
+                )
+              })}
+              {/* Other / Specialist scope */}
+              <div className="mt-2">
+                <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: '#2E75B6' }}>OTHER / SPECIALIST SCOPE OF WORKS</p>
+                <p className="text-xs italic mb-2" style={{ color: '#777' }}>Describe any scope not covered above — e.g. AV systems, heritage restoration, acoustic treatment, specialist cladding, process pipework, clean room, modular pods, signage. The AI will include an estimate using NRM1 benchmarks.</p>
+                <Textarea value={answers.q2_2_other} onChange={v => set('q2_2_other', v)} placeholder="e.g. Heritage lime plaster to Grade II listed façade; bespoke acoustic partitions to studio spaces" rows={2} />
+              </div>
             </div>
 
             {/* Q2.3 — Level of Intervention (refurb/fit-out/extension only) */}
@@ -612,9 +692,19 @@ export default function QuestionnairePage() {
             </div>
 
             <div>
-              <Label>Q2.5 — Additional scope notes</Label>
-              <HelpText>Any specific scope requirements, exclusions, or items needing clarification.</HelpText>
-              <Textarea value={answers.q2_5_notes} onChange={v => set('q2_5_notes', v)} placeholder="e.g. Retain existing structural frame. New roof only if survey confirms end-of-life." rows={3} />
+              <Label>Q2.5 — Standards and compliance requirements</Label>
+              <HelpText>Select all that apply. Standards and funder conditions add cost and programme allowances.</HelpText>
+              <CheckboxGroup
+                options={STANDARDS_OPTIONS}
+                values={answers.q2_5_standards}
+                onChange={v => set('q2_5_standards', v)}
+              />
+              {Array.isArray(answers.q2_5_standards) && answers.q2_5_standards.includes('Other') && (
+                <div className="mt-2 ml-8">
+                  <Textarea value={answers.q2_5_standardsOther} onChange={v => set('q2_5_standardsOther', v)}
+                    placeholder="Please describe the standard or requirement" rows={2} />
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -632,16 +722,28 @@ export default function QuestionnairePage() {
               <Textarea value={answers.q3_2_previousWorks} onChange={v => set('q3_2_previousWorks', v)} placeholder="e.g. M&E replaced in 2015. New roof in 2018. No structural works since original construction." rows={3} />
             </div>
             <div>
-              <Label>Q3.3 — Surveys completed</Label>
-              <HelpText>What surveys or assessments have already been carried out?</HelpText>
-              <RadioGroup options={SURVEY_OPTIONS} value={answers.q3_3_surveys} onChange={v => set('q3_3_surveys', v)} />
+              <Label>Q3.3 — Surveys and reports available</Label>
+              <HelpText>Tick all that apply. Surveys reduce the risk allowance and survey programme time.</HelpText>
+              <CheckboxGroup
+                options={SURVEY_OPTIONS}
+                values={answers.q3_3_surveys}
+                onChange={v => set('q3_3_surveys', v)}
+              />
+              {Array.isArray(answers.q3_3_surveys) && answers.q3_3_surveys.includes('Other') && (
+                <div className="mt-2 ml-8">
+                  <Textarea value={answers.q3_3_surveysOther} onChange={v => set('q3_3_surveysOther', v)}
+                    placeholder="Please describe the survey or report available" rows={2} />
+                </div>
+              )}
             </div>
             <div>
               <Label>Q3.4 — Planning consents required</Label>
-              <SelectInput value={answers.q3_4_planningConsents} onChange={v => set('q3_4_planningConsents', v)}>
-                <option value="">Select planning type...</option>
-                {PLANNING_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-              </SelectInput>
+              <HelpText>Select all that apply. If unsure, choose 'Unsure' — pre-application advice is recommended.</HelpText>
+              <CheckboxGroup
+                options={PLANNING_OPTIONS}
+                values={answers.q3_4_planningConsents}
+                onChange={v => set('q3_4_planningConsents', v)}
+              />
             </div>
             <div>
               <Label>Q3.5 — Access constraints</Label>
@@ -685,34 +787,54 @@ export default function QuestionnairePage() {
               </div>
             </div>
             <div>
-              <Label>Q4.2 — Budget figure (if known)</Label>
-              <HelpText>Optional. Helps assess whether the budget is sufficient for the scope.</HelpText>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
-                <input type="number" value={answers.q4_2_budgetFigure || ''} onChange={e => set('q4_2_budgetFigure', e.target.value)} placeholder="e.g. 1500000" min={0}
-                  className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
-                  style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+              <Label required>Q4.2 — Do you have a budget figure?</Label>
+              <HelpText>Controls whether the report compares your budget against the NRM1 estimate, or generates a benchmark independently.</HelpText>
+              <div className="flex flex-col gap-3">
+                <label className="flex items-center gap-3 cursor-pointer" style={{ minHeight: '44px' }}>
+                  <input type="radio" checked={answers.q4_2_budgetKnown === 'Yes'} onChange={() => set('q4_2_budgetKnown', 'Yes')}
+                    className="w-5 h-5" style={{ accentColor: '#2E75B6' }} />
+                  <span style={{ fontSize: '16px' }}>Yes — I have a budget figure</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer" style={{ minHeight: '44px' }}>
+                  <input type="radio" checked={answers.q4_2_budgetKnown === 'No'} onChange={() => set('q4_2_budgetKnown', 'No')}
+                    className="w-5 h-5" style={{ accentColor: '#2E75B6' }} />
+                  <span style={{ fontSize: '16px' }}>No — generate a benchmark estimate</span>
+                </label>
               </div>
+              {answers.q4_2_budgetKnown === 'Yes' && (
+                <div className="mt-3">
+                  <Label>Q4.3 — Budget figure</Label>
+                  <HelpText>State what the figure covers — fees, VAT, contingency, or construction cost only.</HelpText>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
+                    <input type="number" value={answers.q4_2_budgetFigure || ''} onChange={e => set('q4_2_budgetFigure', e.target.value)} placeholder="e.g. 1500000" min={0}
+                      className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
+                      style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+                  </div>
+                </div>
+              )}
             </div>
             <div>
-              <Label>Q4.5 — Project priorities</Label>
+              <Label>Q4.4 — What matters most on this project?</Label>
+              <HelpText>Select all that apply. Drives the procurement recommendation and programme approach.</HelpText>
               <CheckboxGroup options={PRIORITIES} values={answers.q4_5_priorities} onChange={v => set('q4_5_priorities', v)} />
             </div>
             <div>
-              <Label>Q4.6 — Design stage already reached</Label>
-              <HelpText>Determines the professional fees percentage applied to the cost estimate.</HelpText>
+              <Label>Q4.5 — Design stage already reached</Label>
+              <HelpText>Determines the professional fees percentage applied to the cost estimate and the viable procurement routes.</HelpText>
               <RadioGroup options={DESIGN_STAGE_OPTIONS} value={answers.q4_6_designStage} onChange={v => set('q4_6_designStage', v)} />
             </div>
             <div>
-              <Label>Q4.7 — Phasing</Label>
-              <Textarea value={answers.q4_7_phasing} onChange={v => set('q4_7_phasing', v)} placeholder="e.g. Two phases planned — Phase 1 ground floor 2025, Phase 2 first floor 2026. Or: Single phase, full decant before start." rows={2} />
+              <Label>Q4.6 — Single or phased delivery?</Label>
+              <Textarea value={answers.q4_7_phasing} onChange={v => set('q4_7_phasing', v)} placeholder="e.g. Single phase, full decant before start. Or: Two phases — Phase 1 ground floor 2025, Phase 2 first floor 2026." rows={2} />
             </div>
             <div>
               <Label>Q4.8 — Utility constraints</Label>
+              <HelpText>Utility upgrades add cost and programme time. Tick all that apply.</HelpText>
               <CheckboxGroup options={UTILITIES_OPTIONS} values={answers.q4_8_utilities} onChange={v => set('q4_8_utilities', v)} />
             </div>
             <div>
-              <Label>Q4.9 — Funding source</Label>
+              <Label>Q4.7 — Funding source</Label>
               <HelpText>Grant or public funding adds a governance approval allowance to the programme.</HelpText>
               <div className="flex flex-col gap-3">
                 {FUNDING_OPTIONS.map(opt => (
