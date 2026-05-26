@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
-const STORAGE_KEY = 'estatesAI_v3_answers'
+const STORAGE_KEY = 'estatesAI_v4_answers'
 
 const SECTIONS = [
   { id: 1, title: 'Project Identity & Location', subtitle: 'Tell us about your building and where it is' },
@@ -64,6 +64,7 @@ const SCOPE_GROUPS = [
     group: 'MECHANICAL SERVICES',
     items: [
       'Heating system',
+      'Gas boiler or plant — like-for-like replacement',
       'Ventilation or air handling',
       'Air conditioning or cooling',
       'Plumbing first fix',
@@ -76,10 +77,12 @@ const SCOPE_GROUPS = [
     group: 'ELECTRICAL SERVICES',
     items: [
       'Electrical distribution and switchgear',
-      'Electrical wiring first fix',
-      'Electrical fittings and lighting second fix',
-      'Emergency lighting and fire alarm',
+      'Sub-distribution and containment',
+      '2nd fix lighting',
+      'Fire alarm system',
+      'Emergency lighting',
     ],
+    hasWiringRadio: true,
   },
   {
     group: 'LOW CARBON & ENERGY',
@@ -140,13 +143,15 @@ const QUANTITY_ITEMS = {
   'EV charging points':              { field: 'q2_5_evNr',      label: 'Number of EV charging points', unit: 'Nr', placeholder: 'e.g. 10' },
   'Lift or platform lift':           { field: 'q2_5_liftNr',    label: 'Number of lifts or platform lifts', unit: 'Nr', placeholder: 'e.g. 1' },
   'Car parking':                     { field: 'q2_5_carParksNr',label: 'Number of car parking spaces', unit: 'Nr', placeholder: 'e.g. 20' },
-  'Toilets or wet rooms':            { field: 'q2_5_sanitNr',   label: 'Number of sanitary fittings (WC packs)', unit: 'Nr', placeholder: 'e.g. 8' },
+  'Toilets or wet rooms':            { field: 'q2_2_bathrooms', label: 'How many bathrooms or wet rooms?', unit: 'Nr', placeholder: 'e.g. 2 (1 bathroom + 1 en-suite = 2)' },
+  'Kitchen or break-out area':       { field: 'q2_2_kitchens',  label: 'How many kitchens or kitchenettes?', unit: 'Nr', placeholder: 'e.g. 1' },
 }
 
 const INTERVENTION_LEVELS = [
-  { value: 'Light touch', description: 'Cosmetic works only — decoration, minor repairs, like-for-like replacement. Limited design required.' },
-  { value: 'Full refurbishment', description: 'Major refurbishment — systems replaced or upgraded, layout largely retained, full design team required.' },
-  { value: 'Complete strip-out', description: 'Gut refurbishment — strip to structure, all services removed and replaced, new layout. Maximum design and survey allowance.' },
+  { value: 'Like-for-like replacement', description: 'Replace a specific item in kind (e.g. boiler, windows). Minimal design — priced on Item/Nr rates only.' },
+  { value: 'Light touch', description: 'Cosmetic works only — decoration, minor repairs, patch-and-make-good. Limited design required.' },
+  { value: 'Refurbishment', description: 'Major refurbishment — systems replaced or upgraded, layout largely retained, full design team required.' },
+  { value: 'Strip-out and rebuild', description: 'Gut refurbishment — strip to structure, all services removed and replaced, new layout. Maximum design and survey allowance.' },
 ]
 
 const SPEC_LEVELS = [
@@ -230,12 +235,10 @@ const UTILITIES_OPTIONS = [
 ]
 
 const FUNDING_OPTIONS = [
-  'Internal capital budget',
-  'Internal maintenance or revenue budget',
-  'External grant (e.g. Salix, UKRI, heritage)',
-  'Commercial loan or private finance',
-  'Combination of sources',
+  'Internal / commercial',
+  'Grant or public funding',
   'Not yet confirmed',
+  'Other',
 ]
 
 // ─── Section 5 data ───────────────────────────────────────────────────────────
@@ -510,6 +513,28 @@ export default function QuestionnairePage() {
                     values={answers.q2_2_scopeItems}
                     onChange={v => set('q2_2_scopeItems', v)}
                   />
+                  {/* Electrical wiring — mutually exclusive radio group */}
+                  {grp.hasWiringRadio && (
+                    <div className="mt-3 p-3 rounded-lg" style={{ backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+                      <p className="text-sm font-bold mb-2" style={{ color: '#1F3864' }}>Electrical wiring scope (select one):</p>
+                      <div className="flex flex-col gap-2">
+                        {[
+                          { value: '5.8',  label: 'Full electrical rewire — 1st and 2nd fix complete' },
+                          { value: '5.8a', label: 'Electrical 1st fix wiring only — new cables, existing outlets retained' },
+                          { value: '5.8b', label: 'Electrical 2nd fix only — replacement outlets, existing wiring reused' },
+                          { value: 'none', label: 'Not included' },
+                        ].map(opt => (
+                          <label key={opt.value} className="flex items-center gap-3 cursor-pointer" style={{ minHeight: '40px' }}>
+                            <input type="radio" value={opt.value}
+                              checked={(answers.q2_2_wiring || 'none') === opt.value}
+                              onChange={() => set('q2_2_wiring', opt.value)}
+                              className="w-5 h-5 flex-shrink-0" style={{ accentColor: '#2E75B6' }} />
+                            <span style={{ color: '#1A1A1A', fontSize: '15px' }}>{opt.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {/* Quantity fields for items needing quantities */}
                   {grp.items.filter(item =>
                     QUANTITY_ITEMS[item] && Array.isArray(answers.q2_2_scopeItems) && answers.q2_2_scopeItems.includes(item)
@@ -688,10 +713,23 @@ export default function QuestionnairePage() {
             </div>
             <div>
               <Label>Q4.9 — Funding source</Label>
-              <SelectInput value={answers.q4_9_funding} onChange={v => set('q4_9_funding', v)}>
-                <option value="">Select funding source...</option>
-                {FUNDING_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-              </SelectInput>
+              <HelpText>Grant or public funding adds a governance approval allowance to the programme.</HelpText>
+              <div className="flex flex-col gap-3">
+                {FUNDING_OPTIONS.map(opt => (
+                  <label key={opt} className="flex items-center gap-3 cursor-pointer" style={{ minHeight: '44px' }}>
+                    <input type="radio" value={opt} checked={answers.q4_9_funding === opt}
+                      onChange={() => set('q4_9_funding', opt)}
+                      className="w-5 h-5 flex-shrink-0" style={{ accentColor: '#2E75B6' }} />
+                    <span style={{ color: '#1A1A1A', fontSize: '16px' }}>{opt}</span>
+                  </label>
+                ))}
+              </div>
+              {answers.q4_9_funding === 'Other' && (
+                <div className="mt-3 ml-8">
+                  <Textarea value={answers.q4_9_fundingOther} onChange={v => set('q4_9_fundingOther', v)}
+                    placeholder="Please describe the funding source" rows={2} />
+                </div>
+              )}
             </div>
           </div>
         )}
