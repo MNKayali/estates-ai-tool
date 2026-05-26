@@ -549,7 +549,23 @@ export default function QuestionnairePage() {
             </div>
             <div>
               <Label>Q1.3 — Building use</Label>
-              <TextInput value={answers.q1_3_buildingUse} onChange={v => set('q1_3_buildingUse', v)} placeholder="e.g. Office, Education, Healthcare, Residential" />
+              <SelectInput value={answers.q1_3_buildingUse} onChange={v => set('q1_3_buildingUse', v)}>
+                <option value="">Select building use...</option>
+                <option>Residential</option>
+                <option>Commercial offices</option>
+                <option>Education</option>
+                <option>Healthcare</option>
+                <option>Retail</option>
+                <option>Industrial / warehouse</option>
+                <option>Hospitality / leisure</option>
+                <option>Mixed use</option>
+                <option>Other</option>
+              </SelectInput>
+              {answers.q1_3_buildingUse === 'Other' && (
+                <div className="mt-2">
+                  <TextInput value={answers.q1_3_buildingUseOther} onChange={v => set('q1_3_buildingUseOther', v)} placeholder="Please describe the building use" />
+                </div>
+              )}
             </div>
             <div>
               <Label required>Q1.4 — Building age</Label>
