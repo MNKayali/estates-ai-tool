@@ -173,6 +173,7 @@ const QUANTITY_ITEMS = {
   '4.3':  { field: 'q2_2_kitchens',    label: 'How many kitchens or serveries?', unit: 'Nr', placeholder: 'e.g. 1' },
   '5.11': { field: 'q2_5_pvKwp',       label: 'Solar PV capacity (kWp)', unit: 'kWp', placeholder: 'e.g. 50' },
   '5.12': { field: 'q2_5_battKwh',     label: 'Battery storage capacity (kWh)', unit: 'kWh', placeholder: 'e.g. 100' },
+  '5.15': { field: 'q2_5_evNr',        label: 'Number of EV charging points', unit: 'Nr', placeholder: 'e.g. 10' },
   '5.19': { field: 'q2_5_liftNr',      label: 'Number of lifts or platform lifts', unit: 'Nr', placeholder: 'e.g. 1' },
   '8.3':  { field: 'q2_5_carParksNr',  label: 'Number of car parking spaces', unit: 'Nr', placeholder: 'e.g. 20' },
   '8.9':  { field: 'q2_5_extLightNr',  label: 'Number of external lighting columns / bollards', unit: 'Nr', placeholder: 'e.g. 10' },
