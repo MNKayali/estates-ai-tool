@@ -548,6 +548,21 @@ export default function QuestionnairePage() {
               </SelectInput>
               {validationErrors.q1_2_projectType && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q1_2_projectType}</p>}
             </div>
+
+            {/* Storeys — only shown when Extension is selected */}
+            {answers.q1_2_projectType === 'Extension' && (
+              <div>
+                <Label>Q1.2a — Number of storeys in the extension</Label>
+                <HelpText>Used to determine whether single-storey or multi-storey construction durations apply.</HelpText>
+                <SelectInput value={answers.q1_2_storeys || '1'} onChange={v => set('q1_2_storeys', v)}>
+                  <option value="1">1 storey</option>
+                  <option value="2">2 storeys</option>
+                  <option value="3">3 storeys</option>
+                  <option value="4">4+ storeys</option>
+                </SelectInput>
+              </div>
+            )}
+
             <div>
               <Label>Q1.3 — Building use</Label>
               <SelectInput value={answers.q1_3_buildingUse} onChange={v => set('q1_3_buildingUse', v)}>
