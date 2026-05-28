@@ -504,7 +504,7 @@ function WorksTable({ lineItems }) {
       <table style={tblStyle}>
         <thead>
           <tr>
-            {[['Code', 'left'], ['Element', 'left'], ['Low £/m²', 'right'], ['High £/m²', 'right'], ['Total Low £', 'right'], ['Total High £', 'right']].map(([h, a]) => (
+            {[['Code', 'left'], ['Element', 'left'], ['Rate Low', 'right'], ['Rate High', 'right'], ['Total Low £', 'right'], ['Total High £', 'right']].map(([h, a]) => (
               <th key={h} style={{ ...thStyle, textAlign: a }}>{h}</th>
             ))}
           </tr>
