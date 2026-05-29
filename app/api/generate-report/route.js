@@ -202,11 +202,17 @@ Building use: ${answers.q1_3_buildingUse || 'Not stated'} | Age: ${answers.q1_4_
 Specification level: ${cost.specLevel} | Level of intervention: ${cost.interventionLevel}
 Objective: ${answers.q2_1_objective || 'Not stated'}
 Scope items: ${(answers.q2_2_scopeItems || []).join(', ') || 'None specified'}
+Specialist / additional scope notes: ${answers.q2_2_other || 'None'}
+Standards and compliance requirements: ${answers.q2_5_standards || 'None stated'}
 Known issues: ${(answers.q3_1_knownIssues || []).join(', ') || 'None identified'}
+Previous works and building history: ${answers.q3_2_previousWorks || 'Not stated'}
 Surveys: ${Array.isArray(answers.q3_3_surveys) ? answers.q3_3_surveys.join(', ') : (answers.q3_3_surveys || 'Not stated')} | Planning: ${Array.isArray(answers.q3_4_planningConsents) ? answers.q3_4_planningConsents.join(', ') : (answers.q3_4_planningConsents || 'Not stated')}
 Access constraints: ${(answers.q3_5_accessConstraints || []).join(', ') || 'None'}
 Occupation during works: ${answers.q3_6_occupation || 'Not stated'}
+Additional context: ${answers.q3_7_additionalContext || 'None'}
 Target date: ${answers.q4_1_targetDate || 'None specified'} | Budget: ${answers.q4_2_budgetFigure ? f(answers.q4_2_budgetFigure) : 'Not stated'}
+Client priorities (what matters most): ${(answers.q4_5_priorities || []).join(', ') || 'Not stated'}
+Funding source: ${answers.q4_9_funding || 'Not stated'}
 Design stage reached: ${answers.q4_6_designStage || 'Stage 0–1'}
 Financial benefit: ${answers.q5_1_financialBenefit || 'None'}
 Annual benefit: ${answers.q5_2_annualBenefit ? f(answers.q5_2_annualBenefit) : 'N/A'}
@@ -228,7 +234,7 @@ Surveys: ${programme.surveyWeeks} wks | Design: ${programme.designWeeks} wks | T
 Construction: ${programme.constructionWeeks} wks | Handover: ${programme.handoverWeeks} wks
 Procurement route: ${programme.procurementRoute}
 Target status: ${programme.targetStatus} | ${programme.targetNote}
-
+${answers.q6_2_reportInstructions ? `\nCUSTOM INSTRUCTIONS FROM CLIENT (apply these to your prose writing — tone, emphasis, audience focus):\n${answers.q6_2_reportInstructions}` : ''}
 Return this exact JSON structure:
 {
   "confidenceScore": "A|B|C|D",

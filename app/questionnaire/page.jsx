@@ -445,6 +445,7 @@ export default function QuestionnairePage() {
     }
     if (sec === 2) {
       if (!answers.q2_1_objective?.trim()) errs.q2_1_objective = 'Project objective is required'
+      if (!answers.q2_2_scopeItems || answers.q2_2_scopeItems.length === 0) errs.q2_2_scopeItems = 'Please select at least one scope item'
       if (!answers.q2_4_specLevel) errs.q2_4_specLevel = 'Specification level is required'
     }
     setValidationErrors(errs)
@@ -765,6 +766,8 @@ export default function QuestionnairePage() {
               })()}
             </div>
 
+            {validationErrors.q2_2_scopeItems && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q2_2_scopeItems}</p>}
+
             {/* Q2.3 — Level of Intervention (refurb/fit-out/extension only) */}
             {isRefurb && (
               <div>
@@ -939,17 +942,17 @@ export default function QuestionnairePage() {
               )}
             </div>
             <div>
-              <Label>Q4.4 — What matters most on this project?</Label>
+              <Label>Q4.3 — What matters most on this project?</Label>
               <HelpText>Select all that apply. Drives the procurement recommendation and programme approach.</HelpText>
               <CheckboxGroup options={PRIORITIES} values={answers.q4_5_priorities} onChange={v => set('q4_5_priorities', v)} />
             </div>
             <div>
-              <Label>Q4.5 — Design stage already reached</Label>
+              <Label>Q4.4 — Design stage already reached</Label>
               <HelpText>Determines the professional fees percentage applied to the cost estimate and the viable procurement routes.</HelpText>
               <RadioGroup options={DESIGN_STAGE_OPTIONS} value={answers.q4_6_designStage} onChange={v => set('q4_6_designStage', v)} />
             </div>
             <div>
-              <Label>Q4.6 — Single or phased delivery?</Label>
+              <Label>Q4.5 — Single or phased delivery?</Label>
               <HelpText>Phased delivery extends the total construction programme. Each phase is assumed to be roughly equal in size at Stage 0–1.</HelpText>
               <SelectInput value={answers.q4_7_phasing || 'Single phase'} onChange={v => set('q4_7_phasing', v)}>
                 <option value="Single phase">Single phase — full project delivered in one continuous programme</option>
@@ -958,12 +961,13 @@ export default function QuestionnairePage() {
               </SelectInput>
             </div>
             <div>
-              <Label>Q4.8 — Utility constraints</Label>
+              <Label>Q4.6 — Utility constraints</Label>
               <HelpText>Utility upgrades add cost and programme time. Tick all that apply.</HelpText>
               <CheckboxGroup options={UTILITIES_OPTIONS} values={answers.q4_8_utilities} onChange={v => set('q4_8_utilities', v)} />
             </div>
             <div>
               <Label>Q4.7 — Funding source</Label>
+
               <HelpText>Grant or public funding adds a governance approval allowance to the programme.</HelpText>
               <div className="flex flex-col gap-3">
                 {FUNDING_OPTIONS.map(opt => (
