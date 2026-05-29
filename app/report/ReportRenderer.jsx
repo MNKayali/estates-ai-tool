@@ -311,7 +311,7 @@ export default function ReportRenderer({ data, reportId }) {
               <SubHdr>Key Milestones</SubHdr>
               <ul style={listStyle}>{programme.milestones.map((m, i) => <li key={i} style={liStyle}>{m}</li>)}</ul>
               {programme?.stages?.length > 0 && (
-                <GanttBar stages={programme.stages} totalWeeks={programme.totalWeeks} />
+                <GanttBar stages={programme.stages} totalWeeks={programme.totalWeeks} surveyWeeks={programme.surveyWeeks} />
               )}
             </>}
             {(programme?.assumptions || programme?.standardAssumptions)?.length > 0 && <>
@@ -729,23 +729,27 @@ function ProgrammeTable({ stages, totalWeeks }) {
 }
 
 // ─── Indicative programme Gantt bar ──────────────────────────────────────────
-// Simplified 5-bucket grouping so Planning/BC stages merge into Design & Approvals,
-// giving a clean proportional bar: Pre-Design → Design & Approvals → Tender → Construction → H/O
+// Surveys are excluded from the main bar and shown as a thin parallel track above,
+// aligned to week 0 — reflecting that they run concurrently with Stage 2–3 design.
 const GANTT_MAP = [
-  { key: 'Pre-Design',        test: s => /survey|ground investigation/i.test(s), color: '#70AD47' },
-  { key: 'Tender',            test: s => /tender|procurement/i.test(s),          color: '#4472C4' },
-  { key: 'Construction',      test: s => /construction|phase/i.test(s),          color: '#1A2E4A' },
-  { key: 'Handover',          test: s => /handover/i.test(s),                    color: '#4A5568' },
-  { key: 'Governance',        test: s => /governance/i.test(s),                  color: '#7B3F00' },
-  { key: 'Design & Approvals',test: () => true,                                  color: '#2E75B6' },
+  { key: 'Tender',            test: s => /tender|procurement/i.test(s), color: '#4472C4' },
+  { key: 'Construction',      test: s => /construction|phase/i.test(s), color: '#1A2E4A' },
+  { key: 'Handover',          test: s => /handover/i.test(s),           color: '#4A5568' },
+  { key: 'Governance',        test: s => /governance/i.test(s),         color: '#7B3F00' },
+  { key: 'Design & Approvals',test: () => true,                         color: '#2E75B6' },
 ]
 
-function GanttBar({ stages, totalWeeks }) {
+function GanttBar({ stages, totalWeeks, surveyWeeks }) {
   if (!stages?.length || !totalWeeks) return null
 
-  // Merge consecutive same-category stages into buckets
+  const sw = surveyWeeks || 0
+
+  // Exclude survey stages from the main bar — they're shown in the parallel track above
+  const mainStages = stages.filter(s => !/survey|ground investigation/i.test(s.stage))
+
+  // Merge consecutive same-category main stages into buckets
   const buckets = []
-  for (const s of stages) {
+  for (const s of mainStages) {
     const wks = s.weeks ?? s.durationWks ?? 0
     if (!wks) continue
     const cat  = GANTT_MAP.find(m => m.test(s.stage))
@@ -758,12 +762,38 @@ function GanttBar({ stages, totalWeeks }) {
   }
   if (!buckets.length) return null
 
+  const surveyPct = sw > 0 ? Math.min((sw / totalWeeks) * 100, 100) : 0
+
   return (
     <div className="avoid-break" style={{ margin: '14px 0 16px' }}>
-      <p style={{ fontWeight: 600, fontSize: '11px', color: GRAY, textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 6px' }}>
+      <p style={{ fontWeight: 600, fontSize: '11px', color: GRAY, textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 5px' }}>
         Indicative Programme Overview
       </p>
-      {/* Single-row proportional bar */}
+
+      {/* ── Survey parallel track (thin bar, starts at week 0 alongside Design) ── */}
+      {sw > 0 && (
+        <div style={{ marginBottom: '3px', height: '14px', position: 'relative' }}>
+          <div style={{
+            position: 'absolute', left: 0, top: 0, bottom: 0,
+            width: `${surveyPct}%`,
+            background: '#70AD47', borderRadius: '2px',
+            display: 'flex', alignItems: 'center', overflow: 'hidden',
+          }}>
+            {surveyPct > 7 && (
+              <span style={{ color: '#fff', fontSize: '8px', fontWeight: 700, padding: '0 5px', whiteSpace: 'nowrap' }}>
+                Surveys ({sw}w)
+              </span>
+            )}
+          </div>
+          {/* Dotted line extending across the rest — signals these weeks are absorbed in design */}
+          <div style={{
+            position: 'absolute', left: `${surveyPct}%`, right: 0, top: '50%',
+            borderTop: '1px dashed #C0CCD8', transform: 'translateY(-50%)',
+          }} />
+        </div>
+      )}
+
+      {/* ── Main programme bar ── */}
       <div style={{ display: 'flex', height: '24px', borderRadius: '3px', overflow: 'hidden', border: `1px solid ${BORDER}` }}>
         {buckets.map((b, i) => {
           const pct = (b.weeks / totalWeeks) * 100
@@ -784,6 +814,7 @@ function GanttBar({ stages, totalWeeks }) {
           )
         })}
       </div>
+
       {/* Week counts centred under each segment */}
       <div style={{ display: 'flex', marginTop: '3px' }}>
         {buckets.map((b, i) => {
@@ -795,8 +826,15 @@ function GanttBar({ stages, totalWeeks }) {
           )
         })}
       </div>
-      {/* Legend — always shows all segments including narrow ones */}
+
+      {/* Legend */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 14px', marginTop: '8px' }}>
+        {sw > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ width: '9px', height: '9px', borderRadius: '1px', background: '#70AD47', flexShrink: 0 }} />
+            <span style={{ fontSize: '10px', color: '#444' }}>Pre-Design Surveys — {sw}w (concurrent)</span>
+          </div>
+        )}
         {buckets.map((b, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <div style={{ width: '9px', height: '9px', borderRadius: '1px', background: b.color, flexShrink: 0 }} />
