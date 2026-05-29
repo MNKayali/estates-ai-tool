@@ -16,6 +16,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { track } from '@vercel/analytics'
 import ReportRenderer from '../ReportRenderer'
 
 const NAVY = '#1A2E4A'
@@ -57,6 +58,7 @@ export default function ReportByIdPage() {
         }
         const result = await res.json()
         setData(result)
+        track('report_shared_viewed', { reportId: id })
       } catch {
         setError('Network error — could not load report. Please check your connection.')
       }

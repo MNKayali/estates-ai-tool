@@ -118,6 +118,15 @@ export default function AccessPage() {
           <Suspense fallback={<div style={{ color: '#888' }}>Loading…</div>}>
             <AccessForm />
           </Suspense>
+
+          <p style={{ color: '#999', fontSize: '11px', lineHeight: 1.6, margin: '20px 0 0', textAlign: 'center' }}>
+            By entering your access code you agree to our{' '}
+            <a href="/terms" target="_blank" rel="noopener noreferrer"
+               style={{ color: BLUE, textDecoration: 'underline' }}>Terms of Use</a>
+            {' '}and acknowledge our{' '}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer"
+               style={{ color: BLUE, textDecoration: 'underline' }}>Privacy Notice</a>.
+          </p>
         </div>
       </div>
 
