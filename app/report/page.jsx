@@ -490,8 +490,8 @@ function WorksTable({ lineItems }) {
       <tr key={ri} style={{ background: bg, borderBottom: `1px solid ${BORDER}` }}>
         <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '11px', color: '#2E75B6' }}>{item.code}</td>
         <td style={tdStyle}>{item.description}</td>
-        <td style={{ ...tdStyle, textAlign: 'right' }}>{f(Math.round((item.rate || 0) * 0.89))}</td>
-        <td style={{ ...tdStyle, textAlign: 'right' }}>{f(Math.round((item.rate || 0) * 1.11))}</td>
+        <td style={{ ...tdStyle, textAlign: 'right' }}>{f(item.rateLow || 0)}</td>
+        <td style={{ ...tdStyle, textAlign: 'right' }}>{f(item.rateHigh || 0)}</td>
         <td style={{ ...tdStyle, textAlign: 'right' }}>{f1k(item.lineLow  || 0)}</td>
         <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, color: NAVY }}>{f1k(item.lineHigh || 0)}</td>
       </tr>
@@ -500,11 +500,11 @@ function WorksTable({ lineItems }) {
   }
 
   return (
-    <div style={{ overflowX: 'auto', marginBottom: '8px' }}>
+    <div style={{ overflowX: 'auto', marginBottom: '4px' }}>
       <table style={tblStyle}>
         <thead>
           <tr>
-            {[['Code', 'left'], ['Element', 'left'], ['Rate Low', 'right'], ['Rate High', 'right'], ['Total Low £', 'right'], ['Total High £', 'right']].map(([h, a]) => (
+            {[['Code', 'left'], ['Element', 'left'], ['Rate Low £/unit', 'right'], ['Rate High £/unit', 'right'], ['Total Low £', 'right'], ['Total High £', 'right']].map(([h, a]) => (
               <th key={h} style={{ ...thStyle, textAlign: a }}>{h}</th>
             ))}
           </tr>
@@ -519,6 +519,9 @@ function WorksTable({ lineItems }) {
         </tbody>
       </table>
     </div>
+    <p style={{ fontSize: '10px', color: '#888', margin: '4px 0 0', lineHeight: 1.5 }}>
+      * Unit rates shown as a ±11% uncertainty range (low / high). Works cost totals are based on the mid rate. In accordance with NRM1, a Stage 0–1 order-of-cost estimate carries an inherent accuracy of ±15–25%. A formal cost plan should be prepared at RIBA Stage 2.
+    </p>
   )
 }
 
