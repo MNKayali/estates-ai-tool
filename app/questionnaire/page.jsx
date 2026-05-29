@@ -532,8 +532,9 @@ export default function QuestionnairePage() {
         {section === 1 && (
           <div className="flex flex-col gap-6">
             <div>
-              <Label required>Q1.0 — Project name</Label>
-              <TextInput value={answers.q1_0_projectName} onChange={v => set('q1_0_projectName', v)} placeholder="e.g. Science Block Refurbishment" />
+              <Label required>Q1.0 — Project title</Label>
+              <HelpText>This becomes the heading of your report. Include the work type, building type, and location — e.g. "Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" or "New Sports Hall, University of Birmingham, Edgbaston".</HelpText>
+              <TextInput value={answers.q1_0_projectName} onChange={v => set('q1_0_projectName', v)} placeholder="e.g. Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" />
               {validationErrors.q1_0_projectName && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q1_0_projectName}</p>}
             </div>
             <div>

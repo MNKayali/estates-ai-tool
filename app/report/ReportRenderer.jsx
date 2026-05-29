@@ -93,17 +93,48 @@ export default function ReportRenderer({ data, reportId }) {
 
   return (
     <>
-      {/* ── Print colour fix + page-break rules ── */}
+      {/* ── Print rules ── */}
       <style>{`
+        /* Page setup — removes browser date/title headers; sets professional margins.
+           @page :first gives the cover full-bleed (no white margins).
+           Interior pages get 15mm top margin where the running header sits. */
+        @page          { size: A4; margin: 15mm 18mm 18mm; }
+        @page :first   { margin: 0; }
+
         @media print {
-          .no-print { display: none !important; }
-          body { margin: 0; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          .page-break { break-before: page !important; }
+          .no-print    { display: none !important; }
+          body         { margin: 0; background: white !important; }
+          *            { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+          /* Remove screen chrome from outer wrappers */
+          .report-outer { background: white !important; padding: 0 !important; min-height: unset !important; }
+          .report-inner { box-shadow: none !important; max-width: 100% !important; }
+
+          /* Page-break rules */
+          .page-break  { break-before: page !important; }
           .section-hdr { break-after: avoid !important; }
-          table { break-inside: avoid !important; }
-          tr { break-inside: avoid !important; }
+          table        { break-inside: avoid !important; }
+          tr           { break-inside: avoid !important; }
           .avoid-break { break-inside: avoid !important; }
+
+          /* Running header — fixed at top of every page.
+             On page 1 it sits behind the full-bleed navy cover (zIndex: 1 on cover div).
+             On pages 2+ it occupies the 15mm top margin created by @page. */
+          .print-running-hdr {
+            display: flex !important;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 15mm;
+            padding: 0 18mm;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border-bottom: 2px solid #2E75B6;
+            font-size: 8.5pt;
+            font-family: Arial, sans-serif;
+            color: #444;
+            z-index: 0;
+          }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
@@ -152,12 +183,26 @@ export default function ReportRenderer({ data, reportId }) {
         )}
       </div>
 
+      {/* ── Print running header (hidden on screen; fixed on every printed page) ──
+           Page 1: covered by the navy cover div (zIndex: 1).
+           Pages 2+: sits in the 15mm top margin created by @page. ── */}
+      <div className="print-running-hdr" style={{ display: 'none' }}>
+        <span style={{ fontWeight: 700, color: '#1A2E4A' }}>
+          {projectName || 'Estates AI Tool'}
+        </span>
+        <span style={{ color: '#666' }}>
+          RIBA Stage 0–1 Feasibility Report
+          {reportId ? ` · Ref: ${reportId.slice(0, 8).toUpperCase()}` : ''}
+          {' '}· {dateStr}
+        </span>
+      </div>
+
       {/* ── Document shell ── */}
-      <div style={{ background: '#E8EAF0', minHeight: '100vh', padding: '24px 16px 48px', fontFamily: 'Arial, sans-serif' }}>
-        <div style={{ maxWidth: '880px', margin: '0 auto', background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
+      <div className="report-outer" style={{ background: '#E8EAF0', minHeight: '100vh', padding: '24px 16px 48px', fontFamily: 'Arial, sans-serif' }}>
+        <div className="report-inner" style={{ maxWidth: '880px', margin: '0 auto', background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
 
           {/* ══ COVER ══ */}
-          <div style={{ background: NAVY, padding: '48px 56px 0', position: 'relative' }}>
+          <div style={{ background: NAVY, padding: '48px 56px 0', position: 'relative', zIndex: 1 }}>
             {/* Wordmark */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '36px' }}>
               <div style={{ background: '#2E75B6', borderRadius: '3px', padding: '3px 7px', display: 'inline-flex', alignItems: 'center' }}>
