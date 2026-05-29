@@ -89,12 +89,17 @@ export default function ReportRenderer({ data, reportId }) {
 
   return (
     <>
-      {/* ── Print colour fix ── */}
+      {/* ── Print colour fix + page-break rules ── */}
       <style>{`
         @media print {
           .no-print { display: none !important; }
           body { margin: 0; }
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          .page-break { break-before: page !important; }
+          .section-hdr { break-after: avoid !important; }
+          table { break-inside: avoid !important; }
+          tr { break-inside: avoid !important; }
+          .avoid-break { break-inside: avoid !important; }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
@@ -148,7 +153,15 @@ export default function ReportRenderer({ data, reportId }) {
         <div style={{ maxWidth: '880px', margin: '0 auto', background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
 
           {/* ══ COVER ══ */}
-          <div style={{ background: NAVY, padding: '48px 56px 40px' }}>
+          <div style={{ background: NAVY, padding: '48px 56px 0', position: 'relative' }}>
+            {/* Wordmark */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '36px' }}>
+              <div style={{ background: '#2E75B6', borderRadius: '3px', padding: '3px 7px', display: 'inline-flex', alignItems: 'center' }}>
+                <span style={{ color: '#fff', fontWeight: 900, fontSize: '11px', fontFamily: 'Arial, sans-serif', letterSpacing: '1px' }}>AI</span>
+              </div>
+              <span style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 700, fontSize: '13px', fontFamily: 'Arial, sans-serif', letterSpacing: '0.5px' }}>Estates AI</span>
+            </div>
+
             <p style={{ fontSize: '11px', letterSpacing: '3px', fontWeight: 700, color: NAVY_LT, margin: '0 0 16px', textTransform: 'uppercase' }}>
               RIBA Stage 0–1 Feasibility Report
             </p>
@@ -162,7 +175,7 @@ export default function ReportRenderer({ data, reportId }) {
               <span style={{ color: NAVY_LT, margin: '0 12px' }}>|</span>
               <span style={{ color: NAVY_LT }}>Cost Risk: </span>{riskLevel}
             </p>
-            <p style={{ margin: 0, fontSize: '13px', color: '#fff' }}>
+            <p style={{ margin: '0 0 24px', fontSize: '13px', color: '#fff' }}>
               <span style={{ color: NAVY_LT }}>Total Cost Range: </span>
               <strong>{f1k(cost?.total?.low)} – {f1k(cost?.total?.high)}</strong>
               <span style={{ color: NAVY_LT }}> (excl. VAT)</span>
@@ -170,6 +183,14 @@ export default function ReportRenderer({ data, reportId }) {
               <span style={{ color: NAVY_LT }}>Programme: </span>
               <strong>{programme?.totalWeeks} weeks</strong>
             </p>
+            {/* Project reference */}
+            <p style={{ margin: '0 0 40px', fontSize: '10px', color: NAVY_LT, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+              {reportId
+                ? `Ref: ${reportId.slice(0, 8).toUpperCase()}`
+                : 'Draft — not saved'}
+            </p>
+            {/* Bottom accent line */}
+            <div style={{ height: '4px', background: '#2E75B6', margin: '0 -56px' }} />
           </div>
 
           {/* ══ CONTENT ══ */}
@@ -216,14 +237,14 @@ export default function ReportRenderer({ data, reportId }) {
             }
 
             {/* ── Section 3: Risk Register ── */}
-            <SecHdr number="3" title="Risk Register" />
+            <SecHdr number="3" title="Risk Register" pageBreak />
             {aiProse?.riskRegister?.length > 0
               ? <RiskTable risks={aiProse.riskRegister} />
               : <p style={{ ...bodyText, color: '#666' }}>No risk register data available.</p>
             }
 
             {/* ── Section 4: Programme ── */}
-            <SecHdr number="4" title="High-Level Programme" />
+            <SecHdr number="4" title="High-Level Programme" pageBreak />
             <p style={{ ...bodyText, marginBottom: '8px' }}>
               <strong style={{ color: NAVY }}>Total programme:</strong> {programme?.totalWeeks} weeks
               <span style={{ color: GRAY, margin: '0 8px' }}>|</span>
@@ -249,7 +270,7 @@ export default function ReportRenderer({ data, reportId }) {
             </>}
 
             {/* ── Section 5: Cost Estimate ── */}
-            <SecHdr number="5" title="Order of Cost Estimate (NRM1)" />
+            <SecHdr number="5" title="Order of Cost Estimate (NRM1)" pageBreak />
             <p style={{ ...bodyText, fontSize: '13px', marginBottom: '12px' }}>
               <strong style={{ color: NAVY }}>GIFA:</strong> {cost?.gifa} m²
               <span style={{ color: GRAY, margin: '0 8px' }}>|</span>
@@ -261,17 +282,23 @@ export default function ReportRenderer({ data, reportId }) {
             </p>
             {aiProse?.costNarrative && <p style={{ ...bodyText, marginBottom: '20px' }}>{aiProse.costNarrative}</p>}
 
-            <SubHdr>Section 1 — Works Cost</SubHdr>
-            {cost?.lineItems?.length > 0
-              ? <WorksTable lineItems={cost.lineItems} />
-              : <p style={{ color: '#666', fontSize: '13px' }}>No line items available.</p>
-            }
+            <div className="avoid-break">
+              <SubHdr>Section 1 — Works Cost</SubHdr>
+              {cost?.lineItems?.length > 0
+                ? <WorksTable lineItems={cost.lineItems} />
+                : <p style={{ color: '#666', fontSize: '13px' }}>No line items available.</p>
+              }
+            </div>
 
-            <SubHdr>Section 2 — Construction Cost</SubHdr>
-            <ConstructionTable cost={cost} />
+            <div className="avoid-break">
+              <SubHdr>Section 2 — Construction Cost</SubHdr>
+              <ConstructionTable cost={cost} />
+            </div>
 
-            <SubHdr>Section 3 — Total Project Cost</SubHdr>
-            <TotalCostTable cost={cost} />
+            <div className="avoid-break">
+              <SubHdr>Section 3 — Total Project Cost</SubHdr>
+              <TotalCostTable cost={cost} />
+            </div>
 
             <p style={{ fontWeight: 700, color: NAVY, margin: '12px 0 20px', fontSize: '14px' }}>
               Total Cost Range: {f1k(cost?.total?.low)} – {f1k(cost?.total?.high)} (excl. VAT)
@@ -415,9 +442,10 @@ function alertStyle(bg, borderColor) {
 
 // ─── Helper components ────────────────────────────────────────────────────────
 
-function SecHdr({ number, title }) {
+function SecHdr({ number, title, pageBreak }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'stretch', margin: '28px 0 14px' }}>
+    <div className={['section-hdr', pageBreak ? 'page-break' : ''].filter(Boolean).join(' ')}
+         style={{ display: 'flex', alignItems: 'stretch', margin: '28px 0 14px' }}>
       <div style={{ width: '36px', minHeight: '36px', background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         <span style={{ color: '#fff', fontWeight: 700, fontSize: '14px' }}>{number}</span>
       </div>
