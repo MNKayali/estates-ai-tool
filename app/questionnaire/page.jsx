@@ -950,7 +950,12 @@ export default function QuestionnairePage() {
             </div>
             <div>
               <Label>Q4.6 — Single or phased delivery?</Label>
-              <Textarea value={answers.q4_7_phasing} onChange={v => set('q4_7_phasing', v)} placeholder="e.g. Single phase, full decant before start. Or: Two phases — Phase 1 ground floor 2025, Phase 2 first floor 2026." rows={2} />
+              <HelpText>Phased delivery extends the total construction programme. Each phase is assumed to be roughly equal in size at Stage 0–1.</HelpText>
+              <SelectInput value={answers.q4_7_phasing || 'Single phase'} onChange={v => set('q4_7_phasing', v)}>
+                <option value="Single phase">Single phase — full project delivered in one continuous programme</option>
+                <option value="2 phases">2 phases — e.g. floor by floor, or building by building</option>
+                <option value="3 or more phases">3 or more phases — multi-phase or rolling programme</option>
+              </SelectInput>
             </div>
             <div>
               <Label>Q4.8 — Utility constraints</Label>
