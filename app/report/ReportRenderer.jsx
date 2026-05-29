@@ -310,6 +310,9 @@ export default function ReportRenderer({ data, reportId }) {
             {programme?.milestones?.length > 0 && <>
               <SubHdr>Key Milestones</SubHdr>
               <ul style={listStyle}>{programme.milestones.map((m, i) => <li key={i} style={liStyle}>{m}</li>)}</ul>
+              {programme?.stages?.length > 0 && (
+                <GanttBar stages={programme.stages} totalWeeks={programme.totalWeeks} />
+              )}
             </>}
             {(programme?.assumptions || programme?.standardAssumptions)?.length > 0 && <>
               <SubHdr>Programme Assumptions</SubHdr>
@@ -721,6 +724,86 @@ function ProgrammeTable({ stages, totalWeeks }) {
           </tr>
         </tbody>
       </table>
+    </div>
+  )
+}
+
+// ─── Indicative programme Gantt bar ──────────────────────────────────────────
+// Simplified 5-bucket grouping so Planning/BC stages merge into Design & Approvals,
+// giving a clean proportional bar: Pre-Design → Design & Approvals → Tender → Construction → H/O
+const GANTT_MAP = [
+  { key: 'Pre-Design',        test: s => /survey|ground investigation/i.test(s), color: '#70AD47' },
+  { key: 'Tender',            test: s => /tender|procurement/i.test(s),          color: '#4472C4' },
+  { key: 'Construction',      test: s => /construction|phase/i.test(s),          color: '#1A2E4A' },
+  { key: 'Handover',          test: s => /handover/i.test(s),                    color: '#4A5568' },
+  { key: 'Governance',        test: s => /governance/i.test(s),                  color: '#7B3F00' },
+  { key: 'Design & Approvals',test: () => true,                                  color: '#2E75B6' },
+]
+
+function GanttBar({ stages, totalWeeks }) {
+  if (!stages?.length || !totalWeeks) return null
+
+  // Merge consecutive same-category stages into buckets
+  const buckets = []
+  for (const s of stages) {
+    const wks = s.weeks ?? s.durationWks ?? 0
+    if (!wks) continue
+    const cat  = GANTT_MAP.find(m => m.test(s.stage))
+    const last = buckets[buckets.length - 1]
+    if (last && last.key === cat.key) {
+      last.weeks += wks
+    } else {
+      buckets.push({ key: cat.key, color: cat.color, weeks: wks })
+    }
+  }
+  if (!buckets.length) return null
+
+  return (
+    <div className="avoid-break" style={{ margin: '14px 0 16px' }}>
+      <p style={{ fontWeight: 600, fontSize: '11px', color: GRAY, textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 6px' }}>
+        Indicative Programme Overview
+      </p>
+      {/* Single-row proportional bar */}
+      <div style={{ display: 'flex', height: '24px', borderRadius: '3px', overflow: 'hidden', border: `1px solid ${BORDER}` }}>
+        {buckets.map((b, i) => {
+          const pct = (b.weeks / totalWeeks) * 100
+          return (
+            <div key={i} style={{
+              width: `${pct}%`,
+              background: b.color,
+              borderRight: i < buckets.length - 1 ? '1px solid rgba(255,255,255,0.35)' : 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              overflow: 'hidden', flexShrink: 0,
+            }}>
+              {pct > 10 && (
+                <span style={{ color: '#fff', fontSize: '9px', fontWeight: 700, whiteSpace: 'nowrap', padding: '0 3px', letterSpacing: '0.2px' }}>
+                  {b.key}
+                </span>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      {/* Week counts centred under each segment */}
+      <div style={{ display: 'flex', marginTop: '3px' }}>
+        {buckets.map((b, i) => {
+          const pct = (b.weeks / totalWeeks) * 100
+          return (
+            <div key={i} style={{ width: `${pct}%`, textAlign: 'center', fontSize: '9px', color: '#666', overflow: 'hidden', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              {pct > 4 ? `${b.weeks}w` : ''}
+            </div>
+          )
+        })}
+      </div>
+      {/* Legend — always shows all segments including narrow ones */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 14px', marginTop: '8px' }}>
+        {buckets.map((b, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ width: '9px', height: '9px', borderRadius: '1px', background: b.color, flexShrink: 0 }} />
+            <span style={{ fontSize: '10px', color: '#444' }}>{b.key} — {b.weeks}w</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
