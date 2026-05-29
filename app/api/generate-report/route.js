@@ -12,6 +12,7 @@
 import { calculateCost } from '@/lib/costCalculator'
 import { calculateProgramme } from '@/lib/programmeCalculator'
 import { buildReport } from '@/lib/reportBuilder'
+import { saveReport } from '@/lib/kv'
 
 // Read inside handler so it picks up env vars after module init
 function getAnthropicKey() {
@@ -112,31 +113,43 @@ export async function POST(request) {
 
     // ── Step 4: Build Word document ───────────────────────────────────────────
     console.log('[Step 4] Building Word report...')
-    let docxBuffer
+    const reportId    = crypto.randomUUID().replace(/-/g, '').slice(0, 16)
+    const generatedAt = new Date().toISOString()
+    const costData    = serializeCost(cost)
+    const progData    = serializeProgramme(programme)
+
+    let docxBuffer, templateError
     try {
       docxBuffer = await buildReport({ answers, cost, programme, aiProse })
     } catch (e) {
       console.error('[Step 4 error]', e.message)
-      // Return data even if template fails — client can show preview
-      return Response.json({
-        success: true,
-        templateError: e.message,
-        projectName: answers.q1_0_projectName,
-        cost: serializeCost(cost),
-        programme: serializeProgramme(programme),
-        aiProse,
-        generatedAt: new Date().toISOString(),
-      })
+      templateError = e.message
     }
+
+    // ── Save to KV (best-effort — failure never blocks the response) ──────────
+    const kvPayload = {
+      reportId,
+      projectName: answers.q1_0_projectName,
+      cost:        costData,
+      programme:   progData,
+      aiProse,
+      answers,                                   // included so shared links work without localStorage
+      generatedAt,
+      ...(docxBuffer   && { docx: docxBuffer.toString('base64') }),
+      ...(templateError && { templateError }),
+    }
+    saveReport(reportId, kvPayload)              // fire-and-forget; errors are caught inside saveReport
 
     return Response.json({
       success: true,
+      reportId,
       projectName: answers.q1_0_projectName,
-      docx: docxBuffer.toString('base64'),
-      cost: serializeCost(cost),
-      programme: serializeProgramme(programme),
+      cost:        costData,
+      programme:   progData,
       aiProse,
-      generatedAt: new Date().toISOString(),
+      generatedAt,
+      ...(docxBuffer   && { docx: docxBuffer.toString('base64') }),
+      ...(templateError && { templateError }),
     })
 
   } catch (error) {

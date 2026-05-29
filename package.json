@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@vercel/kv": "^3.0.0",
     "docx": "^9.6.1",
     "docxtemplater": "^3.68.7",
     "html2canvas": "^1.4.1",

@@ -1,5 +1,5 @@
 /**
- * middleware.ts
+ * proxy.ts  (Next.js 16 — replaces middleware.ts)
  *
  * Guards all protected routes with an access-code cookie.
  * Set ACCESS_CODE in your environment variables (Vercel or .env.local).
@@ -12,9 +12,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const PROTECTED_PAGES = ['/questionnaire', '/report', '/contradiction']
-const PROTECTED_API   = ['/api/generate-report']
+const PROTECTED_API   = ['/api/generate-report', '/api/reports']
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   const isProtectedPage = PROTECTED_PAGES.some(p => pathname.startsWith(p))
@@ -51,5 +51,6 @@ export const config = {
     '/report/:path*',
     '/contradiction/:path*',
     '/api/generate-report/:path*',
+    '/api/reports/:path*',
   ],
 }

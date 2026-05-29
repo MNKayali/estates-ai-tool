@@ -479,9 +479,10 @@ export default function QuestionnairePage() {
         setLoading(false)
         return
       }
-      // Store result for report page
-      sessionStorage.setItem('estatesAI_result', JSON.stringify(data))
-      router.push('/report')
+      // Store result for report page (include answers so /report/[id] works without localStorage)
+      sessionStorage.setItem('estatesAI_result', JSON.stringify({ ...data, answers }))
+      // Navigate to canonical shareable URL if the API returned a reportId
+      router.push(data.reportId ? `/report/${data.reportId}` : '/report')
     } catch (e) {
       setError('Network error — please check your connection and try again.')
       setLoading(false)
