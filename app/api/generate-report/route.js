@@ -79,7 +79,7 @@ export async function POST(request) {
     console.log('[Step 2] Running programme calculator...')
     let programme
     try {
-      programme = await calculateProgramme(answers, cost.total.mid)
+      programme = await calculateProgramme(answers, cost.total.mid, cost.designMultiplier)
     } catch (e) {
       console.error('[Step 2 error]', e.message)
       return Response.json({ error: 'Programme calculation failed: ' + e.message }, { status: 500 })
@@ -222,6 +222,7 @@ Previous works and building history: ${answers.q3_2_previousWorks || 'Not stated
 Surveys: ${Array.isArray(answers.q3_3_surveys) ? answers.q3_3_surveys.join(', ') : (answers.q3_3_surveys || 'Not stated')} | Planning: ${Array.isArray(answers.q3_4_planningConsents) ? answers.q3_4_planningConsents.join(', ') : (answers.q3_4_planningConsents || 'Not stated')}
 Access constraints: ${(answers.q3_5_accessConstraints || []).join(', ') || 'None'}
 Occupation during works: ${answers.q3_6_occupation || 'Not stated'}
+Utility constraints: ${(answers.q4_8_utilities || []).filter(u => !u.includes('No known')).join(', ') || 'None identified'}
 Additional context: ${answers.q3_7_additionalContext || 'None'}
 Target date: ${answers.q4_1_targetDate || 'None specified'} | Budget: ${answers.q4_2_budgetFigure ? f(answers.q4_2_budgetFigure) : 'Not stated'}
 Client priorities (what matters most): ${(answers.q4_5_priorities || []).join(', ') || 'Not stated'}

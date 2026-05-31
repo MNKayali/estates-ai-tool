@@ -13,15 +13,10 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/kv": "^3.0.0",
     "docx": "^9.6.1",
-    "docxtemplater": "^3.68.7",
-    "html2canvas": "^1.4.1",
-    "jspdf": "^4.2.1",
     "next": "16.2.6",
-    "pizzip": "^3.2.0",
+    "xlsx": "^0.18.5",
     "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -31,7 +26,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "xlsx": "^0.18.5"
+    "typescript": "^5"
   }
 }

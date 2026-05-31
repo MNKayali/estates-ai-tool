@@ -91,6 +91,23 @@ export default function ReportRenderer({ data, reportId }) {
     ? new Date(generatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
     : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
+  // ── Optional section flags ─────────────────────────────────────────────────
+  const optSections = Array.isArray(answers?.q6_1_reportSections) && answers.q6_1_reportSections.length > 0
+    ? answers.q6_1_reportSections
+    : ['Order of Cost Estimate (NRM1)', 'ROI & Financial Case', 'Procurement Recommendation', 'Constraints Summary']
+  const showCost = optSections.includes('Order of Cost Estimate (NRM1)')
+  const showROI  = !!roi && optSections.includes('ROI & Financial Case')
+  const showProc = optSections.includes('Procurement Recommendation')
+  const showCon  = optSections.includes('Constraints Summary')
+
+  // Dynamic section numbering
+  let _sn = 4
+  const snCost = showCost ? ++_sn : null
+  const snROI  = showROI  ? ++_sn : null
+  const snProc = showProc ? ++_sn : null
+  const snCon  = showCon  ? ++_sn : null
+  const snNext = ++_sn
+
   return (
     <>
       {/* ── Print rules ── */}
@@ -321,8 +338,8 @@ export default function ReportRenderer({ data, reportId }) {
               </ul>
             </>}
 
-            {/* ── Section 5: Cost Estimate ── */}
-            <SecHdr number="5" title="Order of Cost Estimate (NRM1)" pageBreak />
+            {/* ── Section 5: Cost Estimate (optional) ── */}
+            {showCost && <><SecHdr number={snCost} title="Order of Cost Estimate (NRM1)" pageBreak />
             <p style={{ ...bodyText, fontSize: '13px', marginBottom: '12px' }}>
               <strong style={{ color: NAVY }}>GIFA:</strong> {cost?.gifa} m²
               <span style={{ color: GRAY, margin: '0 8px' }}>|</span>
@@ -367,11 +384,12 @@ export default function ReportRenderer({ data, reportId }) {
             <ul style={listStyle}>
               {COST_EXCLUSIONS.map((e, i) => <li key={i} style={liStyle}>{e}</li>)}
             </ul>
+            </>}  {/* end showCost */}
 
-            {/* ── Section 6: ROI ── */}
-            {roi && (
+            {/* ── Section 6: ROI (optional + data-conditional) ── */}
+            {showROI && (
               <>
-                <SecHdr number="6" title="ROI &amp; Financial Case" />
+                <SecHdr number={snROI} title="ROI &amp; Financial Case" />
                 <p style={{ ...bodyText, marginBottom: '12px' }}>
                   <strong style={{ color: NAVY }}>Benefit type:</strong> {answers?.q5_1_financialBenefit || '—'}
                   <span style={{ color: GRAY, margin: '0 8px' }}>|</span>
@@ -385,28 +403,28 @@ export default function ReportRenderer({ data, reportId }) {
               </>
             )}
 
-            {/* ── Section 7: Procurement ── */}
-            {aiProse?.procurementNarrative && (
+            {/* ── Section 7: Procurement (optional) ── */}
+            {showProc && (
               <>
-                <SecHdr number="7" title="Procurement Recommendation" />
+                <SecHdr number={snProc} title="Procurement Recommendation" />
                 <p style={{ ...bodyText, marginBottom: '8px' }}>
-                  <strong style={{ color: NAVY }}>Route:</strong> {aiProse.procurementRoute}
+                  <strong style={{ color: NAVY }}>Route:</strong> {aiProse?.procurementRoute}
                   <span style={{ color: GRAY, margin: '0 8px' }}>|</span>
-                  <strong style={{ color: NAVY }}>Contract:</strong> {aiProse.procurementContractForm}
+                  <strong style={{ color: NAVY }}>Contract:</strong> {aiProse?.procurementContractForm}
                 </p>
                 <p style={{ ...bodyText, marginBottom: '16px' }}>
-                  <strong style={{ color: NAVY }}>Design responsibility:</strong> {aiProse.procurementDesignResp}
+                  <strong style={{ color: NAVY }}>Design responsibility:</strong> {aiProse?.procurementDesignResp}
                   <span style={{ color: GRAY, margin: '0 8px' }}>|</span>
-                  <strong style={{ color: NAVY }}>Tender type:</strong> {aiProse.procurementTenderType}
+                  <strong style={{ color: NAVY }}>Tender type:</strong> {aiProse?.procurementTenderType}
                 </p>
-                <p style={{ ...bodyText, marginBottom: '16px' }}>{aiProse.procurementNarrative}</p>
-                {aiProse.procurementConsiderations?.length > 0 && <>
+                <p style={{ ...bodyText, marginBottom: '16px' }}>{aiProse?.procurementNarrative}</p>
+                {aiProse?.procurementConsiderations?.length > 0 && <>
                   <SubHdr>Commercial Considerations</SubHdr>
                   <ul style={listStyle}>
                     {aiProse.procurementConsiderations.map((c, i) => <li key={i} style={liStyle}>{c}</li>)}
                   </ul>
                 </>}
-                {aiProse.procurementConflicts?.length > 0
+                {aiProse?.procurementConflicts?.length > 0
                   ? <p style={{ color: '#C0392B', marginTop: '12px', fontSize: '13px' }}>
                       {aiProse.procurementConflicts.map(c => `⚠ ${c}`).join('  |  ')}
                     </p>
@@ -415,16 +433,16 @@ export default function ReportRenderer({ data, reportId }) {
               </>
             )}
 
-            {/* ── Section 8: Constraints ── */}
-            {aiProse?.constraints?.length > 0 && (
+            {/* ── Section 8: Constraints (optional + data-conditional) ── */}
+            {showCon && aiProse?.constraints?.length > 0 && (
               <>
-                <SecHdr number="8" title="Constraints Summary" />
+                <SecHdr number={snCon} title="Constraints Summary" />
                 <ConstraintsTable constraints={aiProse.constraints} />
               </>
             )}
 
             {/* ── Section 9: Next Steps ── */}
-            <SecHdr number="9" title="Recommendations &amp; Next Steps" />
+            <SecHdr number={snNext} title="Recommendations &amp; Next Steps" />
             {aiProse?.nextSteps?.length > 0
               ? <ol style={listStyle}>{aiProse.nextSteps.map((s, i) => <li key={i} style={{ ...liStyle, marginBottom: '8px' }}>{s}</li>)}</ol>
               : <p style={bodyText}>Commission outstanding surveys and appoint design team to proceed to RIBA Stage 2.</p>

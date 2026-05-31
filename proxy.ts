@@ -11,7 +11,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 
-const PROTECTED_PAGES = ['/questionnaire', '/report', '/contradiction']
+const PROTECTED_PAGES = ['/questionnaire', '/report']
 const PROTECTED_API   = ['/api/generate-report', '/api/reports']
 
 export function proxy(request: NextRequest) {
@@ -49,7 +49,6 @@ export const config = {
   matcher: [
     '/questionnaire/:path*',
     '/report/:path*',
-    '/contradiction/:path*',
     '/api/generate-report/:path*',
     '/api/reports/:path*',
   ],

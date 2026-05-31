@@ -432,7 +432,6 @@ export default function QuestionnairePage() {
 
   const set = (field, val) => setAnswers(prev => ({ ...prev, [field]: val }))
   const isRefurb = ['Refurbishment', 'Fit-out', 'Extension'].includes(answers.q1_2_projectType)
-  const isNewBuild = answers.q1_2_projectType === 'New Build'
 
   // Validate current section
   function validateSection(sec) {
