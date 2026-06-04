@@ -179,6 +179,42 @@ const QUANTITY_ITEMS = {
   '8.9':  { field: 'q1_5_extLightNr',  label: 'Number of external lighting columns / bollards', unit: 'Nr', placeholder: 'e.g. 10' },
 }
 
+// Which group IDs are visible per Q1.2 project type
+const VISIBLE_GROUPS = {
+  'New Build':        ['GRP0', 'GRP1', 'GRP2', 'GRP3', 'GRP4', 'GRP5A', 'GRP5B', 'GRP5C', 'GRP5D', 'GRP6', 'GRP8'],
+  'Refurbishment':    ['GRP0', 'GRP2', 'GRP3', 'GRP4', 'GRP5A', 'GRP5B', 'GRP5C', 'GRP5D', 'GRP7', 'GRP8'],
+  'Fit-out':          ['GRP3', 'GRP4', 'GRP5A', 'GRP5B', 'GRP5C', 'GRP5D'],
+  'Extension':        ['GRP0', 'GRP1', 'GRP2', 'GRP3', 'GRP4', 'GRP5A', 'GRP5B', 'GRP5C', 'GRP5D', 'GRP6', 'GRP7', 'GRP8'],
+  'External Works':   ['GRP0', 'GRP8'],
+  'Renewable Energy': ['GRP5C', 'GRP8'],
+  'Demolition':       ['GRP0'],
+  'Mixed':            ['GRP0', 'GRP1', 'GRP2', 'GRP3', 'GRP4', 'GRP5A', 'GRP5B', 'GRP5C', 'GRP5D', 'GRP6', 'GRP7', 'GRP8'],
+}
+
+// Minimum Q2.3 intervention tier (1–4) required to select each item.
+// Only applied when Q2.3 is shown (isRefurb projects). Non-refurb projects ignore this.
+const MIN_LEVEL = {
+  '0.1': 1, '0.2': 1, '0.3': 1,
+  '1.1-1.3': 1, '1.4': 1,
+  '2.1-2.2': 3, '2.3': 2, '2.5': 2, '2.6': 2, '2.7': 3, '2.9': 2,
+  '3.1': 1, '3.2': 1, '3.3': 1, '3.4': 1, '3.5': 1,
+  '4.1': 1, '4.2': 1, '4.3': 1, '4.4': 1,
+  '5.1': 3, '5.2': 3, '5.2L': 3, '5.3': 3, '5.4': 3, '5.5': 3, '5.6': 3,
+  '5.7': 3, '5.7a': 3, '5.8a': 3, '5.8b': 2, '5.8c': 2, '5.9a': 3, '5.9b': 3,
+  '5.11': 1, '5.12': 1, '5.13': 1, '5.14': 1, '5.15': 1,
+  '5.16': 2, '5.18': 2, '5.19': 3,
+  '6.2': 3,
+  '7.1': 1, '7.2': 1, '7.3': 1, '7.4': 1, '7.5': 1,
+  '8.1': 1, '8.2': 1, '8.3': 1, '8.4': 1, '8.6': 1, '8.7': 1, '8.8': 1, '8.9': 1,
+}
+
+const LEVEL_TIER = {
+  'Fabric and finishes only': 1,
+  'Finishes with minor services': 2,
+  'Full systems replacement': 3,
+  'Reconfiguration or full redesign': 4,
+}
+
 // Q2.5 — Standards and compliance requirements
 const STANDARDS_OPTIONS = [
   'BREEAM',
@@ -434,6 +470,41 @@ export default function QuestionnairePage() {
   const set = (field, val) => setAnswers(prev => ({ ...prev, [field]: val }))
   const isRefurb = ['Refurbishment', 'Fit-out', 'Extension'].includes(answers.q1_2_projectType)
 
+  // Clear scope items that belong to groups hidden by the new Q1.2 selection
+  useEffect(() => {
+    const visible = VISIBLE_GROUPS[answers.q1_2_projectType]
+    if (!visible) return
+    const allCodes = new Set(
+      SCOPE_GROUPS.filter(g => visible.includes(g.id))
+        .flatMap(g => g.items.filter(i => !i.isHeatingGroup).map(i => i.code))
+    )
+    if (visible.includes('GRP5A')) { allCodes.add('5.2'); allCodes.add('5.2L'); allCodes.add('5.5') }
+    setAnswers(prev => {
+      const cleaned = (prev.q2_2_scopeItems || []).filter(c => allCodes.has(c))
+      const heatingExtra = visible.includes('GRP5A') ? {} : { q2_2_heatingGroup: false, q2_2_heatingType: '' }
+      if (cleaned.length === (prev.q2_2_scopeItems || []).length && !Object.keys(heatingExtra).length) return prev
+      return { ...prev, q2_2_scopeItems: cleaned, ...heatingExtra }
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers.q1_2_projectType])
+
+  // Clear scope items below the new Q2.3 intervention tier
+  useEffect(() => {
+    const tier = LEVEL_TIER[answers.q2_3_interventionLevel]
+    if (!tier) return
+    const heatingDisabled = tier < 3
+    setAnswers(prev => {
+      const cleaned = (prev.q2_2_scopeItems || []).filter(c => (MIN_LEVEL[c] || 1) <= tier)
+      const heatingExtra = heatingDisabled ? { q2_2_heatingGroup: false, q2_2_heatingType: '' } : {}
+      if (cleaned.length === (prev.q2_2_scopeItems || []).length && !Object.keys(heatingExtra).length) return prev
+      return { ...prev, q2_2_scopeItems: cleaned, ...heatingExtra }
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers.q2_3_interventionLevel])
+
+  const currentTier = isRefurb ? (LEVEL_TIER[answers.q2_3_interventionLevel] || 4) : 4
+  const visibleGroupIds = VISIBLE_GROUPS[answers.q1_2_projectType] || SCOPE_GROUPS.map(g => g.id)
+
   // Validate current section
   function validateSection(sec) {
     const errs = {}
@@ -666,9 +737,10 @@ export default function QuestionnairePage() {
                   radioLabel: { fontWeight: 600, fontSize: 12, color: '#1a1a2e', lineHeight: 1.3 },
                   radioDesc: { fontWeight: 400, fontSize: 11, color: '#666', lineHeight: 1.4 },
                 }
+                const displayedGroups = SCOPE_GROUPS.filter(g => visibleGroupIds.includes(g.id))
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                    {SCOPE_GROUPS.map(grp => (
+                    {displayedGroups.map(grp => (
                       <div key={grp.id} style={S.grpBlock}>
                         <div style={S.grpHeader}>
                           <span style={S.grpLabel}>{grp.group}</span>
@@ -678,16 +750,20 @@ export default function QuestionnairePage() {
                           {grp.items.map(item => {
                             // ── HEATING sentinel ──────────────────────────────
                             if (item.isHeatingGroup) {
+                              const heatingEnabled = currentTier >= 3
+                              const hDisStyle = heatingEnabled ? {} : { opacity: 0.4, cursor: 'not-allowed' }
                               return (
                                 <div key="__heating__">
-                                  <label style={S.itemRow}>
-                                    <input type="checkbox" checked={heatingSelected} onChange={toggleHeating} style={S.itemCheck} />
+                                  <label style={{ ...S.itemRow, ...hDisStyle }}>
+                                    <input type="checkbox" checked={heatingSelected && heatingEnabled} disabled={!heatingEnabled}
+                                      onChange={() => { if (heatingEnabled) toggleHeating() }} style={S.itemCheck} />
                                     <div style={S.itemText}>
                                       <span style={S.itemLabel}>Heating system</span>
                                       <span style={S.itemDesc}>New, upgraded or replaced heating — LTHW, heat pump, underfloor heating or gas</span>
+                                      {!heatingEnabled && <span style={{ fontSize: 10, color: '#B06000', fontStyle: 'italic', fontWeight: 500 }}>Requires: Full systems replacement</span>}
                                     </div>
                                   </label>
-                                  {heatingSelected && (
+                                  {heatingSelected && heatingEnabled && (
                                     <div style={S.subPrompt}>
                                       <span style={S.subLabel}>Type of heating works</span>
                                       {[
@@ -712,32 +788,37 @@ export default function QuestionnairePage() {
                             // ── Regular checkbox item ──────────────────────────
                             const isTicked = scopeArr.includes(item.code)
                             const qItem = QUANTITY_ITEMS[item.code]
+                            const itemMinLevel = MIN_LEVEL[item.code] || 1
+                            const isEnabled = currentTier >= itemMinLevel
+                            const disStyle = isEnabled ? {} : { opacity: 0.4, cursor: 'not-allowed' }
+                            const levelName = Object.entries(LEVEL_TIER).find(([, v]) => v === itemMinLevel)?.[0]
                             return (
                               <div key={item.code}>
-                                <label style={S.itemRow}>
-                                  <input type="checkbox" checked={isTicked}
-                                    onChange={() => item.isWiringItem ? toggleWiring(item.code) : toggleScope(item.code)}
+                                <label style={{ ...S.itemRow, ...disStyle }}>
+                                  <input type="checkbox" checked={isTicked && isEnabled} disabled={!isEnabled}
+                                    onChange={() => { if (isEnabled) { item.isWiringItem ? toggleWiring(item.code) : toggleScope(item.code) } }}
                                     style={S.itemCheck} />
                                   <div style={S.itemText}>
                                     <span style={S.itemLabel}>{item.label}</span>
                                     {item.desc && <span style={S.itemDesc}>{item.desc}</span>}
+                                    {!isEnabled && <span style={{ fontSize: 10, color: '#B06000', fontStyle: 'italic', fontWeight: 500 }}>Requires: {levelName}</span>}
                                   </div>
                                 </label>
-                                {isTicked && item.code === '4.2' && (
+                                {isTicked && isEnabled && item.code === '4.2' && (
                                   <div style={S.subPrompt}>
                                     <span style={S.subLabel}>Number of bathrooms / wet rooms</span>
                                     <input type="number" min={1} max={50} value={answers.q2_2_bathrooms || 1}
                                       onChange={e => set('q2_2_bathrooms', e.target.value)} style={S.subInput} />
                                   </div>
                                 )}
-                                {isTicked && item.code === '4.3' && (
+                                {isTicked && isEnabled && item.code === '4.3' && (
                                   <div style={S.subPrompt}>
                                     <span style={S.subLabel}>Number of kitchens or kitchenettes</span>
                                     <input type="number" min={1} max={20} value={answers.q2_2_kitchens || 1}
                                       onChange={e => set('q2_2_kitchens', e.target.value)} style={S.subInput} />
                                   </div>
                                 )}
-                                {isTicked && qItem && item.code !== '4.2' && item.code !== '4.3' && (
+                                {isTicked && isEnabled && qItem && item.code !== '4.2' && item.code !== '4.3' && (
                                   <div style={S.subPrompt}>
                                     <span style={S.subLabel}>{qItem.label}</span>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
