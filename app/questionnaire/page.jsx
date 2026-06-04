@@ -680,8 +680,34 @@ export default function QuestionnairePage() {
               {validationErrors.q2_1_objective && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q2_1_objective}</p>}
             </div>
 
+            {/* Q2.2 — Level of Intervention: shown first so it gates the scope list below */}
+            {isRefurb && (
+              <div>
+                <Label>Q2.2 — Level of intervention</Label>
+                <HelpText>Determines the rate band applied to costs and the design duration multiplier. Scope items that require a higher level are greyed out below.</HelpText>
+                <div className="flex flex-col gap-3">
+                  {INTERVENTION_LEVELS.map(opt => (
+                    <label key={opt.value} className="flex items-start gap-3 cursor-pointer rounded-lg p-3"
+                      style={{
+                        border: answers.q2_3_interventionLevel === opt.value ? '2px solid #2E75B6' : '1px solid #CCC',
+                        backgroundColor: answers.q2_3_interventionLevel === opt.value ? '#D5E8F0' : '#FFF',
+                      }}>
+                      <input type="radio" value={opt.value} checked={answers.q2_3_interventionLevel === opt.value}
+                        onChange={() => set('q2_3_interventionLevel', opt.value)}
+                        className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ accentColor: '#2E75B6' }} />
+                      <div>
+                        <div className="font-bold" style={{ color: '#1F3864' }}>{opt.value}</div>
+                        <div style={{ color: '#2E75B6', fontSize: '12px', fontWeight: 500, marginTop: '2px' }}>{opt.signal}</div>
+                        <div style={{ color: '#555', fontSize: '14px', marginTop: '2px' }}>{opt.description}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div>
-              <Label>Q2.2 — Scope of works</Label>
+              <Label>Q2.3 — Scope of works</Label>
               <HelpText>Tick every element that is in scope. Use Other / Specialist below for anything not listed.</HelpText>
               {(() => {
                 const scopeArr = Array.isArray(answers.q2_2_scopeItems) ? answers.q2_2_scopeItems : []
@@ -862,32 +888,6 @@ export default function QuestionnairePage() {
             </div>
 
             {validationErrors.q2_2_scopeItems && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q2_2_scopeItems}</p>}
-
-            {/* Q2.3 — Level of Intervention (refurb/fit-out/extension only) */}
-            {isRefurb && (
-              <div>
-                <Label>Q2.3 — Level of intervention</Label>
-                <HelpText>Determines the rate band applied to costs and the design duration multiplier.</HelpText>
-                <div className="flex flex-col gap-3">
-                  {INTERVENTION_LEVELS.map(opt => (
-                    <label key={opt.value} className="flex items-start gap-3 cursor-pointer rounded-lg p-3"
-                      style={{
-                        border: answers.q2_3_interventionLevel === opt.value ? '2px solid #2E75B6' : '1px solid #CCC',
-                        backgroundColor: answers.q2_3_interventionLevel === opt.value ? '#D5E8F0' : '#FFF',
-                      }}>
-                      <input type="radio" value={opt.value} checked={answers.q2_3_interventionLevel === opt.value}
-                        onChange={() => set('q2_3_interventionLevel', opt.value)}
-                        className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ accentColor: '#2E75B6' }} />
-                      <div>
-                        <div className="font-bold" style={{ color: '#1F3864' }}>{opt.value}</div>
-                        <div style={{ color: '#2E75B6', fontSize: '12px', fontWeight: 500, marginTop: '2px' }}>{opt.signal}</div>
-                        <div style={{ color: '#555', fontSize: '14px', marginTop: '2px' }}>{opt.description}</div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Q2.4 — Specification Level */}
             <div>
