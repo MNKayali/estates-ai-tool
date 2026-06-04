@@ -79,7 +79,7 @@ export async function POST(request) {
     console.log('[Step 2] Running programme calculator...')
     let programme
     try {
-      programme = await calculateProgramme(answers, cost.total.mid, cost.designMultiplier)
+      programme = await calculateProgramme(answers, cost.total.mid)
     } catch (e) {
       console.error('[Step 2 error]', e.message)
       return Response.json({ error: 'Programme calculation failed: ' + e.message }, { status: 500 })
