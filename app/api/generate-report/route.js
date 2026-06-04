@@ -171,7 +171,8 @@ ABSOLUTE RULES — failure to follow these will invalidate the report:
 5. Return ONLY valid JSON with exactly the keys specified. No preamble, no markdown fences.
 6. If a conditional section (ROI, Procurement) is not applicable, return an empty string for that key.
 7. Write concisely — each prose section should be 2–4 sentences maximum unless specified otherwise.
-8. Risk register: provide 5 to 8 risks. Each risk must cite a specific questionnaire input as its trigger.`
+8. Risk register: provide 5 to 8 risks. Each risk must cite a specific questionnaire input as its trigger.
+9. DETERMINISTIC RISK SEEDS: if the prompt contains a "DETERMINISTIC RISK SEEDS" section, you MUST include every listed seed as a risk register entry. Do not omit any seed. Do not add access-constraint risks that are not seeded. You may expand the prose but must not change the Likelihood/Impact/Rating values.`
 
 async function callClaudeForProse(answers, cost, programme) {
   const prompt = buildProsePrompt(answers, cost, programme)
@@ -196,6 +197,63 @@ async function callClaudeForProse(answers, cost, programme) {
   const data = await res.json()
   const text = (data.content?.[0]?.text || '').replace(/```json|```/g, '').trim()
   return JSON.parse(text)
+}
+
+// Q3.5 access constraint → deterministic risk seed
+const ACCESS_RISK_SEEDS = [
+  {
+    trigger: 'no vehicle access',
+    ref: 'ACC-A',
+    description: 'Materials, plant handling and waste removal constrained; productivity loss and double-handling due to no vehicle access.',
+    likelihood: 'Medium', impact: 'High', rating: 'High',
+    mitigation: 'Confirm offload and storage strategy; craneage or hoist plan; logistics method statement required at tender.',
+  },
+  {
+    trigger: 'term-time',
+    ref: 'ACC-B',
+    description: 'Works confined to vacation windows; programme spans multiple academic terms; risk of overrun into term time.',
+    likelihood: 'High', impact: 'High', rating: 'High',
+    mitigation: 'Phase works to vacation windows; agree blackout dates with faculty; build programme float; consider out-of-hours working.',
+  },
+  {
+    trigger: 'scaffold licence',
+    ref: 'ACC-C',
+    description: 'Highway or public-realm scaffold licence lead time and conditions; possible refusal or delay by local authority.',
+    likelihood: 'Medium', impact: 'Medium', rating: 'Medium',
+    mitigation: 'Apply for licence early; confirm pavement/road licence period and inspection regime with the authority before tender.',
+  },
+  {
+    trigger: 'restricted',
+    ref: 'ACC-D',
+    description: 'Restricted working hours extend construction duration and may attract premium or out-of-hours rates.',
+    likelihood: 'Medium', impact: 'Medium', rating: 'Medium',
+    mitigation: 'Confirm permitted hours with the client; price out-of-hours working where programme-critical; reflect in Prelims.',
+  },
+  {
+    trigger: 'shared access',
+    ref: 'ACC-E',
+    description: 'Coordination required with other occupiers; risk of access disputes and need to protect shared circulation routes.',
+    likelihood: 'Medium', impact: 'Medium', rating: 'Medium',
+    mitigation: 'Agree access protocol, signage, and routes/times with neighbouring occupiers before works commence.',
+  },
+  {
+    trigger: 'height',
+    ref: 'ACC-F',
+    description: 'Height or weight limits on site restrict plant and delivery vehicle size, requiring specialist or smaller plant and more frequent deliveries.',
+    likelihood: 'Low', impact: 'Medium', rating: 'Low',
+    mitigation: 'Survey access route; confirm vehicle dimension and weight limits; plan delivery sizes and frequency accordingly.',
+  },
+]
+
+function buildAccessRiskSeeds(accessConstraints) {
+  const ac = (accessConstraints || []).map(a => a.toLowerCase())
+  if (ac.some(a => a.includes('no access constraints') || a.includes('none'))) return ''
+  const seeds = ACCESS_RISK_SEEDS.filter(s => ac.some(a => a.includes(s.trigger)))
+  if (seeds.length === 0) return ''
+  const lines = seeds.map(s =>
+    `- [${s.ref}] ${s.description} | L: ${s.likelihood} | I: ${s.impact} | RAG: ${s.rating} | Mitigation: ${s.mitigation}`
+  ).join('\n')
+  return `\nDETERMINISTIC RISK SEEDS — include ALL of these in riskRegister exactly as seeded (do not alter L/I/Rating):\n${lines}\n`
 }
 
 function buildProsePrompt(answers, cost, programme) {
@@ -248,7 +306,7 @@ Surveys: ${programme.surveyWeeks} wks | Design: ${programme.designWeeks} wks | T
 Construction: ${programme.constructionWeeks} wks | Handover: ${programme.handoverWeeks} wks
 Procurement route: ${programme.procurementRoute}
 Target status: ${programme.targetStatus} | ${programme.targetNote}
-${answers.q6_2_instructions || answers.q6_2_reportInstructions ? `\nCUSTOM INSTRUCTIONS FROM CLIENT (apply these to your prose writing — tone, emphasis, audience focus):\n${answers.q6_2_instructions || answers.q6_2_reportInstructions}` : ''}
+${buildAccessRiskSeeds(answers.q3_5_accessConstraints)}${answers.q6_2_instructions || answers.q6_2_reportInstructions ? `\nCUSTOM INSTRUCTIONS FROM CLIENT (apply these to your prose writing — tone, emphasis, audience focus):\n${answers.q6_2_instructions || answers.q6_2_reportInstructions}` : ''}
 Return this exact JSON structure:
 {
   "confidenceScore": "A|B|C|D",
