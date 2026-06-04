@@ -171,12 +171,12 @@ const SCOPE_GROUPS = [
 const QUANTITY_ITEMS = {
   '4.2':  { field: 'q2_2_bathrooms',   label: 'How many bathroom / sanitary fit-out suites?', unit: 'Nr', placeholder: 'e.g. 4' },
   '4.3':  { field: 'q2_2_kitchens',    label: 'How many kitchens or serveries?', unit: 'Nr', placeholder: 'e.g. 1' },
-  '5.11': { field: 'q2_5_pvKwp',       label: 'Solar PV capacity (kWp)', unit: 'kWp', placeholder: 'e.g. 50' },
-  '5.12': { field: 'q2_5_battKwh',     label: 'Battery storage capacity (kWh)', unit: 'kWh', placeholder: 'e.g. 100' },
-  '5.15': { field: 'q2_5_evNr',        label: 'Number of EV charging points', unit: 'Nr', placeholder: 'e.g. 10' },
-  '5.19': { field: 'q2_5_liftNr',      label: 'Number of lifts or platform lifts', unit: 'Nr', placeholder: 'e.g. 1' },
-  '8.3':  { field: 'q2_5_carParksNr',  label: 'Number of car parking spaces', unit: 'Nr', placeholder: 'e.g. 20' },
-  '8.9':  { field: 'q2_5_extLightNr',  label: 'Number of external lighting columns / bollards', unit: 'Nr', placeholder: 'e.g. 10' },
+  '5.11': { field: 'q1_5_pvKwp',       label: 'Solar PV capacity (kWp)', unit: 'kWp', placeholder: 'e.g. 50' },
+  '5.12': { field: 'q1_5_battKwh',     label: 'Battery storage capacity (kWh)', unit: 'kWh', placeholder: 'e.g. 100' },
+  '5.15': { field: 'q1_5_evNr',        label: 'Number of EV charging points', unit: 'Nr', placeholder: 'e.g. 10' },
+  '5.19': { field: 'q1_5_liftNr',      label: 'Number of lifts or platform lifts', unit: 'Nr', placeholder: 'e.g. 1' },
+  '8.3':  { field: 'q1_5_carParksNr',  label: 'Number of car parking spaces', unit: 'Nr', placeholder: 'e.g. 20' },
+  '8.9':  { field: 'q1_5_extLightNr',  label: 'Number of external lighting columns / bollards', unit: 'Nr', placeholder: 'e.g. 10' },
 }
 
 // Q2.5 — Standards and compliance requirements
@@ -250,14 +250,15 @@ const SURVEY_OPTIONS = [
   'Other',
 ]
 
-// Multi-select — VALUES match substring checks in costCalculator.js
+// Single-select — VALUES match substring checks in costCalculator.js (LBC merged into combined option)
 const PLANNING_OPTIONS = [
-  'Full planning',
-  'Listed Building Consent',
-  'Prior approval',
-  'Change of use',
+  'No consent required',
   'Permitted development',
-  'Unsure',
+  'Prior approval',
+  'Full planning',
+  'Full planning + Listed Building Consent',
+  'Change of use',
+  'Unsure (pre-application advice)',
 ]
 
 // VALUES match substring checks in costCalculator.js and programmeCalculator.js
@@ -759,8 +760,20 @@ export default function QuestionnairePage() {
                       <div style={{ ...S.grpHeader, marginBottom: 8 }}>
                         <span style={S.grpLabel}>OTHER / SPECIALIST SCOPE</span>
                       </div>
-                      <Textarea value={answers.q2_2_other} onChange={v => set('q2_2_other', v)}
+                      <Textarea value={answers.q2_2_additionalScope?.text}
+                        onChange={v => set('q2_2_additionalScope', { ...(answers.q2_2_additionalScope || {}), text: v })}
                         placeholder="Any specialist scope not listed above — e.g. AV systems, heritage restoration, acoustic treatment, signage, modular pods" rows={2} />
+                      <div className="mt-2">
+                        <p className="text-sm mb-1 italic" style={{ color: '#555' }}>Approximate value of specialist scope (optional — leave blank for provisional exclusion)</p>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
+                          <input type="number" value={answers.q2_2_additionalScope?.approxValue || ''}
+                            onChange={e => set('q2_2_additionalScope', { ...(answers.q2_2_additionalScope || {}), approxValue: e.target.value })}
+                            placeholder="e.g. 50000" min={0}
+                            className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
+                            style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )
@@ -859,11 +872,11 @@ export default function QuestionnairePage() {
               )}
             </div>
             <div>
-              <Label>Q3.4 — Planning consents required</Label>
-              <HelpText>Select all that apply. If unsure, choose 'Unsure' — pre-application advice is recommended.</HelpText>
-              <CheckboxGroup
+              <Label>Q3.4 — Planning consent required</Label>
+              <HelpText>Select the most likely planning pathway. If unsure, choose 'Unsure' — pre-application advice is recommended.</HelpText>
+              <RadioGroup
                 options={PLANNING_OPTIONS}
-                values={answers.q3_4_planningConsents}
+                value={answers.q3_4_planningConsents}
                 onChange={v => set('q3_4_planningConsents', v)}
               />
             </div>
@@ -935,7 +948,7 @@ export default function QuestionnairePage() {
                   <HelpText>State what the figure covers — fees, VAT, contingency, or construction cost only.</HelpText>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
-                    <input type="number" value={answers.q4_2_budgetFigure || ''} onChange={e => set('q4_2_budgetFigure', e.target.value)} placeholder="e.g. 1500000" min={0}
+                    <input type="number" value={answers.q4_3_budget || ''} onChange={e => set('q4_3_budget', e.target.value)} placeholder="e.g. 1500000" min={0}
                       className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
                       style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
                   </div>
@@ -945,44 +958,38 @@ export default function QuestionnairePage() {
             <div>
               <Label>Q4.3 — What matters most on this project?</Label>
               <HelpText>Select all that apply. Drives the procurement recommendation and programme approach.</HelpText>
-              <CheckboxGroup options={PRIORITIES} values={answers.q4_5_priorities} onChange={v => set('q4_5_priorities', v)} />
+              <CheckboxGroup options={PRIORITIES} values={answers.q4_4_priorities} onChange={v => set('q4_4_priorities', v)} />
             </div>
             <div>
               <Label>Q4.4 — Design stage already reached</Label>
               <HelpText>Determines the professional fees percentage applied to the cost estimate and the viable procurement routes.</HelpText>
-              <RadioGroup options={DESIGN_STAGE_OPTIONS} value={answers.q4_6_designStage} onChange={v => set('q4_6_designStage', v)} />
+              <RadioGroup options={DESIGN_STAGE_OPTIONS} value={answers.q4_5_designStage} onChange={v => set('q4_5_designStage', v)} />
             </div>
             <div>
               <Label>Q4.5 — Single or phased delivery?</Label>
               <HelpText>Phased delivery extends the total construction programme. Each phase is assumed to be roughly equal in size at Stage 0–1.</HelpText>
-              <SelectInput value={answers.q4_7_phasing || 'Single phase'} onChange={v => set('q4_7_phasing', v)}>
+              <SelectInput value={answers.q4_6_phasing || 'Single phase'} onChange={v => set('q4_6_phasing', v)}>
                 <option value="Single phase">Single phase — full project delivered in one continuous programme</option>
-                <option value="2 phases">2 phases — e.g. floor by floor, or building by building</option>
-                <option value="3 or more phases">3 or more phases — multi-phase or rolling programme</option>
+                <option value="Multiple phases">Multiple phases — phased delivery (e.g. floor by floor, building by building, or rolling programme)</option>
               </SelectInput>
             </div>
             <div>
-              <Label>Q4.6 — Utility constraints</Label>
-              <HelpText>Utility upgrades add cost and programme time. Tick all that apply.</HelpText>
-              <CheckboxGroup options={UTILITIES_OPTIONS} values={answers.q4_8_utilities} onChange={v => set('q4_8_utilities', v)} />
-            </div>
-            <div>
-              <Label>Q4.7 — Funding source</Label>
+              <Label>Q4.6 — Funding source</Label>
 
               <HelpText>Grant or public funding adds a governance approval allowance to the programme.</HelpText>
               <div className="flex flex-col gap-3">
                 {FUNDING_OPTIONS.map(opt => (
                   <label key={opt} className="flex items-center gap-3 cursor-pointer" style={{ minHeight: '44px' }}>
-                    <input type="radio" value={opt} checked={answers.q4_9_funding === opt}
-                      onChange={() => set('q4_9_funding', opt)}
+                    <input type="radio" value={opt} checked={answers.q4_7_funding === opt}
+                      onChange={() => set('q4_7_funding', opt)}
                       className="w-5 h-5 flex-shrink-0" style={{ accentColor: '#2E75B6' }} />
                     <span style={{ color: '#1A1A1A', fontSize: '16px' }}>{opt}</span>
                   </label>
                 ))}
               </div>
-              {answers.q4_9_funding === 'Other' && (
+              {answers.q4_7_funding === 'Other' && (
                 <div className="mt-3 ml-8">
-                  <Textarea value={answers.q4_9_fundingOther} onChange={v => set('q4_9_fundingOther', v)}
+                  <Textarea value={answers.q4_7_fundingOther} onChange={v => set('q4_7_fundingOther', v)}
                     placeholder="Please describe the funding source" rows={2} />
                 </div>
               )}
@@ -999,12 +1006,25 @@ export default function QuestionnairePage() {
             </div>
             <div>
               <Label>Q5.1 — Financial benefit type</Label>
-              <SelectInput value={answers.q5_1_financialBenefit} onChange={v => set('q5_1_financialBenefit', v)}>
-                <option value="">Select benefit type...</option>
-                {FINANCIAL_BENEFIT_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-              </SelectInput>
+              <HelpText>Select all that apply. 'No direct financial return' is mutually exclusive.</HelpText>
+              <CheckboxGroup
+                options={FINANCIAL_BENEFIT_OPTIONS}
+                values={answers.q5_1_financialBenefit}
+                onChange={newVals => {
+                  const NO_RETURN = 'No direct financial return — strategic or compliance project'
+                  const prevHas = (Array.isArray(answers.q5_1_financialBenefit) ? answers.q5_1_financialBenefit : []).includes(NO_RETURN)
+                  const newHas = newVals.includes(NO_RETURN)
+                  if (newHas && !prevHas) {
+                    set('q5_1_financialBenefit', [NO_RETURN])
+                  } else if (newHas && prevHas) {
+                    set('q5_1_financialBenefit', newVals.filter(x => x !== NO_RETURN))
+                  } else {
+                    set('q5_1_financialBenefit', newVals)
+                  }
+                }}
+              />
             </div>
-            {answers.q5_1_financialBenefit && !answers.q5_1_financialBenefit.includes('No direct') && (
+            {Array.isArray(answers.q5_1_financialBenefit) && answers.q5_1_financialBenefit.length > 0 && !answers.q5_1_financialBenefit.includes('No direct financial return — strategic or compliance project') && (
               <div>
                 <Label>Q5.2 — Estimated annual benefit (£)</Label>
                 <HelpText>Used to calculate simple payback period and ROI.</HelpText>
@@ -1031,14 +1051,14 @@ export default function QuestionnairePage() {
               <HelpText>The core sections (Executive Summary, Scope, Risk, Programme, Recommendations) are always included.</HelpText>
               <CheckboxGroup
                 options={['Order of Cost Estimate (NRM1)', 'ROI & Financial Case', 'Procurement Recommendation', 'Constraints Summary']}
-                values={answers.q6_1_reportSections}
-                onChange={v => set('q6_1_reportSections', v)}
+                values={answers.q6_1_sections}
+                onChange={v => set('q6_1_sections', v)}
               />
             </div>
             <div>
               <Label>Q6.2 — Additional report instructions</Label>
               <HelpText>Any specific tone, emphasis, or content requirements for the AI narrative.</HelpText>
-              <Textarea value={answers.q6_2_reportInstructions} onChange={v => set('q6_2_reportInstructions', v)} placeholder="e.g. Emphasise the compliance risk. Write for a non-technical audience. Focus on the programme risk." rows={3} />
+              <Textarea value={answers.q6_2_instructions} onChange={v => set('q6_2_instructions', v)} placeholder="e.g. Emphasise the compliance risk. Write for a non-technical audience. Focus on the programme risk." rows={3} />
             </div>
 
             {/* Summary card */}

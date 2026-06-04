@@ -202,9 +202,10 @@ function buildProsePrompt(answers, cost, programme) {
   const f1k = n => `£${(Math.round((n || 0) / 1000) * 1000).toLocaleString('en-GB')}`
   const f = n => `£${Math.round(n || 0).toLocaleString('en-GB')}`
 
-  const isROI = answers.q5_1_financialBenefit &&
-    !String(answers.q5_1_financialBenefit).includes('No direct') &&
-    answers.q5_2_annualBenefit
+  const q5_1 = Array.isArray(answers.q5_1_financialBenefit)
+    ? answers.q5_1_financialBenefit.join(' | ')
+    : (answers.q5_1_financialBenefit || '')
+  const isROI = q5_1 && !q5_1.includes('No direct') && answers.q5_2_annualBenefit
 
   return `Generate prose sections for a RIBA Stage 1 Feasibility Report. Return ONLY valid JSON.
 
@@ -215,20 +216,19 @@ Building use: ${answers.q1_3_buildingUse || 'Not stated'} | Age: ${answers.q1_4_
 Specification level: ${cost.specLevel} | Level of intervention: ${cost.interventionLevel}
 Objective: ${answers.q2_1_objective || 'Not stated'}
 Scope items: ${(answers.q2_2_scopeItems || []).join(', ') || 'None specified'}
-Specialist / additional scope notes: ${answers.q2_2_other || 'None'}
+Specialist / additional scope notes: ${typeof answers.q2_2_additionalScope === 'object' ? (answers.q2_2_additionalScope?.text || 'None') : (answers.q2_2_additionalScope || 'None')}
 Standards and compliance requirements: ${answers.q2_5_standards || 'None stated'}
 Known issues: ${(answers.q3_1_knownIssues || []).join(', ') || 'None identified'}
-Previous works and building history: ${answers.q3_2_previousWorks || 'Not stated'}
-Surveys: ${Array.isArray(answers.q3_3_surveys) ? answers.q3_3_surveys.join(', ') : (answers.q3_3_surveys || 'Not stated')} | Planning: ${Array.isArray(answers.q3_4_planningConsents) ? answers.q3_4_planningConsents.join(', ') : (answers.q3_4_planningConsents || 'Not stated')}
+Previous works and building history: ${answers.q3_2_recentWorks || answers.q3_2_previousWorks || 'Not stated'}
+Surveys: ${Array.isArray(answers.q3_3_surveys) ? answers.q3_3_surveys.join(', ') : (answers.q3_3_surveys || 'Not stated')} | Planning: ${answers.q3_4_planningConsents || 'Not stated'}
 Access constraints: ${(answers.q3_5_accessConstraints || []).join(', ') || 'None'}
 Occupation during works: ${answers.q3_6_occupation || 'Not stated'}
-Utility constraints: ${(answers.q4_8_utilities || []).filter(u => !u.includes('No known')).join(', ') || 'None identified'}
 Additional context: ${answers.q3_7_additionalContext || 'None'}
-Target date: ${answers.q4_1_targetDate || 'None specified'} | Budget: ${answers.q4_2_budgetFigure ? f(answers.q4_2_budgetFigure) : 'Not stated'}
-Client priorities (what matters most): ${(answers.q4_5_priorities || []).join(', ') || 'Not stated'}
-Funding source: ${answers.q4_9_funding || 'Not stated'}
-Design stage reached: ${answers.q4_6_designStage || 'Stage 0–1'}
-Financial benefit: ${answers.q5_1_financialBenefit || 'None'}
+Target date: ${answers.q4_1_targetDate || 'None specified'} | Budget: ${answers.q4_3_budget ? f(answers.q4_3_budget) : 'Not stated'}
+Client priorities (what matters most): ${(answers.q4_4_priorities || []).join(', ') || 'Not stated'}
+Funding source: ${answers.q4_7_funding || 'Not stated'}
+Design stage reached: ${answers.q4_5_designStage || 'Stage 0–1'}
+Financial benefit: ${q5_1 || 'None'}
 Annual benefit: ${answers.q5_2_annualBenefit ? f(answers.q5_2_annualBenefit) : 'N/A'}
 
 PRE-CALCULATED COST DATA (do not change any of these figures):
@@ -248,7 +248,7 @@ Surveys: ${programme.surveyWeeks} wks | Design: ${programme.designWeeks} wks | T
 Construction: ${programme.constructionWeeks} wks | Handover: ${programme.handoverWeeks} wks
 Procurement route: ${programme.procurementRoute}
 Target status: ${programme.targetStatus} | ${programme.targetNote}
-${answers.q6_2_reportInstructions ? `\nCUSTOM INSTRUCTIONS FROM CLIENT (apply these to your prose writing — tone, emphasis, audience focus):\n${answers.q6_2_reportInstructions}` : ''}
+${answers.q6_2_instructions || answers.q6_2_reportInstructions ? `\nCUSTOM INSTRUCTIONS FROM CLIENT (apply these to your prose writing — tone, emphasis, audience focus):\n${answers.q6_2_instructions || answers.q6_2_reportInstructions}` : ''}
 Return this exact JSON structure:
 {
   "confidenceScore": "A|B|C|D",
