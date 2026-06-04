@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 const NAVY = '#1F3864'
 const BLUE = '#2E75B6'
@@ -10,7 +10,6 @@ function AccessForm() {
   const [code, setCode]       = useState('')
   const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
-  const router       = useRouter()
   const searchParams = useSearchParams()
   const from         = searchParams.get('from') || '/questionnaire'
 
@@ -26,7 +25,7 @@ function AccessForm() {
         body: JSON.stringify({ code: code.trim() }),
       })
       if (res.ok) {
-        router.push(from)
+        window.location.href = from
       } else {
         setError('Incorrect access code. Please try again.')
         setCode('')
