@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation'
 import { track } from '@vercel/analytics'
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
-const f1k = n  => `£${(Math.round((n || 0) / 1000) * 1000).toLocaleString('en-GB')}`
-const f   = n  => `£${Math.round(n || 0).toLocaleString('en-GB')}`
+const f1k  = n => `£${(Math.round((n || 0) / 1000) * 1000).toLocaleString('en-GB')}`
+const f100 = n => `£${(Math.round((n || 0) / 100)  * 100).toLocaleString('en-GB')}`
+const f    = n => `£${Math.round(n || 0).toLocaleString('en-GB')}`
 const pct = n  => `${Math.round((n || 0) * 10) / 10}%`
 
 // ─── Colours ─────────────────────────────────────────────────────────────────
@@ -607,8 +608,8 @@ function WorksTable({ lineItems }) {
         <td style={tdStyle}>{item.description}</td>
         <td style={{ ...tdStyle, textAlign: 'right' }}>{f(item.rateLow || 0)}</td>
         <td style={{ ...tdStyle, textAlign: 'right' }}>{f(item.rateHigh || 0)}</td>
-        <td style={{ ...tdStyle, textAlign: 'right' }}>{f1k(item.lineLow  || 0)}</td>
-        <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, color: NAVY }}>{f1k(item.lineHigh || 0)}</td>
+        <td style={{ ...tdStyle, textAlign: 'right' }}>{f100(item.lineLow  || 0)}</td>
+        <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, color: NAVY }}>{f100(item.lineHigh || 0)}</td>
       </tr>
     )
     ri++
