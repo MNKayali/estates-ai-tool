@@ -994,17 +994,17 @@ export default function QuestionnairePage() {
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="radio" checked={answers.q4_1_targetDate === 'No specific deadline'} onChange={() => set('q4_1_targetDate', 'No specific deadline')}
                     className="w-5 h-5" style={{ accentColor: '#2E75B6' }} />
-                  <span style={{ fontSize: '16px' }}>No specific deadline</span>
+                  <span style={{ fontSize: '16px', color: '#1A1A1A' }}>No specific deadline</span>
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="radio" checked={!!answers.q4_1_targetDate && answers.q4_1_targetDate !== 'No specific deadline'} onChange={() => set('q4_1_targetDate', '')}
                     className="w-5 h-5" style={{ accentColor: '#2E75B6' }} />
-                  <span style={{ fontSize: '16px' }}>Specific target date:</span>
+                  <span style={{ fontSize: '16px', color: '#1A1A1A' }}>Specific target date:</span>
                 </label>
                 {answers.q4_1_targetDate !== 'No specific deadline' && (
                   <input type="date" value={answers.q4_1_targetDate || ''} onChange={e => set('q4_1_targetDate', e.target.value)}
-                    className="w-full rounded-lg px-3 ml-8 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
-                    style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+                    className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
+                    style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF', boxSizing: 'border-box' }} />
                 )}
               </div>
             </div>
@@ -1015,12 +1015,12 @@ export default function QuestionnairePage() {
                 <label className="flex items-center gap-3 cursor-pointer" style={{ minHeight: '44px' }}>
                   <input type="radio" checked={answers.q4_2_budgetKnown === 'Yes'} onChange={() => set('q4_2_budgetKnown', 'Yes')}
                     className="w-5 h-5" style={{ accentColor: '#2E75B6' }} />
-                  <span style={{ fontSize: '16px' }}>Yes — I have a budget figure</span>
+                  <span style={{ fontSize: '16px', color: '#1A1A1A' }}>Yes — I have a budget figure</span>
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer" style={{ minHeight: '44px' }}>
                   <input type="radio" checked={answers.q4_2_budgetKnown === 'No'} onChange={() => set('q4_2_budgetKnown', 'No')}
                     className="w-5 h-5" style={{ accentColor: '#2E75B6' }} />
-                  <span style={{ fontSize: '16px' }}>No — generate a benchmark estimate</span>
+                  <span style={{ fontSize: '16px', color: '#1A1A1A' }}>No — generate a benchmark estimate</span>
                 </label>
               </div>
               {answers.q4_2_budgetKnown === 'Yes' && (

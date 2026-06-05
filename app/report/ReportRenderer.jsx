@@ -391,7 +391,7 @@ export default function ReportRenderer({ data, reportId }) {
               <>
                 <SecHdr number={snROI} title="ROI &amp; Financial Case" />
                 <p style={{ ...bodyText, marginBottom: '12px' }}>
-                  <strong style={{ color: NAVY }}>Benefit type:</strong> {answers?.q5_1_financialBenefit || '—'}
+                  <strong style={{ color: NAVY }}>Benefit type:</strong> {Array.isArray(answers?.q5_1_financialBenefit) ? answers.q5_1_financialBenefit.join(' | ') : (answers?.q5_1_financialBenefit || '—')}
                   <span style={{ color: GRAY, margin: '0 8px' }}>|</span>
                   <strong style={{ color: NAVY }}>Annual benefit:</strong> {f(roi.annual)} per annum
                   <span style={{ color: GRAY, margin: '0 8px' }}>|</span>
@@ -501,7 +501,7 @@ const listStyle = { paddingLeft: '20px', margin: '0 0 12px', display: 'flex', fl
 const liStyle   = { color: '#333', lineHeight: 1.6, fontSize: '13px' }
 const tblStyle  = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginBottom: '0' }
 const thStyle   = { padding: '8px 10px', color: '#fff', fontWeight: 600, fontSize: '12px', background: NAVY, whiteSpace: 'nowrap' }
-const tdStyle   = { padding: '7px 10px', lineHeight: 1.5, verticalAlign: 'top', fontSize: '13px' }
+const tdStyle   = { padding: '7px 10px', lineHeight: 1.5, verticalAlign: 'top', fontSize: '13px', color: '#333' }
 
 function btnStyle(variant, disabled = false) {
   const base = { padding: '7px 18px', border: 'none', borderRadius: '4px', fontWeight: 700, fontSize: '13px', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.7 : 1, fontFamily: 'Arial, sans-serif' }
@@ -868,10 +868,17 @@ function GanttBar({ stages, totalWeeks, surveyWeeks }) {
 function RiskTable({ risks }) {
   return (
     <div style={{ overflowX: 'auto', marginBottom: '8px' }}>
-      <table style={tblStyle}>
+      <table style={{ ...tblStyle, tableLayout: 'fixed', minWidth: '500px' }}>
+        <colgroup>
+          <col style={{ width: '50px' }} />
+          <col style={{ width: '100px' }} />
+          <col />
+          <col style={{ width: '70px' }} />
+          <col />
+        </colgroup>
         <thead>
           <tr>
-            {['Ref', 'Category', 'Description', 'L', 'I', 'Rating', 'Mitigation'].map(h => (
+            {['Ref', 'Category', 'Description', 'Rating', 'Mitigation'].map(h => (
               <th key={h} style={{ ...thStyle, textAlign: 'left' }}>{h}</th>
             ))}
           </tr>
@@ -882,8 +889,6 @@ function RiskTable({ risks }) {
               <td style={{ ...tdStyle, fontWeight: 700, color: NAVY, fontFamily: 'monospace' }}>{r.ref}</td>
               <td style={tdStyle}>{r.category}</td>
               <td style={tdStyle}>{r.description}</td>
-              <td style={{ ...tdStyle, textAlign: 'center' }}><Rag val={r.likelihood} /></td>
-              <td style={{ ...tdStyle, textAlign: 'center' }}><Rag val={r.impact} /></td>
               <td style={{ ...tdStyle, textAlign: 'center' }}><Rag val={r.rating} filled /></td>
               <td style={tdStyle}>{r.mitigation}</td>
             </tr>
@@ -934,7 +939,7 @@ function buildCostAssumptions(cost, answers) {
     `All rates are at Q2 2026 national mean (BCIS/RICS). BCIS location factor ${cost.bcisFactor} applied for ${cost.bcisRegion}.`,
     `GIFA of ${cost.gifa} m² used as the pricing quantity. Rates are £/m² unless stated.`,
     `Band position factor of ${cost.bandFactor} applied (${cost.interventionLevel}).`,
-    `Professional fees at ${cost.percentages?.fees}% reflect the project being at RIBA Stage ${answers?.q4_6_designStage || '0–1'}.`,
+    `Professional fees at ${cost.percentages?.fees}% reflect the project being at RIBA Stage ${answers?.q4_5_designStage || '0–1'}.`,
     `Contingency fixed at 5% (RIBA Stage 0–1 standard). Survey uncertainty is captured in Risk Allowance (E).`,
     `VAT at 20% is shown for reference only. Recoverability to be confirmed by the client's Finance team.`,
     `This estimate has not been prepared from measured quantities. A formal cost plan by a Chartered Quantity Surveyor is required before any financial commitment.`,
