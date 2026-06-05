@@ -90,7 +90,8 @@ const SCOPE_GROUPS = [
     id: 'GRP5A',
     group: 'GRP 5A — MECHANICAL SERVICES',
     items: [
-      { code: '5.1',  label: 'Plumbing', desc: 'HWS, cold water supply, drainage and waste — 1st and 2nd fix' },
+      { code: '5.1b', label: 'Mechanical second fix only', desc: 'Like-for-like replacement of sanitary ware, radiators, TRVs, taps and visible fittings — pipework and pipe runs not disturbed' },
+      { code: '5.1',  label: 'Plumbing — full (1st and 2nd fix)', desc: 'New HWS, cold water supply, drainage and waste — complete first-fix and second-fix' },
       { code: '__HEATING__', isHeatingGroup: true },
       { code: '5.3',  label: 'Ventilation and air handling', desc: 'AHU, MVHR, heat recovery, mechanical extract — lab or healthcare ventilation' },
       { code: '5.4',  label: 'Air conditioning and cooling', desc: 'VRF, splits, chilled beam, cold store or process cooling' },
@@ -199,7 +200,7 @@ const MIN_LEVEL = {
   '2.1-2.2': 3, '2.3': 2, '2.5': 2, '2.6': 2, '2.7': 3, '2.9': 2,
   '3.1': 1, '3.2': 1, '3.3': 1, '3.4': 1, '3.5': 1,
   '4.1': 1, '4.2': 1, '4.3': 1, '4.4': 1,
-  '5.1': 3, '5.2': 3, '5.2L': 3, '5.3': 3, '5.4': 3, '5.5': 3, '5.6': 3,
+  '5.1b': 2, '5.1': 3, '5.2': 3, '5.2L': 3, '5.3': 3, '5.4': 3, '5.5': 3, '5.6': 3,
   '5.7': 3, '5.7a': 3, '5.8a': 3, '5.8b': 2, '5.8c': 2, '5.9a': 3, '5.9b': 3,
   '5.11': 1, '5.12': 1, '5.13': 1, '5.14': 1, '5.15': 1,
   '5.16': 2, '5.18': 2, '5.19': 3,
@@ -241,7 +242,7 @@ const INTERVENTION_LEVELS = [
   {
     value: 'Finishes with minor services',
     signal: 'Moderate cost · Light design',
-    description: 'All of the above, plus light-touch M&E: replacement light fittings, sockets and switches, or 2nd fix fixtures only. Existing wiring and pipework stays. No new systems installed.',
+    description: 'All of the above, plus second-fix only M&E: replacement sockets, switches, light fittings, radiators, TRVs, taps and visible fittings only. No new pipe runs or cable routes — the existing first-fix wiring and pipework is retained in place.',
   },
   {
     value: 'Full systems replacement',
