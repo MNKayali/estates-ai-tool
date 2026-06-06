@@ -90,8 +90,8 @@ const SCOPE_GROUPS = [
     id: 'GRP5A',
     group: 'GRP 5A — MECHANICAL SERVICES',
     items: [
-      { code: '5.1b', label: 'Mechanical second fix only', desc: 'Like-for-like replacement of sanitary ware, radiators, TRVs, taps and visible fittings — pipework and pipe runs not disturbed' },
-      { code: '5.1',  label: 'Plumbing — full (1st and 2nd fix)', desc: 'New HWS, cold water supply, drainage and waste — complete first-fix and second-fix' },
+      { code: '5.1b', label: 'Plumbing — 2nd fix only', desc: 'Like-for-like replacement: sanitary ware, radiators, TRVs, taps and visible fittings — existing pipework retained, no new pipe runs', isPlumbingItem: true },
+      { code: '5.1',  label: 'Plumbing — full (1st and 2nd fix)', desc: 'New HWS, cold water supply, drainage and waste — complete first-fix and second-fix', isPlumbingItem: true },
       { code: '__HEATING__', isHeatingGroup: true },
       { code: '5.3',  label: 'Ventilation and air handling', desc: 'AHU, MVHR, heat recovery, mechanical extract — lab or healthcare ventilation' },
       { code: '5.4',  label: 'Air conditioning and cooling', desc: 'VRF, splits, chilled beam, cold store or process cooling' },
@@ -743,6 +743,14 @@ export default function QuestionnairePage() {
                   set('q2_2_scopeItems', newScope)
                   set('q2_2_wiring', newWiring)
                 }
+                // Plumbing checkboxes: 5.1 (full) and 5.1b (2nd fix only) are mutually exclusive
+                const togglePlumbing = (code) => {
+                  const other = code === '5.1' ? '5.1b' : '5.1'
+                  const newScope = scopeArr.includes(code)
+                    ? scopeArr.filter(v => v !== code)
+                    : [...scopeArr.filter(v => v !== other), code]
+                  set('q2_2_scopeItems', newScope)
+                }
                 // Inline styles (no external CSS needed)
                 const S = {
                   grpBlock: { marginBottom: 16 },
@@ -823,7 +831,12 @@ export default function QuestionnairePage() {
                               <div key={item.code}>
                                 <label style={{ ...S.itemRow, ...disStyle }}>
                                   <input type="checkbox" checked={isTicked && isEnabled} disabled={!isEnabled}
-                                    onChange={() => { if (isEnabled) { item.isWiringItem ? toggleWiring(item.code) : toggleScope(item.code) } }}
+                                    onChange={() => {
+                                      if (!isEnabled) return
+                                      if (item.isWiringItem)         toggleWiring(item.code)
+                                      else if (item.isPlumbingItem)  togglePlumbing(item.code)
+                                      else                           toggleScope(item.code)
+                                    }}
                                     style={S.itemCheck} />
                                   <div style={S.itemText}>
                                     <span style={S.itemLabel}>{item.label}</span>
