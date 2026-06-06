@@ -352,7 +352,7 @@ export default function ReportRenderer({ data, reportId }) {
             </p>
             {aiProse?.costNarrative && <p style={{ ...bodyText, marginBottom: '20px' }}>{aiProse.costNarrative}</p>}
 
-            <div className="avoid-break">
+            <div>
               <SubHdr>Section 1 — Works Cost</SubHdr>
               {cost?.lineItems?.length > 0
                 ? <WorksTable lineItems={cost.lineItems} />
@@ -360,12 +360,12 @@ export default function ReportRenderer({ data, reportId }) {
               }
             </div>
 
-            <div className="avoid-break">
+            <div>
               <SubHdr>Section 2 — Construction Cost</SubHdr>
               <ConstructionTable cost={cost} />
             </div>
 
-            <div className="avoid-break">
+            <div>
               <SubHdr>Section 3 — Total Project Cost</SubHdr>
               <TotalCostTable cost={cost} />
             </div>
@@ -535,7 +535,7 @@ function SecHdr({ number, title, pageBreak }) {
 }
 
 function SubHdr({ children }) {
-  return <p style={{ fontWeight: 700, color: NAVY, fontSize: '13px', margin: '16px 0 6px' }}>{children}</p>
+  return <p style={{ fontWeight: 700, color: NAVY, fontSize: '13px', margin: '16px 0 6px', breakAfter: 'avoid' }}>{children}</p>
 }
 
 function InfoBox({ label, value, note, noteColor }) {

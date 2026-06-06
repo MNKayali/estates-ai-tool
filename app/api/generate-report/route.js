@@ -251,7 +251,7 @@ function buildAccessRiskSeeds(accessConstraints) {
   const seeds = ACCESS_RISK_SEEDS.filter(s => ac.some(a => a.includes(s.trigger)))
   if (seeds.length === 0) return ''
   const lines = seeds.map(s =>
-    `- [${s.ref}] ${s.description} | L: ${s.likelihood} | I: ${s.impact} | RAG: ${s.rating} | Mitigation: ${s.mitigation}`
+    `- ${s.description} | L: ${s.likelihood} | I: ${s.impact} | RAG: ${s.rating} | Mitigation: ${s.mitigation}`
   ).join('\n')
   return `\nDETERMINISTIC RISK SEEDS — include ALL of these in riskRegister exactly as seeded (do not alter L/I/Rating):\n${lines}\n`
 }
