@@ -136,6 +136,24 @@ export default function ReportRenderer({ data, reportId }) {
           .avoid-break { break-inside: avoid !important; }
           .cost-works-table table { break-inside: auto !important; }
 
+          /* Section page breaks */
+          .report-section { break-before: page !important; }
+          .report-section:first-of-type { break-before: auto !important; }
+
+          /* Keep headings with their first content line */
+          h2, h3 { break-after: avoid !important; }
+          .cost-section-header { break-after: avoid !important; }
+
+          /* Keep risk rows and programme rows intact */
+          .risk-row { break-inside: avoid !important; }
+          .programme-table tr { break-inside: avoid !important; }
+
+          /* Page margins */
+          @page { margin: 15mm; }
+
+          /* Prevent overflow-hidden from clipping print content */
+          * { overflow: visible !important; }
+
           /* Running header — fixed at top of every page.
              On page 1 it sits behind the full-bleed navy cover (zIndex: 1 on cover div).
              On pages 2+ it occupies the 15mm top margin created by @page. */
@@ -814,7 +832,7 @@ function GanttBar({ stages, totalWeeks, surveyWeeks }) {
       )}
 
       {/* ── Main programme bar ── */}
-      <div style={{ display: 'flex', height: '24px', borderRadius: '3px', overflow: 'hidden', border: `1px solid ${BORDER}` }}>
+      <div style={{ display: 'flex', height: '24px', borderRadius: '3px', overflow: 'hidden', border: `1px solid ${BORDER}`, maxWidth: '100%' }}>
         {buckets.map((b, i) => {
           const pct = (b.weeks / totalWeeks) * 100
           return (
