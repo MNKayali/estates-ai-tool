@@ -13,6 +13,7 @@ import { calculateCost } from '@/lib/costCalculator'
 import { calculateProgramme } from '@/lib/programmeCalculator'
 import { buildReport } from '@/lib/reportBuilder'
 import { saveReport } from '@/lib/kv'
+import { runSenseCheck } from '@/lib/senseCheck'
 
 // Read inside handler so it picks up env vars after module init
 function getAnthropicKey() {
@@ -101,11 +102,14 @@ export async function POST(request) {
     answers._constructionWeeks = programme.constructionWeeks
     cost = await calculateCost(answers, programme.totalWeeks)
 
+    // ── Step 2c: Sense check ──────────────────────────────────────────────────
+    const senseCheck = runSenseCheck(cost, programme)
+
     // ── Step 3: Single AI call — prose only ───────────────────────────────────
     console.log('[Step 3] Calling Claude for prose...')
     let aiProse
     try {
-      aiProse = await callClaudeForProse(answers, cost, programme)
+      aiProse = await callClaudeForProse(answers, cost, programme, senseCheck)
     } catch (e) {
       console.error('[Step 3 error]', e.message)
       return Response.json({ error: 'AI prose generation failed: ' + e.message }, { status: 500 })
@@ -174,8 +178,8 @@ ABSOLUTE RULES — failure to follow these will invalidate the report:
 8. Risk register: provide 5 to 8 risks. Each risk must cite a specific questionnaire input as its trigger.
 9. DETERMINISTIC RISK SEEDS: if the prompt contains a "DETERMINISTIC RISK SEEDS" section, you MUST include every listed seed as a risk register entry. Do not omit any seed. Do not add access-constraint risks that are not seeded. You may expand the prose but must not change the Likelihood/Impact/Rating values.`
 
-async function callClaudeForProse(answers, cost, programme) {
-  const prompt = buildProsePrompt(answers, cost, programme)
+async function callClaudeForProse(answers, cost, programme, senseCheck) {
+  const prompt = buildProsePrompt(answers, cost, programme, senseCheck)
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -256,7 +260,7 @@ function buildAccessRiskSeeds(accessConstraints) {
   return `\nDETERMINISTIC RISK SEEDS — include ALL of these in riskRegister exactly as seeded (do not alter L/I/Rating):\n${lines}\n`
 }
 
-function buildProsePrompt(answers, cost, programme) {
+function buildProsePrompt(answers, cost, programme, senseCheck) {
   const f1k = n => `£${(Math.round((n || 0) / 1000) * 1000).toLocaleString('en-GB')}`
   const f = n => `£${Math.round(n || 0).toLocaleString('en-GB')}`
 
@@ -307,6 +311,14 @@ Construction: ${programme.constructionWeeks} wks | Handover: ${programme.handove
 Procurement route: ${programme.procurementRoute}
 Target status: ${programme.targetStatus} | ${programme.targetNote}
 ${buildAccessRiskSeeds(answers.q3_5_accessConstraints)}${answers.q6_2_instructions || answers.q6_2_reportInstructions ? `\nCUSTOM INSTRUCTIONS FROM CLIENT (apply these to your prose writing — tone, emphasis, audience focus):\n${answers.q6_2_instructions || answers.q6_2_reportInstructions}` : ''}
+${senseCheck?.hasWarnings
+  ? `\nSENSE CHECK WARNINGS (automatically detected — respond to these in your prose):\n` +
+    senseCheck.warnings.map(w =>
+      `[${w.severity.toUpperCase()} / ${w.code}] ${w.message}`
+    ).join('\n') +
+    `\n\nInstructions for warnings:\n- HIGH warnings: flag prominently in the Executive Summary; lower confidenceScore by one grade from what you would otherwise assign.\n- MEDIUM warnings: include as a cost or programme risk entry in riskRegister with a verification recommendation.\n- LOW warnings: mention briefly in the costNarrative or procurementNarrative as a programme note.\n`
+  : `\nSENSE CHECK: All automated checks passed — no anomalies detected.\n`
+}
 Return this exact JSON structure:
 {
   "confidenceScore": "A|B|C|D",
