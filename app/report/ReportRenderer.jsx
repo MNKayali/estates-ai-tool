@@ -115,8 +115,20 @@ export default function ReportRenderer({ data, reportId }) {
       <style>{`
         /* Page setup — removes browser date/title headers; sets professional margins.
            @page :first gives the cover full-bleed (no white margins).
-           Interior pages get 15mm top margin where the running header sits. */
-        @page          { size: A4; margin: 15mm 18mm 18mm; }
+           Interior pages get 15mm top/bottom, 18mm left/right.
+           @bottom-center adds page numbers in the bottom margin (Chrome 131+). */
+        @page {
+          size: A4;
+          margin: 15mm 18mm 15mm 18mm;
+        }
+        @page {
+          @bottom-center {
+            content: "Page " counter(page) "  ·  Estates AI Tool";
+            font-size: 8pt;
+            font-family: Arial, sans-serif;
+            color: #666;
+          }
+        }
         @page :first   { margin: 0; }
 
         @media print {
@@ -125,12 +137,12 @@ export default function ReportRenderer({ data, reportId }) {
           *            { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
           /* Remove screen chrome from outer wrappers */
-          .report-outer { background: white !important; padding: 0 !important; min-height: unset !important; }
-          .report-inner { box-shadow: none !important; max-width: 100% !important; }
+          .report-outer { background: white !important; padding: 0 !important; min-height: unset !important; overflow: visible !important; }
+          .report-inner { box-shadow: none !important; max-width: 100% !important; overflow: visible !important; }
 
           /* Page-break rules */
           .page-break  { break-before: page !important; }
-          .section-hdr { break-after: avoid !important; }
+          .section-hdr { break-after: avoid !important; padding-top: 4px; }
           table        { break-inside: avoid !important; }
           tr           { break-inside: avoid !important; }
           .avoid-break { break-inside: avoid !important; }
@@ -148,15 +160,10 @@ export default function ReportRenderer({ data, reportId }) {
           .risk-row { break-inside: avoid !important; }
           .programme-table tr { break-inside: avoid !important; }
 
-          /* Page margins */
-          @page { margin: 15mm; }
-
-          /* Prevent overflow-hidden from clipping print content */
-          * { overflow: visible !important; }
-
           /* Running header — fixed at top of every page.
              On page 1 it sits behind the full-bleed navy cover (zIndex: 1 on cover div).
-             On pages 2+ it occupies the 15mm top margin created by @page. */
+             On pages 2+ it occupies the 15mm top margin created by @page.
+             z-index: 10 ensures it renders above all content elements. */
           .print-running-hdr {
             display: flex !important;
             position: fixed;
@@ -170,7 +177,7 @@ export default function ReportRenderer({ data, reportId }) {
             font-size: 8.5pt;
             font-family: Arial, sans-serif;
             color: #444;
-            z-index: 0;
+            z-index: 10;
           }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -239,7 +246,7 @@ export default function ReportRenderer({ data, reportId }) {
         <div className="report-inner" style={{ maxWidth: '880px', margin: '0 auto', background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
 
           {/* ══ COVER ══ */}
-          <div style={{ background: NAVY, padding: '48px 56px 0', position: 'relative', zIndex: 1 }}>
+          <div style={{ background: NAVY, padding: '48px 56px 40px', position: 'relative', zIndex: 1 }}>
             {/* Wordmark */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '36px' }}>
               <div style={{ background: '#2E75B6', borderRadius: '3px', padding: '3px 7px', display: 'inline-flex', alignItems: 'center' }}>
@@ -521,7 +528,7 @@ const listStyle = { paddingLeft: '20px', margin: '0 0 12px', display: 'flex', fl
 const liStyle   = { color: '#333', lineHeight: 1.6, fontSize: '13px' }
 const tblStyle  = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginBottom: '0' }
 const thStyle   = { padding: '8px 10px', color: '#fff', fontWeight: 600, fontSize: '12px', background: NAVY, whiteSpace: 'nowrap' }
-const tdStyle   = { padding: '7px 10px', lineHeight: 1.5, verticalAlign: 'top', fontSize: '13px', color: '#333' }
+const tdStyle   = { padding: '7px 10px', lineHeight: 1.5, verticalAlign: 'top', fontSize: '13px', color: '#333', wordBreak: 'break-word', overflowWrap: 'break-word' }
 
 function btnStyle(variant, disabled = false) {
   const base = { padding: '7px 18px', border: 'none', borderRadius: '4px', fontWeight: 700, fontSize: '13px', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.7 : 1, fontFamily: 'Arial, sans-serif' }
