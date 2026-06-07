@@ -134,6 +134,7 @@ export default function ReportRenderer({ data, reportId }) {
           table        { break-inside: avoid !important; }
           tr           { break-inside: avoid !important; }
           .avoid-break { break-inside: avoid !important; }
+          .cost-works-table table { break-inside: auto !important; }
 
           /* Running header — fixed at top of every page.
              On page 1 it sits behind the full-bleed navy cover (zIndex: 1 on cover div).
@@ -352,7 +353,7 @@ export default function ReportRenderer({ data, reportId }) {
             </p>
             {aiProse?.costNarrative && <p style={{ ...bodyText, marginBottom: '20px' }}>{aiProse.costNarrative}</p>}
 
-            <div>
+            <div className="cost-works-table">
               <SubHdr>Section 1 — Works Cost</SubHdr>
               {cost?.lineItems?.length > 0
                 ? <WorksTable lineItems={cost.lineItems} />
