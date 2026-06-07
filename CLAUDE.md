@@ -91,3 +91,16 @@ Changing a rate or duration means **editing the workbook, not the code**. Design
 ## Deployment
 
 Hosted on **Vercel**. `npm run build` is the gate. Both `*_FILE_URL` workbooks must be reachable from the deployment.
+
+## Frontend Design Rules
+
+When building or modifying any UI component, page, or interface in this app:
+
+- **Choose a clear aesthetic direction** before writing code and commit to it fully. This app serves university estates professionals — the tone should be authoritative, precise, and refined (not playful or consumer-grade).
+- **Typography:** Use distinctive, characterful fonts. Never use Inter, Roboto, Arial, or system-ui. Pair a strong display font with a clean body font.
+- **Colour:** Work from the established navy `#1A2E4A` brand. Build a cohesive palette around it — dominant navy with sharp, purposeful accents. Avoid generic colour schemes.
+- **Motion:** Use subtle animations for page load, step transitions, and hover states. CSS-only preferred; avoid heavy JS animation libraries unless necessary.
+- **Layout:** Prefer structured, grid-based layouts appropriate to a professional tool. Clean information hierarchy. Generous whitespace. No clutter.
+- **Backgrounds & depth:** Avoid flat solid whites. Add subtle depth via light textures, soft gradients, or layered transparencies that reinforce the professional aesthetic.
+- **Production-grade only:** No placeholder content, no lorem ipsum, no half-built components committed to the repo.
+- Every UI change should feel intentional and consistent with the report tool's purpose — a credible, polished product used inside a university estates team.
