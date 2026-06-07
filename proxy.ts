@@ -12,7 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const PROTECTED_PAGES = ['/questionnaire', '/report']
-const PROTECTED_API   = ['/api/generate-report', '/api/reports']
+const PROTECTED_API   = ['/api/generate-report', '/api/reports', '/api/report-pdf']
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -51,5 +51,6 @@ export const config = {
     '/report/:path*',
     '/api/generate-report/:path*',
     '/api/reports/:path*',
+    '/api/report-pdf/:path*',
   ],
 }

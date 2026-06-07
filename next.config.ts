@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['xlsx'],
+  serverExternalPackages: ['xlsx', '@sparticuz/chromium', 'puppeteer-core'],
 }
 
 // Apply Sentry Webpack plugin (source-map upload) only when SENTRY_AUTH_TOKEN

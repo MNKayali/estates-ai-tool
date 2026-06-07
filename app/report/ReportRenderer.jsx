@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { track } from '@vercel/analytics'
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
@@ -39,9 +39,12 @@ const GROUP_NAMES = {
  */
 export default function ReportRenderer({ data, reportId }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const isPdf = searchParams?.get('pdf') === '1'   // server-side Puppeteer render
   const [downloading, setDownloading]   = useState(false)
   const [downloadError, setDownloadError] = useState('')
   const [copied, setCopied]             = useState(false)
+  const [pdfLoading, setPdfLoading]     = useState(false)
 
   function downloadDocx() {
     if (!data?.docx) {
@@ -66,9 +69,28 @@ export default function ReportRenderer({ data, reportId }) {
     setDownloading(false)
   }
 
-  function downloadPdf() {
+  async function downloadPdf() {
     track('pdf_downloaded', { reportId: reportId || 'unsaved' })
-    window.print()
+    // Saved reports → server-side Puppeteer PDF (real page numbers).
+    // Unsaved reports (no id / KV off) → browser print fallback.
+    if (!reportId) { window.print(); return }
+    setPdfLoading(true)
+    setDownloadError('')
+    try {
+      const res = await fetch(`/api/report-pdf/${reportId}`)
+      if (!res.ok) throw new Error('PDF service unavailable')
+      const blob = await res.blob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = `${(data.projectName || 'Report').replace(/[^a-z0-9 _-]/gi, '_')}_Stage1_Report.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      // Fallback to browser print if the server route fails for any reason.
+      window.print()
+    }
+    setPdfLoading(false)
   }
 
   async function copyLink() {
@@ -114,11 +136,23 @@ export default function ReportRenderer({ data, reportId }) {
       {/* ── Print rules ── */}
       <style>{`
         /* ── Single consolidated @page rule ──────────────────────────────────────
-           - margin: 20mm top (header space) · 18mm sides · 15mm bottom (footer space)
-           - @top-left: running header in margin box — no content overlap possible
-           - @bottom-center: page number in margin box — no content overlap possible
-           - @page :first: cover is full-bleed (zero margins, no header/footer)
-           Chrome 131+ supports @top-left and @bottom-center margin boxes.     */
+           - margin: 20mm top · 18mm sides · 15mm bottom — generous gutters so no
+             content reaches the paper edge on any page.
+           - @page :first: cover is full-bleed (zero margins). The cover is forced
+             onto its own page (.report-cover { break-after: page }) so this rule
+             can never strip margins from real body content.
+           NOTE: the @top-left / @bottom-center margin boxes below (incl. the
+           counter(page) page number) are a progressive enhancement. They render
+           in dedicated print engines (Prince/WeasyPrint/paged.js) but NOT in
+           browser "Print to PDF" — Chromium/Gecko/WebKit do not implement page
+           margin-box generated content. For guaranteed page numbers from the
+           browser, the user must tick "Headers and footers" in the print dialog,
+           or we move export to a server-side renderer. */
+        ${isPdf ? `
+        /* PDF mode: Puppeteer owns margins + the "Page X of Y" footer, so the page
+           CSS must not set @page margins. Cover prints as a normal margined page. */
+        @page { size: A4; }
+        ` : `
         @page {
           size: A4;
           margin: 20mm 18mm 15mm 18mm;
@@ -144,6 +178,7 @@ export default function ReportRenderer({ data, reportId }) {
           @top-left      { content: none; }
           @bottom-center { content: none; }
         }
+        `}
 
         @media print {
           .no-print    { display: none !important; }
@@ -156,6 +191,10 @@ export default function ReportRenderer({ data, reportId }) {
 
           /* Hide the screen running-header div — margin boxes replace it in print */
           .print-running-hdr { display: none !important; }
+
+          /* Cover owns page 1 alone, so @page :first { margin: 0 } can't strip
+             margins from real content that would otherwise share the page. */
+          .report-cover { break-after: page !important; }
 
           /* Page-break rules */
           .page-break  { break-before: page !important; }
@@ -197,9 +236,9 @@ export default function ReportRenderer({ data, reportId }) {
                 {copied ? '✓ Copied!' : '🔗 Copy Link'}
               </button>
             )}
-            <button onClick={downloadPdf}
-              style={btnStyle('gray')}>
-              ⬇ Download PDF
+            <button onClick={downloadPdf} disabled={pdfLoading}
+              style={btnStyle('gray', pdfLoading)}>
+              {pdfLoading ? 'Preparing PDF…' : '⬇ Download PDF'}
             </button>
             <button onClick={downloadDocx} disabled={downloading}
               style={btnStyle('green', downloading)}>
@@ -243,7 +282,7 @@ export default function ReportRenderer({ data, reportId }) {
         <div className="report-inner" style={{ maxWidth: '880px', margin: '0 auto', background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
 
           {/* ══ COVER ══ */}
-          <div style={{ background: NAVY, padding: '48px 56px 64px', position: 'relative', zIndex: 1 }}>
+          <div className="report-cover" style={{ background: NAVY, padding: '48px 56px 64px', position: 'relative', zIndex: 1 }}>
             {/* Wordmark */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '36px' }}>
               <div style={{ background: '#2E75B6', borderRadius: '3px', padding: '3px 7px', display: 'inline-flex', alignItems: 'center' }}>
@@ -494,9 +533,9 @@ export default function ReportRenderer({ data, reportId }) {
                 Word document (.docx) for editing and sharing · PDF for print-ready archive
               </p>
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button onClick={downloadPdf}
-                  style={btnStyle('gray')}>
-                  ⬇ Download PDF
+                <button onClick={downloadPdf} disabled={pdfLoading}
+                  style={btnStyle('gray', pdfLoading)}>
+                  {pdfLoading ? 'Preparing PDF…' : '⬇ Download PDF'}
                 </button>
                 <button onClick={downloadDocx} disabled={downloading}
                   style={btnStyle('green', downloading)}>
