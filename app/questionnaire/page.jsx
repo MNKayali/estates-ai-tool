@@ -489,7 +489,8 @@ export default function QuestionnairePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers.q1_2_projectType])
 
-  // Clear scope items below the new Q2.3 intervention tier
+  // Clear scope items (and wiring) below the new Q2.3 intervention tier
+  const WIRING_MIN_TIER = { '5.8': 3, '5.8a': 3, '5.8b': 2, '5.8c': 2 }
   useEffect(() => {
     const tier = LEVEL_TIER[answers.q2_3_interventionLevel]
     if (!tier) return
@@ -497,8 +498,10 @@ export default function QuestionnairePage() {
     setAnswers(prev => {
       const cleaned = (prev.q2_2_scopeItems || []).filter(c => (MIN_LEVEL[c] || 1) <= tier)
       const heatingExtra = heatingDisabled ? { q2_2_heatingGroup: false, q2_2_heatingType: '' } : {}
-      if (cleaned.length === (prev.q2_2_scopeItems || []).length && !Object.keys(heatingExtra).length) return prev
-      return { ...prev, q2_2_scopeItems: cleaned, ...heatingExtra }
+      const wiringTier  = WIRING_MIN_TIER[prev.q2_2_wiring] || 0
+      const newWiring   = wiringTier <= tier ? prev.q2_2_wiring : 'none'
+      if (cleaned.length === (prev.q2_2_scopeItems || []).length && !Object.keys(heatingExtra).length && newWiring === prev.q2_2_wiring) return prev
+      return { ...prev, q2_2_scopeItems: cleaned, q2_2_wiring: newWiring, ...heatingExtra }
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers.q2_3_interventionLevel])

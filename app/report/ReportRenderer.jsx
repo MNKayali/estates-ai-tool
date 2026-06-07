@@ -113,23 +113,37 @@ export default function ReportRenderer({ data, reportId }) {
     <>
       {/* ── Print rules ── */}
       <style>{`
-        /* Page setup — removes browser date/title headers; sets professional margins.
-           @page :first gives the cover full-bleed (no white margins).
-           Interior pages get 15mm top/bottom, 18mm left/right.
-           @bottom-center adds page numbers in the bottom margin (Chrome 131+). */
+        /* ── Single consolidated @page rule ──────────────────────────────────────
+           - margin: 20mm top (header space) · 18mm sides · 15mm bottom (footer space)
+           - @top-left: running header in margin box — no content overlap possible
+           - @bottom-center: page number in margin box — no content overlap possible
+           - @page :first: cover is full-bleed (zero margins, no header/footer)
+           Chrome 131+ supports @top-left and @bottom-center margin boxes.     */
         @page {
           size: A4;
-          margin: 15mm 18mm 15mm 18mm;
-        }
-        @page {
+          margin: 20mm 18mm 15mm 18mm;
+          @top-left {
+            content: "RIBA Stage 0–1 Feasibility Report";
+            font-size: 8pt;
+            font-family: Arial, sans-serif;
+            color: #444;
+            border-bottom: 2px solid #2E75B6;
+            padding-bottom: 2mm;
+            vertical-align: bottom;
+            width: 100%;
+          }
           @bottom-center {
-            content: "Page " counter(page) "  ·  Estates AI Tool";
+            content: "Page " counter(page) "  ·  Estates AI Tool  ·  Indicative only";
             font-size: 8pt;
             font-family: Arial, sans-serif;
             color: #666;
           }
         }
-        @page :first   { margin: 0; }
+        @page :first {
+          margin: 0;
+          @top-left      { content: none; }
+          @bottom-center { content: none; }
+        }
 
         @media print {
           .no-print    { display: none !important; }
@@ -140,9 +154,12 @@ export default function ReportRenderer({ data, reportId }) {
           .report-outer { background: white !important; padding: 0 !important; min-height: unset !important; overflow: visible !important; }
           .report-inner { box-shadow: none !important; max-width: 100% !important; overflow: visible !important; }
 
+          /* Hide the screen running-header div — margin boxes replace it in print */
+          .print-running-hdr { display: none !important; }
+
           /* Page-break rules */
           .page-break  { break-before: page !important; }
-          .section-hdr { break-after: avoid !important; padding-top: 4px; }
+          .section-hdr { break-after: avoid !important; }
           table        { break-inside: avoid !important; }
           tr           { break-inside: avoid !important; }
           .avoid-break { break-inside: avoid !important; }
@@ -159,26 +176,6 @@ export default function ReportRenderer({ data, reportId }) {
           /* Keep risk rows and programme rows intact */
           .risk-row { break-inside: avoid !important; }
           .programme-table tr { break-inside: avoid !important; }
-
-          /* Running header — fixed at top of every page.
-             On page 1 it sits behind the full-bleed navy cover (zIndex: 1 on cover div).
-             On pages 2+ it occupies the 15mm top margin created by @page.
-             z-index: 10 ensures it renders above all content elements. */
-          .print-running-hdr {
-            display: flex !important;
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 15mm;
-            padding: 0 18mm;
-            align-items: center;
-            justify-content: space-between;
-            background: white;
-            border-bottom: 2px solid #2E75B6;
-            font-size: 8.5pt;
-            font-family: Arial, sans-serif;
-            color: #444;
-            z-index: 10;
-          }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
@@ -246,7 +243,7 @@ export default function ReportRenderer({ data, reportId }) {
         <div className="report-inner" style={{ maxWidth: '880px', margin: '0 auto', background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
 
           {/* ══ COVER ══ */}
-          <div style={{ background: NAVY, padding: '48px 56px 40px', position: 'relative', zIndex: 1 }}>
+          <div style={{ background: NAVY, padding: '48px 56px 64px', position: 'relative', zIndex: 1 }}>
             {/* Wordmark */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '36px' }}>
               <div style={{ background: '#2E75B6', borderRadius: '3px', padding: '3px 7px', display: 'inline-flex', alignItems: 'center' }}>
