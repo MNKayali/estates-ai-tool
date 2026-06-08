@@ -28,6 +28,7 @@ const GROUP_NAMES = {
   6: 'GROUP 6 — PREFABRICATED / MODULAR',
   7: 'GROUP 7 — WORK TO EXISTING BUILDINGS',
   8: 'GROUP 8 — EXTERNAL WORKS',
+  99: 'PROVISIONAL SUMS & SPECIALIST SCOPE',
 }
 
 /**
@@ -193,8 +194,11 @@ export default function ReportRenderer({ data, reportId }) {
           .print-running-hdr { display: none !important; }
 
           /* Cover owns page 1 alone, so @page :first { margin: 0 } can't strip
-             margins from real content that would otherwise share the page. */
-          .report-cover { break-after: page !important; }
+             margins from real content that would otherwise share the page.
+             Fill the page so the cover is a full branded page, not a navy band
+             with a large empty white area beneath it. */
+          .report-cover { break-after: page !important; min-height: 247mm; }
+          .cover-footer { margin-top: auto; }
 
           /* Page-break rules */
           .page-break  { break-before: page !important; }
@@ -282,7 +286,7 @@ export default function ReportRenderer({ data, reportId }) {
         <div className="report-inner" style={{ maxWidth: '880px', margin: '0 auto', background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
 
           {/* ══ COVER ══ */}
-          <div className="report-cover" style={{ background: NAVY, padding: '48px 56px 64px', position: 'relative', zIndex: 1 }}>
+          <div className="report-cover" style={{ background: NAVY, padding: '48px 56px 64px', position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column' }}>
             {/* Wordmark */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '36px' }}>
               <div style={{ background: '#2E75B6', borderRadius: '3px', padding: '3px 7px', display: 'inline-flex', alignItems: 'center' }}>
@@ -312,14 +316,17 @@ export default function ReportRenderer({ data, reportId }) {
               <span style={{ color: NAVY_LT }}>Programme: </span>
               <strong>{programme?.totalWeeks} weeks</strong>
             </p>
-            {/* Project reference */}
-            <p style={{ margin: '0 0 40px', fontSize: '10px', color: NAVY_LT, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
-              {reportId
-                ? `Ref: ${reportId.slice(0, 8).toUpperCase()}`
-                : 'Draft — not saved'}
-            </p>
-            {/* Bottom accent line */}
-            <div style={{ height: '4px', background: '#2E75B6', margin: '0 -56px' }} />
+            {/* Reference + bottom accent — pushed to the foot of the page in print/PDF */}
+            <div className="cover-footer">
+              {/* Project reference */}
+              <p style={{ margin: '0 0 40px', fontSize: '10px', color: NAVY_LT, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+                {reportId
+                  ? `Ref: ${reportId.slice(0, 8).toUpperCase()}`
+                  : 'Draft — not saved'}
+              </p>
+              {/* Bottom accent line */}
+              <div style={{ height: '4px', background: '#2E75B6', margin: '0 -56px' }} />
+            </div>
           </div>
 
           {/* ══ CONTENT ══ */}
@@ -445,7 +452,7 @@ export default function ReportRenderer({ data, reportId }) {
 
             <SubHdr>Cost Exclusions</SubHdr>
             <ul style={listStyle}>
-              {COST_EXCLUSIONS.map((e, i) => <li key={i} style={liStyle}>{e}</li>)}
+              {costExclusions(cost).map((e, i) => <li key={i} style={liStyle}>{e}</li>)}
             </ul>
             </>}  {/* end showCost */}
 
@@ -743,8 +750,12 @@ function TotalCostTable({ cost }) {
     rows.push(['Developer & Project Costs (D)', `${pct(p.devCosts)} of Construction`, cL*p.devCosts/100, cH*p.devCosts/100, false, false])
   rows.push(
     ['Risk Allowance (E)',       `${pct(p.risk)} of Works`,      wL*p.risk/100,      wH*p.risk/100,      false, false],
-    ['Client Contingency (H)',   '5% of Works',                  wL*0.05,            wH*0.05,            false, false],
-    ['Inflation Allowance (F)',  `${pct(p.inflation)} of Works`, wL*p.inflation/100, wH*p.inflation/100, false, false],
+    ['Client Contingency (H)',   `${pct(p.contingency)} of Works`, wL*p.contingency/100, wH*p.contingency/100, false, false],
+  )
+  // Inflation is negligible on short programmes — only show the row when it rounds to a non-zero figure.
+  if (Math.round((wH*p.inflation/100)/1000) > 0 || Math.round((wL*p.inflation/100)/1000) > 0)
+    rows.push(['Inflation Allowance (F)', `${pct(p.inflation)} of Works`, wL*p.inflation/100, wH*p.inflation/100, false, false])
+  rows.push(
     ['TOTAL PROJECT COST (excl. VAT)', '',                       tL,                 tH,                 true,  false],
     ['VAT @ 20% (reference — recoverability to be confirmed)', '20%', tL*0.20,       tH*0.20,            false, true ],
   )
@@ -781,6 +792,7 @@ function CostTable4({ rows }) {
 
 // ─── Programme table ──────────────────────────────────────────────────────────
 function ProgrammeTable({ stages, totalWeeks }) {
+  const hasParallel = stages.some(s => s.parallel)
   return (
     <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
       <table style={tblStyle}>
@@ -792,19 +804,27 @@ function ProgrammeTable({ stages, totalWeeks }) {
           </tr>
         </thead>
         <tbody>
-          {stages.map((s, i) => (
-            <tr key={i} style={{ background: i % 2 === 0 ? ALT_ROW : '#fff', borderBottom: `1px solid ${BORDER}` }}>
-              <td style={{ ...tdStyle, fontWeight: 600, color: NAVY, whiteSpace: 'nowrap' }}>{s.stage}</td>
-              <td style={tdStyle}>{s.activity}</td>
-              <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: NAVY }}>{s.weeks ?? s.durationWks}</td>
-            </tr>
-          ))}
+          {stages.map((s, i) => {
+            const wks = s.weeks ?? s.durationWks ?? 0
+            return (
+              <tr key={i} style={{ background: i % 2 === 0 ? ALT_ROW : '#fff', borderBottom: `1px solid ${BORDER}` }}>
+                <td style={{ ...tdStyle, fontWeight: 600, color: NAVY, whiteSpace: 'nowrap' }}>{s.stage}</td>
+                <td style={tdStyle}>{s.activity}</td>
+                <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: s.parallel ? GRAY : NAVY }}>{s.parallel ? `(${wks}) ∥` : wks}</td>
+              </tr>
+            )
+          })}
           <tr style={{ background: NAVY }}>
             <td colSpan={2} style={{ ...tdStyle, fontWeight: 700, color: '#fff' }}>TOTAL</td>
             <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: '#fff' }}>{totalWeeks}</td>
           </tr>
         </tbody>
       </table>
+      {hasParallel && (
+        <p style={{ fontSize: '11px', color: GRAY, fontStyle: 'italic', margin: '4px 0 0' }}>
+          ∥ Parallel activity — runs concurrently with the design stages and is excluded from the programme total.
+        </p>
+      )}
     </div>
   )
 }
@@ -991,8 +1011,12 @@ function ConstraintsTable({ constraints }) {
 // ─── Data builders ────────────────────────────────────────────────────────────
 function calcRoi(answers, cost) {
   const annual = Number(answers?.q5_2_annualBenefit) || 0
-  const mid    = cost?.total?.mid || 0
-  if (!annual || !mid) return null
+  const low    = cost?.total?.low || 0
+  const high   = cost?.total?.high || 0
+  if (!annual || !low || !high) return null
+  // Mid-point of the published cost range, so the figure shown here is consistent
+  // with the headline range rather than the separately-rounded model mid.
+  const mid = Math.round(((low + high) / 2) / 1000) * 1000
   return { annual, mid, paybackYears: Math.round((mid / annual) * 10) / 10 }
 }
 
@@ -1019,3 +1043,12 @@ const COST_EXCLUSIONS = [
   'Asbestos removal beyond the survey allowance in Risk Allowance (E)',
   'Costs arising from unforeseen ground conditions beyond the risk allowance',
 ]
+
+// Groundworks-related caveats only apply where there is facilitating, substructure
+// or external-works scope — drop them for pure internal refurbishments.
+function costExclusions(cost) {
+  const groups = new Set((cost?.lineItems || []).map(i => i.group))
+  const hasGroundworks = groups.has(0) || groups.has(1) || groups.has(8)
+  return COST_EXCLUSIONS.filter(e =>
+    hasGroundworks || !/archaeolog|ground conditions/i.test(e))
+}

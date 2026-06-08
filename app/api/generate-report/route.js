@@ -269,6 +269,12 @@ function buildProsePrompt(answers, cost, programme, senseCheck) {
     : (answers.q5_1_financialBenefit || '')
   const isROI = q5_1 && !q5_1.includes('No direct') && answers.q5_2_annualBenefit
 
+  // Pre-calculate the ROI figures here so the AI never computes a number. Mid-point
+  // of the published cost range, matching the ROI box in the report builder.
+  const roiAnnual  = Number(answers.q5_2_annualBenefit) || 0
+  const roiMid     = Math.round(((cost.total.low + cost.total.high) / 2) / 1000) * 1000
+  const roiPayback = roiAnnual ? Math.round((roiMid / roiAnnual) * 10) / 10 : 0
+
   return `Generate prose sections for a RIBA Stage 1 Feasibility Report. Return ONLY valid JSON.
 
 PROJECT CONTEXT:
@@ -347,7 +353,7 @@ Return this exact JSON structure:
     "Assumption 3 — one sentence"
   ],
   "costNarrative": "1 to 2 sentences. Describe the main cost drivers for this project. Do not quote any number — the numbers are in the table.",
-  "roiNarrative": "${isROI ? 'Write 2 sentences: state the simple payback using the pre-calculated figure, and identify the key financial risk.' : ''}",
+  "roiNarrative": "${isROI ? `Write 2 sentences. Use these pre-calculated figures verbatim — do NOT recompute: project cost mid-point ${f1k(roiMid)}, annual benefit ${f(roiAnnual)}, simple payback ${roiPayback} years. State the simple payback, then identify the key financial risk.` : ''}",
   "procurementRoute": "Name of recommended procurement route (match programme.procurementRoute)",
   "procurementContractForm": "Recommended contract form, e.g. JCT Minor Works 2024, JCT Standard Building Contract 2024",
   "procurementDesignResp": "Who holds design responsibility: Client design team or Contractor",
