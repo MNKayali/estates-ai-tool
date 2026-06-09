@@ -28,11 +28,6 @@ const PROJECT_TYPES = ['New Build', 'Refurbishment', 'Fit-out', 'Extension', 'Ex
 const BUILDING_AGES = ['Pre-1900', '1900–1945', '1945–1980', '1980–2000', 'Post-2000', 'Not applicable (new build)']
 
 // ─── Section 2 scope picker config ───────────────────────────────────────────
-// The scope items themselves are workbook-driven (fetched from /api/scope-items,
-// sourced from the NRM1 v4.5 "Master Cost Table"). Only the coarse project-type →
-// NRM1-group visibility and the curated M&E sub-selectors live in code.
-
-// Which NRM1 groups (0–8) are offered per Q1.2 project type.
 const VISIBLE_GROUPS = {
   'New Build':        [0, 1, 2, 3, 4, 5, 6, 8],
   'Refurbishment':    [0, 2, 3, 4, 5, 7, 8],
@@ -44,14 +39,11 @@ const VISIBLE_GROUPS = {
   'Mixed':            [0, 1, 2, 3, 4, 5, 6, 7, 8],
 }
 
-// Curated M&E codes handled by special sub-selectors rather than plain checkboxes.
-const HEATING_CODES = ['5.2', '5.2L', '5.5']   // 5.2/5.2L = type radio; 5.5 (gas) auto-added with 5.2
-const WIRING_MUTEX = ['5.8', '5.8a', '5.8b']    // pick one; 5.8 (full) = 5.8a + 5.8b
-const PLUMBING_MUTEX = ['5.1', '5.1b']          // 5.1 (full) supersedes 5.1b (2nd fix)
-// Rows folded into a curated control above — not rendered as standalone checkboxes.
+const HEATING_CODES = ['5.2', '5.2L', '5.5']
+const WIRING_MUTEX = ['5.8', '5.8a', '5.8b']
+const PLUMBING_MUTEX = ['5.1', '5.1b']
 const FOLDED_CODES = new Set(['5.2L', '5.5', '5.8'])
 
-// An item needs a quantity input (rather than a lump sum of 1) per its pricing type.
 function itemNeedsQty(item) {
   if (!item) return false
   const pt = item.pricingType
@@ -66,21 +58,9 @@ const LEVEL_TIER = {
   'Reconfiguration or full redesign': 4,
 }
 
-// Q2.5 — Standards and compliance requirements
 const STANDARDS_OPTIONS = [
-  'BREEAM',
-  'PAS 2035',
-  'NHS design guide',
-  'Net zero',
-  'University design guide',
-  'Acoustic',
-  'Food hygiene',
-  'MCS',
-  'DNO',
-  'Highways',
-  'Dark sky',
-  'None',
-  'Other',
+  'BREEAM', 'PAS 2035', 'NHS design guide', 'Net zero', 'University design guide',
+  'Acoustic', 'Food hygiene', 'MCS', 'DNO', 'Highways', 'Dark sky', 'None', 'Other',
 ]
 
 const INTERVENTION_LEVELS = [
@@ -114,106 +94,68 @@ const SPEC_LEVELS = [
 
 // ─── Section 3 data ───────────────────────────────────────────────────────────
 const KNOWN_ISSUES = [
-  'Asbestos known or suspected',
-  'Structural concerns',
-  'Ageing or inadequate M&E',
-  'Damp or water ingress',
-  'Drainage issues',
-  'Fire safety deficiencies',
-  'Contaminated land',
-  'Unsure — surveys needed',
-  'None identified',
+  'Asbestos known or suspected', 'Structural concerns', 'Ageing or inadequate M&E',
+  'Damp or water ingress', 'Drainage issues', 'Fire safety deficiencies',
+  'Contaminated land', 'Unsure — surveys needed', 'None identified',
 ]
 
 const SURVEY_OPTIONS = [
-  'Asbestos register',
-  'Structural',
-  'Condition',
-  'Topographic',
-  'Ground investigation',
-  'Energy audit',
-  'Fire risk assessment',
-  'None',
-  'Other',
+  'Asbestos register', 'Structural', 'Condition', 'Topographic',
+  'Ground investigation', 'Energy audit', 'Fire risk assessment', 'None', 'Other',
 ]
 
-// Single-select — VALUES match substring checks in costCalculator.js (LBC merged into combined option)
 const PLANNING_OPTIONS = [
-  'No consent required',
-  'Permitted development',
-  'Prior approval',
-  'Full planning',
-  'Full planning + Listed Building Consent',
-  'Change of use',
-  'Unsure (pre-application advice)',
+  'No consent required', 'Permitted development', 'Prior approval', 'Full planning',
+  'Full planning + Listed Building Consent', 'Change of use', 'Unsure (pre-application advice)',
 ]
 
-// VALUES match substring checks in costCalculator.js and programmeCalculator.js
 const ACCESS_OPTIONS = [
-  'Restricted working hours',
-  'Shared access with other occupiers',
-  'No vehicle access or restricted deliveries',
-  'Height or weight restrictions on site',
-  'Scaffold licence or highway encroachment required',
-  'Term-time only working',
-  'No access constraints',
-  'Other',
+  'Restricted working hours', 'Shared access with other occupiers',
+  'No vehicle access or restricted deliveries', 'Height or weight restrictions on site',
+  'Scaffold licence or highway encroachment required', 'Term-time only working',
+  'No access constraints', 'Other',
 ]
 
-// VALUES match substring checks in costCalculator.js and programmeCalculator.js
 const OCCUPATION_OPTIONS = [
-  'Fully occupied',
-  'Partially occupied',
-  'Full decant',
-  'Currently vacant',
-  'Not applicable',
+  'Fully occupied', 'Partially occupied', 'Full decant', 'Currently vacant', 'Not applicable',
 ]
 
 // ─── Section 4 data ───────────────────────────────────────────────────────────
 const PRIORITIES = [
-  'Lowest cost',
-  'Fixed / certain final cost',
-  'Speed',
-  'Design quality',
-  'Flexibility',
-  'Minimise disruption',
-  'Funder / compliance requirement',
+  'Lowest cost', 'Fixed / certain final cost', 'Speed', 'Design quality',
+  'Flexibility', 'Minimise disruption', 'Funder / compliance requirement',
 ]
 
-// Full labels as displayed — backend uses .includes('Stage N') substring check
 const DESIGN_STAGE_OPTIONS = [
-  'Concept only (Stage 0–1)',
-  'Concept complete (Stage 2)',
-  'Developed design (Stage 3)',
-  'Technical complete (Stage 4)',
+  'Concept only (Stage 0–1)', 'Concept complete (Stage 2)',
+  'Developed design (Stage 3)', 'Technical complete (Stage 4)',
 ]
 
 const UTILITIES_OPTIONS = [
-  'Electrical capacity limited or unknown',
-  'Gas supply limited or unknown',
-  'Drainage capacity limited or unknown',
-  'Water supply limited or unknown',
+  'Electrical capacity limited or unknown', 'Gas supply limited or unknown',
+  'Drainage capacity limited or unknown', 'Water supply limited or unknown',
   'No known utility constraints',
 ]
 
-const FUNDING_OPTIONS = [
-  'Internal / commercial',
-  'Grant or public funding',
-  'Not yet confirmed',
-  'Other',
-]
+const FUNDING_OPTIONS = ['Internal / commercial', 'Grant or public funding', 'Not yet confirmed', 'Other']
 
 // ─── Section 5 data ───────────────────────────────────────────────────────────
 const FINANCIAL_BENEFIT_OPTIONS = [
-  'Energy or operational cost savings',
-  'Rental or commercial income',
-  'Grant or funding unlock',
-  'Avoidance of compliance cost or penalty',
-  'Increased asset value',
-  'No direct financial return — strategic or compliance project',
+  'Energy or operational cost savings', 'Rental or commercial income',
+  'Grant or funding unlock', 'Avoidance of compliance cost or penalty',
+  'Increased asset value', 'No direct financial return — strategic or compliance project',
 ]
 
 // ─── UI Components ────────────────────────────────────────────────────────────
+
+function QCard({ children }) {
+  return (
+    <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: '24px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+      {children}
+    </div>
+  )
+}
+
 function Label({ children, required }) {
   return (
     <label className="block mb-1.5" style={{ color: '#1A2E4A', fontSize: '15px', fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.1px' }}>
@@ -222,66 +164,107 @@ function Label({ children, required }) {
   )
 }
 function HelpText({ children }) {
-  return <p className="mb-2" style={{ color: '#6B7280', fontSize: '13.5px', lineHeight: 1.6 }}>{children}</p>
+  return <p className="mb-3" style={{ color: '#6B7280', fontSize: '13.5px', lineHeight: 1.6 }}>{children}</p>
 }
 function TextInput({ value, onChange, placeholder }) {
   return (
     <input type="text" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder}
       className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
-      style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+      style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
   )
 }
 function NumberInput({ value, onChange, placeholder, min = 0 }) {
   return (
     <input type="number" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} min={min}
       className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
-      style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+      style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
   )
 }
 function Textarea({ value, onChange, placeholder, rows = 4 }) {
   return (
     <textarea value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows}
       className="w-full rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6] resize-none"
-      style={{ border: '1px solid #CCC', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF', lineHeight: '1.6' }} />
+      style={{ border: '1.5px solid #E2E8F0', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF', lineHeight: '1.6' }} />
   )
 }
 function SelectInput({ value, onChange, children }) {
   return (
     <select value={value || ''} onChange={e => onChange(e.target.value)}
       className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
-      style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: value ? '#1A1A1A' : '#888', backgroundColor: '#FFF' }}>
+      style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: value ? '#1A1A1A' : '#888', backgroundColor: '#FFF' }}>
       {children}
     </select>
   )
 }
+
+// Compact card-row radio — works at any text length
 function RadioGroup({ options, value, onChange }) {
   return (
-    <div className="flex flex-col gap-3">
-      {options.map(opt => (
-        <label key={opt} className="flex items-center gap-3 cursor-pointer" style={{ minHeight: '44px' }}>
-          <input type="radio" value={opt} checked={value === opt} onChange={() => onChange(opt)}
-            className="w-5 h-5 flex-shrink-0" style={{ accentColor: '#2E75B6' }} />
-          <span style={{ color: '#1A1A1A', fontSize: '16px' }}>{opt}</span>
-        </label>
-      ))}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+      {options.map(opt => {
+        const sel = value === opt
+        return (
+          <button key={opt} type="button" onClick={() => onChange(opt)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 11,
+              padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
+              border: sel ? '1.5px solid #2E75B6' : '1.5px solid #E2E8F0',
+              background: sel ? '#EBF3FA' : '#F8FAFC',
+              textAlign: 'left', width: '100%',
+              transition: 'border-color 0.13s ease, background 0.13s ease, box-shadow 0.13s ease',
+              boxShadow: sel ? '0 1px 6px rgba(46,117,182,0.14)' : 'none',
+            }}>
+            <span style={{
+              width: 18, height: 18, borderRadius: '50%', flexShrink: 0, display: 'inline-block',
+              border: sel ? '5px solid #2E75B6' : '1.5px solid #CBD5E1',
+              background: '#fff',
+            }} />
+            <span style={{
+              fontFamily: 'var(--font-display)', fontWeight: sel ? 700 : 500,
+              fontSize: '14px', color: sel ? '#1A2E4A' : '#374151', lineHeight: 1.35,
+            }}>{opt}</span>
+          </button>
+        )
+      })}
     </div>
   )
 }
+
+// Pill-chip multi-select — each option is a toggleable tag
 function CheckboxGroup({ options, values = [], onChange, note }) {
   const toggle = opt => {
     const arr = Array.isArray(values) ? values : []
     onChange(arr.includes(opt) ? arr.filter(v => v !== opt) : [...arr, opt])
   }
   return (
-    <div className="flex flex-col gap-2">
-      {note && <p className="text-sm mb-1 italic" style={{ color: '#555' }}>{note}</p>}
-      {options.map(opt => (
-        <label key={opt} className="flex items-start gap-3 cursor-pointer" style={{ minHeight: '44px' }}>
-          <input type="checkbox" checked={Array.isArray(values) && values.includes(opt)} onChange={() => toggle(opt)}
-            className="w-5 h-5 flex-shrink-0 mt-0.5 rounded" style={{ accentColor: '#2E75B6' }} />
-          <span style={{ color: '#1A1A1A', fontSize: '16px' }}>{opt}</span>
-        </label>
-      ))}
+    <div>
+      {note && <p style={{ color: '#6B7280', fontSize: '13px', marginBottom: 10 }}>{note}</p>}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+        {options.map(opt => {
+          const sel = Array.isArray(values) && values.includes(opt)
+          return (
+            <button key={opt} type="button" onClick={() => toggle(opt)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '8px 14px', borderRadius: 8, cursor: 'pointer',
+                border: sel ? '1.5px solid #2E75B6' : '1.5px solid #E2E8F0',
+                background: sel ? '#EBF3FA' : '#F8FAFC',
+                color: sel ? '#1A2E4A' : '#4B5563',
+                fontFamily: 'var(--font-display)', fontWeight: sel ? 700 : 500,
+                fontSize: '13.5px', lineHeight: 1.35,
+                transition: 'border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease',
+                boxShadow: sel ? '0 1px 5px rgba(46,117,182,0.14)' : 'none',
+              }}>
+              {sel && (
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2E75B6" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              )}
+              {opt}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -295,14 +278,11 @@ export default function QuestionnairePage() {
   const [loadingMsg, setLoadingMsg] = useState(0)
   const [error, setError] = useState('')
   const [validationErrors, setValidationErrors] = useState({})
-  // Scope catalogue from the NRM1 v4.5 workbook ({ groups: [{ group, label, items }] })
   const [scopeData, setScopeData] = useState(null)
-  // Q2.3 scope groups the user has collapsed (Set of NRM1 group numbers)
   const [collapsedGroups, setCollapsedGroups] = useState(() => new Set())
   const toggleGroupCollapse = g =>
     setCollapsedGroups(prev => { const n = new Set(prev); n.has(g) ? n.delete(g) : n.add(g); return n })
 
-  // Restore draft
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
@@ -310,7 +290,6 @@ export default function QuestionnairePage() {
     } catch {}
   }, [])
 
-  // Fetch the workbook-driven scope item catalogue once.
   useEffect(() => {
     let alive = true
     fetch('/api/scope-items')
@@ -320,14 +299,12 @@ export default function QuestionnairePage() {
     return () => { alive = false }
   }, [])
 
-  // Auto-save draft
   useEffect(() => {
     if (Object.keys(answers).length > 0) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(answers))
     }
   }, [answers])
 
-  // Loading message cycle
   useEffect(() => {
     if (!loading) { setLoadingMsg(0); return }
     const id = setInterval(() => setLoadingMsg(m => (m + 1) % LOADING_MESSAGES.length), 3500)
@@ -337,7 +314,6 @@ export default function QuestionnairePage() {
   const set = (field, val) => setAnswers(prev => ({ ...prev, [field]: val }))
   const isRefurb = ['Refurbishment', 'Fit-out', 'Extension'].includes(answers.q1_2_projectType)
 
-  // Flat { code → item } lookup over the fetched catalogue.
   const itemByCode = useMemo(() => {
     const m = {}
     for (const grp of scopeData?.groups || []) for (const it of grp.items) m[it.code] = it
@@ -347,8 +323,6 @@ export default function QuestionnairePage() {
   const WIRING_MIN_TIER = { '5.8': 3, '5.8a': 3, '5.8b': 2, '5.8c': 2 }
   const currentTier = isRefurb ? (LEVEL_TIER[answers.q2_3_interventionLevel] || 4) : 4
 
-  // Drop selected scope codes no longer valid for the current project type,
-  // building use or intervention tier (runs as any of those answers change).
   useEffect(() => {
     if (!scopeData) return
     const visibleGroups = VISIBLE_GROUPS[answers.q1_2_projectType]
@@ -372,7 +346,6 @@ export default function QuestionnairePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers.q1_2_projectType, answers.q1_3_buildingUse, answers.q2_3_interventionLevel, scopeData])
 
-  // Validate current section
   function validateSection(sec) {
     const errs = {}
     if (sec === 1) {
@@ -417,9 +390,7 @@ export default function QuestionnairePage() {
         setLoading(false)
         return
       }
-      // Store result for report page (include answers so /report/[id] works without localStorage)
       sessionStorage.setItem('estatesAI_result', JSON.stringify({ ...data, answers }))
-      // Navigate to canonical shareable URL if the API returned a reportId
       router.push(data.reportId ? `/report/${data.reportId}` : '/report')
     } catch (e) {
       setError('Network error — please check your connection and try again.')
@@ -440,7 +411,7 @@ export default function QuestionnairePage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F7F9FC' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#F4F7FC' }}>
       {/* Header */}
       <header className="sticky top-0 z-10 px-4 shadow-md" style={{ backgroundColor: '#1A2E4A', height: 56, display: 'flex', alignItems: 'center' }}>
         <div className="max-w-2xl mx-auto w-full flex items-center justify-between">
@@ -461,7 +432,7 @@ export default function QuestionnairePage() {
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Section header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div style={{ marginBottom: 8 }}>
             <span style={{ background: '#EBF3FA', color: '#2E75B6', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, padding: '3px 10px', borderRadius: 20, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
               {section} / {SECTIONS.length}
@@ -479,43 +450,44 @@ export default function QuestionnairePage() {
 
         {/* ─── SECTION 1 ─────────────────────────────────────────────────────── */}
         {section === 1 && (
-          <div className="flex flex-col gap-6 section-enter">
-            <div>
+          <div className="flex flex-col gap-4 section-enter">
+            <QCard>
               <Label required>Q1.0 — Project title</Label>
               <HelpText>This becomes the heading of your report. Include the work type, building type, and location — e.g. "Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" or "New Sports Hall, University of Birmingham, Edgbaston".</HelpText>
               <TextInput value={answers.q1_0_projectName} onChange={v => set('q1_0_projectName', v)} placeholder="e.g. Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" />
               {validationErrors.q1_0_projectName && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q1_0_projectName}</p>}
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label required>Q1.1 — Postcode</Label>
               <HelpText>Used to apply the BCIS regional cost factor. First 2–3 characters are sufficient.</HelpText>
               <TextInput value={answers.q1_1_postcode} onChange={v => set('q1_1_postcode', v)} placeholder="e.g. B15" />
               {validationErrors.q1_1_postcode && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q1_1_postcode}</p>}
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label required>Q1.2 — Project type</Label>
               <SelectInput value={answers.q1_2_projectType} onChange={v => set('q1_2_projectType', v)}>
                 <option value="">Select project type...</option>
                 {PROJECT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </SelectInput>
               {validationErrors.q1_2_projectType && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q1_2_projectType}</p>}
-            </div>
 
-            {/* Storeys — only shown when Extension is selected */}
-            {answers.q1_2_projectType === 'Extension' && (
-              <div>
-                <Label>Q1.2a — Number of storeys in the extension</Label>
-                <HelpText>Used to determine whether single-storey or multi-storey construction durations apply.</HelpText>
-                <SelectInput value={answers.q1_2_storeys || '1'} onChange={v => set('q1_2_storeys', v)}>
-                  <option value="1">1 storey</option>
-                  <option value="2">2 storeys</option>
-                  <option value="3">3 storeys</option>
-                  <option value="4">4+ storeys</option>
-                </SelectInput>
-              </div>
-            )}
+              {answers.q1_2_projectType === 'Extension' && (
+                <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
+                  <Label>Q1.2a — Number of storeys in the extension</Label>
+                  <HelpText>Used to determine whether single-storey or multi-storey construction durations apply.</HelpText>
+                  <SelectInput value={answers.q1_2_storeys || '1'} onChange={v => set('q1_2_storeys', v)}>
+                    <option value="1">1 storey</option>
+                    <option value="2">2 storeys</option>
+                    <option value="3">3 storeys</option>
+                    <option value="4">4+ storeys</option>
+                  </SelectInput>
+                </div>
+              )}
+            </QCard>
 
-            <div>
+            <QCard>
               <Label>Q1.3 — Building use</Label>
               <SelectInput value={answers.q1_3_buildingUse} onChange={v => set('q1_3_buildingUse', v)}>
                 <option value="">Select building use...</option>
@@ -531,61 +503,66 @@ export default function QuestionnairePage() {
                 <option>Other</option>
               </SelectInput>
               {answers.q1_3_buildingUse === 'Other' && (
-                <div className="mt-2">
+                <div className="mt-3">
                   <TextInput value={answers.q1_3_buildingUseOther} onChange={v => set('q1_3_buildingUseOther', v)} placeholder="Please describe the building use" />
                 </div>
               )}
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label required>Q1.4 — Building age</Label>
-              <RadioGroup options={BUILDING_AGES} value={answers.q1_4_buildingAge} onChange={v => set('q1_4_buildingAge', v)} />
-            </div>
-            <div>
+              <div style={{ marginTop: 4 }}>
+                <RadioGroup options={BUILDING_AGES} value={answers.q1_4_buildingAge} onChange={v => set('q1_4_buildingAge', v)} />
+              </div>
+            </QCard>
+
+            <QCard>
               <Label required>Q1.5 — Approximate size (GIFA m²)</Label>
               <HelpText>Gross Internal Floor Area in square metres. Used as the primary pricing quantity for all elements.</HelpText>
               <NumberInput value={answers.q1_5_size} onChange={v => set('q1_5_size', v)} placeholder="e.g. 500" min={1} />
               {validationErrors.q1_5_size && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q1_5_size}</p>}
-            </div>
+            </QCard>
           </div>
         )}
 
         {/* ─── SECTION 2 ─────────────────────────────────────────────────────── */}
         {section === 2 && (
-          <div className="flex flex-col gap-8 section-enter">
-            <div>
+          <div className="flex flex-col gap-5 section-enter">
+            <QCard>
               <Label required>Q2.1 — Project objective</Label>
               <HelpText>Describe what you are trying to achieve and why this project is needed.</HelpText>
               <Textarea value={answers.q2_1_objective} onChange={v => set('q2_1_objective', v)} placeholder="e.g. Refurbish the first floor to provide modern open-plan office space and upgrade the M&E to current standards." rows={4} />
               {validationErrors.q2_1_objective && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q2_1_objective}</p>}
-            </div>
+            </QCard>
 
-            {/* Q2.2 — Level of Intervention: shown first so it gates the scope list below */}
             {isRefurb && (
-              <div>
+              <QCard>
                 <Label>Q2.2 — Level of intervention</Label>
                 <HelpText>Determines the rate band applied to costs and the design duration multiplier. Scope items that require a higher level are greyed out below.</HelpText>
                 <div className="flex flex-col gap-3">
                   {INTERVENTION_LEVELS.map(opt => (
-                    <label key={opt.value} className="flex items-start gap-3 cursor-pointer rounded-lg p-3"
+                    <label key={opt.value} className="flex items-start gap-3 cursor-pointer rounded-xl p-4"
                       style={{
-                        border: answers.q2_3_interventionLevel === opt.value ? '2px solid #2E75B6' : '1px solid #CCC',
-                        backgroundColor: answers.q2_3_interventionLevel === opt.value ? '#D5E8F0' : '#FFF',
+                        border: answers.q2_3_interventionLevel === opt.value ? '2px solid #2E75B6' : '1.5px solid #E2E8F0',
+                        backgroundColor: answers.q2_3_interventionLevel === opt.value ? '#EBF3FA' : '#F8FAFC',
+                        transition: 'border-color 0.13s ease, background 0.13s ease',
                       }}>
                       <input type="radio" value={opt.value} checked={answers.q2_3_interventionLevel === opt.value}
                         onChange={() => set('q2_3_interventionLevel', opt.value)}
                         className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ accentColor: '#2E75B6' }} />
                       <div>
-                        <div className="font-bold" style={{ color: '#1F3864' }}>{opt.value}</div>
-                        <div style={{ color: '#2E75B6', fontSize: '12px', fontWeight: 500, marginTop: '2px' }}>{opt.signal}</div>
-                        <div style={{ color: '#555', fontSize: '14px', marginTop: '2px' }}>{opt.description}</div>
+                        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: '#1A2E4A', fontSize: '14px' }}>{opt.value}</div>
+                        <div style={{ color: '#2E75B6', fontSize: '12px', fontWeight: 600, marginTop: '3px' }}>{opt.signal}</div>
+                        <div style={{ color: '#6B7280', fontSize: '13px', marginTop: '4px', lineHeight: 1.5 }}>{opt.description}</div>
                       </div>
                     </label>
                   ))}
                 </div>
-              </div>
+              </QCard>
             )}
 
-            <div>
+            {/* Q2.3 Scope picker — its own visual container */}
+            <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: '24px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
               <Label>Q2.3 — Scope of works</Label>
               <HelpText>Tick every element that is in scope. Use Other / Specialist below for anything not listed.</HelpText>
               {(() => {
@@ -595,7 +572,6 @@ export default function QuestionnairePage() {
                 const toggleScope = code => {
                   set('q2_2_scopeItems', scopeArr.includes(code) ? scopeArr.filter(v => v !== code) : [...scopeArr, code])
                 }
-                // Heating: 5.2 (new/upgraded, +5.5 gas) vs 5.2L (like-for-like). One only.
                 const heatingSelected = scopeArr.includes('5.2') || scopeArr.includes('5.2L')
                 const heatingType = scopeArr.includes('5.2') ? '5.2' : scopeArr.includes('5.2L') ? '5.2L' : ''
                 const clearHeating = arr => arr.filter(v => !HEATING_CODES.includes(v))
@@ -606,7 +582,6 @@ export default function QuestionnairePage() {
                   const cleaned = clearHeating(scopeArr)
                   set('q2_2_scopeItems', type === '5.2' ? [...cleaned, '5.2', '5.5'] : [...cleaned, '5.2L'])
                 }
-                // Wiring checkboxes: 5.8a and 5.8b are independent; if both ticked = full rewire (5.8)
                 const toggleWiring = (code) => {
                   const newScope = scopeArr.includes(code)
                     ? scopeArr.filter(v => v !== code)
@@ -616,7 +591,6 @@ export default function QuestionnairePage() {
                   set('q2_2_scopeItems', newScope)
                   set('q2_2_wiring', (has8a && has8b) ? '5.8' : has8a ? '5.8a' : has8b ? '5.8b' : 'none')
                 }
-                // Plumbing checkboxes: 5.1 (full) and 5.1b (2nd fix only) are mutually exclusive
                 const togglePlumbing = (code) => {
                   const other = code === '5.1' ? '5.1b' : '5.1'
                   const newScope = scopeArr.includes(code)
@@ -627,7 +601,6 @@ export default function QuestionnairePage() {
                 const tierName = mlvl => Object.entries(LEVEL_TIER).find(([, v]) => v === mlvl)?.[0]
                 const groupSelectedCount = items =>
                   items.reduce((n, it) => n + (scopeArr.includes(it.code) ? 1 : 0), 0)
-                // Inline styles — accordion + selectable-tile grid
                 const S = {
                   grpBlock: { marginBottom: 12 },
                   groupHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 14px', background: '#F4F7FC', border: '1px solid #E2E8F0', borderRadius: 9, cursor: 'pointer', userSelect: 'none' },
@@ -664,16 +637,12 @@ export default function QuestionnairePage() {
                   .map(g => ({ ...g, items: g.items.filter(it => matchesBuildingUse(it.buildingUse, bu) && !FOLDED_CODES.has(it.code)) }))
                   .filter(g => g.items.length > 0)
                 if (displayedGroups.length === 0) return <p style={{ color: '#888', fontSize: 13, padding: '8px 0' }}>No scope items match this project type and building use yet.</p>
-                // Group 5 split: codes 5.7+ → Electrical; specialist mechanical items with higher
-                // codes (lifts, BWIC, compressed air, process drainage, industrial vent, precision
-                // cooling) stay Mechanical via explicit set.
                 const MECH_CODES_5 = new Set(['5.19', '5.20', '5.21', '5.23', '5.24', '5.29'])
                 const getMechElec = code => {
                   if (MECH_CODES_5.has(code)) return 'mech'
                   const m = code.match(/^5\.(\d+)/)
                   return (m && Number(m[1]) >= 7) ? 'elec' : 'mech'
                 }
-                // Group 4 split: codes 4.1–4.9 = general fittings/sanitary; 4.10+ = sector-specific
                 const getGroup4Split = code => {
                   const m = code.match(/^4\.(\d+)/)
                   return (m && Number(m[1]) <= 9) ? 'general' : 'specialist'
@@ -682,7 +651,6 @@ export default function QuestionnairePage() {
                 const renderItem = item => {
                   const minLvl = item.minLvl || 1
                   const isEnabled = !isRefurb || currentTier >= minLvl
-                  // ── HEATING block (rendered when we reach 5.2; 5.2L/5.5 are folded out) ──
                   if (item.code === '5.2') {
                     const min2 = itemByCode['5.2']?.minLvl || 3
                     const min2L = itemByCode['5.2L']?.minLvl || 2
@@ -726,7 +694,6 @@ export default function QuestionnairePage() {
                       </div>
                     )
                   }
-                  // ── Regular selectable tile ──────────────────────────
                   const isWiring = WIRING_MUTEX.includes(item.code)
                   const isPlumbing = PLUMBING_MUTEX.includes(item.code)
                   const isTicked = scopeArr.includes(item.code)
@@ -852,221 +819,231 @@ export default function QuestionnairePage() {
                         onChange={v => set('q2_2_additionalScope', { ...(answers.q2_2_additionalScope || {}), text: v })}
                         placeholder="Any specialist scope not listed above — e.g. AV systems, heritage restoration, acoustic treatment, signage, modular pods" rows={2} />
                       <div className="mt-2">
-                        <p className="text-sm mb-1 italic" style={{ color: '#555' }}>Approximate value of specialist scope (optional — leave blank for provisional exclusion)</p>
+                        <p className="text-sm mb-1" style={{ color: '#6B7280' }}>Approximate value of specialist scope (optional — leave blank for provisional exclusion)</p>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
                           <input type="number" value={answers.q2_2_additionalScope?.approxValue || ''}
                             onChange={e => set('q2_2_additionalScope', { ...(answers.q2_2_additionalScope || {}), approxValue: e.target.value })}
                             placeholder="e.g. 50000" min={0}
                             className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
-                            style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+                            style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
                         </div>
                       </div>
                     </div>
                   </div>
                 )
               })()}
+              {validationErrors.q2_2_scopeItems && <p className="mt-2 text-sm" style={{ color: '#C00000' }}>{validationErrors.q2_2_scopeItems}</p>}
             </div>
 
-            {validationErrors.q2_2_scopeItems && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q2_2_scopeItems}</p>}
-
-            {/* Q2.4 — Specification Level */}
-            <div>
+            <QCard>
               <Label required>Q2.4 — Specification level</Label>
               <HelpText>Selects the rate column from the NRM1 benchmark table.</HelpText>
               <div className="flex flex-col gap-3">
                 {SPEC_LEVELS.map(opt => (
-                  <label key={opt.value} className="flex items-start gap-3 cursor-pointer rounded-lg p-3"
+                  <label key={opt.value} className="flex items-start gap-3 cursor-pointer rounded-xl p-4"
                     style={{
-                      border: answers.q2_4_specLevel === opt.value ? '2px solid #2E75B6' : '1px solid #CCC',
-                      backgroundColor: answers.q2_4_specLevel === opt.value ? '#D5E8F0' : '#FFF',
+                      border: answers.q2_4_specLevel === opt.value ? '2px solid #2E75B6' : '1.5px solid #E2E8F0',
+                      backgroundColor: answers.q2_4_specLevel === opt.value ? '#EBF3FA' : '#F8FAFC',
+                      transition: 'border-color 0.13s ease, background 0.13s ease',
                     }}>
                     <input type="radio" value={opt.value} checked={answers.q2_4_specLevel === opt.value}
                       onChange={() => set('q2_4_specLevel', opt.value)}
                       className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ accentColor: '#2E75B6' }} />
                     <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold" style={{ color: '#1F3864' }}>{opt.value}</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#1F3864', color: '#FFF' }}>{opt.tag}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: '#1A2E4A', fontSize: '14px' }}>{opt.value}</span>
+                        <span style={{ background: '#1A2E4A', color: '#fff', fontSize: '11px', fontWeight: 600, padding: '2px 9px', borderRadius: 20 }}>{opt.tag}</span>
                       </div>
-                      <div style={{ color: '#555', fontSize: '14px' }}>{opt.description}</div>
+                      <div style={{ color: '#6B7280', fontSize: '13px', marginTop: '4px', lineHeight: 1.5 }}>{opt.description}</div>
                     </div>
                   </label>
                 ))}
               </div>
-              {validationErrors.q2_4_specLevel && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q2_4_specLevel}</p>}
-            </div>
+              {validationErrors.q2_4_specLevel && <p className="mt-2 text-sm" style={{ color: '#C00000' }}>{validationErrors.q2_4_specLevel}</p>}
+            </QCard>
 
-            <div>
+            <QCard>
               <Label>Q2.5 — Standards and compliance requirements</Label>
               <HelpText>List any standards, certifications or funder conditions that apply — e.g. BREEAM, PAS 2035, NHS design guide, net zero, MCS, DNO requirements.</HelpText>
               <Textarea value={answers.q2_5_standards} onChange={v => set('q2_5_standards', v)}
                 placeholder="e.g. BREEAM Very Good required by funder; PAS 2035 for retrofit works" rows={2} />
-            </div>
+            </QCard>
           </div>
         )}
 
         {/* ─── SECTION 3 ─────────────────────────────────────────────────────── */}
         {section === 3 && (
-          <div className="flex flex-col gap-6 section-enter">
-            <div>
+          <div className="flex flex-col gap-4 section-enter">
+            <QCard>
               <Label>Q3.1 — Known building issues</Label>
-              <HelpText>Tick all that apply. These trigger risk allowance adjustments.</HelpText>
+              <HelpText>Select all that apply. These trigger risk allowance adjustments.</HelpText>
               <CheckboxGroup options={KNOWN_ISSUES} values={answers.q3_1_knownIssues} onChange={v => set('q3_1_knownIssues', v)} />
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label>Q3.2 — Previous works or relevant history</Label>
               <Textarea value={answers.q3_2_previousWorks} onChange={v => set('q3_2_previousWorks', v)} placeholder="e.g. M&E replaced in 2015. New roof in 2018. No structural works since original construction." rows={3} />
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label>Q3.3 — Surveys and reports available</Label>
-              <HelpText>Tick all that apply. Surveys reduce the risk allowance and survey programme time.</HelpText>
-              <CheckboxGroup
-                options={SURVEY_OPTIONS}
-                values={answers.q3_3_surveys}
-                onChange={v => set('q3_3_surveys', v)}
-              />
+              <HelpText>Select all that apply. Surveys reduce the risk allowance and survey programme time.</HelpText>
+              <CheckboxGroup options={SURVEY_OPTIONS} values={answers.q3_3_surveys} onChange={v => set('q3_3_surveys', v)} />
               {Array.isArray(answers.q3_3_surveys) && answers.q3_3_surveys.includes('Other') && (
-                <div className="mt-2 ml-8">
+                <div className="mt-3">
                   <Textarea value={answers.q3_3_surveysOther} onChange={v => set('q3_3_surveysOther', v)}
                     placeholder="Please describe the survey or report available" rows={2} />
                 </div>
               )}
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label>Q3.4 — Planning consent required</Label>
               <HelpText>Select the most likely planning pathway. If unsure, choose 'Unsure' — pre-application advice is recommended.</HelpText>
-              <RadioGroup
-                options={PLANNING_OPTIONS}
-                value={answers.q3_4_planningConsents}
-                onChange={v => set('q3_4_planningConsents', v)}
-              />
-            </div>
-            <div>
+              <RadioGroup options={PLANNING_OPTIONS} value={answers.q3_4_planningConsents} onChange={v => set('q3_4_planningConsents', v)} />
+            </QCard>
+
+            <QCard>
               <Label>Q3.5 — Access constraints</Label>
-              <HelpText>Tick all that apply. These affect the contractor's preliminaries allowance.</HelpText>
+              <HelpText>Select all that apply. These affect the contractor's preliminaries allowance.</HelpText>
               <CheckboxGroup options={ACCESS_OPTIONS} values={answers.q3_5_accessConstraints} onChange={v => set('q3_5_accessConstraints', v)} />
               {Array.isArray(answers.q3_5_accessConstraints) && answers.q3_5_accessConstraints.includes('Other') && (
-                <div className="mt-2 ml-8">
+                <div className="mt-3">
                   <Textarea value={answers.q3_5_accessConstraintsOther} onChange={v => set('q3_5_accessConstraintsOther', v)}
                     placeholder="Please describe the access constraint" rows={2} />
                 </div>
               )}
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label>Q3.6 — Occupation during works</Label>
               <HelpText>Affects construction duration and preliminary costs.</HelpText>
               <RadioGroup options={OCCUPATION_OPTIONS} value={answers.q3_6_occupation} onChange={v => set('q3_6_occupation', v)} />
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label>Q3.7 — Additional context</Label>
               <Textarea value={answers.q3_7_additionalContext} onChange={v => set('q3_7_additionalContext', v)} placeholder="Anything else that might affect the cost, programme or risk — location, operational constraints, heritage status, etc." rows={3} />
-            </div>
+            </QCard>
           </div>
         )}
 
         {/* ─── SECTION 4 ─────────────────────────────────────────────────────── */}
         {section === 4 && (
-          <div className="flex flex-col gap-6 section-enter">
-            <div>
+          <div className="flex flex-col gap-4 section-enter">
+            <QCard>
               <Label>Q4.1 — Target completion date</Label>
               <HelpText>Used to assess programme feasibility. Leave blank if no specific deadline.</HelpText>
-              <div className="flex flex-col gap-3">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="radio" checked={answers.q4_1_targetDate === 'No specific deadline'} onChange={() => set('q4_1_targetDate', 'No specific deadline')}
-                    className="w-5 h-5" style={{ accentColor: '#2E75B6' }} />
-                  <span style={{ fontSize: '16px', color: '#1A1A1A' }}>No specific deadline</span>
-                </label>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="radio" checked={!!answers.q4_1_targetDate && answers.q4_1_targetDate !== 'No specific deadline'} onChange={() => set('q4_1_targetDate', '')}
-                    className="w-5 h-5" style={{ accentColor: '#2E75B6' }} />
-                  <span style={{ fontSize: '16px', color: '#1A1A1A' }}>Specific target date:</span>
-                </label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                {[
+                  { label: 'No specific deadline', value: 'No specific deadline', checked: answers.q4_1_targetDate === 'No specific deadline', onChange: () => set('q4_1_targetDate', 'No specific deadline') },
+                  { label: 'Specific target date', value: 'specific', checked: !!answers.q4_1_targetDate && answers.q4_1_targetDate !== 'No specific deadline', onChange: () => set('q4_1_targetDate', '') },
+                ].map(opt => (
+                  <button key={opt.label} type="button" onClick={opt.onChange}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 11,
+                      padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
+                      border: opt.checked ? '1.5px solid #2E75B6' : '1.5px solid #E2E8F0',
+                      background: opt.checked ? '#EBF3FA' : '#F8FAFC',
+                      textAlign: 'left', width: '100%',
+                      boxShadow: opt.checked ? '0 1px 6px rgba(46,117,182,0.14)' : 'none',
+                    }}>
+                    <span style={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0, display: 'inline-block', border: opt.checked ? '5px solid #2E75B6' : '1.5px solid #CBD5E1', background: '#fff' }} />
+                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: opt.checked ? 700 : 500, fontSize: '14px', color: opt.checked ? '#1A2E4A' : '#374151' }}>{opt.label}</span>
+                  </button>
+                ))}
                 {answers.q4_1_targetDate !== 'No specific deadline' && (
                   <input type="date" value={answers.q4_1_targetDate || ''} onChange={e => set('q4_1_targetDate', e.target.value)}
                     className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
-                    style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF', boxSizing: 'border-box' }} />
+                    style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF', boxSizing: 'border-box', marginTop: 4 }} />
                 )}
               </div>
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label required>Q4.2 — Do you have a budget figure?</Label>
               <HelpText>Controls whether the report compares your budget against the NRM1 estimate, or generates a benchmark independently.</HelpText>
-              <div className="flex flex-col gap-3">
-                <label className="flex items-center gap-3 cursor-pointer" style={{ minHeight: '44px' }}>
-                  <input type="radio" checked={answers.q4_2_budgetKnown === 'Yes'} onChange={() => set('q4_2_budgetKnown', 'Yes')}
-                    className="w-5 h-5" style={{ accentColor: '#2E75B6' }} />
-                  <span style={{ fontSize: '16px', color: '#1A1A1A' }}>Yes — I have a budget figure</span>
-                </label>
-                <label className="flex items-center gap-3 cursor-pointer" style={{ minHeight: '44px' }}>
-                  <input type="radio" checked={answers.q4_2_budgetKnown === 'No'} onChange={() => set('q4_2_budgetKnown', 'No')}
-                    className="w-5 h-5" style={{ accentColor: '#2E75B6' }} />
-                  <span style={{ fontSize: '16px', color: '#1A1A1A' }}>No — generate a benchmark estimate</span>
-                </label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                {[
+                  { label: 'Yes — I have a budget figure', val: 'Yes' },
+                  { label: 'No — generate a benchmark estimate', val: 'No' },
+                ].map(opt => {
+                  const sel = answers.q4_2_budgetKnown === opt.val
+                  return (
+                    <button key={opt.val} type="button" onClick={() => set('q4_2_budgetKnown', opt.val)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 11,
+                        padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
+                        border: sel ? '1.5px solid #2E75B6' : '1.5px solid #E2E8F0',
+                        background: sel ? '#EBF3FA' : '#F8FAFC',
+                        textAlign: 'left', width: '100%',
+                        boxShadow: sel ? '0 1px 6px rgba(46,117,182,0.14)' : 'none',
+                      }}>
+                      <span style={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0, display: 'inline-block', border: sel ? '5px solid #2E75B6' : '1.5px solid #CBD5E1', background: '#fff' }} />
+                      <span style={{ fontFamily: 'var(--font-display)', fontWeight: sel ? 700 : 500, fontSize: '14px', color: sel ? '#1A2E4A' : '#374151' }}>{opt.label}</span>
+                    </button>
+                  )
+                })}
               </div>
               {answers.q4_2_budgetKnown === 'Yes' && (
-                <div className="mt-3">
+                <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
                   <Label>Q4.3 — Budget figure</Label>
                   <HelpText>State what the figure covers — fees, VAT, contingency, or construction cost only.</HelpText>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
                     <input type="number" value={answers.q4_3_budget || ''} onChange={e => set('q4_3_budget', e.target.value)} placeholder="e.g. 1500000" min={0}
                       className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
-                      style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+                      style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
                   </div>
                 </div>
               )}
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label>Q4.3 — What matters most on this project?</Label>
               <HelpText>Select all that apply. Drives the procurement recommendation and programme approach.</HelpText>
               <CheckboxGroup options={PRIORITIES} values={answers.q4_4_priorities} onChange={v => set('q4_4_priorities', v)} />
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label>Q4.4 — Design stage already reached</Label>
               <HelpText>Determines the professional fees percentage applied to the cost estimate and the viable procurement routes.</HelpText>
               <RadioGroup options={DESIGN_STAGE_OPTIONS} value={answers.q4_5_designStage} onChange={v => set('q4_5_designStage', v)} />
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label>Q4.5 — Single or phased delivery?</Label>
               <HelpText>Phased delivery extends the total construction programme. Each phase is assumed to be roughly equal in size at Stage 0–1.</HelpText>
               <SelectInput value={answers.q4_6_phasing || 'Single phase'} onChange={v => set('q4_6_phasing', v)}>
                 <option value="Single phase">Single phase — full project delivered in one continuous programme</option>
                 <option value="Multiple phases">Multiple phases — phased delivery (e.g. floor by floor, building by building, or rolling programme)</option>
               </SelectInput>
-            </div>
-            <div>
-              <Label>Q4.6 — Funding source</Label>
+            </QCard>
 
+            <QCard>
+              <Label>Q4.6 — Funding source</Label>
               <HelpText>Grant or public funding adds a governance approval allowance to the programme.</HelpText>
-              <div className="flex flex-col gap-3">
-                {FUNDING_OPTIONS.map(opt => (
-                  <label key={opt} className="flex items-center gap-3 cursor-pointer" style={{ minHeight: '44px' }}>
-                    <input type="radio" value={opt} checked={answers.q4_7_funding === opt}
-                      onChange={() => set('q4_7_funding', opt)}
-                      className="w-5 h-5 flex-shrink-0" style={{ accentColor: '#2E75B6' }} />
-                    <span style={{ color: '#1A1A1A', fontSize: '16px' }}>{opt}</span>
-                  </label>
-                ))}
-              </div>
+              <RadioGroup options={FUNDING_OPTIONS} value={answers.q4_7_funding} onChange={v => set('q4_7_funding', v)} />
               {answers.q4_7_funding === 'Other' && (
-                <div className="mt-3 ml-8">
+                <div className="mt-3">
                   <Textarea value={answers.q4_7_fundingOther} onChange={v => set('q4_7_fundingOther', v)}
                     placeholder="Please describe the funding source" rows={2} />
                 </div>
               )}
-            </div>
+            </QCard>
           </div>
         )}
 
         {/* ─── SECTION 5 ─────────────────────────────────────────────────────── */}
         {section === 5 && (
-          <div className="flex flex-col gap-6 section-enter">
-            <div className="p-4 rounded-lg" style={{ backgroundColor: '#EEF4FA', border: '1px solid #B8D3ED' }}>
-              <p style={{ color: '#1F3864', fontWeight: 'bold', fontSize: '15px' }}>Optional section</p>
-              <p style={{ color: '#555', fontSize: '14px' }}>Complete this section only if you want the report to include an ROI or financial case analysis. Skip to Section 6 if not applicable.</p>
+          <div className="flex flex-col gap-4 section-enter">
+            <div style={{ background: '#EBF3FA', border: '1px solid #B8D3ED', borderRadius: 12, padding: '16px 20px' }}>
+              <p style={{ color: '#1A2E4A', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '14px', marginBottom: 4 }}>Optional section</p>
+              <p style={{ color: '#374151', fontSize: '13.5px', lineHeight: 1.6 }}>Complete this section only if you want the report to include an ROI or financial case analysis. Skip to Section 6 if not applicable.</p>
             </div>
-            <div>
+
+            <QCard>
               <Label>Q5.1 — Financial benefit type</Label>
               <HelpText>Select all that apply. 'No direct financial return' is mutually exclusive.</HelpText>
               <CheckboxGroup
@@ -1085,30 +1062,39 @@ export default function QuestionnairePage() {
                   }
                 }}
               />
-            </div>
+            </QCard>
+
             {Array.isArray(answers.q5_1_financialBenefit) && answers.q5_1_financialBenefit.length > 0 && !answers.q5_1_financialBenefit.includes('No direct financial return — strategic or compliance project') && (
-              <div>
+              <QCard>
                 <Label>Q5.2 — Estimated annual benefit (£)</Label>
                 <HelpText>Used to calculate simple payback period and ROI.</HelpText>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
                   <input type="number" value={answers.q5_2_annualBenefit || ''} onChange={e => set('q5_2_annualBenefit', e.target.value)} placeholder="e.g. 80000" min={0}
                     className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
-                    style={{ border: '1px solid #CCC', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+                    style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
                 </div>
-              </div>
+              </QCard>
             )}
           </div>
         )}
 
         {/* ─── SECTION 6 ─────────────────────────────────────────────────────── */}
         {section === 6 && (
-          <div className="flex flex-col gap-6 section-enter">
-            <div className="p-4 rounded-lg" style={{ backgroundColor: '#F0FDF4', border: '1px solid #86EFAC' }}>
-              <p className="font-bold mb-1" style={{ color: '#166534' }}>Ready to generate</p>
-              <p style={{ color: '#166534', fontSize: '14px' }}>Costs are calculated deterministically from NRM1 Excel benchmark data. The AI writes prose only — it never invents a number.</p>
+          <div className="flex flex-col gap-4 section-enter">
+            <div style={{ background: 'linear-gradient(135deg, #1A2E4A 0%, #1F3864 100%)', borderRadius: 14, padding: '24px', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+              <div style={{ width: 40, height: 40, background: 'rgba(46,117,182,0.35)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#93C5E8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <div>
+                <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: '#fff', fontSize: '15px', marginBottom: 6 }}>Ready to generate</p>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13.5px', lineHeight: 1.6 }}>Costs are calculated deterministically from NRM1 Excel benchmark data. The AI writes prose only — it never invents a number.</p>
+              </div>
             </div>
-            <div>
+
+            <QCard>
               <Label>Q6.1 — Optional report sections</Label>
               <HelpText>The core sections (Executive Summary, Scope, Risk, Programme, Recommendations) are always included.</HelpText>
               <CheckboxGroup
@@ -1116,28 +1102,36 @@ export default function QuestionnairePage() {
                 values={answers.q6_1_sections}
                 onChange={v => set('q6_1_sections', v)}
               />
-            </div>
-            <div>
+            </QCard>
+
+            <QCard>
               <Label>Q6.2 — Additional report instructions</Label>
               <HelpText>Any specific tone, emphasis, or content requirements for the AI narrative.</HelpText>
               <Textarea value={answers.q6_2_instructions} onChange={v => set('q6_2_instructions', v)} placeholder="e.g. Emphasise the compliance risk. Write for a non-technical audience. Focus on the programme risk." rows={3} />
-            </div>
+            </QCard>
 
             {/* Summary card */}
-            <div className="rounded-lg p-4" style={{ backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
-              <p className="font-bold mb-3" style={{ color: '#1F3864' }}>Your inputs at a glance</p>
-              <div className="flex flex-col gap-1 text-sm" style={{ color: '#444' }}>
-                <p><strong>Project:</strong> {answers.q1_0_projectName || '—'}</p>
-                <p><strong>Type:</strong> {answers.q1_2_projectType || '—'} | <strong>Size:</strong> {answers.q1_5_size ? `${answers.q1_5_size} m²` : '—'}</p>
-                <p><strong>Postcode:</strong> {answers.q1_1_postcode || '—'} | <strong>Spec:</strong> {answers.q2_4_specLevel || '—'}</p>
-                <p><strong>Scope items:</strong> {(answers.q2_2_scopeItems || []).length} selected</p>
+            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 14, padding: '20px 24px' }}>
+              <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: '#1A2E4A', fontSize: '14px', marginBottom: 14 }}>Your inputs at a glance</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {[
+                  ['Project', answers.q1_0_projectName || '—'],
+                  ['Type', `${answers.q1_2_projectType || '—'} · ${answers.q1_5_size ? `${answers.q1_5_size} m²` : '—'}`],
+                  ['Postcode', `${answers.q1_1_postcode || '—'} · Spec: ${answers.q2_4_specLevel || '—'}`],
+                  ['Scope items', `${(answers.q2_2_scopeItems || []).length} selected`],
+                ].map(([k, v]) => (
+                  <div key={k} style={{ display: 'flex', gap: 8, fontSize: '13.5px' }}>
+                    <span style={{ color: '#6B7280', fontFamily: 'var(--font-display)', fontWeight: 600, minWidth: 80 }}>{k}</span>
+                    <span style={{ color: '#1A2E4A' }}>{v}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         )}
 
         {/* ─── Navigation ────────────────────────────────────────────────────── */}
-        <div className="mt-10 flex gap-3">
+        <div className="mt-8 flex gap-3">
           {section > 1 && (
             <button onClick={back} className="flex-1 py-3 rounded-xl"
               style={{ border: '1.5px solid #CBD5E1', color: '#1A2E4A', backgroundColor: '#fff', fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '15px' }}>
@@ -1157,7 +1151,6 @@ export default function QuestionnairePage() {
           )}
         </div>
 
-        {/* Draft note */}
         <p className="mt-4 text-center text-xs" style={{ color: '#999' }}>
           Your answers are saved automatically. You can return to this page to resume.
         </p>
