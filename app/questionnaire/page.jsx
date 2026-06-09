@@ -639,6 +639,8 @@ export default function QuestionnairePage() {
                   radioLabel: { fontWeight: 600, fontSize: 12, color: '#1a1a2e', lineHeight: 1.3 },
                   radioDesc: { fontWeight: 400, fontSize: 11, color: '#666', lineHeight: 1.4 },
                   reqNote: { fontSize: 10, color: '#B06000', fontStyle: 'italic', fontWeight: 500 },
+                  subGrpHeader: { display: 'flex', alignItems: 'baseline', padding: '5px 0 3px 0', borderBottom: '1px dashed #c5cfe0', marginBottom: 3, marginTop: 10 },
+                  subGrpLabel: { fontWeight: 600, fontSize: 11, color: '#2e75b6', textTransform: 'uppercase', letterSpacing: '0.4px' },
                 }
                 if (!scopeData) return <p style={{ color: '#888', fontSize: 13, padding: '8px 0' }}>Loading scope items…</p>
                 if (!answers.q1_2_projectType) return <p style={{ color: '#888', fontSize: 13, padding: '8px 0' }}>Select a project type (Q1.2) above to see the relevant scope items.</p>
@@ -649,100 +651,125 @@ export default function QuestionnairePage() {
                   .map(g => ({ ...g, items: g.items.filter(it => matchesBuildingUse(it.buildingUse, bu) && !FOLDED_CODES.has(it.code)) }))
                   .filter(g => g.items.length > 0)
                 if (displayedGroups.length === 0) return <p style={{ color: '#888', fontSize: 13, padding: '8px 0' }}>No scope items match this project type and building use yet.</p>
+                // Group 5 (Services) split: 5.1–5.7x = Mechanical, 5.8+ = Electrical
+                const getMechElec = code => {
+                  const m = code.match(/^5\.(\d+)/)
+                  return (m && Number(m[1]) >= 8) ? 'elec' : 'mech'
+                }
+                const renderItem = item => {
+                  const minLvl = item.minLvl || 1
+                  const isEnabled = !isRefurb || currentTier >= minLvl
+                  const disStyle = isEnabled ? {} : { opacity: 0.4, cursor: 'not-allowed' }
+                  // ── HEATING block (rendered when we reach 5.2; 5.2L/5.5 are folded out) ──
+                  if (item.code === '5.2') {
+                    const min2 = itemByCode['5.2']?.minLvl || 3
+                    const min2L = itemByCode['5.2L']?.minLvl || 2
+                    const lowestMin = Math.min(min2, min2L)
+                    const heatingEnabled = !isRefurb || currentTier >= lowestMin
+                    const can2 = !isRefurb || currentTier >= min2
+                    const can2L = !isRefurb || currentTier >= min2L
+                    const hDisStyle = heatingEnabled ? {} : { opacity: 0.4, cursor: 'not-allowed' }
+                    return (
+                      <div key="__heating__">
+                        <label style={{ ...S.itemRow, ...hDisStyle }}>
+                          <input type="checkbox" checked={heatingSelected && heatingEnabled} disabled={!heatingEnabled}
+                            onChange={() => { if (heatingEnabled) toggleHeating() }} style={S.itemCheck} />
+                          <div style={S.itemText}>
+                            <span style={S.itemLabel}>Heating system</span>
+                            <span style={S.itemDesc}>New, upgraded or replaced heating — LTHW, heat pump, underfloor heating or gas</span>
+                            {!heatingEnabled && <span style={S.reqNote}>Requires: {tierName(lowestMin)}</span>}
+                          </div>
+                        </label>
+                        {heatingSelected && heatingEnabled && (
+                          <div style={S.subPrompt}>
+                            <span style={S.subLabel}>Type of heating works</span>
+                            {[
+                              { value: '5.2',  label: 'New or upgraded system', desc: 'Full design and installation — LTHW, heat pump or underfloor heating', can: can2, min: min2 },
+                              { value: '5.2L', label: 'Like-for-like boiler replacement', desc: 'Swap end-of-life unit only — no new pipework or system redesign', can: can2L, min: min2L },
+                            ].map(opt => (
+                              <label key={opt.value} style={{ ...S.radioRow, ...(opt.can ? {} : { opacity: 0.4, cursor: 'not-allowed' }) }}>
+                                <input type="radio" value={opt.value} checked={heatingType === opt.value} disabled={!opt.can}
+                                  onChange={() => { if (opt.can) selectHeatingType(opt.value) }} style={S.radioCheck} />
+                                <div style={S.itemText}>
+                                  <span style={S.radioLabel}>{opt.label}</span>
+                                  <span style={S.radioDesc}>{opt.desc}</span>
+                                  {!opt.can && <span style={S.reqNote}>Requires: {tierName(opt.min)}</span>}
+                                </div>
+                              </label>
+                            ))}
+                            <p style={{ fontSize: 11, color: '#777', marginTop: 6, fontStyle: 'italic' }}>Gas supply pipework is included automatically when a new or upgraded system is selected.</p>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  }
+                  // ── Regular checkbox item ──────────────────────────
+                  const isWiring = WIRING_MUTEX.includes(item.code)
+                  const isPlumbing = PLUMBING_MUTEX.includes(item.code)
+                  const isTicked = scopeArr.includes(item.code)
+                  const showQty = isTicked && isEnabled && itemNeedsQty(item)
+                  return (
+                    <div key={item.code}>
+                      <label style={{ ...S.itemRow, ...disStyle }}>
+                        <input type="checkbox" checked={isTicked && isEnabled} disabled={!isEnabled}
+                          onChange={() => {
+                            if (!isEnabled) return
+                            if (isWiring)        toggleWiring(item.code)
+                            else if (isPlumbing) togglePlumbing(item.code)
+                            else                 toggleScope(item.code)
+                          }}
+                          style={S.itemCheck} />
+                        <div style={S.itemText}>
+                          <span style={S.itemLabel}>{item.description}</span>
+                          {!isEnabled && <span style={S.reqNote}>Requires: {tierName(minLvl)}</span>}
+                        </div>
+                      </label>
+                      {showQty && (
+                        <div style={S.subPrompt}>
+                          <span style={S.subLabel}>{item.qtyCapture || 'Quantity'}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <input type="number" value={quantities[item.code] ?? ''}
+                              onChange={e => setQty(item.code, e.target.value)}
+                              placeholder="e.g. 4" min={0}
+                              style={{ ...S.subInput, width: 90 }} />
+                            <span style={{ fontSize: 12, color: '#555' }}>{item.unit}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                }
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                    {displayedGroups.map(grp => (
-                      <div key={grp.group} style={S.grpBlock}>
-                        <div style={S.grpHeader}>
-                          <span style={S.grpLabel}>{grp.label}</span>
+                    {displayedGroups.map(grp => {
+                      if (grp.group === 5) {
+                        const mechItems = grp.items.filter(it => getMechElec(it.code) === 'mech')
+                        const elecItems = grp.items.filter(it => getMechElec(it.code) === 'elec')
+                        return (
+                          <div key={grp.group} style={S.grpBlock}>
+                            <div style={S.grpHeader}><span style={S.grpLabel}>{grp.label}</span></div>
+                            {mechItems.length > 0 && (
+                              <>
+                                <div style={S.subGrpHeader}><span style={S.subGrpLabel}>Mechanical Services</span></div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>{mechItems.map(renderItem)}</div>
+                              </>
+                            )}
+                            {elecItems.length > 0 && (
+                              <>
+                                <div style={S.subGrpHeader}><span style={S.subGrpLabel}>Electrical Services</span></div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>{elecItems.map(renderItem)}</div>
+                              </>
+                            )}
+                          </div>
+                        )
+                      }
+                      return (
+                        <div key={grp.group} style={S.grpBlock}>
+                          <div style={S.grpHeader}><span style={S.grpLabel}>{grp.label}</span></div>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>{grp.items.map(renderItem)}</div>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          {grp.items.map(item => {
-                            const minLvl = item.minLvl || 1
-                            const isEnabled = !isRefurb || currentTier >= minLvl
-                            const disStyle = isEnabled ? {} : { opacity: 0.4, cursor: 'not-allowed' }
-                            // ── HEATING block (rendered when we reach 5.2; 5.2L/5.5 are folded out) ──
-                            if (item.code === '5.2') {
-                              const min2 = itemByCode['5.2']?.minLvl || 3
-                              const min2L = itemByCode['5.2L']?.minLvl || 2
-                              const lowestMin = Math.min(min2, min2L)
-                              const heatingEnabled = !isRefurb || currentTier >= lowestMin
-                              const can2 = !isRefurb || currentTier >= min2
-                              const can2L = !isRefurb || currentTier >= min2L
-                              const hDisStyle = heatingEnabled ? {} : { opacity: 0.4, cursor: 'not-allowed' }
-                              return (
-                                <div key="__heating__">
-                                  <label style={{ ...S.itemRow, ...hDisStyle }}>
-                                    <input type="checkbox" checked={heatingSelected && heatingEnabled} disabled={!heatingEnabled}
-                                      onChange={() => { if (heatingEnabled) toggleHeating() }} style={S.itemCheck} />
-                                    <div style={S.itemText}>
-                                      <span style={S.itemLabel}>Heating system</span>
-                                      <span style={S.itemDesc}>New, upgraded or replaced heating — LTHW, heat pump, underfloor heating or gas</span>
-                                      {!heatingEnabled && <span style={S.reqNote}>Requires: {tierName(lowestMin)}</span>}
-                                    </div>
-                                  </label>
-                                  {heatingSelected && heatingEnabled && (
-                                    <div style={S.subPrompt}>
-                                      <span style={S.subLabel}>Type of heating works</span>
-                                      {[
-                                        { value: '5.2',  label: 'New or upgraded system', desc: 'Full design and installation — LTHW, heat pump or underfloor heating', can: can2, min: min2 },
-                                        { value: '5.2L', label: 'Like-for-like boiler replacement', desc: 'Swap end-of-life unit only — no new pipework or system redesign', can: can2L, min: min2L },
-                                      ].map(opt => (
-                                        <label key={opt.value} style={{ ...S.radioRow, ...(opt.can ? {} : { opacity: 0.4, cursor: 'not-allowed' }) }}>
-                                          <input type="radio" value={opt.value} checked={heatingType === opt.value} disabled={!opt.can}
-                                            onChange={() => { if (opt.can) selectHeatingType(opt.value) }} style={S.radioCheck} />
-                                          <div style={S.itemText}>
-                                            <span style={S.radioLabel}>{opt.label}</span>
-                                            <span style={S.radioDesc}>{opt.desc}</span>
-                                            {!opt.can && <span style={S.reqNote}>Requires: {tierName(opt.min)}</span>}
-                                          </div>
-                                        </label>
-                                      ))}
-                                      <p style={{ fontSize: 11, color: '#777', marginTop: 6, fontStyle: 'italic' }}>Gas supply pipework is included automatically when a new or upgraded system is selected.</p>
-                                    </div>
-                                  )}
-                                </div>
-                              )
-                            }
-                            // ── Regular checkbox item ──────────────────────────
-                            const isWiring = WIRING_MUTEX.includes(item.code)     // 5.8a / 5.8b (5.8 folded out)
-                            const isPlumbing = PLUMBING_MUTEX.includes(item.code) // 5.1 / 5.1b
-                            const isTicked = scopeArr.includes(item.code)
-                            const showQty = isTicked && isEnabled && itemNeedsQty(item)
-                            return (
-                              <div key={item.code}>
-                                <label style={{ ...S.itemRow, ...disStyle }}>
-                                  <input type="checkbox" checked={isTicked && isEnabled} disabled={!isEnabled}
-                                    onChange={() => {
-                                      if (!isEnabled) return
-                                      if (isWiring)        toggleWiring(item.code)
-                                      else if (isPlumbing) togglePlumbing(item.code)
-                                      else                 toggleScope(item.code)
-                                    }}
-                                    style={S.itemCheck} />
-                                  <div style={S.itemText}>
-                                    <span style={S.itemLabel}>{item.description}</span>
-                                    {!isEnabled && <span style={S.reqNote}>Requires: {tierName(minLvl)}</span>}
-                                  </div>
-                                </label>
-                                {showQty && (
-                                  <div style={S.subPrompt}>
-                                    <span style={S.subLabel}>{item.qtyCapture || 'Quantity'}</span>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                      <input type="number" value={quantities[item.code] ?? ''}
-                                        onChange={e => setQty(item.code, e.target.value)}
-                                        placeholder="e.g. 4" min={0}
-                                        style={{ ...S.subInput, width: 90 }} />
-                                      <span style={{ fontSize: 12, color: '#555' }}>{item.unit}</span>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                     {/* Other / Specialist scope */}
                     <div style={{ marginTop: 8 }}>
                       <div style={{ ...S.grpHeader, marginBottom: 8 }}>
