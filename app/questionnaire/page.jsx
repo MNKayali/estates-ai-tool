@@ -297,6 +297,10 @@ export default function QuestionnairePage() {
   const [validationErrors, setValidationErrors] = useState({})
   // Scope catalogue from the NRM1 v4.5 workbook ({ groups: [{ group, label, items }] })
   const [scopeData, setScopeData] = useState(null)
+  // Q2.3 scope groups the user has collapsed (Set of NRM1 group numbers)
+  const [collapsedGroups, setCollapsedGroups] = useState(() => new Set())
+  const toggleGroupCollapse = g =>
+    setCollapsedGroups(prev => { const n = new Set(prev); n.has(g) ? n.delete(g) : n.add(g); return n })
 
   // Restore draft
   useEffect(() => {
@@ -621,28 +625,36 @@ export default function QuestionnairePage() {
                   set('q2_2_scopeItems', newScope)
                 }
                 const tierName = mlvl => Object.entries(LEVEL_TIER).find(([, v]) => v === mlvl)?.[0]
-                // Inline styles (no external CSS needed)
+                const groupSelectedCount = items =>
+                  items.reduce((n, it) => n + (scopeArr.includes(it.code) ? 1 : 0), 0)
+                // Inline styles — accordion + selectable-tile grid
                 const S = {
-                  grpBlock: { marginBottom: 16 },
-                  grpHeader: { display: 'flex', alignItems: 'baseline', gap: 8, padding: '6px 0 4px 0', borderBottom: '1px solid #e0e4ea', marginBottom: 4 },
-                  grpLabel: { fontWeight: 700, fontSize: 13, color: '#1a2744', textTransform: 'uppercase', letterSpacing: '0.3px' },
-                  grpNote: { fontWeight: 400, fontSize: 11, color: '#888' },
-                  itemRow: { display: 'flex', alignItems: 'flex-start', gap: 10, padding: '5px 6px', borderRadius: 4, cursor: 'pointer' },
-                  itemCheck: { marginTop: 2, flexShrink: 0, accentColor: '#1a4fa8', width: 15, height: 15 },
-                  itemText: { display: 'flex', flexDirection: 'column', gap: 1 },
-                  itemLabel: { fontWeight: 600, fontSize: 13, color: '#1a1a2e', lineHeight: 1.3 },
-                  itemDesc: { fontWeight: 400, fontSize: 11, color: '#666', lineHeight: 1.4 },
-                  subPrompt: { background: '#f5f7fa', borderLeft: '3px solid #2e75b6', padding: '8px 12px', margin: '3px 0 3px 25px', borderRadius: '0 4px 4px 0' },
-                  subLabel: { fontSize: 11, color: '#555', display: 'block', marginBottom: 4 },
-                  subInput: { width: 70, fontSize: 14, padding: '3px 6px', border: '1px solid #ccc', borderRadius: 4 },
-                  radioRow: { display: 'flex', alignItems: 'flex-start', gap: 8, padding: '3px 0', cursor: 'pointer' },
-                  radioCheck: { marginTop: 2, flexShrink: 0, accentColor: '#1a4fa8', width: 14, height: 14 },
-                  radioLabel: { fontWeight: 600, fontSize: 12, color: '#1a1a2e', lineHeight: 1.3 },
-                  radioDesc: { fontWeight: 400, fontSize: 11, color: '#666', lineHeight: 1.4 },
-                  reqNote: { fontSize: 10, color: '#B06000', fontStyle: 'italic', fontWeight: 500 },
-                  subGrpHeader: { display: 'flex', alignItems: 'baseline', padding: '5px 0 3px 0', borderBottom: '1px dashed #c5cfe0', marginBottom: 3, marginTop: 10 },
-                  subGrpLabel: { fontWeight: 600, fontSize: 11, color: '#2e75b6', textTransform: 'uppercase', letterSpacing: '0.4px' },
+                  grpBlock: { marginBottom: 12 },
+                  groupHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 14px', background: '#F4F7FC', border: '1px solid #E2E8F0', borderRadius: 9, cursor: 'pointer', userSelect: 'none' },
+                  groupLabel: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, color: '#1A2E4A', textTransform: 'uppercase', letterSpacing: '0.4px' },
+                  countPill: { fontFamily: 'var(--font-display)', background: '#EBF3FA', color: '#2E75B6', fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 20 },
+                  chevron: { width: 16, height: 16, color: '#94A3B8', transition: 'transform 0.18s ease', flexShrink: 0 },
+                  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 8, padding: '10px 0 4px' },
+                  tile: { display: 'flex', alignItems: 'flex-start', gap: 9, border: '1.5px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', background: '#fff', cursor: 'pointer' },
+                  tileSel: { borderColor: '#2E75B6', background: '#EBF3FA', boxShadow: '0 1px 6px rgba(46,117,182,0.14)' },
+                  tileDis: { opacity: 0.45, cursor: 'not-allowed' },
+                  checkBox: { width: 18, height: 18, borderRadius: 5, border: '1.5px solid #CBD5E1', flexShrink: 0, marginTop: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' },
+                  checkBoxSel: { background: '#2E75B6', borderColor: '#2E75B6', color: '#fff' },
+                  tileText: { display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 },
+                  tileLabel: { fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 13, color: '#1A2E4A', lineHeight: 1.3 },
+                  subPrompt: { background: '#F8FAFC', borderLeft: '3px solid #2E75B6', padding: '10px 14px', margin: '6px 0 2px', borderRadius: '0 8px 8px 0' },
+                  subLabel: { fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 5, fontWeight: 500 },
+                  subInput: { fontSize: 14, padding: '6px 10px', border: '1.5px solid #E2E8F0', borderRadius: 7, color: '#111827', outline: 'none' },
+                  radioRow: { display: 'flex', alignItems: 'flex-start', gap: 9, padding: '5px 0', cursor: 'pointer' },
+                  radioCheck: { marginTop: 2, flexShrink: 0, accentColor: '#2E75B6', width: 15, height: 15 },
+                  radioLabel: { fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 12.5, color: '#1A2E4A', lineHeight: 1.3 },
+                  radioDesc: { fontWeight: 400, fontSize: 11.5, color: '#6B7280', lineHeight: 1.45 },
+                  reqNote: { fontSize: 10.5, color: '#B06000', fontWeight: 500 },
+                  subGrpLabel: { display: 'inline-block', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10.5, color: '#2E75B6', textTransform: 'uppercase', letterSpacing: '0.6px', background: '#EBF3FA', padding: '3px 10px', borderRadius: 6, marginTop: 12 },
                 }
+                const Check = () => (
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                )
                 if (!scopeData) return <p style={{ color: '#888', fontSize: 13, padding: '8px 0' }}>Loading scope items…</p>
                 if (!answers.q1_2_projectType) return <p style={{ color: '#888', fontSize: 13, padding: '8px 0' }}>Select a project type (Q1.2) above to see the relevant scope items.</p>
                 const visibleGroups = VISIBLE_GROUPS[answers.q1_2_projectType] || scopeData.groups.map(g => g.group)
@@ -666,10 +678,10 @@ export default function QuestionnairePage() {
                   const m = code.match(/^4\.(\d+)/)
                   return (m && Number(m[1]) <= 9) ? 'general' : 'specialist'
                 }
+                const hiddenInput = { position: 'absolute', opacity: 0, width: 1, height: 1, pointerEvents: 'none' }
                 const renderItem = item => {
                   const minLvl = item.minLvl || 1
                   const isEnabled = !isRefurb || currentTier >= minLvl
-                  const disStyle = isEnabled ? {} : { opacity: 0.4, cursor: 'not-allowed' }
                   // ── HEATING block (rendered when we reach 5.2; 5.2L/5.5 are folded out) ──
                   if (item.code === '5.2') {
                     const min2 = itemByCode['5.2']?.minLvl || 3
@@ -678,19 +690,20 @@ export default function QuestionnairePage() {
                     const heatingEnabled = !isRefurb || currentTier >= lowestMin
                     const can2 = !isRefurb || currentTier >= min2
                     const can2L = !isRefurb || currentTier >= min2L
-                    const hDisStyle = heatingEnabled ? {} : { opacity: 0.4, cursor: 'not-allowed' }
+                    const sel = heatingSelected && heatingEnabled
                     return (
-                      <div key="__heating__">
-                        <label style={{ ...S.itemRow, ...hDisStyle }}>
-                          <input type="checkbox" checked={heatingSelected && heatingEnabled} disabled={!heatingEnabled}
-                            onChange={() => { if (heatingEnabled) toggleHeating() }} style={S.itemCheck} />
-                          <div style={S.itemText}>
-                            <span style={S.itemLabel}>Heating system</span>
-                            <span style={S.itemDesc}>New, upgraded or replaced heating — LTHW, heat pump, underfloor heating or gas</span>
+                      <div key="__heating__" style={{ gridColumn: '1 / -1' }}>
+                        <label className={`scope-tile${heatingEnabled ? '' : ' is-disabled'}`}
+                          style={{ ...S.tile, ...(sel ? S.tileSel : {}), ...(heatingEnabled ? {} : S.tileDis) }}>
+                          <input type="checkbox" checked={sel} disabled={!heatingEnabled}
+                            onChange={() => { if (heatingEnabled) toggleHeating() }} style={hiddenInput} />
+                          <span style={{ ...S.checkBox, ...(sel ? S.checkBoxSel : {}) }}>{sel && <Check />}</span>
+                          <div style={S.tileText}>
+                            <span style={S.tileLabel}>Heating system</span>
                             {!heatingEnabled && <span style={S.reqNote}>Requires: {tierName(lowestMin)}</span>}
                           </div>
                         </label>
-                        {heatingSelected && heatingEnabled && (
+                        {sel && (
                           <div style={S.subPrompt}>
                             <span style={S.subLabel}>Type of heating works</span>
                             {[
@@ -700,74 +713,99 @@ export default function QuestionnairePage() {
                               <label key={opt.value} style={{ ...S.radioRow, ...(opt.can ? {} : { opacity: 0.4, cursor: 'not-allowed' }) }}>
                                 <input type="radio" value={opt.value} checked={heatingType === opt.value} disabled={!opt.can}
                                   onChange={() => { if (opt.can) selectHeatingType(opt.value) }} style={S.radioCheck} />
-                                <div style={S.itemText}>
+                                <div style={S.tileText}>
                                   <span style={S.radioLabel}>{opt.label}</span>
                                   <span style={S.radioDesc}>{opt.desc}</span>
                                   {!opt.can && <span style={S.reqNote}>Requires: {tierName(opt.min)}</span>}
                                 </div>
                               </label>
                             ))}
-                            <p style={{ fontSize: 11, color: '#777', marginTop: 6, fontStyle: 'italic' }}>Gas supply pipework is included automatically when a new or upgraded system is selected.</p>
+                            <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 8, fontStyle: 'italic' }}>Gas supply pipework is included automatically when a new or upgraded system is selected.</p>
                           </div>
                         )}
                       </div>
                     )
                   }
-                  // ── Regular checkbox item ──────────────────────────
+                  // ── Regular selectable tile ──────────────────────────
                   const isWiring = WIRING_MUTEX.includes(item.code)
                   const isPlumbing = PLUMBING_MUTEX.includes(item.code)
                   const isTicked = scopeArr.includes(item.code)
-                  const showQty = isTicked && isEnabled && itemNeedsQty(item)
+                  const sel = isTicked && isEnabled
+                  const showQty = sel && itemNeedsQty(item)
+                  const onToggle = () => {
+                    if (!isEnabled) return
+                    if (isWiring)        toggleWiring(item.code)
+                    else if (isPlumbing) togglePlumbing(item.code)
+                    else                 toggleScope(item.code)
+                  }
+                  const tile = (
+                    <label className={`scope-tile${isEnabled ? '' : ' is-disabled'}`}
+                      style={{ ...S.tile, ...(sel ? S.tileSel : {}), ...(isEnabled ? {} : S.tileDis) }}>
+                      <input type="checkbox" checked={sel} disabled={!isEnabled} onChange={onToggle} style={hiddenInput} />
+                      <span style={{ ...S.checkBox, ...(sel ? S.checkBoxSel : {}) }}>{sel && <Check />}</span>
+                      <div style={S.tileText}>
+                        <span style={S.tileLabel}>{item.description}</span>
+                        {!isEnabled && <span style={S.reqNote}>Requires: {tierName(minLvl)}</span>}
+                      </div>
+                    </label>
+                  )
+                  if (!showQty) return <div key={item.code}>{tile}</div>
                   return (
-                    <div key={item.code}>
-                      <label style={{ ...S.itemRow, ...disStyle }}>
-                        <input type="checkbox" checked={isTicked && isEnabled} disabled={!isEnabled}
-                          onChange={() => {
-                            if (!isEnabled) return
-                            if (isWiring)        toggleWiring(item.code)
-                            else if (isPlumbing) togglePlumbing(item.code)
-                            else                 toggleScope(item.code)
-                          }}
-                          style={S.itemCheck} />
-                        <div style={S.itemText}>
-                          <span style={S.itemLabel}>{item.description}</span>
-                          {!isEnabled && <span style={S.reqNote}>Requires: {tierName(minLvl)}</span>}
+                    <div key={item.code} style={{ gridColumn: '1 / -1' }}>
+                      {tile}
+                      <div style={S.subPrompt}>
+                        <span style={S.subLabel}>{item.qtyCapture || 'Quantity'}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <input type="number" value={quantities[item.code] ?? ''}
+                            onChange={e => setQty(item.code, e.target.value)}
+                            placeholder="e.g. 4" min={0}
+                            style={{ ...S.subInput, width: 100 }} />
+                          <span style={{ fontSize: 12, color: '#6B7280' }}>{item.unit}</span>
                         </div>
-                      </label>
-                      {showQty && (
-                        <div style={S.subPrompt}>
-                          <span style={S.subLabel}>{item.qtyCapture || 'Quantity'}</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <input type="number" value={quantities[item.code] ?? ''}
-                              onChange={e => setQty(item.code, e.target.value)}
-                              placeholder="e.g. 4" min={0}
-                              style={{ ...S.subInput, width: 90 }} />
-                            <span style={{ fontSize: 12, color: '#555' }}>{item.unit}</span>
-                          </div>
-                        </div>
-                      )}
+                      </div>
+                    </div>
+                  )
+                }
+                const GroupHead = ({ grp, count }) => {
+                  const collapsed = collapsedGroups.has(grp.group)
+                  return (
+                    <div className="scope-group-head" style={S.groupHead} onClick={() => toggleGroupCollapse(grp.group)}>
+                      <span style={S.groupLabel}>{grp.label}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        {count > 0 && <span style={S.countPill}>{count} selected</span>}
+                        <svg style={{ ...S.chevron, transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}
+                          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                      </div>
                     </div>
                   )
                 }
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
                     {displayedGroups.map(grp => {
+                      const collapsed = collapsedGroups.has(grp.group)
+                      const count = groupSelectedCount(grp.items)
                       if (grp.group === 4) {
                         const generalItems    = grp.items.filter(it => getGroup4Split(it.code) === 'general')
                         const specialistItems = grp.items.filter(it => getGroup4Split(it.code) === 'specialist')
                         return (
                           <div key={grp.group} style={S.grpBlock}>
-                            <div style={S.grpHeader}><span style={S.grpLabel}>{grp.label}</span></div>
-                            {generalItems.length > 0 && (
+                            <GroupHead grp={grp} count={count} />
+                            {!collapsed && (
                               <>
-                                <div style={S.subGrpHeader}><span style={S.subGrpLabel}>Fittings, Furniture &amp; Sanitary</span></div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>{generalItems.map(renderItem)}</div>
-                              </>
-                            )}
-                            {specialistItems.length > 0 && (
-                              <>
-                                <div style={S.subGrpHeader}><span style={S.subGrpLabel}>Sector-Specific Equipment</span></div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>{specialistItems.map(renderItem)}</div>
+                                {generalItems.length > 0 && (
+                                  <>
+                                    <div style={S.subGrpLabel}>Fittings, Furniture &amp; Sanitary</div>
+                                    <div style={S.grid}>{generalItems.map(renderItem)}</div>
+                                  </>
+                                )}
+                                {specialistItems.length > 0 && (
+                                  <>
+                                    <div style={S.subGrpLabel}>Sector-Specific Equipment</div>
+                                    <div style={S.grid}>{specialistItems.map(renderItem)}</div>
+                                  </>
+                                )}
                               </>
                             )}
                           </div>
@@ -778,17 +816,21 @@ export default function QuestionnairePage() {
                         const elecItems = grp.items.filter(it => getMechElec(it.code) === 'elec')
                         return (
                           <div key={grp.group} style={S.grpBlock}>
-                            <div style={S.grpHeader}><span style={S.grpLabel}>{grp.label}</span></div>
-                            {mechItems.length > 0 && (
+                            <GroupHead grp={grp} count={count} />
+                            {!collapsed && (
                               <>
-                                <div style={S.subGrpHeader}><span style={S.subGrpLabel}>Mechanical Services</span></div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>{mechItems.map(renderItem)}</div>
-                              </>
-                            )}
-                            {elecItems.length > 0 && (
-                              <>
-                                <div style={S.subGrpHeader}><span style={S.subGrpLabel}>Electrical Services</span></div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>{elecItems.map(renderItem)}</div>
+                                {mechItems.length > 0 && (
+                                  <>
+                                    <div style={S.subGrpLabel}>Mechanical Services</div>
+                                    <div style={S.grid}>{mechItems.map(renderItem)}</div>
+                                  </>
+                                )}
+                                {elecItems.length > 0 && (
+                                  <>
+                                    <div style={S.subGrpLabel}>Electrical Services</div>
+                                    <div style={S.grid}>{elecItems.map(renderItem)}</div>
+                                  </>
+                                )}
                               </>
                             )}
                           </div>
@@ -796,15 +838,15 @@ export default function QuestionnairePage() {
                       }
                       return (
                         <div key={grp.group} style={S.grpBlock}>
-                          <div style={S.grpHeader}><span style={S.grpLabel}>{grp.label}</span></div>
-                          <div style={{ display: 'flex', flexDirection: 'column' }}>{grp.items.map(renderItem)}</div>
+                          <GroupHead grp={grp} count={count} />
+                          {!collapsed && <div style={S.grid}>{grp.items.map(renderItem)}</div>}
                         </div>
                       )
                     })}
                     {/* Other / Specialist scope */}
-                    <div style={{ marginTop: 8 }}>
-                      <div style={{ ...S.grpHeader, marginBottom: 8 }}>
-                        <span style={S.grpLabel}>OTHER / SPECIALIST SCOPE</span>
+                    <div style={{ marginTop: 12 }}>
+                      <div style={{ ...S.groupHead, cursor: 'default', marginBottom: 10 }}>
+                        <span style={S.groupLabel}>Other / Specialist scope</span>
                       </div>
                       <Textarea value={answers.q2_2_additionalScope?.text}
                         onChange={v => set('q2_2_additionalScope', { ...(answers.q2_2_additionalScope || {}), text: v })}

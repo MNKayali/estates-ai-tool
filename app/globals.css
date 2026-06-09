@@ -69,3 +69,19 @@ button, a {
 .section-enter {
   animation: fadeUp 0.22s ease-out both;
 }
+
+/* Q2.3 scope picker — selectable tiles & collapsible group headers */
+.scope-tile {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+.scope-tile:hover:not(.is-disabled) {
+  border-color: #93C5E8;
+  box-shadow: 0 2px 10px rgba(46, 117, 182, 0.13);
+  transform: translateY(-1px);
+}
+.scope-group-head {
+  transition: background 0.15s ease;
+}
+.scope-group-head:hover {
+  background: #EEF3FB !important;
+}
