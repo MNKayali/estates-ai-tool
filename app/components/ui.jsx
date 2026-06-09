@@ -1,6 +1,7 @@
 /**
- * Modern/Technical shared primitives for the /preview tree.
- * Class-driven (preview-theme.css). Promotable to a real components/ dir on rollout.
+ * Modern/Technical shared UI primitives.
+ * Class-driven — the classes live in app/globals.css (loaded by the root layout),
+ * so these work on any page with no extra CSS import.
  */
 'use client'
 

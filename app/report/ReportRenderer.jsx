@@ -224,7 +224,7 @@ export default function ReportRenderer({ data, reportId }) {
       `}</style>
 
       {/* ── Toolbar (screen only) ── */}
-      <div className="no-print" style={{ position: 'sticky', top: 0, zIndex: 20, background: NAVY, borderBottom: '1px solid #12233a', padding: '8px 16px' }}>
+      <div className="no-print" style={{ position: 'sticky', top: 0, zIndex: 20, background: 'linear-gradient(135deg, #1A2E4A 0%, #12233A 100%)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '10px 16px' }}>
         <div style={{ maxWidth: '880px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
           <span style={{ color: '#fff', fontWeight: 700, fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>
             Estates AI — Report Preview
@@ -282,7 +282,7 @@ export default function ReportRenderer({ data, reportId }) {
       </div>
 
       {/* ── Document shell ── */}
-      <div className="report-outer" style={{ background: '#E8EAF0', minHeight: '100vh', padding: '24px 16px 48px', fontFamily: 'Arial, sans-serif' }}>
+      <div className="report-outer" style={{ background: '#E7EDF6', minHeight: '100vh', padding: '24px 16px 48px', fontFamily: 'Arial, sans-serif' }}>
         <div className="report-inner" style={{ maxWidth: '880px', margin: '0 auto', background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
 
           {/* ══ COVER ══ */}
@@ -574,12 +574,12 @@ const thStyle   = { padding: '8px 10px', color: '#fff', fontWeight: 600, fontSiz
 const tdStyle   = { padding: '7px 10px', lineHeight: 1.5, verticalAlign: 'top', fontSize: '13px', color: '#333', wordBreak: 'break-word', overflowWrap: 'break-word' }
 
 function btnStyle(variant, disabled = false) {
-  const base = { padding: '7px 18px', border: 'none', borderRadius: '4px', fontWeight: 700, fontSize: '13px', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.7 : 1, fontFamily: 'Arial, sans-serif' }
-  if (variant === 'outline') return { ...base, background: 'transparent', border: '1px solid rgba(255,255,255,0.5)', color: '#fff' }
-  if (variant === 'gray')    return { ...base, background: '#4A5568', color: '#fff' }
-  if (variant === 'green')   return { ...base, background: '#2A7A4B', color: '#fff' }
-  if (variant === 'link')    return { ...base, background: '#2E75B6', color: '#fff' }
-  if (variant === 'copied')  return { ...base, background: '#2A7A4B', color: '#fff' }
+  const base = { padding: '8px 18px', border: '1px solid transparent', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.6 : 1, fontFamily: 'var(--font-body)', lineHeight: 1 }
+  if (variant === 'outline') return { ...base, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.22)', color: '#EAF0FA' }
+  if (variant === 'gray')    return { ...base, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.16)', color: '#EAF0FA' }
+  if (variant === 'green')   return { ...base, background: 'linear-gradient(135deg, #22B074 0%, #158053 100%)', color: '#fff', boxShadow: '0 4px 14px rgba(30,158,106,0.4)' }
+  if (variant === 'link')    return { ...base, background: 'linear-gradient(135deg, var(--blue) 0%, #2350D6 100%)', color: '#fff', boxShadow: '0 4px 14px rgba(47,107,255,0.4)' }
+  if (variant === 'copied')  return { ...base, background: 'linear-gradient(135deg, #22B074 0%, #158053 100%)', color: '#fff' }
   return base
 }
 

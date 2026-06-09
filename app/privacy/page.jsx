@@ -8,7 +8,7 @@
  */
 
 const NAVY = '#1A2E4A'
-const BLUE = '#2E75B6'
+const BLUE = '#2F6BFF'
 
 function Section({ title, children }) {
   return (

@@ -158,40 +158,36 @@ function QCard({ children }) {
 
 function Label({ children, required }) {
   return (
-    <label className="block mb-1.5" style={{ color: '#1A2E4A', fontSize: '15px', fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.1px' }}>
-      {children}{required && <span style={{ color: '#C8102E' }} className="ml-1">*</span>}
+    <label className="block mb-1.5" style={{ color: 'var(--ink)', fontSize: '15px', fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.1px' }}>
+      {children}{required && <span style={{ color: 'var(--danger)' }} className="ml-1">*</span>}
     </label>
   )
 }
 function HelpText({ children }) {
-  return <p className="mb-3" style={{ color: '#6B7280', fontSize: '13.5px', lineHeight: 1.6 }}>{children}</p>
+  return <p className="mb-3" style={{ color: 'var(--text-soft)', fontSize: '13.5px', lineHeight: 1.6 }}>{children}</p>
 }
 function TextInput({ value, onChange, placeholder }) {
   return (
     <input type="text" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-      className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
-      style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+      className="field" style={{ minHeight: '48px', fontSize: '16px' }} />
   )
 }
 function NumberInput({ value, onChange, placeholder, min = 0 }) {
   return (
     <input type="number" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} min={min}
-      className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
-      style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+      className="field" style={{ minHeight: '48px', fontSize: '16px' }} />
   )
 }
 function Textarea({ value, onChange, placeholder, rows = 4 }) {
   return (
     <textarea value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows}
-      className="w-full rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6] resize-none"
-      style={{ border: '1.5px solid #E2E8F0', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF', lineHeight: '1.6' }} />
+      className="field" style={{ fontSize: '16px', lineHeight: '1.6', resize: 'none' }} />
   )
 }
 function SelectInput({ value, onChange, children }) {
   return (
     <select value={value || ''} onChange={e => onChange(e.target.value)}
-      className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
-      style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: value ? '#1A1A1A' : '#888', backgroundColor: '#FFF' }}>
+      className="field" style={{ minHeight: '48px', fontSize: '16px', color: value ? 'var(--text)' : 'var(--text-mute)' }}>
       {children}
     </select>
   )
@@ -208,20 +204,20 @@ function RadioGroup({ options, value, onChange }) {
             style={{
               display: 'flex', alignItems: 'center', gap: 11,
               padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
-              border: sel ? '1.5px solid #2E75B6' : '1.5px solid #E2E8F0',
-              background: sel ? '#EBF3FA' : '#F8FAFC',
+              border: sel ? '1.5px solid var(--blue)' : '1.5px solid var(--border)',
+              background: sel ? 'rgba(47,107,255,.08)' : 'var(--surface)',
               textAlign: 'left', width: '100%',
               transition: 'border-color 0.13s ease, background 0.13s ease, box-shadow 0.13s ease',
-              boxShadow: sel ? '0 1px 6px rgba(46,117,182,0.14)' : 'none',
+              boxShadow: sel ? '0 1px 6px rgba(47,107,255,0.16)' : 'none',
             }}>
             <span style={{
               width: 18, height: 18, borderRadius: '50%', flexShrink: 0, display: 'inline-block',
-              border: sel ? '5px solid #2E75B6' : '1.5px solid #CBD5E1',
+              border: sel ? '5px solid var(--blue)' : '1.5px solid var(--border-2)',
               background: '#fff',
             }} />
             <span style={{
               fontFamily: 'var(--font-display)', fontWeight: sel ? 700 : 500,
-              fontSize: '14px', color: sel ? '#1A2E4A' : '#374151', lineHeight: 1.35,
+              fontSize: '14px', color: sel ? 'var(--ink)' : 'var(--text-mid)', lineHeight: 1.35,
             }}>{opt}</span>
           </button>
         )
@@ -238,7 +234,7 @@ function CheckboxGroup({ options, values = [], onChange, note }) {
   }
   return (
     <div>
-      {note && <p style={{ color: '#6B7280', fontSize: '13px', marginBottom: 10 }}>{note}</p>}
+      {note && <p style={{ color: 'var(--text-soft)', fontSize: '13px', marginBottom: 10 }}>{note}</p>}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
         {options.map(opt => {
           const sel = Array.isArray(values) && values.includes(opt)
@@ -247,16 +243,16 @@ function CheckboxGroup({ options, values = [], onChange, note }) {
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
                 padding: '8px 14px', borderRadius: 8, cursor: 'pointer',
-                border: sel ? '1.5px solid #2E75B6' : '1.5px solid #E2E8F0',
-                background: sel ? '#EBF3FA' : '#F8FAFC',
-                color: sel ? '#1A2E4A' : '#4B5563',
+                border: sel ? '1.5px solid var(--blue)' : '1.5px solid var(--border)',
+                background: sel ? 'rgba(47,107,255,.08)' : 'var(--surface)',
+                color: sel ? 'var(--ink)' : 'var(--text-mid)',
                 fontFamily: 'var(--font-display)', fontWeight: sel ? 700 : 500,
                 fontSize: '13.5px', lineHeight: 1.35,
                 transition: 'border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease',
-                boxShadow: sel ? '0 1px 5px rgba(46,117,182,0.14)' : 'none',
+                boxShadow: sel ? '0 1px 5px rgba(47,107,255,0.16)' : 'none',
               }}>
               {sel && (
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2E75B6" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
               )}
@@ -401,8 +397,8 @@ export default function QuestionnairePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-5 px-4"
-        style={{ backgroundColor: '#F4F7FC' }}>
-        <div style={{ width: 48, height: 48, border: '3px solid #E2E8F0', borderTopColor: '#2E75B6', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}
+        style={{ backgroundColor: 'transparent' }}>
+        <div style={{ width: 48, height: 48, border: '3px solid #E2E8F0', borderTopColor: 'var(--blue)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}
           className="animate-spin" />
         <p className="text-center text-lg" style={{ color: '#1A2E4A', fontFamily: 'var(--font-display)', fontWeight: 600 }}>{LOADING_MESSAGES[loadingMsg]}</p>
         <p className="text-center text-sm" style={{ color: '#9CA3AF', maxWidth: 320, textAlign: 'center' }}>Costs calculated deterministically from NRM1 benchmark data. This takes 20–40 seconds.</p>
@@ -411,12 +407,12 @@ export default function QuestionnairePage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F4F7FC' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'transparent' }}>
       {/* Header */}
       <header className="sticky top-0 z-10 px-4 shadow-md" style={{ backgroundColor: '#1A2E4A', height: 56, display: 'flex', alignItems: 'center' }}>
         <div className="max-w-2xl mx-auto w-full flex items-center justify-between">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 28, height: 28, background: '#2E75B6', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, letterSpacing: '0.4px', flexShrink: 0 }}>AI</div>
+            <div style={{ width: 28, height: 28, background: 'var(--blue)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, letterSpacing: '0.4px', flexShrink: 0 }}>AI</div>
             <span style={{ color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 16, letterSpacing: '-0.2px' }}>Estates AI</span>
           </div>
           <span style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 500 }}>
@@ -427,14 +423,14 @@ export default function QuestionnairePage() {
 
       {/* Progress bar */}
       <div style={{ height: 3, backgroundColor: '#E2E8F0' }}>
-        <div style={{ height: 3, backgroundColor: '#2E75B6', width: `${(section / SECTIONS.length) * 100}%`, transition: 'width 0.35s ease', boxShadow: '0 0 6px rgba(46,117,182,0.4)' }} />
+        <div style={{ height: 3, backgroundColor: 'var(--blue)', width: `${(section / SECTIONS.length) * 100}%`, transition: 'width 0.35s ease', boxShadow: '0 0 6px rgba(47,107,255,0.4)' }} />
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Section header */}
         <div className="mb-6">
           <div style={{ marginBottom: 8 }}>
-            <span style={{ background: '#EBF3FA', color: '#2E75B6', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, padding: '3px 10px', borderRadius: 20, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+            <span style={{ background: 'rgba(47,107,255,.08)', color: 'var(--blue)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, padding: '3px 10px', borderRadius: 20, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
               {section} / {SECTIONS.length}
             </span>
           </div>
@@ -543,16 +539,16 @@ export default function QuestionnairePage() {
                   {INTERVENTION_LEVELS.map(opt => (
                     <label key={opt.value} className="flex items-start gap-3 cursor-pointer rounded-xl p-4"
                       style={{
-                        border: answers.q2_3_interventionLevel === opt.value ? '2px solid #2E75B6' : '1.5px solid #E2E8F0',
-                        backgroundColor: answers.q2_3_interventionLevel === opt.value ? '#EBF3FA' : '#F8FAFC',
+                        border: answers.q2_3_interventionLevel === opt.value ? '2px solid var(--blue)' : '1.5px solid #E2E8F0',
+                        backgroundColor: answers.q2_3_interventionLevel === opt.value ? 'rgba(47,107,255,.08)' : '#F8FAFC',
                         transition: 'border-color 0.13s ease, background 0.13s ease',
                       }}>
                       <input type="radio" value={opt.value} checked={answers.q2_3_interventionLevel === opt.value}
                         onChange={() => set('q2_3_interventionLevel', opt.value)}
-                        className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ accentColor: '#2E75B6' }} />
+                        className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ accentColor: 'var(--blue)' }} />
                       <div>
                         <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: '#1A2E4A', fontSize: '14px' }}>{opt.value}</div>
-                        <div style={{ color: '#2E75B6', fontSize: '12px', fontWeight: 600, marginTop: '3px' }}>{opt.signal}</div>
+                        <div style={{ color: 'var(--blue)', fontSize: '12px', fontWeight: 600, marginTop: '3px' }}>{opt.signal}</div>
                         <div style={{ color: '#6B7280', fontSize: '13px', marginTop: '4px', lineHeight: 1.5 }}>{opt.description}</div>
                       </div>
                     </label>
@@ -605,25 +601,25 @@ export default function QuestionnairePage() {
                   grpBlock: { marginBottom: 12 },
                   groupHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 14px', background: '#F4F7FC', border: '1px solid #E2E8F0', borderRadius: 9, cursor: 'pointer', userSelect: 'none' },
                   groupLabel: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, color: '#1A2E4A', textTransform: 'uppercase', letterSpacing: '0.4px' },
-                  countPill: { fontFamily: 'var(--font-display)', background: '#EBF3FA', color: '#2E75B6', fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 20 },
+                  countPill: { fontFamily: 'var(--font-display)', background: 'rgba(47,107,255,.08)', color: 'var(--blue)', fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 20 },
                   chevron: { width: 16, height: 16, color: '#94A3B8', transition: 'transform 0.18s ease', flexShrink: 0 },
                   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 8, padding: '10px 0 4px' },
                   tile: { display: 'flex', alignItems: 'flex-start', gap: 9, border: '1.5px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', background: '#fff', cursor: 'pointer' },
-                  tileSel: { borderColor: '#2E75B6', background: '#EBF3FA', boxShadow: '0 1px 6px rgba(46,117,182,0.14)' },
+                  tileSel: { borderColor: 'var(--blue)', background: 'rgba(47,107,255,.08)', boxShadow: '0 1px 6px rgba(47,107,255,0.14)' },
                   tileDis: { opacity: 0.45, cursor: 'not-allowed' },
                   checkBox: { width: 18, height: 18, borderRadius: 5, border: '1.5px solid #CBD5E1', flexShrink: 0, marginTop: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' },
-                  checkBoxSel: { background: '#2E75B6', borderColor: '#2E75B6', color: '#fff' },
+                  checkBoxSel: { background: 'var(--blue)', borderColor: 'var(--blue)', color: '#fff' },
                   tileText: { display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 },
                   tileLabel: { fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 13, color: '#1A2E4A', lineHeight: 1.3 },
-                  subPrompt: { background: '#F8FAFC', borderLeft: '3px solid #2E75B6', padding: '10px 14px', margin: '6px 0 2px', borderRadius: '0 8px 8px 0' },
+                  subPrompt: { background: '#F8FAFC', borderLeft: '3px solid var(--blue)', padding: '10px 14px', margin: '6px 0 2px', borderRadius: '0 8px 8px 0' },
                   subLabel: { fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 5, fontWeight: 500 },
                   subInput: { fontSize: 14, padding: '6px 10px', border: '1.5px solid #E2E8F0', borderRadius: 7, color: '#111827', outline: 'none' },
                   radioRow: { display: 'flex', alignItems: 'flex-start', gap: 9, padding: '5px 0', cursor: 'pointer' },
-                  radioCheck: { marginTop: 2, flexShrink: 0, accentColor: '#2E75B6', width: 15, height: 15 },
+                  radioCheck: { marginTop: 2, flexShrink: 0, accentColor: 'var(--blue)', width: 15, height: 15 },
                   radioLabel: { fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 12.5, color: '#1A2E4A', lineHeight: 1.3 },
                   radioDesc: { fontWeight: 400, fontSize: 11.5, color: '#6B7280', lineHeight: 1.45 },
                   reqNote: { fontSize: 10.5, color: '#B06000', fontWeight: 500 },
-                  subGrpLabel: { display: 'inline-block', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10.5, color: '#2E75B6', textTransform: 'uppercase', letterSpacing: '0.6px', background: '#EBF3FA', padding: '3px 10px', borderRadius: 6, marginTop: 12 },
+                  subGrpLabel: { display: 'inline-block', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10.5, color: 'var(--blue)', textTransform: 'uppercase', letterSpacing: '0.6px', background: 'rgba(47,107,255,.08)', padding: '3px 10px', borderRadius: 6, marginTop: 12 },
                 }
                 const Check = () => (
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -825,7 +821,7 @@ export default function QuestionnairePage() {
                           <input type="number" value={answers.q2_2_additionalScope?.approxValue || ''}
                             onChange={e => set('q2_2_additionalScope', { ...(answers.q2_2_additionalScope || {}), approxValue: e.target.value })}
                             placeholder="e.g. 50000" min={0}
-                            className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
+                            className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--blue)]"
                             style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
                         </div>
                       </div>
@@ -843,13 +839,13 @@ export default function QuestionnairePage() {
                 {SPEC_LEVELS.map(opt => (
                   <label key={opt.value} className="flex items-start gap-3 cursor-pointer rounded-xl p-4"
                     style={{
-                      border: answers.q2_4_specLevel === opt.value ? '2px solid #2E75B6' : '1.5px solid #E2E8F0',
-                      backgroundColor: answers.q2_4_specLevel === opt.value ? '#EBF3FA' : '#F8FAFC',
+                      border: answers.q2_4_specLevel === opt.value ? '2px solid var(--blue)' : '1.5px solid #E2E8F0',
+                      backgroundColor: answers.q2_4_specLevel === opt.value ? 'rgba(47,107,255,.08)' : '#F8FAFC',
                       transition: 'border-color 0.13s ease, background 0.13s ease',
                     }}>
                     <input type="radio" value={opt.value} checked={answers.q2_4_specLevel === opt.value}
                       onChange={() => set('q2_4_specLevel', opt.value)}
-                      className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ accentColor: '#2E75B6' }} />
+                      className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ accentColor: 'var(--blue)' }} />
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                         <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: '#1A2E4A', fontSize: '14px' }}>{opt.value}</span>
@@ -944,18 +940,18 @@ export default function QuestionnairePage() {
                     style={{
                       display: 'flex', alignItems: 'center', gap: 11,
                       padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
-                      border: opt.checked ? '1.5px solid #2E75B6' : '1.5px solid #E2E8F0',
-                      background: opt.checked ? '#EBF3FA' : '#F8FAFC',
+                      border: opt.checked ? '1.5px solid var(--blue)' : '1.5px solid #E2E8F0',
+                      background: opt.checked ? 'rgba(47,107,255,.08)' : '#F8FAFC',
                       textAlign: 'left', width: '100%',
-                      boxShadow: opt.checked ? '0 1px 6px rgba(46,117,182,0.14)' : 'none',
+                      boxShadow: opt.checked ? '0 1px 6px rgba(47,107,255,0.14)' : 'none',
                     }}>
-                    <span style={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0, display: 'inline-block', border: opt.checked ? '5px solid #2E75B6' : '1.5px solid #CBD5E1', background: '#fff' }} />
+                    <span style={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0, display: 'inline-block', border: opt.checked ? '5px solid var(--blue)' : '1.5px solid #CBD5E1', background: '#fff' }} />
                     <span style={{ fontFamily: 'var(--font-display)', fontWeight: opt.checked ? 700 : 500, fontSize: '14px', color: opt.checked ? '#1A2E4A' : '#374151' }}>{opt.label}</span>
                   </button>
                 ))}
                 {answers.q4_1_targetDate !== 'No specific deadline' && (
                   <input type="date" value={answers.q4_1_targetDate || ''} onChange={e => set('q4_1_targetDate', e.target.value)}
-                    className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
+                    className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--blue)]"
                     style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF', boxSizing: 'border-box', marginTop: 4 }} />
                 )}
               </div>
@@ -975,12 +971,12 @@ export default function QuestionnairePage() {
                       style={{
                         display: 'flex', alignItems: 'center', gap: 11,
                         padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
-                        border: sel ? '1.5px solid #2E75B6' : '1.5px solid #E2E8F0',
-                        background: sel ? '#EBF3FA' : '#F8FAFC',
+                        border: sel ? '1.5px solid var(--blue)' : '1.5px solid #E2E8F0',
+                        background: sel ? 'rgba(47,107,255,.08)' : '#F8FAFC',
                         textAlign: 'left', width: '100%',
-                        boxShadow: sel ? '0 1px 6px rgba(46,117,182,0.14)' : 'none',
+                        boxShadow: sel ? '0 1px 6px rgba(47,107,255,0.14)' : 'none',
                       }}>
-                      <span style={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0, display: 'inline-block', border: sel ? '5px solid #2E75B6' : '1.5px solid #CBD5E1', background: '#fff' }} />
+                      <span style={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0, display: 'inline-block', border: sel ? '5px solid var(--blue)' : '1.5px solid #CBD5E1', background: '#fff' }} />
                       <span style={{ fontFamily: 'var(--font-display)', fontWeight: sel ? 700 : 500, fontSize: '14px', color: sel ? '#1A2E4A' : '#374151' }}>{opt.label}</span>
                     </button>
                   )
@@ -993,7 +989,7 @@ export default function QuestionnairePage() {
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
                     <input type="number" value={answers.q4_3_budget || ''} onChange={e => set('q4_3_budget', e.target.value)} placeholder="e.g. 1500000" min={0}
-                      className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
+                      className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--blue)]"
                       style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
                   </div>
                 </div>
@@ -1038,7 +1034,7 @@ export default function QuestionnairePage() {
         {/* ─── SECTION 5 ─────────────────────────────────────────────────────── */}
         {section === 5 && (
           <div className="flex flex-col gap-4 section-enter">
-            <div style={{ background: '#EBF3FA', border: '1px solid #B8D3ED', borderRadius: 12, padding: '16px 20px' }}>
+            <div style={{ background: 'rgba(47,107,255,.08)', border: '1px solid #B8D3ED', borderRadius: 12, padding: '16px 20px' }}>
               <p style={{ color: '#1A2E4A', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '14px', marginBottom: 4 }}>Optional section</p>
               <p style={{ color: '#374151', fontSize: '13.5px', lineHeight: 1.6 }}>Complete this section only if you want the report to include an ROI or financial case analysis. Skip to Section 6 if not applicable.</p>
             </div>
@@ -1071,7 +1067,7 @@ export default function QuestionnairePage() {
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
                   <input type="number" value={answers.q5_2_annualBenefit || ''} onChange={e => set('q5_2_annualBenefit', e.target.value)} placeholder="e.g. 80000" min={0}
-                    className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]"
+                    className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--blue)]"
                     style={{ border: '1.5px solid #E2E8F0', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
                 </div>
               </QCard>
@@ -1082,8 +1078,8 @@ export default function QuestionnairePage() {
         {/* ─── SECTION 6 ─────────────────────────────────────────────────────── */}
         {section === 6 && (
           <div className="flex flex-col gap-4 section-enter">
-            <div style={{ background: 'linear-gradient(135deg, #1A2E4A 0%, #1F3864 100%)', borderRadius: 14, padding: '24px', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-              <div style={{ width: 40, height: 40, background: 'rgba(46,117,182,0.35)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ background: 'linear-gradient(135deg, #1A2E4A 0%, #12233A 100%)', borderRadius: 14, padding: '24px', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+              <div style={{ width: 40, height: 40, background: 'rgba(47,107,255,0.35)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#93C5E8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
@@ -1134,18 +1130,18 @@ export default function QuestionnairePage() {
         <div className="mt-8 flex gap-3">
           {section > 1 && (
             <button onClick={back} className="flex-1 py-3 rounded-xl"
-              style={{ border: '1.5px solid #CBD5E1', color: '#1A2E4A', backgroundColor: '#fff', fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '15px' }}>
+              style={{ border: '1.5px solid var(--border-2)', color: 'var(--ink)', backgroundColor: '#fff', fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '15px' }}>
               ← Back
             </button>
           )}
           {section < 6 ? (
             <button onClick={next} className="flex-1 py-3 rounded-xl text-white"
-              style={{ backgroundColor: '#1A2E4A', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '15px', boxShadow: '0 2px 10px rgba(26,46,74,0.28)' }}>
+              style={{ background: 'linear-gradient(135deg, var(--blue) 0%, #2350D6 100%)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '15px', boxShadow: '0 8px 22px rgba(47,107,255,0.35)' }}>
               Continue →
             </button>
           ) : (
             <button onClick={submit} className="flex-1 py-4 rounded-xl text-white"
-              style={{ backgroundColor: '#1A5C2E', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '17px', boxShadow: '0 4px 16px rgba(26,92,46,0.35)', letterSpacing: '-0.2px' }}>
+              style={{ background: 'linear-gradient(135deg, #22B074 0%, #158053 100%)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '17px', boxShadow: '0 8px 22px rgba(30,158,106,0.38)', letterSpacing: '-0.2px' }}>
               Generate Report
             </button>
           )}
