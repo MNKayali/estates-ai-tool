@@ -532,16 +532,6 @@ export default function QuestionnairePage() {
                 </div>
               )}
             </div>
-            {answers.q1_3_buildingUse === 'Residential' && (
-              <div>
-                <Label>Q1.3a — Residential sub-type</Label>
-                <SelectInput value={answers.q1_3a_residentialSubType || 'Flat or house'} onChange={v => set('q1_3a_residentialSubType', v)}>
-                  <option value="Flat or house">Flat or house (standard domestic / HMO)</option>
-                  <option value="Student accommodation">Student accommodation (PBSA / halls)</option>
-                  <option value="Care home">Care home or sheltered housing</option>
-                </SelectInput>
-              </div>
-            )}
             <div>
               <Label required>Q1.4 — Building age</Label>
               <RadioGroup options={BUILDING_AGES} value={answers.q1_4_buildingAge} onChange={v => set('q1_4_buildingAge', v)} />
