@@ -216,13 +216,13 @@ const FINANCIAL_BENEFIT_OPTIONS = [
 // ─── UI Components ────────────────────────────────────────────────────────────
 function Label({ children, required }) {
   return (
-    <label className="block font-bold mb-1.5" style={{ color: '#1F3864', fontSize: '16px' }}>
-      {children}{required && <span style={{ color: '#C00000' }} className="ml-1">*</span>}
+    <label className="block mb-1.5" style={{ color: '#1A2E4A', fontSize: '15px', fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.1px' }}>
+      {children}{required && <span style={{ color: '#C8102E' }} className="ml-1">*</span>}
     </label>
   )
 }
 function HelpText({ children }) {
-  return <p className="mb-2 italic" style={{ color: '#555', fontSize: '14px' }}>{children}</p>
+  return <p className="mb-2" style={{ color: '#6B7280', fontSize: '13.5px', lineHeight: 1.6 }}>{children}</p>
 }
 function TextInput({ value, onChange, placeholder }) {
   return (
@@ -425,11 +425,12 @@ export default function QuestionnairePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-4"
-        style={{ backgroundColor: '#F7F9FC' }}>
-        <div className="w-12 h-12 border-4 border-[#2E75B6] border-t-transparent rounded-full animate-spin" />
-        <p className="text-center font-medium text-lg" style={{ color: '#1F3864' }}>{LOADING_MESSAGES[loadingMsg]}</p>
-        <p className="text-center text-sm" style={{ color: '#666' }}>Costs calculated deterministically from NRM1 Excel data. This takes 20–40 seconds.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-5 px-4"
+        style={{ backgroundColor: '#F4F7FC' }}>
+        <div style={{ width: 48, height: 48, border: '3px solid #E2E8F0', borderTopColor: '#2E75B6', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}
+          className="animate-spin" />
+        <p className="text-center text-lg" style={{ color: '#1A2E4A', fontFamily: 'var(--font-display)', fontWeight: 600 }}>{LOADING_MESSAGES[loadingMsg]}</p>
+        <p className="text-center text-sm" style={{ color: '#9CA3AF', maxWidth: 320, textAlign: 'center' }}>Costs calculated deterministically from NRM1 benchmark data. This takes 20–40 seconds.</p>
       </div>
     )
   }
@@ -437,23 +438,33 @@ export default function QuestionnairePage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F7F9FC' }}>
       {/* Header */}
-      <header className="sticky top-0 z-10 px-4 py-3 shadow-sm" style={{ backgroundColor: '#1F3864' }}>
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <span className="font-bold text-white text-lg">Estates AI</span>
-          <span className="text-sm text-white/70">Section {section} of {SECTIONS.length}</span>
+      <header className="sticky top-0 z-10 px-4 shadow-md" style={{ backgroundColor: '#1A2E4A', height: 56, display: 'flex', alignItems: 'center' }}>
+        <div className="max-w-2xl mx-auto w-full flex items-center justify-between">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 28, height: 28, background: '#2E75B6', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, letterSpacing: '0.4px', flexShrink: 0 }}>AI</div>
+            <span style={{ color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 16, letterSpacing: '-0.2px' }}>Estates AI</span>
+          </div>
+          <span style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 500 }}>
+            {SECTIONS[section - 1]?.title}
+          </span>
         </div>
       </header>
 
       {/* Progress bar */}
-      <div className="h-1" style={{ backgroundColor: '#E5E7EB' }}>
-        <div className="h-1 transition-all duration-300" style={{ backgroundColor: '#2E75B6', width: `${(section / SECTIONS.length) * 100}%` }} />
+      <div style={{ height: 3, backgroundColor: '#E2E8F0' }}>
+        <div style={{ height: 3, backgroundColor: '#2E75B6', width: `${(section / SECTIONS.length) * 100}%`, transition: 'width 0.35s ease', boxShadow: '0 0 6px rgba(46,117,182,0.4)' }} />
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Section header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#1F3864' }}>{SECTIONS[section - 1].title}</h1>
-          <p style={{ color: '#555' }}>{SECTIONS[section - 1].subtitle}</p>
+          <div style={{ marginBottom: 8 }}>
+            <span style={{ background: '#EBF3FA', color: '#2E75B6', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, padding: '3px 10px', borderRadius: 20, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+              {section} / {SECTIONS.length}
+            </span>
+          </div>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '22px', color: '#1A2E4A', letterSpacing: '-0.4px', margin: '0 0 4px' }}>{SECTIONS[section - 1].title}</h1>
+          <p style={{ color: '#6B7280', fontSize: '14px', margin: 0 }}>{SECTIONS[section - 1].subtitle}</p>
         </div>
 
         {error && (
@@ -464,7 +475,7 @@ export default function QuestionnairePage() {
 
         {/* ─── SECTION 1 ─────────────────────────────────────────────────────── */}
         {section === 1 && (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 section-enter">
             <div>
               <Label required>Q1.0 — Project title</Label>
               <HelpText>This becomes the heading of your report. Include the work type, building type, and location — e.g. "Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" or "New Sports Hall, University of Birmingham, Edgbaston".</HelpText>
@@ -546,7 +557,7 @@ export default function QuestionnairePage() {
 
         {/* ─── SECTION 2 ─────────────────────────────────────────────────────── */}
         {section === 2 && (
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-8 section-enter">
             <div>
               <Label required>Q2.1 — Project objective</Label>
               <HelpText>Describe what you are trying to achieve and why this project is needed.</HelpText>
@@ -865,7 +876,7 @@ export default function QuestionnairePage() {
 
         {/* ─── SECTION 3 ─────────────────────────────────────────────────────── */}
         {section === 3 && (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 section-enter">
             <div>
               <Label>Q3.1 — Known building issues</Label>
               <HelpText>Tick all that apply. These trigger risk allowance adjustments.</HelpText>
@@ -924,7 +935,7 @@ export default function QuestionnairePage() {
 
         {/* ─── SECTION 4 ─────────────────────────────────────────────────────── */}
         {section === 4 && (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 section-enter">
             <div>
               <Label>Q4.1 — Target completion date</Label>
               <HelpText>Used to assess programme feasibility. Leave blank if no specific deadline.</HelpText>
@@ -1018,7 +1029,7 @@ export default function QuestionnairePage() {
 
         {/* ─── SECTION 5 ─────────────────────────────────────────────────────── */}
         {section === 5 && (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 section-enter">
             <div className="p-4 rounded-lg" style={{ backgroundColor: '#EEF4FA', border: '1px solid #B8D3ED' }}>
               <p style={{ color: '#1F3864', fontWeight: 'bold', fontSize: '15px' }}>Optional section</p>
               <p style={{ color: '#555', fontSize: '14px' }}>Complete this section only if you want the report to include an ROI or financial case analysis. Skip to Section 6 if not applicable.</p>
@@ -1060,7 +1071,7 @@ export default function QuestionnairePage() {
 
         {/* ─── SECTION 6 ─────────────────────────────────────────────────────── */}
         {section === 6 && (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 section-enter">
             <div className="p-4 rounded-lg" style={{ backgroundColor: '#F0FDF4', border: '1px solid #86EFAC' }}>
               <p className="font-bold mb-1" style={{ color: '#166534' }}>Ready to generate</p>
               <p style={{ color: '#166534', fontSize: '14px' }}>Costs are calculated deterministically from NRM1 Excel benchmark data. The AI writes prose only — it never invents a number.</p>
@@ -1094,20 +1105,21 @@ export default function QuestionnairePage() {
         )}
 
         {/* ─── Navigation ────────────────────────────────────────────────────── */}
-        <div className="mt-10 flex gap-4">
+        <div className="mt-10 flex gap-3">
           {section > 1 && (
-            <button onClick={back} className="flex-1 py-3 rounded-lg font-medium" style={{ border: '2px solid #1F3864', color: '#1F3864', backgroundColor: '#FFF' }}>
-              Back
+            <button onClick={back} className="flex-1 py-3 rounded-xl"
+              style={{ border: '1.5px solid #CBD5E1', color: '#1A2E4A', backgroundColor: '#fff', fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '15px' }}>
+              ← Back
             </button>
           )}
           {section < 6 ? (
-            <button onClick={next} className="flex-1 py-3 rounded-lg font-bold text-white"
-              style={{ backgroundColor: '#1F3864' }}>
-              Continue
+            <button onClick={next} className="flex-1 py-3 rounded-xl text-white"
+              style={{ backgroundColor: '#1A2E4A', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '15px', boxShadow: '0 2px 10px rgba(26,46,74,0.28)' }}>
+              Continue →
             </button>
           ) : (
-            <button onClick={submit} className="flex-1 py-4 rounded-lg font-bold text-white text-lg"
-              style={{ backgroundColor: '#375623' }}>
+            <button onClick={submit} className="flex-1 py-4 rounded-xl text-white"
+              style={{ backgroundColor: '#1A5C2E', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '17px', boxShadow: '0 4px 16px rgba(26,92,46,0.35)', letterSpacing: '-0.2px' }}>
               Generate Report
             </button>
           )}

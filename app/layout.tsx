@@ -1,16 +1,26 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Sora, DM_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const sora = Sora({
+  variable: "--font-sora",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Estates AI Tool",
-  description: "Generate professional RIBA Stage 1 Feasibility Reports in minutes",
+  title: "Estates AI — RIBA Stage 0–1 Feasibility Reports",
+  description:
+    "Generate professional RIBA Stage 0–1 feasibility reports in minutes. NRM1 cost estimate, programme, and risk register — deterministic benchmark data, AI narrative.",
 };
 
 export default function RootLayout({
@@ -19,8 +29,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} antialiased`}>
-      <body className="min-h-screen bg-gray-50">
+    <html lang="en" className={`${sora.variable} ${dmSans.variable}`}>
+      <body>
         {children}
         <Analytics />
       </body>
