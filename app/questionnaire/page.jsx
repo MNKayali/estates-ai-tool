@@ -651,10 +651,19 @@ export default function QuestionnairePage() {
                   .map(g => ({ ...g, items: g.items.filter(it => matchesBuildingUse(it.buildingUse, bu) && !FOLDED_CODES.has(it.code)) }))
                   .filter(g => g.items.length > 0)
                 if (displayedGroups.length === 0) return <p style={{ color: '#888', fontSize: 13, padding: '8px 0' }}>No scope items match this project type and building use yet.</p>
-                // Group 5 (Services) split: 5.1–5.7x = Mechanical, 5.8+ = Electrical
+                // Group 5 split: codes 5.7+ → Electrical; specialist mechanical items with higher
+                // codes (lifts, BWIC, compressed air, process drainage, industrial vent, precision
+                // cooling) stay Mechanical via explicit set.
+                const MECH_CODES_5 = new Set(['5.19', '5.20', '5.21', '5.23', '5.24', '5.29'])
                 const getMechElec = code => {
+                  if (MECH_CODES_5.has(code)) return 'mech'
                   const m = code.match(/^5\.(\d+)/)
-                  return (m && Number(m[1]) >= 8) ? 'elec' : 'mech'
+                  return (m && Number(m[1]) >= 7) ? 'elec' : 'mech'
+                }
+                // Group 4 split: codes 4.1–4.9 = general fittings/sanitary; 4.10+ = sector-specific
+                const getGroup4Split = code => {
+                  const m = code.match(/^4\.(\d+)/)
+                  return (m && Number(m[1]) <= 9) ? 'general' : 'specialist'
                 }
                 const renderItem = item => {
                   const minLvl = item.minLvl || 1
@@ -742,6 +751,27 @@ export default function QuestionnairePage() {
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
                     {displayedGroups.map(grp => {
+                      if (grp.group === 4) {
+                        const generalItems    = grp.items.filter(it => getGroup4Split(it.code) === 'general')
+                        const specialistItems = grp.items.filter(it => getGroup4Split(it.code) === 'specialist')
+                        return (
+                          <div key={grp.group} style={S.grpBlock}>
+                            <div style={S.grpHeader}><span style={S.grpLabel}>{grp.label}</span></div>
+                            {generalItems.length > 0 && (
+                              <>
+                                <div style={S.subGrpHeader}><span style={S.subGrpLabel}>Fittings, Furniture &amp; Sanitary</span></div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>{generalItems.map(renderItem)}</div>
+                              </>
+                            )}
+                            {specialistItems.length > 0 && (
+                              <>
+                                <div style={S.subGrpHeader}><span style={S.subGrpLabel}>Sector-Specific Equipment</span></div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>{specialistItems.map(renderItem)}</div>
+                              </>
+                            )}
+                          </div>
+                        )
+                      }
                       if (grp.group === 5) {
                         const mechItems = grp.items.filter(it => getMechElec(it.code) === 'mech')
                         const elecItems = grp.items.filter(it => getMechElec(it.code) === 'elec')
