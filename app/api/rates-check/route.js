@@ -1,10 +1,11 @@
 /**
  * GET /api/rates-check
- * Health check — confirms NRM1 v3.7 and Programme v4.3 data files load correctly.
+ * Health check — confirms NRM1 v4.5 and Programme v4.3 data files load correctly.
  */
 import * as XLSX from 'xlsx'
 
-const NEW_ELEMENTS = ['5.2L', '5.7a', '5.8a', '5.8b', '5.8c', '5.9a', '5.9b']
+// Representative v4.5 codes (incl. building-use-specific rows) that must exist.
+const NEW_ELEMENTS = ['4.2-RES', '4.10', '4.14', '5.27', '8.10']
 const PROGRAMME_SIZE_BANDS = ['S1 (<150)', 'S2 (≤250)', 'S3 (≤500)', 'S4 (≤1500)', 'S5 (≤3000)', 'S6 (>3000)']
 
 async function loadWorkbook(url, label) {
@@ -15,16 +16,23 @@ async function loadWorkbook(url, label) {
   return XLSX.read(new Uint8Array(buf), { type: 'array' })
 }
 
+// v4.5 "2. Master Cost Table": code col0, building use col3, unit col5,
+// pricing type col6, Rfb Std col10. Group banner rows (Code "GROUP …") skipped.
 function parseRatesTab(wb) {
-  const ws = wb.Sheets['2. Rates Reference Table']
+  const ws = wb.Sheets['2. Master Cost Table']
   if (!ws) return {}
   const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' })
   const elements = {}
   for (let i = 4; i < rows.length; i++) {
     const r = rows[i]
-    const sub = String(r[1] || '').trim()
-    if (!sub || typeof r[0] !== 'number') continue
-    elements[sub] = { unit: String(r[3] || '').trim(), rfbStd: Number(r[5]) || 0 }
+    const code = String(r[0] || '').trim()
+    if (!code || /^GROUP/i.test(code)) continue
+    elements[code] = {
+      buildingUse: String(r[3] || '').trim(),
+      unit: String(r[5] || '').trim(),
+      pricingType: String(r[6] || '').trim(),
+      rfbStd: Number(r[10]) || 0,
+    }
   }
   return elements
 }
@@ -52,10 +60,11 @@ export async function GET() {
     programmeOk: false,
     templateOk:  true,
     newElementsPresent: Object.fromEntries(NEW_ELEMENTS.map(c => [c, false])),
-    sampleRate_4_2_unit:    null,
-    sampleRate_4_2_rfbStd:  null,
-    sampleRate_4_3_unit:    null,
-    sampleRate_4_3_rfbStd:  null,
+    elementCount: 0,
+    sampleRate_3_1_unit:    null,
+    sampleRate_3_1_rfbStd:  null,
+    sampleRate_4_2RES_buildingUse: null,
+    sampleRate_4_2RES_rfbStd:      null,
     programmeSizeBands:   PROGRAMME_SIZE_BANDS,
     sampleDuration_DS2_S3_mid: null,
     fetchedAt: new Date().toISOString(),
@@ -70,26 +79,27 @@ export async function GET() {
 
     if (elementCount > 0) {
       result.ratesOk = true
+      result.elementCount = elementCount
 
       for (const code of NEW_ELEMENTS) {
         result.newElementsPresent[code] = code in elements
       }
 
-      if (elements['4.2']) {
-        result.sampleRate_4_2_unit   = elements['4.2'].unit
-        result.sampleRate_4_2_rfbStd = elements['4.2'].rfbStd
+      if (elements['3.1']) {
+        result.sampleRate_3_1_unit   = elements['3.1'].unit
+        result.sampleRate_3_1_rfbStd = elements['3.1'].rfbStd
       }
-      if (elements['4.3']) {
-        result.sampleRate_4_3_unit   = elements['4.3'].unit
-        result.sampleRate_4_3_rfbStd = elements['4.3'].rfbStd
+      if (elements['4.2-RES']) {
+        result.sampleRate_4_2RES_buildingUse = elements['4.2-RES'].buildingUse
+        result.sampleRate_4_2RES_rfbStd      = elements['4.2-RES'].rfbStd
       }
 
       const missing = NEW_ELEMENTS.filter(c => !elements[c])
       if (missing.length > 0) {
-        result.errors.push(`Missing elements in NRM1 v3.7: ${missing.join(', ')}`)
+        result.errors.push(`Missing elements in NRM1 v4.5: ${missing.join(', ')}`)
       }
     } else {
-      result.errors.push('NRM1 workbook loaded but no elements parsed from Tab 2')
+      result.errors.push('NRM1 workbook loaded but no elements parsed from "2. Master Cost Table"')
     }
   } catch (e) {
     result.errors.push('NRM1 workbook: ' + e.message)

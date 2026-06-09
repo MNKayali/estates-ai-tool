@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { matchesBuildingUse } from '../../lib/buildingUse.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
 
@@ -26,187 +27,36 @@ const LOADING_MESSAGES = [
 const PROJECT_TYPES = ['New Build', 'Refurbishment', 'Fit-out', 'Extension', 'External Works', 'Renewable Energy', 'Demolition', 'Mixed']
 const BUILDING_AGES = ['Pre-1900', '1900–1945', '1945–1980', '1980–2000', 'Post-2000', 'Not applicable (new build)']
 
-// ─── Section 2 data — NRM1 v3.2 codes ────────────────────────────────────────
-// Each item: { code, label, desc }
-// Special sentinels: { code: '__WIRING__', isWiringSection: true }
-//                    { code: '__HEATING__', isHeatingGroup: true }
-const SCOPE_GROUPS = [
-  {
-    id: 'GRP0',
-    group: 'GRP 0 — FACILITATING WORKS',
-    note: 'Demolition · Refurbishment · Brownfield new build',
-    items: [
-      { code: '0.1', label: 'Asbestos and hazardous material removal', desc: 'Surveys, containment, licensed removal and disposal' },
-      { code: '0.2', label: 'Demolition, strip-out or structural alterations', desc: 'Full or partial demolition, structural openings and enabling works' },
-      { code: '0.3', label: 'Contaminated land treatment and remediation', desc: 'Land investigation, treatment, removal and sign-off' },
-    ],
-  },
-  {
-    id: 'GRP1',
-    group: 'GRP 1 — SUBSTRUCTURE',
-    note: 'New build and extension only',
-    items: [
-      { code: '1.1-1.3', label: 'Foundations and ground floor slab', desc: 'Pad, strip, raft or pile foundations; ground floor slab, DPM and insulation' },
-      { code: '1.4', label: 'Basement excavation and structure', desc: 'Retaining structure, waterproofing and drainage' },
-    ],
-  },
-  {
-    id: 'GRP2',
-    group: 'GRP 2 — SUPERSTRUCTURE & ENVELOPE',
-    note: 'Structure, fabric, openings and waterproofing',
-    items: [
-      { code: '2.1-2.2', label: 'Structural frame and upper floors', desc: 'Steel or concrete frame, composite or precast floors' },
-      { code: '2.3', label: 'Roof — new, replacement or major repair', desc: 'New structure, replacement covering or major repair and renewal' },
-      { code: '2.5', label: 'External walls and facade', desc: 'New build envelope, overcladding or repair to existing facade' },
-      { code: '2.6', label: 'Windows and external doors', desc: 'Replacement or new curtain walling, windows, fire exits and entrance doors' },
-      { code: '2.7', label: 'Internal partitions and doors', desc: 'New layout, demountable or permanent partitions and internal doors' },
-      { code: '2.9', label: 'Waterproofing and tanking', desc: 'Flat roof membrane, below-ground tanking or wet room waterproofing' },
-    ],
-  },
-  {
-    id: 'GRP3',
-    group: 'GRP 3 — INTERNAL FINISHES',
-    note: 'Specification level (Q2.4) controls the rate applied',
-    items: [
-      { code: '3.1', label: 'Wall finishes', desc: 'Plaster skim, paint, tiling, dry lining or wall boarding' },
-      { code: '3.2', label: 'Floor finishes', desc: 'Screeds, vinyl, carpet, ceramic tile, timber or stone' },
-      { code: '3.3', label: 'Ceiling finishes', desc: 'Plasterboard, suspended grid and tile, or acoustic treatment' },
-      { code: '3.4', label: 'Internal doors and ironmongery', desc: 'Door sets, frames, handles and door closers (where not part of partition works)' },
-      { code: '3.5', label: 'Internal decoration', desc: 'Full redecoration — walls, ceilings, woodwork, including preparation' },
-    ],
-  },
-  {
-    id: 'GRP4',
-    group: 'GRP 4 — FITTINGS, FURNISHINGS & EQUIPMENT',
-    note: 'FF&E and specialist fit-out',
-    items: [
-      { code: '4.1', label: 'Joinery and built-in furniture', desc: 'Reception counters, shelving, worktops, fitted wardrobes' },
-      { code: '4.2', label: 'Sanitary fittings and toilet fit-out', desc: 'Inc accessible, changing and assisted wash facilities' },
-      { code: '4.3', label: 'Kitchen or servery', desc: 'Units, worktops, appliances and break-out area' },
-      { code: '4.4', label: 'Specialist or process equipment', desc: 'Lab, clinical, retail, data centre or plant room fit-out' },
-    ],
-  },
-  {
-    id: 'GRP5A',
-    group: 'GRP 5A — MECHANICAL SERVICES',
-    items: [
-      { code: '5.1b', label: 'Plumbing — 2nd fix only', desc: 'Like-for-like replacement: sanitary ware, radiators, TRVs, taps and visible fittings — existing pipework retained, no new pipe runs', isPlumbingItem: true },
-      { code: '5.1',  label: 'Plumbing — full (1st and 2nd fix)', desc: 'New HWS, cold water supply, drainage and waste — complete first-fix and second-fix', isPlumbingItem: true },
-      { code: '__HEATING__', isHeatingGroup: true },
-      { code: '5.3',  label: 'Ventilation and air handling', desc: 'AHU, MVHR, heat recovery, mechanical extract — lab or healthcare ventilation' },
-      { code: '5.4',  label: 'Air conditioning and cooling', desc: 'VRF, splits, chilled beam, cold store or process cooling' },
-      { code: '5.6',  label: 'Sprinkler or fire suppression', desc: 'Wet or dry sprinkler system throughout' },
-    ],
-  },
-  {
-    id: 'GRP5B',
-    group: 'GRP 5B — ELECTRICAL SERVICES',
-    items: [
-      { code: '5.7',  label: 'Main LV panel and switchgear', desc: 'New main distribution board, LV panel, incoming metering and earthing' },
-      { code: '5.7a', label: 'Sub-distribution and containment', desc: 'Sub-DBs, cable tray, trunking, conduit runs and busbar trunking throughout the building' },
-      { code: '5.8a', label: '1st fix wiring', desc: 'New circuit cables and containment throughout; existing sockets and switches retained', isWiringItem: true },
-      { code: '5.8b', label: '2nd fix wiring', desc: 'Replacement sockets, switches and FCUs; existing circuit wiring reused', isWiringItem: true },
-      { code: '5.8c', label: '2nd fix lighting', desc: 'New luminaires, lighting layout and controls' },
-      { code: '5.9a', label: 'Fire alarm system', desc: 'Detection, call points, sounders and control panel — L1 to L3 system' },
-      { code: '5.9b', label: 'Emergency lighting', desc: 'Maintained and non-maintained emergency luminaires with central test facility' },
-    ],
-  },
-  {
-    id: 'GRP5C',
-    group: 'GRP 5C — LOW CARBON & RENEWABLES',
-    items: [
-      { code: '5.11', label: 'Solar PV', desc: 'Panels, inverters, racking and monitoring — state kWp capacity in project size field' },
-      { code: '5.12', label: 'Battery storage (BESS)', desc: 'Battery energy storage system — state kWh capacity in project size field' },
-      { code: '5.13', label: 'Grid connection or DNO upgrade', desc: 'New supply, reinforcement, protection relays and metering' },
-      { code: '5.14', label: 'BEMS', desc: 'Building energy management system, controls, remote monitoring and sub-metering' },
-      { code: '5.15', label: 'EV charging points', desc: 'Charge points and cabling — state number required in project size field' },
-    ],
-  },
-  {
-    id: 'GRP5D',
-    group: 'GRP 5D — COMMUNICATIONS, SECURITY & TRANSPORT',
-    items: [
-      { code: '5.16', label: 'IT and data infrastructure', desc: 'Cat6A cabling, patch panels, containment and comms room' },
-      { code: '5.18', label: 'Access control, CCTV and security', desc: 'Door access, cameras, intruder detection and PA system' },
-      { code: '5.19', label: 'Lift or platform lift', desc: 'State number of installations in project size field' },
-    ],
-  },
-  {
-    id: 'GRP6',
-    group: 'GRP 6 — SPECIALIST STRUCTURES',
-    note: 'Office, industrial and data-centre projects',
-    items: [
-      { code: '6.2', label: 'Raised access floor or mezzanine', desc: 'Structural supports, infill panels and access hatches' },
-    ],
-  },
-  {
-    id: 'GRP7',
-    group: 'GRP 7 — WORK TO EXISTING BUILDINGS',
-    note: 'Refurbishment and extension only',
-    items: [
-      { code: '7.1', label: 'Structural repairs', desc: 'Crack stitching, bearing repairs, beam or column strengthening' },
-      { code: '7.2', label: 'Fabric and envelope repairs', desc: 'Repointing, render, weathertight works, overcladding patch' },
-      { code: '7.3', label: 'Damp proof course and damp remediation', desc: 'Chemical injection, tanking or membrane systems' },
-      { code: '7.4', label: 'M&E overhaul', desc: 'Like-for-like replacement of end-of-life plant and distribution (not new installation)' },
-      { code: '7.5', label: 'Making good after structural works', desc: 'Patch plaster, redecoration, fire stopping' },
-    ],
-  },
-  {
-    id: 'GRP8',
-    group: 'GRP 8 — EXTERNAL WORKS',
-    note: 'Always consider — primary scope for External Works projects',
-    items: [
-      { code: '8.1', label: 'Site preparation and clearance', desc: 'Strip topsoil, temporary fencing and hoarding' },
-      { code: '8.2', label: 'Roads, paths and hard paving', desc: 'Macadam, block paving, edging and kerbs' },
-      { code: '8.3', label: 'Car parking', desc: 'Surfacing, line marking, disabled bays — state number of spaces in project size field' },
-      { code: '8.4', label: 'Drainage', desc: 'Surface water, foul drainage and sewer connections' },
-      { code: '8.6', label: 'External utility services', desc: 'Gas, water and electric diversions or new connections' },
-      { code: '8.7', label: 'Soft landscaping', desc: 'Planting, seeding, topsoil and planters' },
-      { code: '8.8', label: 'Boundary enclosures', desc: 'Security fencing, gates, walls and bollards' },
-      { code: '8.9', label: 'External lighting', desc: 'Site-wide column or wall-mounted lighting' },
-    ],
-  },
-]
+// ─── Section 2 scope picker config ───────────────────────────────────────────
+// The scope items themselves are workbook-driven (fetched from /api/scope-items,
+// sourced from the NRM1 v4.5 "Master Cost Table"). Only the coarse project-type →
+// NRM1-group visibility and the curated M&E sub-selectors live in code.
 
-// Items that need a quantity sub-prompt when ticked — keyed by NRM1 code
-const QUANTITY_ITEMS = {
-  '4.2':  { field: 'q2_2_bathrooms',   label: 'How many bathroom / sanitary fit-out suites?', unit: 'Nr', placeholder: 'e.g. 4' },
-  '4.3':  { field: 'q2_2_kitchens',    label: 'How many kitchens or serveries?', unit: 'Nr', placeholder: 'e.g. 1' },
-  '5.11': { field: 'q1_5_pvKwp',       label: 'Solar PV capacity (kWp)', unit: 'kWp', placeholder: 'e.g. 50' },
-  '5.12': { field: 'q1_5_battKwh',     label: 'Battery storage capacity (kWh)', unit: 'kWh', placeholder: 'e.g. 100' },
-  '5.15': { field: 'q1_5_evNr',        label: 'Number of EV charging points', unit: 'Nr', placeholder: 'e.g. 10' },
-  '5.19': { field: 'q1_5_liftNr',      label: 'Number of lifts or platform lifts', unit: 'Nr', placeholder: 'e.g. 1' },
-  '8.3':  { field: 'q1_5_carParksNr',  label: 'Number of car parking spaces', unit: 'Nr', placeholder: 'e.g. 20' },
-  '8.9':  { field: 'q1_5_extLightNr',  label: 'Number of external lighting columns / bollards', unit: 'Nr', placeholder: 'e.g. 10' },
-}
-
-// Which group IDs are visible per Q1.2 project type
+// Which NRM1 groups (0–8) are offered per Q1.2 project type.
 const VISIBLE_GROUPS = {
-  'New Build':        ['GRP0', 'GRP1', 'GRP2', 'GRP3', 'GRP4', 'GRP5A', 'GRP5B', 'GRP5C', 'GRP5D', 'GRP6', 'GRP8'],
-  'Refurbishment':    ['GRP0', 'GRP2', 'GRP3', 'GRP4', 'GRP5A', 'GRP5B', 'GRP5C', 'GRP5D', 'GRP7', 'GRP8'],
-  'Fit-out':          ['GRP3', 'GRP4', 'GRP5A', 'GRP5B', 'GRP5C', 'GRP5D'],
-  'Extension':        ['GRP0', 'GRP1', 'GRP2', 'GRP3', 'GRP4', 'GRP5A', 'GRP5B', 'GRP5C', 'GRP5D', 'GRP6', 'GRP7', 'GRP8'],
-  'External Works':   ['GRP0', 'GRP8'],
-  'Renewable Energy': ['GRP5C', 'GRP8'],
-  'Demolition':       ['GRP0'],
-  'Mixed':            ['GRP0', 'GRP1', 'GRP2', 'GRP3', 'GRP4', 'GRP5A', 'GRP5B', 'GRP5C', 'GRP5D', 'GRP6', 'GRP7', 'GRP8'],
+  'New Build':        [0, 1, 2, 3, 4, 5, 6, 8],
+  'Refurbishment':    [0, 2, 3, 4, 5, 7, 8],
+  'Fit-out':          [3, 4, 5],
+  'Extension':        [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  'External Works':   [0, 8],
+  'Renewable Energy': [5, 8],
+  'Demolition':       [0],
+  'Mixed':            [0, 1, 2, 3, 4, 5, 6, 7, 8],
 }
 
-// Minimum Q2.3 intervention tier (1–4) required to select each item.
-// Only applied when Q2.3 is shown (isRefurb projects). Non-refurb projects ignore this.
-const MIN_LEVEL = {
-  '0.1': 1, '0.2': 1, '0.3': 1,
-  '1.1-1.3': 1, '1.4': 1,
-  '2.1-2.2': 3, '2.3': 2, '2.5': 2, '2.6': 2, '2.7': 3, '2.9': 2,
-  '3.1': 1, '3.2': 1, '3.3': 1, '3.4': 1, '3.5': 1,
-  '4.1': 1, '4.2': 1, '4.3': 1, '4.4': 1,
-  '5.1b': 2, '5.1': 3, '5.2': 3, '5.2L': 3, '5.3': 3, '5.4': 3, '5.5': 3, '5.6': 3,
-  '5.7': 3, '5.7a': 3, '5.8a': 3, '5.8b': 2, '5.8c': 2, '5.9a': 3, '5.9b': 3,
-  '5.11': 1, '5.12': 1, '5.13': 1, '5.14': 1, '5.15': 1,
-  '5.16': 2, '5.18': 2, '5.19': 3,
-  '6.2': 3,
-  '7.1': 1, '7.2': 1, '7.3': 1, '7.4': 1, '7.5': 1,
-  '8.1': 1, '8.2': 1, '8.3': 1, '8.4': 1, '8.6': 1, '8.7': 1, '8.8': 1, '8.9': 1,
+// Curated M&E codes handled by special sub-selectors rather than plain checkboxes.
+const HEATING_CODES = ['5.2', '5.2L', '5.5']   // 5.2/5.2L = type radio; 5.5 (gas) auto-added with 5.2
+const WIRING_MUTEX = ['5.8', '5.8a', '5.8b']    // pick one; 5.8 (full) = 5.8a + 5.8b
+const PLUMBING_MUTEX = ['5.1', '5.1b']          // 5.1 (full) supersedes 5.1b (2nd fix)
+// Rows folded into a curated control above — not rendered as standalone checkboxes.
+const FOLDED_CODES = new Set(['5.2L', '5.5', '5.8'])
+
+// An item needs a quantity input (rather than a lump sum of 1) per its pricing type.
+function itemNeedsQty(item) {
+  if (!item) return false
+  const pt = item.pricingType
+  return pt === 'per_nr' || pt === 'per_kwp' || pt === 'per_kwh' ||
+    (pt === 'per_item' && /^(number of|per )/i.test(item.qtyCapture || ''))
 }
 
 const LEVEL_TIER = {
@@ -445,6 +295,8 @@ export default function QuestionnairePage() {
   const [loadingMsg, setLoadingMsg] = useState(0)
   const [error, setError] = useState('')
   const [validationErrors, setValidationErrors] = useState({})
+  // Scope catalogue from the NRM1 v4.5 workbook ({ groups: [{ group, label, items }] })
+  const [scopeData, setScopeData] = useState(null)
 
   // Restore draft
   useEffect(() => {
@@ -452,6 +304,16 @@ export default function QuestionnairePage() {
       const saved = localStorage.getItem(STORAGE_KEY)
       if (saved) setAnswers(JSON.parse(saved))
     } catch {}
+  }, [])
+
+  // Fetch the workbook-driven scope item catalogue once.
+  useEffect(() => {
+    let alive = true
+    fetch('/api/scope-items')
+      .then(r => r.json())
+      .then(d => { if (alive && Array.isArray(d.groups)) setScopeData(d) })
+      .catch(() => {})
+    return () => { alive = false }
   }, [])
 
   // Auto-save draft
@@ -471,43 +333,40 @@ export default function QuestionnairePage() {
   const set = (field, val) => setAnswers(prev => ({ ...prev, [field]: val }))
   const isRefurb = ['Refurbishment', 'Fit-out', 'Extension'].includes(answers.q1_2_projectType)
 
-  // Clear scope items that belong to groups hidden by the new Q1.2 selection
-  useEffect(() => {
-    const visible = VISIBLE_GROUPS[answers.q1_2_projectType]
-    if (!visible) return
-    const allCodes = new Set(
-      SCOPE_GROUPS.filter(g => visible.includes(g.id))
-        .flatMap(g => g.items.filter(i => !i.isHeatingGroup).map(i => i.code))
-    )
-    if (visible.includes('GRP5A')) { allCodes.add('5.2'); allCodes.add('5.2L'); allCodes.add('5.5') }
-    setAnswers(prev => {
-      const cleaned = (prev.q2_2_scopeItems || []).filter(c => allCodes.has(c))
-      const heatingExtra = visible.includes('GRP5A') ? {} : { q2_2_heatingGroup: false, q2_2_heatingType: '' }
-      if (cleaned.length === (prev.q2_2_scopeItems || []).length && !Object.keys(heatingExtra).length) return prev
-      return { ...prev, q2_2_scopeItems: cleaned, ...heatingExtra }
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answers.q1_2_projectType])
+  // Flat { code → item } lookup over the fetched catalogue.
+  const itemByCode = useMemo(() => {
+    const m = {}
+    for (const grp of scopeData?.groups || []) for (const it of grp.items) m[it.code] = it
+    return m
+  }, [scopeData])
 
-  // Clear scope items (and wiring) below the new Q2.3 intervention tier
   const WIRING_MIN_TIER = { '5.8': 3, '5.8a': 3, '5.8b': 2, '5.8c': 2 }
+  const currentTier = isRefurb ? (LEVEL_TIER[answers.q2_3_interventionLevel] || 4) : 4
+
+  // Drop selected scope codes no longer valid for the current project type,
+  // building use or intervention tier (runs as any of those answers change).
   useEffect(() => {
-    const tier = LEVEL_TIER[answers.q2_3_interventionLevel]
-    if (!tier) return
-    const heatingDisabled = tier < 3
+    if (!scopeData) return
+    const visibleGroups = VISIBLE_GROUPS[answers.q1_2_projectType]
+    const bu = answers.q1_3_buildingUse || ''
     setAnswers(prev => {
-      const cleaned = (prev.q2_2_scopeItems || []).filter(c => (MIN_LEVEL[c] || 1) <= tier)
-      const heatingExtra = heatingDisabled ? { q2_2_heatingGroup: false, q2_2_heatingType: '' } : {}
-      const wiringTier  = WIRING_MIN_TIER[prev.q2_2_wiring] || 0
-      const newWiring   = wiringTier <= tier ? prev.q2_2_wiring : 'none'
-      if (cleaned.length === (prev.q2_2_scopeItems || []).length && !Object.keys(heatingExtra).length && newWiring === prev.q2_2_wiring) return prev
-      return { ...prev, q2_2_scopeItems: cleaned, q2_2_wiring: newWiring, ...heatingExtra }
+      const prevItems = prev.q2_2_scopeItems || []
+      const kept = prevItems.filter(code => {
+        const it = itemByCode[code]
+        if (!it) return false
+        if (visibleGroups && !visibleGroups.includes(it.group)) return false
+        if (!matchesBuildingUse(it.buildingUse, bu)) return false
+        if (isRefurb && (it.minLvl || 1) > currentTier) return false
+        return true
+      })
+      const wiringTier = WIRING_MIN_TIER[prev.q2_2_wiring] || 0
+      const newWiring = (prev.q2_2_wiring && prev.q2_2_wiring !== 'none' && wiringTier <= currentTier)
+        ? prev.q2_2_wiring : 'none'
+      if (kept.length === prevItems.length && newWiring === (prev.q2_2_wiring || 'none')) return prev
+      return { ...prev, q2_2_scopeItems: kept, q2_2_wiring: newWiring }
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answers.q2_3_interventionLevel])
-
-  const currentTier = isRefurb ? (LEVEL_TIER[answers.q2_3_interventionLevel] || 4) : 4
-  const visibleGroupIds = VISIBLE_GROUPS[answers.q1_2_projectType] || SCOPE_GROUPS.map(g => g.id)
+  }, [answers.q1_2_projectType, answers.q1_3_buildingUse, answers.q2_3_interventionLevel, scopeData])
 
   // Validate current section
   function validateSection(sec) {
@@ -726,24 +585,20 @@ export default function QuestionnairePage() {
               <HelpText>Tick every element that is in scope. Use Other / Specialist below for anything not listed.</HelpText>
               {(() => {
                 const scopeArr = Array.isArray(answers.q2_2_scopeItems) ? answers.q2_2_scopeItems : []
+                const quantities = answers.q2_2_quantities || {}
+                const setQty = (code, val) => set('q2_2_quantities', { ...(answers.q2_2_quantities || {}), [code]: val })
                 const toggleScope = code => {
                   set('q2_2_scopeItems', scopeArr.includes(code) ? scopeArr.filter(v => v !== code) : [...scopeArr, code])
                 }
-                const heatingSelected = !!answers.q2_2_heatingGroup || scopeArr.includes('5.2') || scopeArr.includes('5.2L')
-                const heatingType = answers.q2_2_heatingType || ''
+                // Heating: 5.2 (new/upgraded, +5.5 gas) vs 5.2L (like-for-like). One only.
+                const heatingSelected = scopeArr.includes('5.2') || scopeArr.includes('5.2L')
+                const heatingType = scopeArr.includes('5.2') ? '5.2' : scopeArr.includes('5.2L') ? '5.2L' : ''
+                const clearHeating = arr => arr.filter(v => !HEATING_CODES.includes(v))
                 const toggleHeating = () => {
-                  if (heatingSelected) {
-                    set('q2_2_heatingGroup', false)
-                    set('q2_2_heatingType', '')
-                    set('q2_2_scopeItems', scopeArr.filter(v => !['5.2', '5.2L', '5.5'].includes(v)))
-                  } else {
-                    set('q2_2_heatingGroup', true)
-                  }
+                  set('q2_2_scopeItems', heatingSelected ? clearHeating(scopeArr) : [...clearHeating(scopeArr), '5.2', '5.5'])
                 }
                 const selectHeatingType = (type) => {
-                  set('q2_2_heatingType', type)
-                  set('q2_2_heatingGroup', true)
-                  const cleaned = scopeArr.filter(v => !['5.2', '5.2L', '5.5'].includes(v))
+                  const cleaned = clearHeating(scopeArr)
                   set('q2_2_scopeItems', type === '5.2' ? [...cleaned, '5.2', '5.5'] : [...cleaned, '5.2L'])
                 }
                 // Wiring checkboxes: 5.8a and 5.8b are independent; if both ticked = full rewire (5.8)
@@ -753,9 +608,8 @@ export default function QuestionnairePage() {
                     : [...scopeArr, code]
                   const has8a = newScope.includes('5.8a')
                   const has8b = newScope.includes('5.8b')
-                  const newWiring = (has8a && has8b) ? '5.8' : has8a ? '5.8a' : has8b ? '5.8b' : 'none'
                   set('q2_2_scopeItems', newScope)
-                  set('q2_2_wiring', newWiring)
+                  set('q2_2_wiring', (has8a && has8b) ? '5.8' : has8a ? '5.8a' : has8b ? '5.8b' : 'none')
                 }
                 // Plumbing checkboxes: 5.1 (full) and 5.1b (2nd fix only) are mutually exclusive
                 const togglePlumbing = (code) => {
@@ -765,6 +619,7 @@ export default function QuestionnairePage() {
                     : [...scopeArr.filter(v => v !== other), code]
                   set('q2_2_scopeItems', newScope)
                 }
+                const tierName = mlvl => Object.entries(LEVEL_TIER).find(([, v]) => v === mlvl)?.[0]
                 // Inline styles (no external CSS needed)
                 const S = {
                   grpBlock: { marginBottom: 16 },
@@ -779,27 +634,41 @@ export default function QuestionnairePage() {
                   subPrompt: { background: '#f5f7fa', borderLeft: '3px solid #2e75b6', padding: '8px 12px', margin: '3px 0 3px 25px', borderRadius: '0 4px 4px 0' },
                   subLabel: { fontSize: 11, color: '#555', display: 'block', marginBottom: 4 },
                   subInput: { width: 70, fontSize: 14, padding: '3px 6px', border: '1px solid #ccc', borderRadius: 4 },
-                  subgroup: { borderLeft: '3px solid #2e75b6', padding: '6px 12px', margin: '4px 0 4px 16px', background: '#fafbfc', borderRadius: '0 4px 4px 0' },
-                  subgroupLabel: { fontWeight: 600, fontSize: 12, color: '#444', display: 'block', marginBottom: 6 },
                   radioRow: { display: 'flex', alignItems: 'flex-start', gap: 8, padding: '3px 0', cursor: 'pointer' },
                   radioCheck: { marginTop: 2, flexShrink: 0, accentColor: '#1a4fa8', width: 14, height: 14 },
                   radioLabel: { fontWeight: 600, fontSize: 12, color: '#1a1a2e', lineHeight: 1.3 },
                   radioDesc: { fontWeight: 400, fontSize: 11, color: '#666', lineHeight: 1.4 },
+                  reqNote: { fontSize: 10, color: '#B06000', fontStyle: 'italic', fontWeight: 500 },
                 }
-                const displayedGroups = SCOPE_GROUPS.filter(g => visibleGroupIds.includes(g.id))
+                if (!scopeData) return <p style={{ color: '#888', fontSize: 13, padding: '8px 0' }}>Loading scope items…</p>
+                if (!answers.q1_2_projectType) return <p style={{ color: '#888', fontSize: 13, padding: '8px 0' }}>Select a project type (Q1.2) above to see the relevant scope items.</p>
+                const visibleGroups = VISIBLE_GROUPS[answers.q1_2_projectType] || scopeData.groups.map(g => g.group)
+                const bu = answers.q1_3_buildingUse || ''
+                const displayedGroups = scopeData.groups
+                  .filter(g => visibleGroups.includes(g.group))
+                  .map(g => ({ ...g, items: g.items.filter(it => matchesBuildingUse(it.buildingUse, bu) && !FOLDED_CODES.has(it.code)) }))
+                  .filter(g => g.items.length > 0)
+                if (displayedGroups.length === 0) return <p style={{ color: '#888', fontSize: 13, padding: '8px 0' }}>No scope items match this project type and building use yet.</p>
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
                     {displayedGroups.map(grp => (
-                      <div key={grp.id} style={S.grpBlock}>
+                      <div key={grp.group} style={S.grpBlock}>
                         <div style={S.grpHeader}>
-                          <span style={S.grpLabel}>{grp.group}</span>
-                          {grp.note && <span style={S.grpNote}>{grp.note}</span>}
+                          <span style={S.grpLabel}>{grp.label}</span>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                           {grp.items.map(item => {
-                            // ── HEATING sentinel ──────────────────────────────
-                            if (item.isHeatingGroup) {
-                              const heatingEnabled = currentTier >= 3
+                            const minLvl = item.minLvl || 1
+                            const isEnabled = !isRefurb || currentTier >= minLvl
+                            const disStyle = isEnabled ? {} : { opacity: 0.4, cursor: 'not-allowed' }
+                            // ── HEATING block (rendered when we reach 5.2; 5.2L/5.5 are folded out) ──
+                            if (item.code === '5.2') {
+                              const min2 = itemByCode['5.2']?.minLvl || 3
+                              const min2L = itemByCode['5.2L']?.minLvl || 2
+                              const lowestMin = Math.min(min2, min2L)
+                              const heatingEnabled = !isRefurb || currentTier >= lowestMin
+                              const can2 = !isRefurb || currentTier >= min2
+                              const can2L = !isRefurb || currentTier >= min2L
                               const hDisStyle = heatingEnabled ? {} : { opacity: 0.4, cursor: 'not-allowed' }
                               return (
                                 <div key="__heating__">
@@ -809,22 +678,23 @@ export default function QuestionnairePage() {
                                     <div style={S.itemText}>
                                       <span style={S.itemLabel}>Heating system</span>
                                       <span style={S.itemDesc}>New, upgraded or replaced heating — LTHW, heat pump, underfloor heating or gas</span>
-                                      {!heatingEnabled && <span style={{ fontSize: 10, color: '#B06000', fontStyle: 'italic', fontWeight: 500 }}>Requires: Full systems replacement</span>}
+                                      {!heatingEnabled && <span style={S.reqNote}>Requires: {tierName(lowestMin)}</span>}
                                     </div>
                                   </label>
                                   {heatingSelected && heatingEnabled && (
                                     <div style={S.subPrompt}>
                                       <span style={S.subLabel}>Type of heating works</span>
                                       {[
-                                        { value: '5.2',  label: 'New or upgraded system', desc: 'Full design and installation — LTHW, heat pump or underfloor heating' },
-                                        { value: '5.2L', label: 'Like-for-like boiler replacement', desc: 'Swap end-of-life unit only — no new pipework or system redesign' },
+                                        { value: '5.2',  label: 'New or upgraded system', desc: 'Full design and installation — LTHW, heat pump or underfloor heating', can: can2, min: min2 },
+                                        { value: '5.2L', label: 'Like-for-like boiler replacement', desc: 'Swap end-of-life unit only — no new pipework or system redesign', can: can2L, min: min2L },
                                       ].map(opt => (
-                                        <label key={opt.value} style={S.radioRow}>
-                                          <input type="radio" value={opt.value} checked={heatingType === opt.value}
-                                            onChange={() => selectHeatingType(opt.value)} style={S.radioCheck} />
+                                        <label key={opt.value} style={{ ...S.radioRow, ...(opt.can ? {} : { opacity: 0.4, cursor: 'not-allowed' }) }}>
+                                          <input type="radio" value={opt.value} checked={heatingType === opt.value} disabled={!opt.can}
+                                            onChange={() => { if (opt.can) selectHeatingType(opt.value) }} style={S.radioCheck} />
                                           <div style={S.itemText}>
                                             <span style={S.radioLabel}>{opt.label}</span>
                                             <span style={S.radioDesc}>{opt.desc}</span>
+                                            {!opt.can && <span style={S.reqNote}>Requires: {tierName(opt.min)}</span>}
                                           </div>
                                         </label>
                                       ))}
@@ -835,52 +705,35 @@ export default function QuestionnairePage() {
                               )
                             }
                             // ── Regular checkbox item ──────────────────────────
+                            const isWiring = WIRING_MUTEX.includes(item.code)     // 5.8a / 5.8b (5.8 folded out)
+                            const isPlumbing = PLUMBING_MUTEX.includes(item.code) // 5.1 / 5.1b
                             const isTicked = scopeArr.includes(item.code)
-                            const qItem = QUANTITY_ITEMS[item.code]
-                            const itemMinLevel = MIN_LEVEL[item.code] || 1
-                            const isEnabled = currentTier >= itemMinLevel
-                            const disStyle = isEnabled ? {} : { opacity: 0.4, cursor: 'not-allowed' }
-                            const levelName = Object.entries(LEVEL_TIER).find(([, v]) => v === itemMinLevel)?.[0]
+                            const showQty = isTicked && isEnabled && itemNeedsQty(item)
                             return (
                               <div key={item.code}>
                                 <label style={{ ...S.itemRow, ...disStyle }}>
                                   <input type="checkbox" checked={isTicked && isEnabled} disabled={!isEnabled}
                                     onChange={() => {
                                       if (!isEnabled) return
-                                      if (item.isWiringItem)         toggleWiring(item.code)
-                                      else if (item.isPlumbingItem)  togglePlumbing(item.code)
-                                      else                           toggleScope(item.code)
+                                      if (isWiring)        toggleWiring(item.code)
+                                      else if (isPlumbing) togglePlumbing(item.code)
+                                      else                 toggleScope(item.code)
                                     }}
                                     style={S.itemCheck} />
                                   <div style={S.itemText}>
-                                    <span style={S.itemLabel}>{item.label}</span>
-                                    {item.desc && <span style={S.itemDesc}>{item.desc}</span>}
-                                    {!isEnabled && <span style={{ fontSize: 10, color: '#B06000', fontStyle: 'italic', fontWeight: 500 }}>Requires: {levelName}</span>}
+                                    <span style={S.itemLabel}>{item.description}</span>
+                                    {!isEnabled && <span style={S.reqNote}>Requires: {tierName(minLvl)}</span>}
                                   </div>
                                 </label>
-                                {isTicked && isEnabled && item.code === '4.2' && (
+                                {showQty && (
                                   <div style={S.subPrompt}>
-                                    <span style={S.subLabel}>Number of bathrooms / wet rooms</span>
-                                    <input type="number" min={1} max={50} value={answers.q2_2_bathrooms || 1}
-                                      onChange={e => set('q2_2_bathrooms', e.target.value)} style={S.subInput} />
-                                  </div>
-                                )}
-                                {isTicked && isEnabled && item.code === '4.3' && (
-                                  <div style={S.subPrompt}>
-                                    <span style={S.subLabel}>Number of kitchens or kitchenettes</span>
-                                    <input type="number" min={1} max={20} value={answers.q2_2_kitchens || 1}
-                                      onChange={e => set('q2_2_kitchens', e.target.value)} style={S.subInput} />
-                                  </div>
-                                )}
-                                {isTicked && isEnabled && qItem && item.code !== '4.2' && item.code !== '4.3' && (
-                                  <div style={S.subPrompt}>
-                                    <span style={S.subLabel}>{qItem.label}</span>
+                                    <span style={S.subLabel}>{item.qtyCapture || 'Quantity'}</span>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                      <input type="number" value={answers[qItem.field] || ''}
-                                        onChange={e => set(qItem.field, e.target.value)}
-                                        placeholder={qItem.placeholder} min={0}
-                                        style={{ ...S.subInput, width: 80 }} />
-                                      <span style={{ fontSize: 12, color: '#555' }}>{qItem.unit}</span>
+                                      <input type="number" value={quantities[item.code] ?? ''}
+                                        onChange={e => setQty(item.code, e.target.value)}
+                                        placeholder="e.g. 4" min={0}
+                                        style={{ ...S.subInput, width: 90 }} />
+                                      <span style={{ fontSize: 12, color: '#555' }}>{item.unit}</span>
                                     </div>
                                   </div>
                                 )}
