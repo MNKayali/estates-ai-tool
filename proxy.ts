@@ -10,11 +10,12 @@
  * Protected API    → return 401 JSON on failure
  */
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyAccessCode } from '@/lib/cookieAuth'
 
 const PROTECTED_PAGES = ['/questionnaire', '/report']
 const PROTECTED_API   = ['/api/generate-report', '/api/reports', '/api/report-pdf']
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   const isProtectedPage = PROTECTED_PAGES.some(p => pathname.startsWith(p))
@@ -29,7 +30,7 @@ export function proxy(request: NextRequest) {
 
   const cookieVal = request.cookies.get('estate_access')?.value
 
-  if (cookieVal === validCode) return NextResponse.next()
+  if (await verifyAccessCode(cookieVal, validCode)) return NextResponse.next()
 
   // Blocked — return 401 for API, redirect to /access for pages
   if (isProtectedApi) {

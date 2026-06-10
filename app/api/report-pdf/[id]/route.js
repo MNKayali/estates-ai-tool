@@ -15,6 +15,7 @@
  * SECURITY: never reference AI_API_KEY here.
  */
 import { getReport } from '@/lib/kv'
+import { signAccessCode } from '@/lib/cookieAuth'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -36,12 +37,19 @@ async function launchBrowser() {
 }
 
 function getOrigin(request) {
-  const h = request.headers
-  const proto = h.get('x-forwarded-proto') || (process.env.VERCEL ? 'https' : 'http')
-  const host = h.get('x-forwarded-host') || h.get('host')
-  if (host) return `${proto}://${host}`
+  // Prefer a server-controlled origin. This origin is handed the access-code
+  // cookie below, so it must NOT be derived from client-supplied Host /
+  // X-Forwarded-Host headers (which a caller can spoof to exfiltrate the cookie).
+  if (process.env.REPORT_ORIGIN) return process.env.REPORT_ORIGIN
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
-  return 'http://localhost:3000'
+  // Local dev only — no platform origin available.
+  if (!process.env.VERCEL) return 'http://localhost:3000'
+  // Last-resort fallback on an unknown host: use the request host but without the
+  // cookie spoofing risk being silent — log it for visibility.
+  const host = request.headers.get('host')
+  console.warn('[report-pdf] No server origin env set; falling back to request host:', host)
+  return host ? `https://${host}` : 'http://localhost:3000'
 }
 
 const FOOTER_TEMPLATE = `
@@ -75,7 +83,7 @@ export async function GET(request, { params }) {
     if (process.env.ACCESS_CODE) {
       await browser.setCookie({
         name: 'estate_access',
-        value: process.env.ACCESS_CODE,
+        value: await signAccessCode(process.env.ACCESS_CODE),
         url: origin,
       })
     }

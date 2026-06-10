@@ -41,3 +41,8 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# Stale workbooks / templates — runtime fetches from *_FILE_URL env vars
+NRM1_Cost_Estimate_Tool_v*.xlsx
+MASTER_COORDINATION_MAP_v*.md
+Estates_AI_Report_Template.docx

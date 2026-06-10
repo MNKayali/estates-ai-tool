@@ -4,6 +4,7 @@
  * This route is intentionally public (it is how you get authenticated).
  */
 import { NextResponse } from 'next/server'
+import { signAccessCode } from '@/lib/cookieAuth'
 
 export async function POST(request) {
   try {
@@ -26,8 +27,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid access code' }, { status: 401 })
     }
 
+    const token = await signAccessCode(validCode)
     const res = NextResponse.json({ success: true })
-    res.cookies.set('estate_access', validCode, {
+    res.cookies.set('estate_access', token, {
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

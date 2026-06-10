@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 > has breaking changes vs. older versions. Read the relevant guide in
 > `node_modules/next/dist/docs/` before writing framework code.
 
-> **June 2026 re-alignment:** the two workbooks are now **NRM1 v3.7** and **Programme v4.3**,
+> **June 2026 re-alignment:** the two workbooks are now **NRM1 v4.5** and **Programme v4.3**,
 > and the questionnaire is **v7**. The calculators were rebuilt to match them per
 > `/docs/CLAUDE_CODE_REBUILD_BRIEF.md`. If anything here disagrees with that brief, the brief wins.
 
@@ -44,12 +44,12 @@ Cost runs **twice** (once with `programmeWeeks = 0`, then after the programme is
 
 Both `fetch` an `.xlsx` from a URL env var at request time, parse with SheetJS, cache in-module 10 min.
 
-### costCalculator.js ← `RATES_FILE_URL` (NRM1 v3.7)
-Reads sheets by exact name: `2. Rates Reference Table`, `3. Percentage Rules`, `4. Project Type Map`, `5. Spec Level Map`, `6. BCIS Location Factors`, `7. Scope Item Map`.
-- **Rate column** from project type (Q1.2) + spec level (Q2.4).
-- **Q2.4 band multiplier** and tier names are read from **Tab 5** (do not hard-code the tier names).
-- **Pricing is per element by its Unit in Tab 2**: `m²`→GIFA×rate×BCIS×band; `Nr`→qty×rate×BCIS; `Item`→1×rate×BCIS (or `approxValue`); `specialist_m2`→`additionalScope.area`×rate×BCIS (no band); `kWp`/`kWh`→qty×rate (no BCIS, no band). Tab 7 maps each Q2.2 label to element code(s); `per_element` rows price each listed element by its own unit.
-- Percentage additions A–H evaluated from Tab 3 rule rows. Contingency (H) fixed 5%. **No percentages or risk numbers in code.**
+### costCalculator.js ← `RATES_FILE_URL` (NRM1 v4.5)
+Reads sheets by exact name: `2. Master Cost Table`, `3. Percentage Rules`, `5. Spec Level Map`, `6. BCIS Location Factors`, `8. Benchmark Check` (consumed by `senseCheck.js`). The legacy `4. Project Type Map` / `7. Scope Item Map` sheets are **not** read in v4.5.
+- **In v4.5 every Master Cost Table row is its own selectable code** (e.g. `4.2-RES`, `5.8a`). The ticked Q2.2 scope items ARE the element codes — there is no label→code map. Each row carries its own per-project-type rate columns (`Rfb Basic/Std/High`, `NB Std/High`, `Ext Std/High`, `Ext Works`); `getRateForElement()` picks the column from Q1.2 project type + Q2.4 spec level.
+- **Q2.3 band multiplier** is read from **Tab 5** (`bandFactors`); the design multiplier in Tab 5 is unused by cost (it lives in the Programme Modifiers sheet).
+- **Pricing is driven by each row's `Pricing Type` (col 6), not the Unit string**: `gifa_rate`→GIFA×rate×BCIS×band; `footprint_rate`→(GIFA/storeys)×rate×BCIS×band; `upperfloors_rate`→(GIFA×(storeys−1)/storeys)×rate×BCIS×band; `per_nr`→qty×rate×BCIS; `per_item`→1 (or captured count when `Quantity to capture` is a count)×rate×BCIS; `per_kwp`/`per_kwh`→qty×rate (no BCIS, no band). An unknown/blank Pricing Type is skipped (qty 0) and logged. Count-driven rows selected with no quantity are returned in `excludedNoQuantity` (surfaced in the prose so they are not lost).
+- Percentage additions A–H evaluated from Tab 3 rule rows. Contingency (H) fixed 5%. Inflation (F) tender vs construction bands are evaluated against component-specific spans (weeks-to-tender, construction-only weeks) — passed as `constructionWeeks` to `calculateCost`, not stashed on `answers`. **No percentages or risk numbers in code** (the design-stage fee ladder and risk-level RAG bands are explicit fallbacks only).
 
 ### programmeCalculator.js ← `PROGRAMME_FILE_URL` (Programme v4.3)
 **One unified 6-band size scheme (S1–S6)** for design *and* construction:
@@ -77,12 +77,13 @@ Changing a rate or duration means **editing the workbook, not the code**. Design
 | Var | Purpose | If unset |
 |---|---|---|
 | `AI_API_KEY` | Anthropic key for the prose call | step 3 fails |
-| `RATES_FILE_URL` | NRM1 v3.7 rates workbook | cost calc throws |
+| `RATES_FILE_URL` | NRM1 v4.5 rates workbook | cost calc throws |
 | `PROGRAMME_FILE_URL` | Programme v4.3 workbook | programme calc throws |
 | `ACCESS_CODE` | Gate code | all routes open (dev) |
+| `COOKIE_SECRET` | HMAC key for access cookie (`lib/cookieAuth.js`) | falls back to raw-code comparison (set this in prod) |
 | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Vercel KV | persistence disabled |
 
-**Security:** `AI_API_KEY` never in committed code or output; read inside the request handler, BOM-stripped.
+**Security:** `AI_API_KEY` never in committed code or output; read inside the request handler, BOM-stripped. `COOKIE_SECRET` must be a cryptographically random string (≥ 32 chars); generate once with `openssl rand -hex 32`.
 
 ## Health check
 
