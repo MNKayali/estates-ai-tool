@@ -103,7 +103,7 @@ export async function POST(request) {
     cost = await calculateCost(answers, programme.totalWeeks)
 
     // ── Step 2c: Sense check ──────────────────────────────────────────────────
-    const senseCheck = runSenseCheck(cost, programme)
+    const senseCheck = await runSenseCheck(cost, programme, answers)
 
     // ── Step 3: Single AI call — prose only ───────────────────────────────────
     console.log('[Step 3] Calling Claude for prose...')
