@@ -176,7 +176,9 @@ ABSOLUTE RULES — failure to follow these will invalidate the report:
 6. If a conditional section (ROI, Procurement) is not applicable, return an empty string for that key.
 7. Write concisely — each prose section should be 2–4 sentences maximum unless specified otherwise.
 8. Risk register: provide 5 to 8 risks. Each risk must cite a specific questionnaire input as its trigger.
-9. DETERMINISTIC RISK SEEDS: if the prompt contains a "DETERMINISTIC RISK SEEDS" section, you MUST include every listed seed as a risk register entry. Do not omit any seed. Do not add access-constraint risks that are not seeded. You may expand the prose but must not change the Likelihood/Impact/Rating values.`
+9. DETERMINISTIC RISK SEEDS: if the prompt contains a "DETERMINISTIC RISK SEEDS" section, you MUST include every listed seed as a risk register entry. Do not omit any seed. Do not add access-constraint risks that are not seeded. You may expand the prose but must not change the Likelihood/Impact/Rating values.
+10. QUANTITIES — never invent a count. When you state how many of something there is (cubicles, WCs, rooms, fittings, luminaires, units, storeys, etc.), use only the figures given in PRICED SCOPE LINE ITEMS or PROJECT CONTEXT. If a quantity is not provided, describe the item without attaching a number. Never round, estimate, or guess a quantity.
+11. HISTORY & ASSUMPTIONS — do not invent dates, prior works, completed installations, or survey findings. Reference building history only where it is explicitly given under "Previous works and building history"; if that is "Not stated", assume no prior works. Every item in PRICED SCOPE LINE ITEMS is in scope and is being costed: never write that a scoped item is unnecessary, already completed, recently replaced, or excluded.`
 
 async function callClaudeForProse(answers, cost, programme, senseCheck) {
   const prompt = buildProsePrompt(answers, cost, programme, senseCheck)
@@ -275,6 +277,13 @@ function buildProsePrompt(answers, cost, programme, senseCheck) {
   const roiMid     = Math.round(((cost.total.low + cost.total.high) / 2) / 1000) * 1000
   const roiPayback = roiAnnual ? Math.round((roiMid / roiAnnual) * 10) / 10 : 0
 
+  // Ground-truth quantities for every priced element. The AI uses these (and only
+  // these) when it describes "how many" of anything — it must never guess a count.
+  const scopeLineBlock = (cost.lineItems || [])
+    .filter(li => li.code !== 'PS')
+    .map(li => `- ${li.description}: quantity ${li.qty} ${li.unit}`)
+    .join('\n') || '- (no priced line items)'
+
   return `Generate prose sections for a RIBA Stage 1 Feasibility Report. Return ONLY valid JSON.
 
 PROJECT CONTEXT:
@@ -284,6 +293,9 @@ Building use: ${answers.q1_3_buildingUse || 'Not stated'} | ${['New Build','Refu
 Specification level: ${cost.specLevel} | Level of intervention: ${cost.interventionLevel}
 Objective: ${answers.q2_1_objective || 'Not stated'}
 Scope items: ${(answers.q2_2_scopeItems || []).join(', ') || 'None specified'}
+
+PRICED SCOPE LINE ITEMS (the exact quantities being costed — use these and ONLY these when describing how many of anything there is; do NOT quote the rates or line totals, those live in the table):
+${scopeLineBlock}
 Specialist / additional scope notes: ${typeof answers.q2_2_additionalScope === 'object' ? (answers.q2_2_additionalScope?.text || 'None') : (answers.q2_2_additionalScope || 'None')}
 Standards and compliance requirements: ${answers.q2_5_standards || 'None stated'}
 Known issues: ${(answers.q3_1_knownIssues || []).join(', ') || 'None identified'}
@@ -348,9 +360,9 @@ Return this exact JSON structure:
     }
   ],
   "scopeAssumptions": [
-    "Assumption 1 — one sentence",
-    "Assumption 2 — one sentence",
-    "Assumption 3 — one sentence"
+    "Assumption 1 — one sentence. Ground it in the provided inputs; where you cite a quantity, use the exact figure from PRICED SCOPE LINE ITEMS.",
+    "Assumption 2 — one sentence. Do not state that any scoped item is already complete, recently replaced, or unnecessary, and do not invent dates or prior works.",
+    "Assumption 3 — one sentence."
   ],
   "costNarrative": "1 to 2 sentences. Describe the main cost drivers for this project. Do not quote any number — the numbers are in the table.",
   "roiNarrative": "${isROI ? `Write 2 sentences. Use these pre-calculated figures verbatim — do NOT recompute: project cost mid-point ${f1k(roiMid)}, annual benefit ${f(roiAnnual)}, simple payback ${roiPayback} years. State the simple payback, then identify the key financial risk.` : ''}",
