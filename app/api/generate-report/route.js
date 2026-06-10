@@ -201,7 +201,8 @@ async function callClaudeForProse(answers, cost, programme, senseCheck) {
   const prompt = buildProsePrompt(answers, cost, programme, senseCheck)
 
   // Bound the upstream call so a hung Anthropic connection cannot pin the whole
-  // request to the platform's hard timeout.
+  // request to the platform's hard timeout. Haiku completes this schema in
+  // 10–20 s; leave 50 s as a generous ceiling within Vercel Hobby's 60 s limit.
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 50_000)
   let res
@@ -214,7 +215,7 @@ async function callClaudeForProse(answers, cost, programme, senseCheck) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 6000,
         system: AI_SYSTEM_PROMPT,
         messages: [{ role: 'user', content: prompt }],
