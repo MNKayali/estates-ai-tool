@@ -469,8 +469,20 @@ export default function QuestionnairePage() {
               </SelectInput>
               {validationErrors.q1_2_projectType && <p className="mt-1 text-sm" style={{ color: '#C00000' }}>{validationErrors.q1_2_projectType}</p>}
 
+              {answers.q1_2_projectType === 'New Build' && (
+                <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+                  <Label>Q1.2a — Number of storeys</Label>
+                  <HelpText>Used to benchmark construction durations and to contextualise roof and foundation costs relative to total floor area.</HelpText>
+                  <SelectInput value={answers.q1_2_storeys || '1'} onChange={v => set('q1_2_storeys', v)}>
+                    <option value="1">1 storey</option>
+                    <option value="2">2 storeys</option>
+                    <option value="3">3 storeys</option>
+                    <option value="4">4+ storeys</option>
+                  </SelectInput>
+                </div>
+              )}
               {answers.q1_2_projectType === 'Extension' && (
-                <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
+                <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
                   <Label>Q1.2a — Number of storeys in the extension</Label>
                   <HelpText>Used to determine whether single-storey or multi-storey construction durations apply.</HelpText>
                   <SelectInput value={answers.q1_2_storeys || '1'} onChange={v => set('q1_2_storeys', v)}>
@@ -505,12 +517,14 @@ export default function QuestionnairePage() {
               )}
             </QCard>
 
-            <QCard>
-              <Label required>Q1.4 — Building age</Label>
-              <div style={{ marginTop: 4 }}>
-                <RadioGroup options={BUILDING_AGES} value={answers.q1_4_buildingAge} onChange={v => set('q1_4_buildingAge', v)} />
-              </div>
-            </QCard>
+            {answers.q1_2_projectType !== 'New Build' && (
+              <QCard>
+                <Label required>Q1.4 — Building age</Label>
+                <div style={{ marginTop: 4 }}>
+                  <RadioGroup options={BUILDING_AGES} value={answers.q1_4_buildingAge} onChange={v => set('q1_4_buildingAge', v)} />
+                </div>
+              </QCard>
+            )}
 
             <QCard>
               <Label required>Q1.5 — Approximate size (GIFA m²)</Label>
