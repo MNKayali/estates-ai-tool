@@ -15,6 +15,9 @@ import { buildReport } from '@/lib/reportBuilder'
 import { saveReport } from '@/lib/kv'
 import { runSenseCheck } from '@/lib/senseCheck'
 
+// The Claude prose call can take 20–40s; allow headroom on the serverless runtime.
+export const maxDuration = 60
+
 // Read inside handler so it picks up env vars after module init
 function getAnthropicKey() {
   return (process.env.AI_API_KEY || '').replace(/^﻿/, '')
@@ -30,6 +33,16 @@ export async function POST(request) {
     const missing = required.filter(f => !answers[f])
     if (missing.length > 0) {
       return Response.json({ error: `Missing required fields: ${missing.join(', ')}` }, { status: 400 })
+    }
+
+    // GIFA must be a positive, finite number — otherwise the calculator either
+    // silently falls back to 100 m² (non-numeric) or produces negative costs.
+    const gifa = Number(answers.q1_5_size)
+    if (!Number.isFinite(gifa) || gifa <= 0) {
+      return Response.json({
+        error: 'Q1.5 — Approximate size must be a positive number (m²).',
+        field: 'q1_5_size',
+      }, { status: 400 })
     }
 
     // ── Fix 9: Validation guards ──────────────────────────────────────────────
@@ -99,8 +112,9 @@ export async function POST(request) {
     }
 
     // ── Re-run cost with programme weeks (for inflation + prelims cap) ────────
-    answers._constructionWeeks = programme.constructionWeeks
-    cost = await calculateCost(answers, programme.totalWeeks)
+    // Construction weeks are passed explicitly (not stashed on `answers`) so the
+    // user's answer object is never mutated before it is persisted / returned.
+    cost = await calculateCost(answers, programme.totalWeeks, programme.constructionWeeks)
 
     // ── Step 2c: Sense check ──────────────────────────────────────────────────
     const senseCheck = await runSenseCheck(cost, programme, answers)
@@ -142,7 +156,10 @@ export async function POST(request) {
       ...(docxBuffer   && { docx: docxBuffer.toString('base64') }),
       ...(templateError && { templateError }),
     }
-    saveReport(reportId, kvPayload)              // fire-and-forget; errors are caught inside saveReport
+    // Await the write: on a serverless platform the function may be frozen the
+    // instant the response is returned, so an un-awaited write can be dropped —
+    // breaking shared /report/<id> links. saveReport swallows its own errors.
+    await saveReport(reportId, kvPayload)
 
     return Response.json({
       success: true,
@@ -182,27 +199,66 @@ ABSOLUTE RULES — failure to follow these will invalidate the report:
 
 async function callClaudeForProse(answers, cost, programme, senseCheck) {
   const prompt = buildProsePrompt(answers, cost, programme, senseCheck)
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': getAnthropicKey(),
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 6000,
-      system: AI_SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  })
+
+  // Bound the upstream call so a hung Anthropic connection cannot pin the whole
+  // request to the platform's hard timeout.
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 50_000)
+  let res
+  try {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': getAnthropicKey(),
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 6000,
+        system: AI_SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+      signal: controller.signal,
+    })
+  } catch (e) {
+    if (e.name === 'AbortError') throw new Error('Claude API timed out after 50s')
+    throw e
+  } finally {
+    clearTimeout(timeout)
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
     throw new Error(`Claude API ${res.status}: ${JSON.stringify(err)}`)
   }
   const data = await res.json()
   const text = (data.content?.[0]?.text || '').replace(/```json|```/g, '').trim()
-  return JSON.parse(text)
+  let parsed
+  try {
+    parsed = JSON.parse(text)
+  } catch {
+    throw new Error('Claude returned non-JSON prose — cannot build report')
+  }
+  validateProse(parsed, answers)
+  return parsed
+}
+
+// Cheap shape guard on the prose payload: confirm the keys the report builder
+// relies on are present and the deterministic risk seeds were not dropped. This
+// is a safety net on the pipeline's core guarantee, not a content critique.
+function validateProse(prose, answers) {
+  if (!prose || typeof prose !== 'object')
+    throw new Error('Claude prose payload is not an object')
+  if (typeof prose.executiveSummary !== 'string' || !prose.executiveSummary.trim())
+    throw new Error('Claude prose missing executiveSummary')
+  if (!Array.isArray(prose.riskRegister) || prose.riskRegister.length === 0)
+    throw new Error('Claude prose missing riskRegister')
+
+  // Every seeded access-constraint risk must survive into the register.
+  const seedCount = countAccessRiskSeeds(answers.q3_5_accessConstraints)
+  if (prose.riskRegister.length < seedCount) {
+    console.warn(`[validateProse] riskRegister has ${prose.riskRegister.length} entries but ${seedCount} access-constraint seeds were required — some seeds may have been dropped`)
+  }
 }
 
 // Q3.5 access constraint → deterministic risk seed
@@ -251,6 +307,14 @@ const ACCESS_RISK_SEEDS = [
   },
 ]
 
+// How many deterministic access-constraint seeds apply to these answers.
+// Shared by the prompt builder and the post-call validation guard.
+function countAccessRiskSeeds(accessConstraints) {
+  const ac = (accessConstraints || []).map(a => a.toLowerCase())
+  if (ac.some(a => a.includes('no access constraints') || a.includes('none'))) return 0
+  return ACCESS_RISK_SEEDS.filter(s => ac.some(a => a.includes(s.trigger))).length
+}
+
 function buildAccessRiskSeeds(accessConstraints) {
   const ac = (accessConstraints || []).map(a => a.toLowerCase())
   if (ac.some(a => a.includes('no access constraints') || a.includes('none'))) return ''
@@ -284,6 +348,13 @@ function buildProsePrompt(answers, cost, programme, senseCheck) {
     .map(li => `- ${li.description}: quantity ${li.qty} ${li.unit}`)
     .join('\n') || '- (no priced line items)'
 
+  // Items the user selected but which carry no quantity, so they were not costed.
+  // The AI must note these in the scope assumptions so they are not lost.
+  const excludedBlock = (cost.excludedNoQuantity || []).length
+    ? `\nSELECTED BUT NOT COSTED (no quantity was provided — state in scopeAssumptions that each was selected but excluded from the estimate pending a confirmed quantity; do NOT invent a count):\n` +
+      cost.excludedNoQuantity.map(e => `- ${e.description}`).join('\n') + '\n'
+    : ''
+
   return `Generate prose sections for a RIBA Stage 1 Feasibility Report. Return ONLY valid JSON.
 
 PROJECT CONTEXT:
@@ -296,7 +367,7 @@ Scope items: ${(answers.q2_2_scopeItems || []).join(', ') || 'None specified'}
 
 PRICED SCOPE LINE ITEMS (the exact quantities being costed — use these and ONLY these when describing how many of anything there is; do NOT quote the rates or line totals, those live in the table):
 ${scopeLineBlock}
-Specialist / additional scope notes: ${typeof answers.q2_2_additionalScope === 'object' ? (answers.q2_2_additionalScope?.text || 'None') : (answers.q2_2_additionalScope || 'None')}
+${excludedBlock}Specialist / additional scope notes: ${typeof answers.q2_2_additionalScope === 'object' ? (answers.q2_2_additionalScope?.text || 'None') : (answers.q2_2_additionalScope || 'None')}
 Standards and compliance requirements: ${answers.q2_5_standards || 'None stated'}
 Known issues: ${(answers.q3_1_knownIssues || []).join(', ') || 'None identified'}
 Previous works and building history: ${answers.q3_2_recentWorks || answers.q3_2_previousWorks || 'Not stated'}

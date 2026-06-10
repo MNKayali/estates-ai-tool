@@ -597,7 +597,7 @@ function SecHdr({ number, title, pageBreak }) {
         <span style={{ color: '#fff', fontWeight: 700, fontSize: '14px' }}>{number}</span>
       </div>
       <div style={{ flex: 1, paddingLeft: '12px', borderBottom: `3px solid ${NAVY}`, display: 'flex', alignItems: 'center', paddingBottom: '4px' }}>
-        <span style={{ fontWeight: 700, color: NAVY, fontSize: '15px' }} dangerouslySetInnerHTML={{ __html: title }} />
+        <span style={{ fontWeight: 700, color: NAVY, fontSize: '15px' }}>{title}</span>
       </div>
     </div>
   )
@@ -846,8 +846,11 @@ function GanttBar({ stages, totalWeeks, surveyWeeks }) {
 
   const sw = surveyWeeks || 0
 
-  // Exclude survey stages from the main bar — they're shown in the parallel track above
-  const mainStages = stages.filter(s => !/survey|ground investigation/i.test(s.stage))
+  // Exclude every parallel activity (surveys, planning, building control) from the
+  // main bar — they run concurrently and are excluded from the total, so stacking
+  // them here would overflow the bar past totalWeeks. Surveys are shown in the
+  // separate track above; the sequential "— wait" overrun rows are NOT parallel.
+  const mainStages = stages.filter(s => !s.parallel)
 
   // Merge consecutive same-category main stages into buckets
   const buckets = []
