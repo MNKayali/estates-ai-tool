@@ -619,11 +619,12 @@ function InfoBox({ label, value, note, noteColor }) {
 
 // ─── RAG badge ────────────────────────────────────────────────────────────────
 function Rag({ val, filled = false }) {
-  const bg      = { High: '#FEE2E2', Medium: '#FEF9C3', Low: '#DCFCE7' }
+  const bg      = { High: '#FEE2E2', Medium: '#FEF3C7', Low: '#DCFCE7' }
   const col     = { High: '#C0392B', Medium: '#92400E', Low: '#166534' }
-  const solidBg = { High: '#C0392B', Medium: '#ED7D31', Low: '#70AD47' }
-  if (filled) return <span style={{ padding: '2px 7px', borderRadius: '3px', fontSize: '11px', fontWeight: 700, color: '#fff', background: solidBg[val] || '#888' }}>{val}</span>
-  return <span style={{ padding: '2px 7px', borderRadius: '3px', fontSize: '11px', background: bg[val] || '#F3F4F6', color: col[val] || '#374151' }}>{val}</span>
+  const solidBg = { High: '#C0392B', Medium: '#D97706', Low: '#70AD47' }
+  const badgeBase = { display: 'inline-block', textAlign: 'center', whiteSpace: 'nowrap', minWidth: '54px', padding: '3px 8px', borderRadius: '3px', fontSize: '11px', fontWeight: 700 }
+  if (filled) return <span style={{ ...badgeBase, color: '#fff', background: solidBg[val] || '#888' }}>{val}</span>
+  return <span style={{ ...badgeBase, fontWeight: 600, background: bg[val] || '#F3F4F6', color: col[val] || '#374151' }}>{val}</span>
 }
 
 // ─── Scope text ───────────────────────────────────────────────────────────────
@@ -956,7 +957,7 @@ function RiskTable({ risks }) {
           <col style={{ width: '50px' }} />
           <col style={{ width: '100px' }} />
           <col />
-          <col style={{ width: '70px' }} />
+          <col style={{ width: '82px' }} />
           <col />
         </colgroup>
         <thead>
