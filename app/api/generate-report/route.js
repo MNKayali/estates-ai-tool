@@ -280,7 +280,7 @@ function buildProsePrompt(answers, cost, programme, senseCheck) {
 PROJECT CONTEXT:
 Name: ${answers.q1_0_projectName}
 Type: ${answers.q1_2_projectType} | Postcode: ${answers.q1_1_postcode} | GIFA: ${answers.q1_5_size} m²
-Building use: ${answers.q1_3_buildingUse || 'Not stated'} | ${(answers.q1_2_projectType || '').toLowerCase().includes('new build') ? `Storeys: ${answers.q1_2_storeys || '1'}` : `Age: ${answers.q1_4_buildingAge || 'Not stated'}`}
+Building use: ${answers.q1_3_buildingUse || 'Not stated'} | ${['New Build','Refurbishment','Extension'].includes(answers.q1_2_projectType) && answers.q1_2_storeys ? `Storeys: ${answers.q1_2_storeys}` : `Age: ${answers.q1_4_buildingAge || 'Not stated'}`}
 Specification level: ${cost.specLevel} | Level of intervention: ${cost.interventionLevel}
 Objective: ${answers.q2_1_objective || 'Not stated'}
 Scope items: ${(answers.q2_2_scopeItems || []).join(', ') || 'None specified'}
