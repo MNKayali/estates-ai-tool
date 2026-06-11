@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAccessCode } from '@/lib/cookieAuth'
 
 const PROTECTED_PAGES = ['/questionnaire', '/report']
-const PROTECTED_API   = ['/api/generate-report', '/api/reports', '/api/report-pdf']
+const PROTECTED_API   = ['/api/generate-report', '/api/reports', '/api/report-pdf', '/api/feedback']
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -53,5 +53,6 @@ export const config = {
     '/api/generate-report/:path*',
     '/api/reports/:path*',
     '/api/report-pdf/:path*',
+    '/api/feedback/:path*',
   ],
 }

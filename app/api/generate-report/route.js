@@ -9,11 +9,23 @@
  *
  * Rule: the AI never calculates a number.
  */
+import * as Sentry from '@sentry/nextjs'
 import { calculateCost } from '@/lib/costCalculator'
 import { calculateProgramme } from '@/lib/programmeCalculator'
 import { buildReport } from '@/lib/reportBuilder'
 import { saveReport } from '@/lib/kv'
 import { runSenseCheck } from '@/lib/senseCheck'
+
+// Report a caught pipeline failure to Sentry with the exact answers that
+// triggered it, so a crash a colleague never reports still arrives reproducible.
+// No-ops when NEXT_PUBLIC_SENTRY_DSN is unset. answers is attached as `extra`
+// (not contexts) so it is never used for issue-grouping.
+function capturePipelineError(e, step, answers) {
+  Sentry.captureException(e, {
+    tags: { pipeline_step: step },
+    extra: { answers },
+  })
+}
 
 // The Claude prose call can take 20–40s; allow headroom on the serverless runtime.
 export const maxDuration = 60
@@ -78,6 +90,7 @@ export async function POST(request) {
       cost = await calculateCost(answers, 0)
     } catch (e) {
       console.error('[Step 1 error]', e.message)
+      capturePipelineError(e, 'cost', answers)
       return Response.json({ error: 'Cost calculation failed: ' + e.message }, { status: 500 })
     }
 
@@ -96,6 +109,7 @@ export async function POST(request) {
       programme = await calculateProgramme(answers, cost.total.mid)
     } catch (e) {
       console.error('[Step 2 error]', e.message)
+      capturePipelineError(e, 'programme', answers)
       return Response.json({ error: 'Programme calculation failed: ' + e.message }, { status: 500 })
     }
 
@@ -126,6 +140,7 @@ export async function POST(request) {
       aiProse = await callClaudeForProse(answers, cost, programme, senseCheck)
     } catch (e) {
       console.error('[Step 3 error]', e.message)
+      capturePipelineError(e, 'prose', answers)
       return Response.json({ error: 'AI prose generation failed: ' + e.message }, { status: 500 })
     }
 
@@ -142,6 +157,7 @@ export async function POST(request) {
       docxBuffer = await buildReport({ answers, cost, programme, aiProse, budget })
     } catch (e) {
       console.error('[Step 4 error]', e.message)
+      capturePipelineError(e, 'reportBuilder', answers)
       templateError = e.message
     }
 
@@ -178,6 +194,7 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('[generate-report]', error)
+    Sentry.captureException(error, { tags: { pipeline_step: 'handler' } })
     return Response.json({ error: 'Report generation failed', detail: error.message }, { status: 500 })
   }
 }

@@ -53,6 +53,40 @@ export default function ReportRenderer({ data, reportId }) {
   const [copied, setCopied]             = useState(false)
   const [pdfLoading, setPdfLoading]     = useState(false)
 
+  // ── Feedback ("Flag an issue") modal state ──────────────────────────────────
+  const [fbOpen, setFbOpen]       = useState(false)
+  const [fbCategory, setFbCategory] = useState('Wrong numbers')
+  const [fbMessage, setFbMessage] = useState('')
+  const [fbStatus, setFbStatus]   = useState('idle')  // idle | sending | sent | error
+  const [fbError, setFbError]     = useState('')
+
+  async function submitFeedback() {
+    if (!fbMessage.trim()) { setFbError('Please describe the issue.'); return }
+    setFbStatus('sending')
+    setFbError('')
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reportId: reportId || null,
+          projectName: data?.projectName || null,
+          category: fbCategory,
+          message: fbMessage.trim(),
+          url: typeof window !== 'undefined' ? window.location.href : null,
+        }),
+      })
+      if (!res.ok) throw new Error('Request failed')
+      track('feedback_flagged', { reportId: reportId || 'unsaved', category: fbCategory })
+      setFbStatus('sent')
+      setFbMessage('')
+      setTimeout(() => { setFbOpen(false); setFbStatus('idle') }, 1800)
+    } catch {
+      setFbStatus('error')
+      setFbError('Could not send — please try again.')
+    }
+  }
+
   function downloadDocx() {
     if (!data?.docx) {
       setDownloadError('Word document unavailable. Please regenerate the report.')
@@ -239,6 +273,10 @@ export default function ReportRenderer({ data, reportId }) {
             <button onClick={() => router.push('/questionnaire')}
               style={btnStyle('outline')}>
               ← New Report
+            </button>
+            <button onClick={() => { setFbOpen(true); setFbStatus('idle'); setFbError('') }}
+              style={btnStyle('outline')}>
+              ⚑ Flag an issue
             </button>
             {reportId && (
               <button onClick={copyLink}
@@ -586,7 +624,80 @@ export default function ReportRenderer({ data, reportId }) {
           </div>
         </div>
       </div>
+
+      {/* ── Flag-an-issue modal (screen only) ── */}
+      {fbOpen && (
+        <FeedbackModal
+          category={fbCategory} setCategory={setFbCategory}
+          message={fbMessage} setMessage={setFbMessage}
+          status={fbStatus} error={fbError}
+          onSubmit={submitFeedback}
+          onClose={() => { if (fbStatus !== 'sending') setFbOpen(false) }}
+        />
+      )}
     </>
+  )
+}
+
+// ─── Feedback modal ───────────────────────────────────────────────────────────
+const FB_CATEGORIES = ['Wrong numbers', 'Odd programme', 'Missing scope', 'Confusing UX', 'Other']
+
+function FeedbackModal({ category, setCategory, message, setMessage, status, error, onSubmit, onClose }) {
+  const sending = status === 'sending'
+  const sent    = status === 'sent'
+  return (
+    <div className="no-print" onClick={onClose}
+      style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(18,35,58,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', fontFamily: FONT_BODY }}>
+      <div onClick={e => e.stopPropagation()}
+        style={{ width: '100%', maxWidth: '440px', background: '#fff', borderRadius: '10px', boxShadow: '0 12px 40px rgba(0,0,0,0.28)', overflow: 'hidden' }}>
+        {/* Header */}
+        <div style={{ background: `linear-gradient(135deg, ${NAVY} 0%, #12233A 100%)`, padding: '18px 22px' }}>
+          <p style={{ margin: 0, color: '#fff', fontWeight: 700, fontSize: '16px', fontFamily: FONT_HEAD }}>Flag an issue</p>
+          <p style={{ margin: '3px 0 0', color: NAVY_LT, fontSize: '12px' }}>
+            Spotted something off in this report? Tell us — it helps us fix it.
+          </p>
+        </div>
+
+        {sent ? (
+          <div style={{ padding: '32px 22px', textAlign: 'center' }}>
+            <div style={{ fontSize: '30px', marginBottom: '8px' }}>✓</div>
+            <p style={{ margin: 0, color: NAVY, fontWeight: 700, fontSize: '15px' }}>Thanks — noted.</p>
+            <p style={{ margin: '6px 0 0', color: '#666', fontSize: '13px' }}>Your report reference was captured so we can reproduce it.</p>
+          </div>
+        ) : (
+          <div style={{ padding: '20px 22px' }}>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: NAVY, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+              What kind of issue?
+            </label>
+            <select value={category} onChange={e => setCategory(e.target.value)} disabled={sending}
+              style={{ width: '100%', padding: '9px 10px', fontSize: '13px', border: `1px solid ${BORDER}`, borderRadius: '6px', background: '#fff', color: '#333', fontFamily: FONT_BODY, marginBottom: '14px' }}>
+              {FB_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: NAVY, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+              Describe it
+            </label>
+            <textarea value={message} onChange={e => setMessage(e.target.value)} disabled={sending}
+              rows={4} maxLength={4000}
+              placeholder="e.g. The construction cost looks far too high for a 200 m² refurb…"
+              style={{ width: '100%', padding: '10px', fontSize: '13px', border: `1px solid ${BORDER}`, borderRadius: '6px', resize: 'vertical', fontFamily: FONT_BODY, color: '#333', lineHeight: 1.5, boxSizing: 'border-box' }} />
+
+            {error && <p style={{ color: '#C0392B', fontSize: '12px', margin: '8px 0 0' }}>{error}</p>}
+
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
+              <button onClick={onClose} disabled={sending}
+                style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: `1px solid ${BORDER}`, borderRadius: '8px', background: '#fff', color: '#555', cursor: sending ? 'default' : 'pointer', fontFamily: FONT_BODY }}>
+                Cancel
+              </button>
+              <button onClick={onSubmit} disabled={sending}
+                style={{ padding: '9px 18px', fontSize: '13px', fontWeight: 700, border: 'none', borderRadius: '8px', background: 'linear-gradient(150deg, #C4861A 0%, #A86F12 100%)', color: '#fff', cursor: sending ? 'default' : 'pointer', opacity: sending ? 0.65 : 1, fontFamily: FONT_BODY }}>
+                {sending ? 'Sending…' : 'Send'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
