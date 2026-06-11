@@ -31,8 +31,8 @@ export default function LandingPage() {
         <div style={{ ...wrap(1120), position: 'relative' }}>
           <div style={{ padding: '96px 0 92px', maxWidth: 780 }}>
             <div className="rise rise-1"><Badge dark>RIBA Stage 0–1 · Feasibility</Badge></div>
-            <h1 className="rise rise-2" style={{ fontSize: 'clamp(38px, 6vw, 64px)', lineHeight: 1.12, margin: '22px 0 0', color: '#fff', fontWeight: 700 }}>
-              Feasibility intelligence<br />for university estates.
+            <h1 className="rise rise-2" style={{ fontSize: 'clamp(38px, 6vw, 64px)', lineHeight: 1.12, margin: '22px 0 0', color: '#fff', fontWeight: 700, fontFamily: 'var(--font-body)' }}>
+              Feasibility intelligence<br />for capital projects.
             </h1>
             <div className="rise rise-2" style={{ width: 64, height: 3, background: 'var(--amber)', margin: '26px 0 0' }} />
             <p className="rise rise-3" style={{ fontSize: 18, lineHeight: 1.65, color: '#B7C3D8', maxWidth: 560, margin: '24px 0 0' }}>
