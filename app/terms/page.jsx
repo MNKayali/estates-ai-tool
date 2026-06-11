@@ -6,7 +6,7 @@
  */
 
 const NAVY = '#1A2E4A'
-const BLUE = '#2F6BFF'
+const BLUE = '#A86F12'   // brand accent (deep amber) — name kept to avoid churn
 
 function Section({ title, children }) {
   return (
@@ -84,7 +84,7 @@ export default function TermsPage() {
             to a benchmark spreadsheet or early-stage desk study — useful for framing a conversation,
             not for signing off a budget.
           </p>
-          <p style={{ ...body, background: '#EEF4FA', border: `1px solid ${BLUE}`, borderRadius: '4px', padding: '12px 14px' }}>
+          <p style={{ ...body, background: '#F8F1E2', border: `1px solid ${BLUE}`, borderRadius: '4px', padding: '12px 14px' }}>
             <strong>What this means in practice:</strong> If you are using this tool for your own
             organisation&apos;s internal planning, no additional PI insurance is required beyond your
             organisation&apos;s existing professional liability cover. If you intend to present a report

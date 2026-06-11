@@ -135,10 +135,11 @@ export async function POST(request) {
     const generatedAt = new Date().toISOString()
     const costData    = serializeCost(cost)
     const progData    = serializeProgramme(programme)
+    const budget      = senseCheck?.budget || { status: 'none' }
 
     let docxBuffer, templateError
     try {
-      docxBuffer = await buildReport({ answers, cost, programme, aiProse })
+      docxBuffer = await buildReport({ answers, cost, programme, aiProse, budget })
     } catch (e) {
       console.error('[Step 4 error]', e.message)
       templateError = e.message
@@ -150,6 +151,7 @@ export async function POST(request) {
       projectName: answers.q1_0_projectName,
       cost:        costData,
       programme:   progData,
+      budget,
       aiProse,
       answers,                                   // included so shared links work without localStorage
       generatedAt,
@@ -167,6 +169,7 @@ export async function POST(request) {
       projectName: answers.q1_0_projectName,
       cost:        costData,
       programme:   progData,
+      budget,
       aiProse,
       generatedAt,
       ...(docxBuffer   && { docx: docxBuffer.toString('base64') }),
@@ -456,7 +459,7 @@ const ACCESS_RISK_SEEDS = [
     mitigation: 'Apply for licence early; confirm pavement/road licence period and inspection regime with the authority before tender.',
   },
   {
-    trigger: 'restricted',
+    trigger: 'restricted working',
     ref: 'ACC-D',
     category: 'Programme',
     description: 'Restricted working hours extend construction duration and may attract premium or out-of-hours rates.',
@@ -528,7 +531,7 @@ CONFIDENCE GRADE (pre-computed deterministically — do NOT choose your own): Gr
 PROJECT CONTEXT:
 Name: ${answers.q1_0_projectName}
 Type: ${answers.q1_2_projectType} | Postcode: ${answers.q1_1_postcode} | GIFA: ${answers.q1_5_size} m²
-Building use: ${answers.q1_3_buildingUse || 'Not stated'} | ${['New Build','Refurbishment','Extension'].includes(answers.q1_2_projectType) && answers.q1_2_storeys ? `Storeys: ${answers.q1_2_storeys}` : `Age: ${answers.q1_4_buildingAge || 'Not stated'}`}
+Building use: ${answers.q1_3_buildingUse || 'Not stated'}${answers.q1_3_buildingUse === 'Other' && answers.q1_3_buildingUseOther ? ` (${answers.q1_3_buildingUseOther})` : ''} | Age: ${answers.q1_4_buildingAge || (answers.q1_2_projectType === 'New Build' ? 'N/A (new build)' : 'Not stated')}${answers.q1_2_storeys ? ` | Storeys: ${answers.q1_2_storeys}` : ''}
 Specification level: ${cost.specLevel} | Level of intervention: ${cost.interventionLevel}
 Objective: ${answers.q2_1_objective || 'Not stated'}
 Scope items: ${(answers.q2_2_scopeItems || []).join(', ') || 'None specified'}
@@ -539,13 +542,14 @@ ${excludedBlock}Specialist / additional scope notes: ${typeof answers.q2_2_addit
 Standards and compliance requirements: ${answers.q2_5_standards || 'None stated'}
 Known issues: ${(answers.q3_1_knownIssues || []).join(', ') || 'None identified'}
 Previous works and building history: ${answers.q3_2_recentWorks || answers.q3_2_previousWorks || 'Not stated'}
-Surveys: ${Array.isArray(answers.q3_3_surveys) ? answers.q3_3_surveys.join(', ') : (answers.q3_3_surveys || 'Not stated')} | Planning: ${answers.q3_4_planningConsents || 'Not stated'}
-Access constraints: ${(answers.q3_5_accessConstraints || []).join(', ') || 'None'}
+Surveys: ${Array.isArray(answers.q3_3_surveys) ? answers.q3_3_surveys.join(', ') : (answers.q3_3_surveys || 'Not stated')}${answers.q3_3_surveysOther ? ` (other: ${answers.q3_3_surveysOther})` : ''} | Planning: ${answers.q3_4_planningConsents || 'Not stated'}
+Access constraints: ${(answers.q3_5_accessConstraints || []).join(', ') || 'None'}${answers.q3_5_accessConstraintsOther ? ` (other: ${answers.q3_5_accessConstraintsOther})` : ''}
 Occupation during works: ${answers.q3_6_occupation || 'Not stated'}
 Additional context: ${answers.q3_7_additionalContext || 'None'}
-Target date: ${answers.q4_1_targetDate || 'None specified'} | Budget: ${answers.q4_3_budget ? f(answers.q4_3_budget) : 'Not stated'}
+Target date: ${answers.q4_1_targetDate || 'None specified'} | Budget (incl. fees & VAT): ${answers.q4_3_budget ? f(answers.q4_3_budget) : 'Not stated'}
 Client priorities (what matters most): ${(answers.q4_4_priorities || []).join(', ') || 'Not stated'}
-Funding source: ${answers.q4_7_funding || 'Not stated'}
+Funding source: ${answers.q4_7_funding || 'Not stated'}${answers.q4_7_funding === 'Other' && answers.q4_7_fundingOther ? ` (${answers.q4_7_fundingOther})` : ''}
+Delivery: ${answers.q4_6_phasing || 'Single phase'}
 Design stage reached: ${answers.q4_5_designStage || 'Stage 0–1'}
 Financial benefit: ${q5_1 || 'None'}
 Annual benefit: ${answers.q5_2_annualBenefit ? f(answers.q5_2_annualBenefit) : 'N/A'}
@@ -560,13 +564,16 @@ Prelims: ${cost.percentages.prelims}% | OH&P: ${cost.percentages.ohp}%
 Professional fees: ${cost.percentages.fees}% | Dev costs: ${cost.percentages.devCosts}%
 Risk allowance: ${cost.percentages.risk}% | Contingency: ${cost.percentages.contingency}%
 Inflation: ${cost.percentages.inflation}% | Risk level: ${cost.percentages.riskLevel}
+${senseCheck?.budget && senseCheck.budget.status !== 'none'
+  ? `BUDGET CHECK (pre-computed — do NOT recompute): ${senseCheck.budget.note}`
+  : 'BUDGET CHECK: No budget figure was provided.'}
 
 PRE-CALCULATED PROGRAMME DATA (do not change any of these figures):
 Total weeks: ${programme.totalWeeks}
 Surveys: ${programme.surveyWeeks} wks | Design: ${programme.designWeeks} wks | Tender: ${programme.tenderWeeks} wks
 Construction: ${programme.constructionWeeks} wks | Handover: ${programme.handoverWeeks} wks
-Procurement route: ${programme.procurementRoute}
-Target status: ${programme.targetStatus} | ${programme.targetNote}
+Procurement route: ${programme.procurementRoute}${programme.procurementNote ? ` — ${programme.procurementNote}` : ''}
+Target status: ${programme.targetStatus} | ${programme.targetNote}${programme.programmeStartNote ? `\nProgramme start point: ${programme.programmeStartNote}` : ''}${programme.phasingNote ? `\nPhasing: ${programme.phasingNote}` : ''}
 ${buildAccessRiskSeeds(answers.q3_5_accessConstraints)}${answers.q6_2_instructions || answers.q6_2_reportInstructions ? `\nCUSTOM INSTRUCTIONS FROM CLIENT (apply these to your prose writing — tone, emphasis, audience focus):\n${answers.q6_2_instructions || answers.q6_2_reportInstructions}` : ''}
 ${senseCheck?.hasWarnings
   ? `\nSENSE CHECK WARNINGS (automatically detected — respond to these in your prose):\n` +
@@ -582,6 +589,9 @@ Populate the tool arguments following this field guidance:
   "keyFindings": [
     "One sentence. Start with the single most important cost or programme finding.",
     "One sentence. State whether the target date is achievable or not, with reason.",
+    ${senseCheck?.budget && senseCheck.budget.status !== 'none'
+      ? `"One sentence. State whether the stated budget is sufficient against the estimate, using the BUDGET CHECK verdict (${senseCheck.budget.status}) and citing the pre-computed margin or shortfall — do NOT recompute it.",`
+      : ''}
     "One sentence. Name the most significant risk or survey gap.",
     "One sentence. State the recommended procurement route and why."
   ],
@@ -608,7 +618,7 @@ Populate the tool arguments following this field guidance:
   "procurementContractForm": "Recommended contract form, e.g. JCT Minor Works 2024, JCT Standard Building Contract 2024",
   "procurementDesignResp": "Who holds design responsibility: Client design team or Contractor",
   "procurementTenderType": "Single stage | Two stage | Direct award",
-  "procurementNarrative": "2 sentences. Why this route suits this project type, value, and programme.",
+  "procurementNarrative": "2 sentences. Explain why this route suits this project's type, value and programme, AND how it serves the client's stated priorities (${(answers.q4_4_priorities || []).join(', ') || 'not stated'}).",
   "procurementConsiderations": ["Commercial consideration 1", "Commercial consideration 2", "Commercial consideration 3"],
   "procurementConflicts": [],
   "constraints": [

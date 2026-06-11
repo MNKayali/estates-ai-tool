@@ -75,7 +75,7 @@ export default function ReportByIdPage() {
 // ─── Loading spinner ──────────────────────────────────────────────────────────
 function Spinner() {
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F0F2F4' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#EFEBE1' }}>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <div style={{ width: '36px', height: '36px', border: `4px solid ${NAVY}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
     </div>
@@ -85,7 +85,7 @@ function Spinner() {
 // ─── Error state ──────────────────────────────────────────────────────────────
 function ErrorView({ error, onBack }) {
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#F0F2F4', padding: '24px', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#EFEBE1', padding: '24px', fontFamily: 'var(--font-body)' }}>
       <div style={{ maxWidth: '440px', width: '100%', background: '#fff', borderRadius: '8px', padding: '40px 32px', boxShadow: '0 2px 16px rgba(0,0,0,0.10)', textAlign: 'center' }}>
         <div style={{ fontSize: '32px', marginBottom: '16px' }}>📄</div>
         <h2 style={{ color: NAVY, fontSize: '20px', fontWeight: 700, margin: '0 0 12px' }}>
@@ -96,7 +96,7 @@ function ErrorView({ error, onBack }) {
         </p>
         <button
           onClick={onBack}
-          style={{ padding: '12px 28px', background: NAVY, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'Arial, sans-serif' }}>
+          style={{ padding: '12px 28px', background: NAVY, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
           ← Generate a new report
         </button>
       </div>

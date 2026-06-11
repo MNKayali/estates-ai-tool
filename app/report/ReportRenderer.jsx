@@ -13,9 +13,15 @@ const pct = n  => `${Math.round((n || 0) * 10) / 10}%`
 // ─── Colours ─────────────────────────────────────────────────────────────────
 const NAVY    = '#1A2E4A'
 const NAVY_LT = '#9FB3CC'
+const AMBER   = '#C4861A'
 const GRAY    = '#9AA3AD'
-const ALT_ROW = '#F0F2F4'
-const BORDER  = '#CCCCCC'
+const ALT_ROW = '#F4F1EA'   // warm alternating row tint
+const BORDER  = '#D9D3C7'
+
+// Document typography — Playfair for headings, DM Sans for body (web fonts
+// loaded by the root layout; serif/sans-serif fallbacks for print).
+const FONT_HEAD = "var(--font-playfair), 'Playfair Display', Georgia, serif"
+const FONT_BODY = "var(--font-dm-sans), 'DM Sans', 'Segoe UI', sans-serif"
 
 // ─── Group names ──────────────────────────────────────────────────────────────
 const GROUP_NAMES = {
@@ -105,7 +111,7 @@ export default function ReportRenderer({ data, reportId }) {
     }
   }
 
-  const { cost, programme, aiProse, projectName, generatedAt, templateError, answers } = data
+  const { cost, programme, aiProse, projectName, generatedAt, templateError, answers, budget } = data
   const grade      = aiProse?.confidenceScore  || 'B'
   const confLabel  = aiProse?.confidenceLabel  || 'Moderate Confidence'
   const riskLevel  = cost?.percentages?.riskLevel || 'Medium'
@@ -226,7 +232,7 @@ export default function ReportRenderer({ data, reportId }) {
       {/* ── Toolbar (screen only) ── */}
       <div className="no-print" style={{ position: 'sticky', top: 0, zIndex: 20, background: 'linear-gradient(135deg, #1A2E4A 0%, #12233A 100%)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '10px 16px' }}>
         <div style={{ maxWidth: '880px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-          <span style={{ color: '#fff', fontWeight: 700, fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>
+          <span style={{ color: '#fff', fontWeight: 600, fontSize: '15px', fontFamily: FONT_HEAD, letterSpacing: '0.2px' }}>
             Estates AI — Report Preview
           </span>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -282,25 +288,26 @@ export default function ReportRenderer({ data, reportId }) {
       </div>
 
       {/* ── Document shell ── */}
-      <div className="report-outer" style={{ background: '#E7EDF6', minHeight: '100vh', padding: '24px 16px 48px', fontFamily: 'Arial, sans-serif' }}>
+      <div className="report-outer" style={{ background: '#EFEBE1', minHeight: '100vh', padding: '24px 16px 48px', fontFamily: FONT_BODY }}>
         <div className="report-inner" style={{ maxWidth: '880px', margin: '0 auto', background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
 
           {/* ══ COVER ══ */}
-          <div className="report-cover" style={{ background: NAVY, padding: '48px 56px 64px', position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div className="report-cover" style={{ background: `linear-gradient(160deg, ${NAVY} 0%, #12233A 70%, #0E1B2E 100%)`, padding: '52px 56px 64px', position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column' }}>
             {/* Wordmark */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '36px' }}>
-              <div style={{ background: '#2E75B6', borderRadius: '3px', padding: '3px 7px', display: 'inline-flex', alignItems: 'center' }}>
-                <span style={{ color: '#fff', fontWeight: 900, fontSize: '11px', fontFamily: 'Arial, sans-serif', letterSpacing: '1px' }}>AI</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '9px', marginBottom: '48px' }}>
+              <div style={{ background: AMBER, borderRadius: '3px', padding: '3px 7px', display: 'inline-flex', alignItems: 'center' }}>
+                <span style={{ color: '#fff', fontWeight: 700, fontSize: '11px', fontFamily: FONT_BODY, letterSpacing: '1px' }}>AI</span>
               </div>
-              <span style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 700, fontSize: '13px', fontFamily: 'Arial, sans-serif', letterSpacing: '0.5px' }}>Estates AI</span>
+              <span style={{ color: 'rgba(255,255,255,0.88)', fontWeight: 600, fontSize: '14px', fontFamily: FONT_HEAD, letterSpacing: '0.5px' }}>Estates AI</span>
             </div>
 
-            <p style={{ fontSize: '11px', letterSpacing: '3px', fontWeight: 700, color: NAVY_LT, margin: '0 0 16px', textTransform: 'uppercase' }}>
+            <p style={{ fontSize: '11px', letterSpacing: '3.5px', fontWeight: 600, color: '#D9A94F', margin: '0 0 18px', textTransform: 'uppercase', fontFamily: FONT_BODY }}>
               RIBA Stage 0–1 Feasibility Report
             </p>
-            <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#fff', margin: '0 0 24px', lineHeight: 1.2 }}>
+            <h1 style={{ fontSize: '42px', fontWeight: 700, color: '#fff', margin: '0 0 18px', lineHeight: 1.18, fontFamily: FONT_HEAD, letterSpacing: '-0.2px' }}>
               {projectName}
             </h1>
+            <div style={{ width: '56px', height: '3px', background: AMBER, margin: '0 0 28px' }} />
             <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#fff' }}>
               <span style={{ color: NAVY_LT }}>Date: </span>{dateStr}
               <span style={{ color: NAVY_LT, margin: '0 12px' }}>|</span>
@@ -325,7 +332,7 @@ export default function ReportRenderer({ data, reportId }) {
                   : 'Draft — not saved'}
               </p>
               {/* Bottom accent line */}
-              <div style={{ height: '4px', background: '#2E75B6', margin: '0 -56px' }} />
+              <div style={{ height: '4px', background: AMBER, margin: '0 -56px' }} />
             </div>
           </div>
 
@@ -444,11 +451,17 @@ export default function ReportRenderer({ data, reportId }) {
               <TotalCostTable cost={cost} />
             </div>
 
-            <p style={{ fontWeight: 700, color: NAVY, margin: '12px 0 20px', fontSize: '14px' }}>
+            <p style={{ fontWeight: 700, color: NAVY, margin: '12px 0 12px', fontSize: '14px' }}>
               Total Cost Range: {f1k(cost?.total?.low)} – {f1k(cost?.total?.high)} (excl. VAT)
               <span style={{ color: GRAY, margin: '0 10px' }}>|</span>
               Cost Risk: {riskLevel}
             </p>
+
+            {budget && budget.status !== 'none' && (
+              <p style={{ ...bodyText, margin: '0 0 20px', color: budget.status === 'insufficient' ? '#C0392B' : (budget.status === 'tight' ? '#92400E' : '#2A7A4B') }}>
+                <strong style={{ color: NAVY }}>Budget check:</strong> {budget.note}
+              </p>
+            )}
 
             <SubHdr>Cost Assumptions</SubHdr>
             <ul style={listStyle}>
@@ -538,9 +551,9 @@ export default function ReportRenderer({ data, reportId }) {
               </p>
               <p style={{ color: '#999', fontSize: '11px', marginTop: '10px' }}>
                 Use of this tool is subject to our{' '}
-                <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#2E75B6', textDecoration: 'underline' }}>Terms of Use</a>
+                <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: NAVY, textDecoration: 'underline' }}>Terms of Use</a>
                 {' '}and{' '}
-                <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#2E75B6', textDecoration: 'underline' }}>Privacy Notice</a>.
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: NAVY, textDecoration: 'underline' }}>Privacy Notice</a>.
                 Report generated by Estates AI — an indicative planning tool, not a substitute for professional advice.
               </p>
             </div>
@@ -582,16 +595,16 @@ const bodyText  = { color: '#333', lineHeight: 1.7, fontSize: '13px', margin: '0
 const listStyle = { paddingLeft: '20px', margin: '0 0 12px', display: 'flex', flexDirection: 'column', gap: '4px' }
 const liStyle   = { color: '#333', lineHeight: 1.6, fontSize: '13px' }
 const tblStyle  = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginBottom: '0' }
-const thStyle   = { padding: '8px 10px', color: '#fff', fontWeight: 600, fontSize: '12px', background: NAVY, whiteSpace: 'nowrap' }
+const thStyle   = { padding: '9px 10px', color: '#fff', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', background: NAVY, whiteSpace: 'nowrap' }
 const tdStyle   = { padding: '7px 10px', lineHeight: 1.5, verticalAlign: 'top', fontSize: '13px', color: '#333', wordBreak: 'break-word', overflowWrap: 'break-word' }
 
 function btnStyle(variant, disabled = false) {
   const base = { padding: '8px 18px', border: '1px solid transparent', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.6 : 1, fontFamily: 'var(--font-body)', lineHeight: 1 }
   if (variant === 'outline') return { ...base, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.22)', color: '#EAF0FA' }
   if (variant === 'gray')    return { ...base, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.16)', color: '#EAF0FA' }
-  if (variant === 'green')   return { ...base, background: 'linear-gradient(135deg, #22B074 0%, #158053 100%)', color: '#fff', boxShadow: '0 4px 14px rgba(30,158,106,0.4)' }
-  if (variant === 'link')    return { ...base, background: 'linear-gradient(135deg, var(--blue) 0%, #2350D6 100%)', color: '#fff', boxShadow: '0 4px 14px rgba(47,107,255,0.4)' }
-  if (variant === 'copied')  return { ...base, background: 'linear-gradient(135deg, #22B074 0%, #158053 100%)', color: '#fff' }
+  if (variant === 'green')   return { ...base, background: 'linear-gradient(150deg, #C4861A 0%, #A86F12 100%)', color: '#fff', boxShadow: '0 4px 14px rgba(196,134,26,0.4)' }
+  if (variant === 'link')    return { ...base, background: 'rgba(255,255,255,0.92)', color: NAVY, border: '1px solid rgba(255,255,255,0.4)' }
+  if (variant === 'copied')  return { ...base, background: 'linear-gradient(150deg, #1E7A55 0%, #156244 100%)', color: '#fff' }
   return base
 }
 
@@ -604,26 +617,24 @@ function alertStyle(bg, borderColor) {
 function SecHdr({ number, title, pageBreak }) {
   return (
     <div className={['section-hdr', pageBreak ? 'page-break' : ''].filter(Boolean).join(' ')}
-         style={{ display: 'flex', alignItems: 'stretch', margin: '28px 0 14px' }}>
-      <div style={{ width: '36px', minHeight: '36px', background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <span style={{ color: '#fff', fontWeight: 700, fontSize: '14px' }}>{number}</span>
-      </div>
-      <div style={{ flex: 1, paddingLeft: '12px', borderBottom: `3px solid ${NAVY}`, display: 'flex', alignItems: 'center', paddingBottom: '4px' }}>
-        <span style={{ fontWeight: 700, color: NAVY, fontSize: '15px' }}>{title}</span>
-      </div>
+         style={{ borderLeft: `3px solid ${AMBER}`, padding: '2px 0 8px 16px', margin: '32px 0 16px', borderBottom: `1px solid ${BORDER}` }}>
+      <p style={{ margin: '0 0 3px', fontSize: '10px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: GRAY }}>
+        Section {number}
+      </p>
+      <h2 style={{ margin: 0, fontWeight: 700, color: NAVY, fontSize: '20px', fontFamily: FONT_HEAD, letterSpacing: '-0.1px', lineHeight: 1.25 }}>{title}</h2>
     </div>
   )
 }
 
 function SubHdr({ children }) {
-  return <p style={{ fontWeight: 700, color: NAVY, fontSize: '13px', margin: '16px 0 6px', breakAfter: 'avoid' }}>{children}</p>
+  return <p style={{ fontWeight: 700, color: NAVY, fontSize: '13.5px', margin: '18px 0 6px', breakAfter: 'avoid' }}>{children}</p>
 }
 
 function InfoBox({ label, value, note, noteColor }) {
   return (
-    <div style={{ background: ALT_ROW, border: `1px solid ${BORDER}`, padding: '14px 16px' }}>
+    <div style={{ background: ALT_ROW, border: `1px solid ${BORDER}`, borderTop: `2px solid ${NAVY}`, padding: '14px 16px' }}>
       <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 700, color: GRAY, margin: '0 0 6px' }}>{label}</p>
-      <p style={{ fontSize: '16px', fontWeight: 700, color: NAVY, margin: '0 0 4px' }}>{value}</p>
+      <p style={{ fontSize: '17px', fontWeight: 700, color: NAVY, margin: '0 0 4px', fontFamily: FONT_HEAD }}>{value}</p>
       {note && <p style={{ fontSize: '11px', color: noteColor || '#666', margin: 0 }}>{note}</p>}
     </div>
   )
@@ -674,7 +685,7 @@ function WorksTable({ lineItems }) {
   for (const item of lineItems) {
     if (item.group !== lastGrp) {
       rows.push(
-        <tr key={`g${item.group}`} style={{ background: '#2E4D7B' }}>
+        <tr key={`g${item.group}`} style={{ background: '#2E4A6E' }}>
           <td colSpan={6} style={{ ...tdStyle, fontWeight: 700, fontSize: '11px', color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase', letterSpacing: '0.3px', padding: '6px 10px' }}>
             {GROUP_NAMES[item.group] || `GROUP ${item.group}`}
           </td>
@@ -686,7 +697,7 @@ function WorksTable({ lineItems }) {
     const bg = ri % 2 === 0 ? ALT_ROW : '#fff'
     rows.push(
       <tr key={`r${item.group}_${ri}`} style={{ background: bg, borderBottom: `1px solid ${BORDER}` }}>
-        <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '11px', color: '#2E75B6' }}>{item.code}</td>
+        <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '11px', color: '#5A6E88' }}>{item.code}</td>
         <td style={tdStyle}>{item.description}</td>
         <td style={{ ...tdStyle, textAlign: 'right' }}>{f(item.rateLow || 0)}</td>
         <td style={{ ...tdStyle, textAlign: 'right' }}>{f(item.rateHigh || 0)}</td>
@@ -846,11 +857,11 @@ function ProgrammeTable({ stages, totalWeeks }) {
 // Surveys are excluded from the main bar and shown as a thin parallel track above,
 // aligned to week 0 — reflecting that they run concurrently with Stage 2–3 design.
 const GANTT_MAP = [
-  { key: 'Tender',            test: s => /tender|procurement/i.test(s), color: '#4472C4' },
+  { key: 'Tender',            test: s => /tender|procurement/i.test(s), color: '#5B7BA6' },
   { key: 'Construction',      test: s => /construction|phase/i.test(s), color: '#1A2E4A' },
   { key: 'Handover',          test: s => /handover/i.test(s),           color: '#4A5568' },
-  { key: 'Governance',        test: s => /governance/i.test(s),         color: '#7B3F00' },
-  { key: 'Design & Approvals',test: () => true,                         color: '#2E75B6' },
+  { key: 'Governance',        test: s => /governance/i.test(s),         color: '#7B5113' },
+  { key: 'Design & Approvals',test: () => true,                         color: '#3E5C84' },
 ]
 
 function GanttBar({ stages, totalWeeks, surveyWeeks }) {

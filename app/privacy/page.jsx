@@ -8,7 +8,7 @@
  */
 
 const NAVY = '#1A2E4A'
-const BLUE = '#2F6BFF'
+const BLUE = '#A86F12'   // brand accent (deep amber) — name kept to avoid churn
 
 function Section({ title, children }) {
   return (
@@ -194,7 +194,7 @@ export default function PrivacyPage() {
             To exercise any right, or to request deletion of a specific report before its 90-day expiry,
             contact us. {/* TODO: replace the line below with your real email address */}
           </p>
-          <p style={{ ...body, background: '#EEF4FA', border: `1px solid ${BLUE}`, borderRadius: '4px', padding: '12px 14px' }}>
+          <p style={{ ...body, background: '#F8F1E2', border: `1px solid ${BLUE}`, borderRadius: '4px', padding: '12px 14px' }}>
             <strong>Contact:</strong> Reach the tool operator via the access code holder for your organisation,
             or email{' '}
             <span style={{ fontFamily: 'monospace', background: '#DBEAFE', padding: '1px 6px', borderRadius: '3px' }}>

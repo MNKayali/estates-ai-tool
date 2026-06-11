@@ -69,9 +69,10 @@ export default function AccessPage() {
       <div className="grid-bg" style={{ position: 'fixed', inset: 0, opacity: .5, pointerEvents: 'none' }} />
       <div className="card rise rise-1" style={{ width: '100%', maxWidth: 440, padding: '40px 34px', position: 'relative' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 26 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 9, display: 'grid', placeItems: 'center',
-            background: 'linear-gradient(135deg, var(--blue), #2350D6)', color: '#fff', fontWeight: 800,
-            fontFamily: 'var(--font-mono)', fontSize: 14, boxShadow: '0 4px 12px rgba(47,107,255,.4)' }}>AI</div>
+          <div style={{ width: 34, height: 34, borderRadius: 7, display: 'grid', placeItems: 'center',
+            background: 'linear-gradient(150deg, var(--navy), var(--ink-deep))', color: '#fff', fontWeight: 700,
+            fontFamily: 'var(--font-mono)', fontSize: 14, border: '1px solid var(--navy-light)',
+            boxShadow: '0 4px 12px rgba(26,46,74,.3)' }}>AI</div>
           <span className="display" style={{ fontWeight: 700, fontSize: 18, color: 'var(--ink)' }}>Estates AI</span>
         </div>
 
