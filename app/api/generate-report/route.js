@@ -189,22 +189,121 @@ ABSOLUTE RULES — failure to follow these will invalidate the report:
 2. Write in British English.
 3. No markdown formatting — no **, no #, no bullet characters (-, *, •). The Word template handles all formatting.
 4. No tables — tables are built from the fixed data by the code, not by you.
-5. Return ONLY valid JSON with exactly the keys specified. No preamble, no markdown fences.
+5. Deliver the report content by calling the submit_report_prose tool with every field populated. All prose goes in the tool arguments — no other output.
 6. If a conditional section (ROI, Procurement) is not applicable, return an empty string for that key.
 7. Write concisely — each prose section should be 2–4 sentences maximum unless specified otherwise.
 8. Risk register: provide 5 to 8 risks. Each risk must cite a specific questionnaire input as its trigger.
-9. DETERMINISTIC RISK SEEDS: if the prompt contains a "DETERMINISTIC RISK SEEDS" section, you MUST include every listed seed as a risk register entry. Do not omit any seed. Do not add access-constraint risks that are not seeded. You may expand the prose but must not change the Likelihood/Impact/Rating values.
+9. DETERMINISTIC RISK SEEDS: if the prompt contains a "DETERMINISTIC RISK SEEDS" section, you MUST include every listed seed as a risk register entry, setting that entry's seedRef to the seed's Ref code (e.g. ACC-B). Set seedRef to NONE for all non-seeded risks. Do not omit any seed. Do not add access-constraint risks that are not seeded. You may expand the prose but must not change the Likelihood/Impact/Rating values.
 10. QUANTITIES — never invent a count. When you state how many of something there is (cubicles, WCs, rooms, fittings, luminaires, units, storeys, etc.), use only the figures given in PRICED SCOPE LINE ITEMS or PROJECT CONTEXT. If a quantity is not provided, describe the item without attaching a number. Never round, estimate, or guess a quantity.
-11. HISTORY & ASSUMPTIONS — do not invent dates, prior works, completed installations, or survey findings. Reference building history only where it is explicitly given under "Previous works and building history"; if that is "Not stated", assume no prior works. Every item in PRICED SCOPE LINE ITEMS is in scope and is being costed: never write that a scoped item is unnecessary, already completed, recently replaced, or excluded.`
+11. HISTORY & ASSUMPTIONS — do not invent dates, prior works, completed installations, or survey findings. Reference building history only where it is explicitly given under "Previous works and building history"; if that is "Not stated", assume no prior works. Every item in PRICED SCOPE LINE ITEMS is in scope and is being costed: never write that a scoped item is unnecessary, already completed, recently replaced, or excluded.
+12. CONFIDENCE GRADE — the grade is pre-computed deterministically and given in the prompt. State it where instructed; never choose or imply a different grade.`
+
+// Strict-schema tool the model is forced to call. The API validates the
+// arguments against this schema, so "Claude returned non-JSON prose" is no
+// longer a failure mode and enums (likelihood/rating/category) are enforced
+// upstream rather than policed by prompt text.
+const RAG = ['High', 'Medium', 'Low']
+const PROSE_TOOL = {
+  name: 'submit_report_prose',
+  description: 'Submit the prose sections of the RIBA Stage 1 feasibility report. Call exactly once with every field populated.',
+  strict: true,
+  input_schema: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      executiveSummary: { type: 'string' },
+      keyFindings: { type: 'array', items: { type: 'string' } },
+      riskRegister: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            ref: { type: 'string' },
+            category: { type: 'string', enum: ['Cost', 'Programme', 'Technical', 'Procurement', 'Regulatory', 'Health & Safety'] },
+            description: { type: 'string' },
+            likelihood: { type: 'string', enum: RAG },
+            impact: { type: 'string', enum: RAG },
+            rating: { type: 'string', enum: RAG },
+            mitigation: { type: 'string' },
+            seedRef: { type: 'string', enum: ['ACC-A', 'ACC-B', 'ACC-C', 'ACC-D', 'ACC-E', 'ACC-F', 'NONE'] },
+          },
+          required: ['ref', 'category', 'description', 'likelihood', 'impact', 'rating', 'mitigation', 'seedRef'],
+        },
+      },
+      scopeAssumptions: { type: 'array', items: { type: 'string' } },
+      costNarrative: { type: 'string' },
+      roiNarrative: { type: 'string' },
+      procurementRoute: { type: 'string' },
+      procurementContractForm: { type: 'string' },
+      procurementDesignResp: { type: 'string' },
+      procurementTenderType: { type: 'string' },
+      procurementNarrative: { type: 'string' },
+      procurementConsiderations: { type: 'array', items: { type: 'string' } },
+      procurementConflicts: { type: 'array', items: { type: 'string' } },
+      constraints: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            category: { type: 'string', enum: ['Planning', 'Access', 'Programme', 'Technical', 'Financial', 'Regulatory'] },
+            title: { type: 'string' },
+            text: { type: 'string' },
+          },
+          required: ['category', 'title', 'text'],
+        },
+      },
+      nextSteps: { type: 'array', items: { type: 'string' } },
+    },
+    required: [
+      'executiveSummary', 'keyFindings', 'riskRegister', 'scopeAssumptions',
+      'costNarrative', 'roiNarrative', 'procurementRoute', 'procurementContractForm',
+      'procurementDesignResp', 'procurementTenderType', 'procurementNarrative',
+      'procurementConsiderations', 'procurementConflicts', 'constraints', 'nextSteps',
+    ],
+  },
+}
 
 async function callClaudeForProse(answers, cost, programme, senseCheck) {
-  const prompt = buildProsePrompt(answers, cost, programme, senseCheck)
+  const confidence = computeConfidence(answers, cost, senseCheck)
+  const basePrompt = buildProsePrompt(answers, cost, programme, senseCheck, confidence)
 
-  // Bound the upstream call so a hung Anthropic connection cannot pin the whole
-  // request to the platform's hard timeout. Haiku completes this schema in
-  // 10–20 s; leave 50 s as a generous ceiling within Vercel Hobby's 60 s limit.
+  // One retry with the validation error fed back, inside a fixed overall
+  // budget that fits Vercel Hobby's 60 s ceiling alongside the deterministic
+  // steps. A full report runs ~30–40 s on Haiku (plus a one-off ~10 s schema
+  // compilation on the very first request after a deploy), so the first
+  // attempt gets the whole window; the retry only fires when the first
+  // attempt failed fast (API error / quick validation failure) and at least
+  // 15 s of budget remains.
+  const TOTAL_BUDGET_MS = 50_000
+  const startedAt = Date.now()
+  let lastErr
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const remaining = TOTAL_BUDGET_MS - (Date.now() - startedAt)
+    if (attempt > 0 && remaining < 15_000) break
+    const prompt = attempt === 0
+      ? basePrompt
+      : `${basePrompt}\n\nYOUR PREVIOUS ATTEMPT FAILED VALIDATION: ${lastErr.message}\nCall the tool again with the complete, corrected payload.`
+    try {
+      const prose = await requestProse(prompt, Math.max(remaining, 5_000))
+      validateProse(prose)
+      ensureSeedRisks(prose, answers)
+      prose.confidenceScore = confidence.score
+      prose.confidenceLabel = confidence.label
+      return prose
+    } catch (e) {
+      lastErr = e
+      console.warn(`[Step 3] Prose attempt ${attempt + 1} failed: ${e.message}`)
+    }
+  }
+  throw lastErr
+}
+
+// Single API round-trip: forced tool call, schema-validated by the API.
+async function requestProse(prompt, timeoutMs) {
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 50_000)
+  const timeout = setTimeout(() => controller.abort(), timeoutMs)
   let res
   try {
     res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -217,13 +316,16 @@ async function callClaudeForProse(answers, cost, programme, senseCheck) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 6000,
+        temperature: 0.3,
         system: AI_SYSTEM_PROMPT,
+        tools: [PROSE_TOOL],
+        tool_choice: { type: 'tool', name: 'submit_report_prose', disable_parallel_tool_use: true },
         messages: [{ role: 'user', content: prompt }],
       }),
       signal: controller.signal,
     })
   } catch (e) {
-    if (e.name === 'AbortError') throw new Error('Claude API timed out after 50s')
+    if (e.name === 'AbortError') throw new Error(`Claude API timed out after ${Math.round(timeoutMs / 1000)}s`)
     throw e
   } finally {
     clearTimeout(timeout)
@@ -233,32 +335,97 @@ async function callClaudeForProse(answers, cost, programme, senseCheck) {
     throw new Error(`Claude API ${res.status}: ${JSON.stringify(err)}`)
   }
   const data = await res.json()
-  const text = (data.content?.[0]?.text || '').replace(/```json|```/g, '').trim()
-  let parsed
-  try {
-    parsed = JSON.parse(text)
-  } catch {
-    throw new Error('Claude returned non-JSON prose — cannot build report')
+  const toolUse = (data.content || []).find(b => b.type === 'tool_use' && b.name === PROSE_TOOL.name)
+  if (!toolUse || !toolUse.input) {
+    throw new Error(`Claude returned no ${PROSE_TOOL.name} tool call (stop_reason: ${data.stop_reason})`)
   }
-  validateProse(parsed, answers)
-  return parsed
+  return toolUse.input
 }
 
-// Cheap shape guard on the prose payload: confirm the keys the report builder
-// relies on are present and the deterministic risk seeds were not dropped. This
-// is a safety net on the pipeline's core guarantee, not a content critique.
-function validateProse(prose, answers) {
+// Structural safety net behind the API-side schema validation — kept so a
+// degenerate-but-schema-valid payload (e.g. empty risk register) still
+// triggers the retry rather than producing a hollow report.
+function validateProse(prose) {
   if (!prose || typeof prose !== 'object')
     throw new Error('Claude prose payload is not an object')
   if (typeof prose.executiveSummary !== 'string' || !prose.executiveSummary.trim())
-    throw new Error('Claude prose missing executiveSummary')
+    throw new Error('executiveSummary is empty')
   if (!Array.isArray(prose.riskRegister) || prose.riskRegister.length === 0)
-    throw new Error('Claude prose missing riskRegister')
+    throw new Error('riskRegister is empty — provide 5 to 8 risks')
+  if (!Array.isArray(prose.nextSteps) || prose.nextSteps.length === 0)
+    throw new Error('nextSteps is empty')
+}
 
-  // Every seeded access-constraint risk must survive into the register.
-  const seedCount = countAccessRiskSeeds(answers.q3_5_accessConstraints)
-  if (prose.riskRegister.length < seedCount) {
-    console.warn(`[validateProse] riskRegister has ${prose.riskRegister.length} entries but ${seedCount} access-constraint seeds were required — some seeds may have been dropped`)
+// ─── Deterministic confidence grade ──────────────────────────────────────────
+// The most important calibration signal in the report is computed from the
+// answers and sense check, not chosen by the model. The AI only writes the
+// sentence that states it.
+function computeConfidence(answers, cost, senseCheck) {
+  let deficiencies = 0
+  const reasons = []
+
+  const surveys = Array.isArray(answers.q3_3_surveys)
+    ? answers.q3_3_surveys
+    : (answers.q3_3_surveys ? [answers.q3_3_surveys] : [])
+  if (surveys.length === 0 || surveys.includes('None') || surveys.includes('None yet')) {
+    deficiencies += 1
+    reasons.push('no surveys commissioned yet')
+  }
+  if ((answers.q3_1_knownIssues || []).some(i => String(i).toLowerCase().includes('unsure'))) {
+    deficiencies += 1
+    reasons.push('building condition unknown (surveys needed)')
+  }
+  const planning = String(Array.isArray(answers.q3_4_planningConsents)
+    ? answers.q3_4_planningConsents.join(' ')
+    : answers.q3_4_planningConsents || '')
+  if (planning.toLowerCase().includes('unsure')) {
+    deficiencies += 1
+    reasons.push('planning route not yet established')
+  }
+  const sevs = (senseCheck?.warnings || []).map(w => w.severity)
+  if (sevs.includes('high')) {
+    deficiencies += 2
+    reasons.push('automated sense check raised a high-severity warning')
+  } else if (sevs.includes('medium')) {
+    deficiencies += 1
+    reasons.push('automated sense check raised warnings')
+  }
+  if ((cost.excludedNoQuantity || []).length > 0) {
+    deficiencies += 1
+    reasons.push('selected scope items excluded pending quantities')
+  }
+  if (cost.additionalScopeNote) {
+    deficiencies += 1
+    reasons.push('specialist scope noted but not priced')
+  }
+
+  const score = deficiencies === 0 ? 'A' : deficiencies === 1 ? 'B' : deficiencies <= 3 ? 'C' : 'D'
+  const labels = { A: 'High Confidence', B: 'Moderate Confidence', C: 'Limited Confidence', D: 'High Uncertainty' }
+  return { score, label: labels[score], reasons }
+}
+
+// Absolute seed guarantee: any required access-constraint seed the model
+// dropped is appended deterministically from ACCESS_RISK_SEEDS (the full
+// wording lives in code, so no information is lost by repairing here).
+function ensureSeedRisks(prose, answers) {
+  const ac = (answers.q3_5_accessConstraints || []).map(a => a.toLowerCase())
+  if (ac.some(a => a.includes('no access constraints') || a.includes('none'))) return
+  const required = ACCESS_RISK_SEEDS.filter(s => ac.some(a => a.includes(s.trigger)))
+  if (required.length === 0) return
+  const present = new Set((prose.riskRegister || []).map(r => r.seedRef).filter(ref => ref && ref !== 'NONE'))
+  for (const seed of required) {
+    if (present.has(seed.ref)) continue
+    console.warn(`[Step 3] Seed ${seed.ref} missing from riskRegister — appended deterministically`)
+    prose.riskRegister.push({
+      ref: `R${String(prose.riskRegister.length + 1).padStart(2, '0')}`,
+      category: seed.category,
+      description: seed.description,
+      likelihood: seed.likelihood,
+      impact: seed.impact,
+      rating: seed.rating,
+      mitigation: seed.mitigation,
+      seedRef: seed.ref,
+    })
   }
 }
 
@@ -267,6 +434,7 @@ const ACCESS_RISK_SEEDS = [
   {
     trigger: 'no vehicle access',
     ref: 'ACC-A',
+    category: 'Technical',
     description: 'Materials, plant handling and waste removal constrained; productivity loss and double-handling due to no vehicle access.',
     likelihood: 'Medium', impact: 'High', rating: 'High',
     mitigation: 'Confirm offload and storage strategy; craneage or hoist plan; logistics method statement required at tender.',
@@ -274,6 +442,7 @@ const ACCESS_RISK_SEEDS = [
   {
     trigger: 'term-time',
     ref: 'ACC-B',
+    category: 'Programme',
     description: 'Works confined to vacation windows; programme spans multiple academic terms; risk of overrun into term time.',
     likelihood: 'High', impact: 'High', rating: 'High',
     mitigation: 'Phase works to vacation windows; agree blackout dates with faculty; build programme float; consider out-of-hours working.',
@@ -281,6 +450,7 @@ const ACCESS_RISK_SEEDS = [
   {
     trigger: 'scaffold licence',
     ref: 'ACC-C',
+    category: 'Regulatory',
     description: 'Highway or public-realm scaffold licence lead time and conditions; possible refusal or delay by local authority.',
     likelihood: 'Medium', impact: 'Medium', rating: 'Medium',
     mitigation: 'Apply for licence early; confirm pavement/road licence period and inspection regime with the authority before tender.',
@@ -288,6 +458,7 @@ const ACCESS_RISK_SEEDS = [
   {
     trigger: 'restricted',
     ref: 'ACC-D',
+    category: 'Programme',
     description: 'Restricted working hours extend construction duration and may attract premium or out-of-hours rates.',
     likelihood: 'Medium', impact: 'Medium', rating: 'Medium',
     mitigation: 'Confirm permitted hours with the client; price out-of-hours working where programme-critical; reflect in Prelims.',
@@ -295,6 +466,7 @@ const ACCESS_RISK_SEEDS = [
   {
     trigger: 'shared access',
     ref: 'ACC-E',
+    category: 'Programme',
     description: 'Coordination required with other occupiers; risk of access disputes and need to protect shared circulation routes.',
     likelihood: 'Medium', impact: 'Medium', rating: 'Medium',
     mitigation: 'Agree access protocol, signage, and routes/times with neighbouring occupiers before works commence.',
@@ -302,19 +474,12 @@ const ACCESS_RISK_SEEDS = [
   {
     trigger: 'height',
     ref: 'ACC-F',
+    category: 'Technical',
     description: 'Height or weight limits on site restrict plant and delivery vehicle size, requiring specialist or smaller plant and more frequent deliveries.',
     likelihood: 'Low', impact: 'Medium', rating: 'Low',
     mitigation: 'Survey access route; confirm vehicle dimension and weight limits; plan delivery sizes and frequency accordingly.',
   },
 ]
-
-// How many deterministic access-constraint seeds apply to these answers.
-// Shared by the prompt builder and the post-call validation guard.
-function countAccessRiskSeeds(accessConstraints) {
-  const ac = (accessConstraints || []).map(a => a.toLowerCase())
-  if (ac.some(a => a.includes('no access constraints') || a.includes('none'))) return 0
-  return ACCESS_RISK_SEEDS.filter(s => ac.some(a => a.includes(s.trigger))).length
-}
 
 function buildAccessRiskSeeds(accessConstraints) {
   const ac = (accessConstraints || []).map(a => a.toLowerCase())
@@ -322,12 +487,12 @@ function buildAccessRiskSeeds(accessConstraints) {
   const seeds = ACCESS_RISK_SEEDS.filter(s => ac.some(a => a.includes(s.trigger)))
   if (seeds.length === 0) return ''
   const lines = seeds.map(s =>
-    `- ${s.description} | L: ${s.likelihood} | I: ${s.impact} | RAG: ${s.rating} | Mitigation: ${s.mitigation}`
+    `- Ref: ${s.ref} | Category: ${s.category} | ${s.description} | L: ${s.likelihood} | I: ${s.impact} | RAG: ${s.rating} | Mitigation: ${s.mitigation}`
   ).join('\n')
-  return `\nDETERMINISTIC RISK SEEDS — include ALL of these in riskRegister exactly as seeded (do not alter L/I/Rating):\n${lines}\n`
+  return `\nDETERMINISTIC RISK SEEDS — include ALL of these in riskRegister exactly as seeded (do not alter L/I/Rating; set the entry's seedRef to the given Ref):\n${lines}\n`
 }
 
-function buildProsePrompt(answers, cost, programme, senseCheck) {
+function buildProsePrompt(answers, cost, programme, senseCheck, confidence) {
   const f1k = n => `£${(Math.round((n || 0) / 1000) * 1000).toLocaleString('en-GB')}`
   const f = n => `£${Math.round(n || 0).toLocaleString('en-GB')}`
 
@@ -356,7 +521,9 @@ function buildProsePrompt(answers, cost, programme, senseCheck) {
       cost.excludedNoQuantity.map(e => `- ${e.description}`).join('\n') + '\n'
     : ''
 
-  return `Generate prose sections for a RIBA Stage 1 Feasibility Report. Return ONLY valid JSON.
+  return `Generate prose sections for a RIBA Stage 1 Feasibility Report by calling the submit_report_prose tool.
+
+CONFIDENCE GRADE (pre-computed deterministically — do NOT choose your own): Grade ${confidence.score} (${confidence.label})${confidence.reasons.length ? ` — drivers: ${confidence.reasons.join('; ')}` : ''}. State this grade in the executive summary.
 
 PROJECT CONTEXT:
 Name: ${answers.q1_0_projectName}
@@ -406,14 +573,12 @@ ${senseCheck?.hasWarnings
     senseCheck.warnings.map(w =>
       `[${w.severity.toUpperCase()} / ${w.code}] ${w.message}`
     ).join('\n') +
-    `\n\nInstructions for warnings:\n- HIGH warnings: flag prominently in the Executive Summary; lower confidenceScore by one grade from what you would otherwise assign.\n- MEDIUM warnings: include as a cost or programme risk entry in riskRegister with a verification recommendation.\n- LOW warnings: mention briefly in the costNarrative or procurementNarrative as a programme note.\n`
+    `\n\nInstructions for warnings:\n- HIGH warnings: flag prominently in the Executive Summary (the pre-computed confidence grade already reflects them).\n- MEDIUM warnings: include as a cost or programme risk entry in riskRegister with a verification recommendation.\n- LOW warnings: mention briefly in the costNarrative or procurementNarrative as a programme note.\n`
   : `\nSENSE CHECK: All automated checks passed — no anomalies detected.\n`
 }
-Return this exact JSON structure:
+Populate the tool arguments following this field guidance:
 {
-  "confidenceScore": "A|B|C|D",
-  "confidenceLabel": "High Confidence|Moderate Confidence|Limited Confidence|High Uncertainty",
-  "executiveSummary": "3 to 4 sentences. State project name, type, location, GIFA, objective. Quote total cost as ${f1k(cost.total.low)} to ${f1k(cost.total.high)} (excluding VAT). State confidence grade and target date status. Name the top risk in one phrase.",
+  "executiveSummary": "3 to 4 sentences. State project name, type, location, GIFA, objective. Quote total cost as ${f1k(cost.total.low)} to ${f1k(cost.total.high)} (excluding VAT). State the pre-computed confidence grade and target date status. Name the top risk in one phrase.",
   "keyFindings": [
     "One sentence. Start with the single most important cost or programme finding.",
     "One sentence. State whether the target date is achievable or not, with reason.",
@@ -428,7 +593,8 @@ Return this exact JSON structure:
       "likelihood": "High|Medium|Low",
       "impact": "High|Medium|Low",
       "rating": "High|Medium|Low",
-      "mitigation": "One sentence specific mitigation action."
+      "mitigation": "One sentence specific mitigation action.",
+      "seedRef": "The seed's Ref code (e.g. ACC-B) for entries from DETERMINISTIC RISK SEEDS; NONE for all other risks."
     }
   ],
   "scopeAssumptions": [
@@ -475,6 +641,12 @@ function serializeCost(cost) {
     bandFactor: cost.bandFactor,
     percentages: cost.percentages,
     breakdown: cost.breakdown,
+    // Estimate Basis data — keeps the HTML report's basis section in step
+    // with the docx builder, which receives the full cost object.
+    excludedNoQuantity: cost.excludedNoQuantity,
+    additionalScopeNote: cost.additionalScopeNote,
+    workbookVersion: cost.workbookVersion,
+    bcisDefaulted: cost.bcisDefaulted,
   }
 }
 
@@ -499,5 +671,6 @@ function serializeProgramme(programme) {
     constructionType:    programme.constructionType,
     grantGovernanceWeeks: programme.grantGovernanceWeeks,
     procurementNote:     programme.procurementNote,
+    workbookVersion:     programme.workbookVersion,
   }
 }

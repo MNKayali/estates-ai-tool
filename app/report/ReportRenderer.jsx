@@ -421,6 +421,11 @@ export default function ReportRenderer({ data, reportId }) {
             </p>
             {aiProse?.costNarrative && <p style={{ ...bodyText, marginBottom: '20px' }}>{aiProse.costNarrative}</p>}
 
+            <SubHdr>Estimate Basis</SubHdr>
+            <ul style={listStyle}>
+              {buildEstimateBasis(cost, programme, dateStr).map((b, i) => <li key={i} style={liStyle}>{b}</li>)}
+            </ul>
+
             <div className="cost-works-table">
               <SubHdr>Section 1 — Works Cost</SubHdr>
               {cost?.lineItems?.length > 0
@@ -454,6 +459,13 @@ export default function ReportRenderer({ data, reportId }) {
             <ul style={listStyle}>
               {costExclusions(cost).map((e, i) => <li key={i} style={liStyle}>{e}</li>)}
             </ul>
+
+            {(cost?.excludedNoQuantity?.length > 0 || cost?.additionalScopeNote) && <>
+              <SubHdr>Selected Items Not Costed</SubHdr>
+              <ul style={listStyle}>
+                {buildNotCosted(cost).map((e, i) => <li key={i} style={liStyle}>{e}</li>)}
+              </ul>
+            </>}
             </>}  {/* end showCost */}
 
             {/* ── Section 6: ROI (optional + data-conditional) ── */}
@@ -1022,6 +1034,28 @@ function calcRoi(answers, cost) {
   // with the headline range rather than the separately-rounded model mid.
   const mid = Math.round(((low + high) / 2) / 1000) * 1000
   return { annual, mid, paybackYears: Math.round((mid / annual) * 10) / 10 }
+}
+
+// Mirrors estimateBasisParas in lib/reportBuilder.js — keep the two in sync.
+function buildEstimateBasis(cost, programme, dateStr) {
+  if (!cost) return []
+  const sources = [cost.workbookVersion, programme?.workbookVersion].filter(Boolean).join(' and ')
+  return [
+    `This is an NRM1 order of cost estimate prepared at RIBA Stage 0–1 from benchmark rates, not measured quantities. At this stage outturn costs typically vary by ±20–25% as the design develops; the range shown reflects benchmark rate uncertainty only.`,
+    `Data sources: ${sources || 'Estates AI rates and programme workbooks'}. Report generated ${dateStr}; rates are current at the workbook issue date.`,
+    `Location adjustment: BCIS factor ${cost.bcisFactor} (${cost.bcisRegion})${cost.bcisDefaulted ? ' — applied as a default because the postcode matched no BCIS region; verify the postcode before relying on location-adjusted rates' : ''}.`,
+    `Inflation allowance (F) at ${cost.percentages?.inflation}% covers forecast tender and construction inflation over the ${programme?.totalWeeks ?? '—'}-week programme, measured from the estimate base date (the date of generation).`,
+  ]
+}
+
+// Mirrors notCostedParas in lib/reportBuilder.js — keep the two in sync.
+function buildNotCosted(cost) {
+  if (!cost) return []
+  return [
+    ...(cost.excludedNoQuantity || []).map(e =>
+      `${e.description} — selected in scope but excluded from the estimate pending a confirmed quantity.`),
+    ...(cost.additionalScopeNote ? [cost.additionalScopeNote] : []),
+  ]
 }
 
 function buildCostAssumptions(cost, answers) {
