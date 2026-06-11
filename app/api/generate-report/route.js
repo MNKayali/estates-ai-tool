@@ -682,5 +682,7 @@ function serializeProgramme(programme) {
     grantGovernanceWeeks: programme.grantGovernanceWeeks,
     procurementNote:     programme.procurementNote,
     workbookVersion:     programme.workbookVersion,
+    phasingNote:         programme.phasingNote,
+    programmeStartNote:  programme.programmeStartNote,
   }
 }
