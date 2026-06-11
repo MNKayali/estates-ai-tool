@@ -5,9 +5,14 @@
  * Set ACCESS_CODE in your environment variables (Vercel or .env.local).
  * If ACCESS_CODE is not set, all routes pass through (development mode).
  *
- * Cookie name: estate_access
+ * Cookie name: estate_access  (colleague access)  ·  estate_admin (admin area)
  * Protected pages  → redirect to /access on failure
  * Protected API    → return 401 JSON on failure
+ *
+ * Admin: /api/admin/* is gated separately against ADMIN_CODE (estate_admin
+ * cookie). /api/admin/login is public (it issues the cookie). The /admin page
+ * itself is not gated here — it self-gates by calling the admin API and showing
+ * a login form on 401, so the bare shell leaks no data.
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAccessCode } from '@/lib/cookieAuth'
@@ -17,6 +22,19 @@ const PROTECTED_API   = ['/api/generate-report', '/api/reports', '/api/report-pd
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // ── Admin API gate (distinct credential) ──────────────────────────────────
+  // Evaluated first so admin endpoints never fall through to the access-code path.
+  if (pathname.startsWith('/api/admin') && pathname !== '/api/admin/login') {
+    const adminCode = process.env.ADMIN_CODE
+    if (!adminCode) return NextResponse.next()  // dev mode: no admin code set
+    const adminCookie = request.cookies.get('estate_admin')?.value
+    if (await verifyAccessCode(adminCookie, adminCode)) return NextResponse.next()
+    return NextResponse.json(
+      { error: 'Admin authentication required.' },
+      { status: 401 }
+    )
+  }
 
   const isProtectedPage = PROTECTED_PAGES.some(p => pathname.startsWith(p))
   const isProtectedApi  = PROTECTED_API.some(p => pathname.startsWith(p))
@@ -54,5 +72,6 @@ export const config = {
     '/api/reports/:path*',
     '/api/report-pdf/:path*',
     '/api/feedback/:path*',
+    '/api/admin/:path*',
   ],
 }

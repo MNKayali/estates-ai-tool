@@ -103,9 +103,11 @@ All shared primitives live in `app/components/ui.jsx`: `Button`, `Badge`, `Card`
 | `AI_API_KEY` | Anthropic key for the prose call | step 3 fails |
 | `RATES_FILE_URL` | NRM1 v4.5 rates workbook | cost calc throws |
 | `PROGRAMME_FILE_URL` | Programme v4.3 workbook | programme calc throws |
-| `ACCESS_CODE` | Gate code | all routes open (dev) |
-| `COOKIE_SECRET` | HMAC key for access cookie (`lib/cookieAuth.js`) | falls back to raw-code comparison (set this in prod) |
+| `ACCESS_CODE` | Colleague gate code | all routes open (dev) |
+| `ADMIN_CODE` | Admin-area code for `/admin` + `/api/admin/*` (distinct from `ACCESS_CODE`; `estate_admin` cookie) | admin area open (dev) |
+| `COOKIE_SECRET` | HMAC key for access + admin cookies (`lib/cookieAuth.js`) | falls back to raw-code comparison (set this in prod) |
 | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Vercel KV | persistence disabled |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry error capture (`sentry.*.config.ts`) | error capture disabled (no-op) |
 
 **Security:** `AI_API_KEY` never in committed code or output; read inside the request handler, BOM-stripped. `COOKIE_SECRET` must be a cryptographically random string (≥ 32 chars); generate once with `openssl rand -hex 32`.
 
