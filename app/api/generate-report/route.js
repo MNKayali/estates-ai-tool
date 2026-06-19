@@ -15,6 +15,7 @@ import { calculateProgramme } from '@/lib/programmeCalculator'
 import { buildReport } from '@/lib/reportBuilder'
 import { saveReport } from '@/lib/kv'
 import { runSenseCheck } from '@/lib/senseCheck'
+import { PROSE_MODEL, PROSE_TOOL, AI_SYSTEM_PROMPT, getAnthropicKey } from '@/lib/proseSchema'
 
 // Report a caught pipeline failure to Sentry with the exact answers that
 // triggered it, so a crash a colleague never reports still arrives reproducible.
@@ -30,12 +31,10 @@ function capturePipelineError(e, step, answers) {
 // The Claude prose call can take 20–40s; allow headroom on the serverless runtime.
 export const maxDuration = 60
 
-// Read inside handler so it picks up env vars after module init
-function getAnthropicKey() {
-  return (process.env.AI_API_KEY || '').replace(/^﻿/, '')
-}
-
 export async function POST(request) {
+  // Request-level clock. The AI call's deadline is derived from this so it never
+  // overruns the 60 s function ceiling once the docx build + KV write are added.
+  const requestStart = Date.now()
   try {
     const body = await request.json()
     const { answers } = body
@@ -137,7 +136,9 @@ export async function POST(request) {
     console.log('[Step 3] Calling Claude for prose...')
     let aiProse
     try {
-      aiProse = await callClaudeForProse(answers, cost, programme, senseCheck)
+      // Leave ~7 s of the 60 s ceiling for the docx build + KV write that follow.
+      const proseDeadline = requestStart + 53_000
+      aiProse = await callClaudeForProse(answers, cost, programme, senseCheck, proseDeadline)
     } catch (e) {
       console.error('[Step 3 error]', e.message)
       capturePipelineError(e, 'prose', answers)
@@ -200,113 +201,33 @@ export async function POST(request) {
 }
 
 // ─── AI prose call ────────────────────────────────────────────────────────────
+// PROSE_MODEL, PROSE_TOOL, AI_SYSTEM_PROMPT and getAnthropicKey live in
+// lib/proseSchema.js so the warm-up route (/api/warm-prose) can compile the
+// exact same strict schema into the shared 24h schema cache.
 
-const AI_SYSTEM_PROMPT = `You are a UK construction feasibility consultant writing a RIBA Stage 1 Feasibility Report.
-You receive pre-calculated cost and programme data. Your job is to write prose only.
-
-ABSOLUTE RULES — failure to follow these will invalidate the report:
-1. Do NOT recalculate or change any number. All costs, percentages, durations, and totals are already calculated and provided to you.
-2. Write in British English.
-3. No markdown formatting — no **, no #, no bullet characters (-, *, •). The Word template handles all formatting.
-4. No tables — tables are built from the fixed data by the code, not by you.
-5. Deliver the report content by calling the submit_report_prose tool with every field populated. All prose goes in the tool arguments — no other output.
-6. If a conditional section (ROI, Procurement) is not applicable, return an empty string for that key.
-7. Write concisely — each prose section should be 2–4 sentences maximum unless specified otherwise.
-8. Risk register: provide 5 to 8 risks. Each risk must cite a specific questionnaire input as its trigger.
-9. DETERMINISTIC RISK SEEDS: if the prompt contains a "DETERMINISTIC RISK SEEDS" section, you MUST include every listed seed as a risk register entry, setting that entry's seedRef to the seed's Ref code (e.g. ACC-B). Set seedRef to NONE for all non-seeded risks. Do not omit any seed. Do not add access-constraint risks that are not seeded. You may expand the prose but must not change the Likelihood/Impact/Rating values.
-10. QUANTITIES — never invent a count. When you state how many of something there is (cubicles, WCs, rooms, fittings, luminaires, units, storeys, etc.), use only the figures given in PRICED SCOPE LINE ITEMS or PROJECT CONTEXT. If a quantity is not provided, describe the item without attaching a number. Never round, estimate, or guess a quantity.
-11. HISTORY & ASSUMPTIONS — do not invent dates, prior works, completed installations, or survey findings. Reference building history only where it is explicitly given under "Previous works and building history"; if that is "Not stated", assume no prior works. Every item in PRICED SCOPE LINE ITEMS is in scope and is being costed: never write that a scoped item is unnecessary, already completed, recently replaced, or excluded.
-12. CONFIDENCE GRADE — the grade is pre-computed deterministically and given in the prompt. State it where instructed; never choose or imply a different grade.`
-
-// Strict-schema tool the model is forced to call. The API validates the
-// arguments against this schema, so "Claude returned non-JSON prose" is no
-// longer a failure mode and enums (likelihood/rating/category) are enforced
-// upstream rather than policed by prompt text.
-const RAG = ['High', 'Medium', 'Low']
-const PROSE_TOOL = {
-  name: 'submit_report_prose',
-  description: 'Submit the prose sections of the RIBA Stage 1 feasibility report. Call exactly once with every field populated.',
-  strict: true,
-  input_schema: {
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      executiveSummary: { type: 'string' },
-      keyFindings: { type: 'array', items: { type: 'string' } },
-      riskRegister: {
-        type: 'array',
-        items: {
-          type: 'object',
-          additionalProperties: false,
-          properties: {
-            ref: { type: 'string' },
-            category: { type: 'string', enum: ['Cost', 'Programme', 'Technical', 'Procurement', 'Regulatory', 'Health & Safety'] },
-            description: { type: 'string' },
-            likelihood: { type: 'string', enum: RAG },
-            impact: { type: 'string', enum: RAG },
-            rating: { type: 'string', enum: RAG },
-            mitigation: { type: 'string' },
-            seedRef: { type: 'string', enum: ['ACC-A', 'ACC-B', 'ACC-C', 'ACC-D', 'ACC-E', 'ACC-F', 'NONE'] },
-          },
-          required: ['ref', 'category', 'description', 'likelihood', 'impact', 'rating', 'mitigation', 'seedRef'],
-        },
-      },
-      scopeAssumptions: { type: 'array', items: { type: 'string' } },
-      costNarrative: { type: 'string' },
-      roiNarrative: { type: 'string' },
-      procurementRoute: { type: 'string' },
-      procurementContractForm: { type: 'string' },
-      procurementDesignResp: { type: 'string' },
-      procurementTenderType: { type: 'string' },
-      procurementNarrative: { type: 'string' },
-      procurementConsiderations: { type: 'array', items: { type: 'string' } },
-      procurementConflicts: { type: 'array', items: { type: 'string' } },
-      constraints: {
-        type: 'array',
-        items: {
-          type: 'object',
-          additionalProperties: false,
-          properties: {
-            category: { type: 'string', enum: ['Planning', 'Access', 'Programme', 'Technical', 'Financial', 'Regulatory'] },
-            title: { type: 'string' },
-            text: { type: 'string' },
-          },
-          required: ['category', 'title', 'text'],
-        },
-      },
-      nextSteps: { type: 'array', items: { type: 'string' } },
-    },
-    required: [
-      'executiveSummary', 'keyFindings', 'riskRegister', 'scopeAssumptions',
-      'costNarrative', 'roiNarrative', 'procurementRoute', 'procurementContractForm',
-      'procurementDesignResp', 'procurementTenderType', 'procurementNarrative',
-      'procurementConsiderations', 'procurementConflicts', 'constraints', 'nextSteps',
-    ],
-  },
-}
-
-async function callClaudeForProse(answers, cost, programme, senseCheck) {
+async function callClaudeForProse(answers, cost, programme, senseCheck, deadline) {
   const confidence = computeConfidence(answers, cost, senseCheck)
   const basePrompt = buildProsePrompt(answers, cost, programme, senseCheck, confidence)
 
-  // One retry with the validation error fed back, inside a fixed overall
-  // budget that fits Vercel Hobby's 60 s ceiling alongside the deterministic
-  // steps. A full report runs ~30–40 s on Haiku (plus a one-off ~10 s schema
-  // compilation on the very first request after a deploy), so the first
-  // attempt gets the whole window; the retry only fires when the first
-  // attempt failed fast (API error / quick validation failure) and at least
-  // 15 s of budget remains.
-  const TOTAL_BUDGET_MS = 50_000
-  const startedAt = Date.now()
+  // One retry with the validation error fed back, bounded by `deadline` — an
+  // absolute timestamp the caller sets from the request clock so it already
+  // reserves the 60 s Vercel Hobby ceiling minus the deterministic steps
+  // (which ran before this) and the docx build + KV write (which run after).
+  // The first attempt is capped so a second can fire if the first fails fast;
+  // with the strict schema kept warm (see /api/warm-prose) and a lean
+  // max_tokens, a full report runs ~20–30 s on Haiku.
+  const FIRST_ATTEMPT_MS = 35_000
+  const MIN_ATTEMPT_MS = 8_000
   let lastErr
   for (let attempt = 0; attempt < 2; attempt++) {
-    const remaining = TOTAL_BUDGET_MS - (Date.now() - startedAt)
-    if (attempt > 0 && remaining < 15_000) break
+    const remaining = deadline - Date.now()
+    if (remaining < MIN_ATTEMPT_MS) break
+    const budget = attempt === 0 ? Math.min(FIRST_ATTEMPT_MS, remaining) : remaining
     const prompt = attempt === 0
       ? basePrompt
       : `${basePrompt}\n\nYOUR PREVIOUS ATTEMPT FAILED VALIDATION: ${lastErr.message}\nCall the tool again with the complete, corrected payload.`
     try {
-      const prose = await requestProse(prompt, Math.max(remaining, 5_000))
+      const prose = await requestProse(prompt, budget)
       validateProse(prose)
       ensureSeedRisks(prose, answers)
       prose.confidenceScore = confidence.score
@@ -321,12 +242,16 @@ async function callClaudeForProse(answers, cost, programme, senseCheck) {
 }
 
 // Single API round-trip: forced tool call, schema-validated by the API.
+// Streamed (stream: true) so the AbortController is a true wall-clock guard and
+// a slow/idle connection can't silently consume the whole budget with no
+// progress — the documented practice for high-max_tokens calls. The forced
+// tool's arguments arrive as input_json_delta fragments which we concatenate
+// and JSON.parse once the stream ends.
 async function requestProse(prompt, timeoutMs) {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), timeoutMs)
-  let res
   try {
-    res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -334,9 +259,10 @@ async function requestProse(prompt, timeoutMs) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 6000,
+        model: PROSE_MODEL,
+        max_tokens: 3500,
         temperature: 0.3,
+        stream: true,
         system: AI_SYSTEM_PROMPT,
         tools: [PROSE_TOOL],
         tool_choice: { type: 'tool', name: 'submit_report_prose', disable_parallel_tool_use: true },
@@ -344,22 +270,72 @@ async function requestProse(prompt, timeoutMs) {
       }),
       signal: controller.signal,
     })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(`Claude API ${res.status}: ${JSON.stringify(err)}`)
+    }
+    const { toolJson, stopReason } = await readToolUseStream(res.body)
+    if (!toolJson) {
+      throw new Error(`Claude returned no ${PROSE_TOOL.name} tool call (stop_reason: ${stopReason})`)
+    }
+    let input
+    try {
+      input = JSON.parse(toolJson)
+    } catch {
+      throw new Error('Claude tool arguments were not valid JSON (response likely truncated)')
+    }
+    return input
   } catch (e) {
     if (e.name === 'AbortError') throw new Error(`Claude API timed out after ${Math.round(timeoutMs / 1000)}s`)
     throw e
   } finally {
     clearTimeout(timeout)
   }
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(`Claude API ${res.status}: ${JSON.stringify(err)}`)
+}
+
+// Parse the Anthropic SSE stream and reassemble the forced tool_use arguments.
+// We only care about the single tool_use block's input_json_delta fragments and
+// the final stop_reason; everything else is ignored.
+async function readToolUseStream(body) {
+  const reader = body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let toolJson = ''
+  let stopReason = null
+  let sawToolUse = false
+
+  const handleData = (json) => {
+    let evt
+    try { evt = JSON.parse(json) } catch { return }
+    if (evt.type === 'content_block_start' && evt.content_block?.type === 'tool_use') {
+      sawToolUse = true
+    } else if (evt.type === 'content_block_delta' && evt.delta?.type === 'input_json_delta') {
+      toolJson += evt.delta.partial_json || ''
+    } else if (evt.type === 'message_delta' && evt.delta?.stop_reason) {
+      stopReason = evt.delta.stop_reason
+    } else if (evt.type === 'error') {
+      throw new Error(`Claude API stream error: ${JSON.stringify(evt.error || evt)}`)
+    }
   }
-  const data = await res.json()
-  const toolUse = (data.content || []).find(b => b.type === 'tool_use' && b.name === PROSE_TOOL.name)
-  if (!toolUse || !toolUse.input) {
-    throw new Error(`Claude returned no ${PROSE_TOOL.name} tool call (stop_reason: ${data.stop_reason})`)
+
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    // SSE frames are separated by a blank line; each frame may carry a data: line.
+    let sep
+    while ((sep = buffer.indexOf('\n\n')) !== -1) {
+      const frame = buffer.slice(0, sep)
+      buffer = buffer.slice(sep + 2)
+      for (const line of frame.split('\n')) {
+        const trimmed = line.trimStart()
+        if (trimmed.startsWith('data:')) handleData(trimmed.slice(5).trim())
+      }
+    }
   }
-  return toolUse.input
+  // An empty tool_use block with no deltas should still surface as "no tool call".
+  if (!sawToolUse) toolJson = ''
+  return { toolJson, stopReason }
 }
 
 // Structural safety net behind the API-side schema validation — kept so a

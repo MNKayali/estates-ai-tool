@@ -296,6 +296,13 @@ export default function QuestionnairePage() {
     return () => { alive = false }
   }, [])
 
+  // Fire-and-forget: warm the strict prose-tool schema into Anthropic's ~24h
+  // cache so the final report generation skips the cold-compile cost that
+  // otherwise risks a timeout under the 60s function ceiling. Once on mount,
+  // and again when the user reaches the final (Report) section as a top-up.
+  useEffect(() => { fetch('/api/warm-prose').catch(() => {}) }, [])
+  useEffect(() => { if (section >= 6) fetch('/api/warm-prose').catch(() => {}) }, [section])
+
   useEffect(() => {
     if (Object.keys(answers).length > 0) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(answers))
