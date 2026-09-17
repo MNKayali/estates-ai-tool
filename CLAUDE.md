@@ -4,9 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 @AGENTS.md
 
-> The line above is intentional and important: this repo runs **Next.js 16.2.6**, which
+> The line above is intentional and important: this repo runs **Next.js 16.3.5**, which
 > has breaking changes vs. older versions. Read the relevant guide in
-> `node_modules/next/dist/docs/` before writing framework code.
+> `node_modules/next/dist/docs/` before writing framework code. (Bumped from 16.2.6 in
+> September 2026 to fix a critical RCE — see "Recent Work & Status" below. Both are
+> within the 16.x line; nothing about the Next 16 migration notes changed.)
 
 > **June 2026 re-alignment:** the two workbooks are now **NRM1 v4.5** and **Programme v4.3**,
 > and the questionnaire is **v7**. The calculators were rebuilt to match them. If anything
@@ -15,15 +17,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev      # local dev server at http://localhost:3000
-npm run build    # production build (run this to typecheck/validate before pushing)
-npm run start    # serve the production build
-npm run lint     # eslint (flat config: eslint.config.mjs)
+npm run dev        # local dev server at http://localhost:3000
+npm run build      # production build (run this to typecheck/validate before pushing)
+npm run start      # serve the production build
+npm run lint       # eslint (flat config: eslint.config.mjs)
+npm test           # vitest — see lib/__tests__/
+npm run test:watch # vitest in watch mode
 ```
 
-There is **no test framework**. "Verifying a change" means `npm run build` plus exercising the flow in the browser.
+**Vitest** (`vitest.config.mjs` + `vitest.setup.mjs`) covers `lib/costCalculator.js`, `lib/programmeCalculator.js`, `lib/senseCheck.js` and `lib/prose.js` — the percentage-rule matcher, size-band boundaries, budget verdict and confidence-grading logic, including regression tests pinned to the exact "general pattern shadows specific" bugs found and fixed in this codebase's history. `budgetVerdict()`, `computeConfidence()` and `ensureSeedRisks()` are pure and run instantly; the cost/programme calculator tests fetch the real remote workbooks (there is no offline fixture — `vitest.setup.mjs` loads `.env.local` manually the same way `scripts/baseline.mjs` does, for the same reason both need `RATES_FILE_URL`/`PROGRAMME_FILE_URL`) and are consequently slower and dependent on those URLs being reachable.
+
+`scripts/baseline.mjs` remains the tool for **"did this change move any number"**, across ~75 scenarios via snapshot diffing — see its own header. Vitest is for **"does this specific rule behave the way it's supposed to,"** with a readable assertion and failure message rather than an opaque diff. Use both: baseline.mjs before/after a change that must not move anything, Vitest for anything with a specific, statable rule.
+
+"Verifying a change" means `npm run build`, `npm test`, and exercising the flow in the browser.
 
 Environment is Windows: the **Bash tool fails** here. Use the **PowerShell tool**. Python is not installed — use Node.js and the `xlsx` npm package for any spreadsheet scripting.
+
+**`nutritrack/`, `portfolio-advisor/` and `Beach Game/`** are unrelated side projects that happen to live in this repo's root folder (untracked in git, not part of this app). `tsconfig.json` and `eslint.config.mjs` both explicitly exclude them — without that, a bare `npm run build` or `npm run lint` would try to typecheck/lint their unrelated dependency trees and fail. If either exclude list ever needs touching again, that's why it's there; don't remove it to "clean up" the config.
 
 ## What this app does
 
@@ -31,14 +41,50 @@ A gated Next.js (App Router) web tool that produces **UK RIBA Stage 0–1 feasib
 
 ## Core architectural rule: the AI never calculates a number
 
-`app/api/generate-report/route.js` runs four ordered steps:
+Report generation is split across **two requests**, not one — this is the fix for a structural reliability problem, not a style choice; see "Why two requests" below.
+
+**Phase 1 — `app/api/generate-report/route.js`** (deterministic only, returns in a few seconds):
 
 1. **`lib/costCalculator.js`** → deterministic NRM1 cost JSON (no AI).
 2. **`lib/programmeCalculator.js`** → deterministic RIBA programme JSON (no AI).
-3. **One Claude API call** (`callClaudeForProse`) → **prose only**, forbidden from recalculating, plus deterministic risk-register **seeds** (which risks appear is decided in code; the AI writes their wording).
-4. **`lib/reportBuilder.js`** → assembles the `.docx` from deterministic data + AI prose.
+3. Cost runs **twice** (once with `programmeWeeks = 0`, then after the programme is known) because Inflation (F) and the long-programme Prelims (A) trigger depend on programme length.
+4. **`lib/senseCheck.js`** → deterministic warnings + confidence grade (`computeConfidence` in `lib/prose.js`).
+5. **`lib/kv.js`'s `createReport()`** → writes the record with `status: 'deterministic'`, TTL 24h, and returns `{ reportId, cost, programme, budget, confidence }`. No AI call has happened yet.
 
-Cost runs **twice** (once with `programmeWeeks = 0`, then after the programme is known) because Inflation (F) and the long-programme Prelims (A) trigger depend on programme length. **Never let the AI invent or alter a figure.**
+**Phase 2 — `app/api/reports/[id]/prose/route.js`** (AI only, called by `/report/[id]` immediately after Phase 1 returns, and again on every subsequent attempt):
+
+6. **Two Claude API calls** (`requestProseHalf` in `lib/prose.js`) → **prose only**, forbidden from recalculating, plus deterministic risk-register **seeds** (which risks appear is decided in code; the AI writes their wording).
+7. **`lib/reportBuilder.js`** → assembles the `.docx` from deterministic data + AI prose, once both halves are in.
+8. **`lib/kv.js`'s `finaliseReport()`** → writes the complete record, `status: 'complete'`, TTL 90 days, and pushes it onto the admin index for the first time.
+
+**Never let the AI invent or alter a figure — and never let it invent a claim about what the tool's own automated checks found.** The system prompt (`AI_SYSTEM_PROMPT` in `lib/proseSchema.js`) has thirteen absolute rules; the last one exists because the model once fabricated a plausible-sounding "the automated sense check raised a warning" claim about a percentage rule that was never actually flagged — see "Recent Work & Status."
+
+### Why two requests
+
+Both AI calls used to run inside the same request as the deterministic steps, sharing one 48s slice of the 60s function ceiling (see git history for the single-call and two-parallel-call attempts that preceded this — both failed for different reasons). That worked most of the time (~27s typical) but had **no room for a retry of a slow half**: one bad API moment and the whole report — deterministic data included — was lost after the AI call had already been paid for.
+
+Splitting the AI phase into its own request removes the shared budget entirely. Phase 1 never touches the network and finishes in ~1s, so it cannot time out. Phase 2 gets a **fresh 60s** on every attempt — see "Resumability" below — so a slow API day costs extra round trips, not a lost report.
+
+The two Claude calls inside Phase 2 (`PROSE_HALVES` in `lib/prose.js`) still run **sequentially, not in parallel**: two concurrent streams each get about half the token throughput, so parallel saves no wall clock and pushes the longer half past its timeout (measured: risk half 4,780 chars in 11.7s alone vs 25.7s alongside the other). The schema is split into two disjoint strict tools in `lib/proseSchema.js` — `PROSE_TOOL_NARRATIVE` (summary, findings, assumptions, cost/ROI narrative, constraints, next steps) and `PROSE_TOOL_RISK` (risk register + procurement) — merged by `finaliseProse()` into the same flat `aiProse` object the original single tool used, so `reportBuilder.js` and `ReportRenderer.jsx` are unchanged. **Keep the two schemas disjoint**: a key in both would make merge order significant. Both halves get an identical context prefix and differ only in field guidance, so neither depends on the other's output — where the narrative needs the headline risk or the procurement route it reads them from the deterministic seeds and programme data.
+
+### Resumability
+
+`/report/[id]` (`app/report/[id]/page.jsx`) is the driver. It loads the Phase 1 record, renders it immediately (pending placeholders for the AI-only sections — see `ReportRenderer.jsx`'s `isPending`/`PendingNote`), and calls `POST /api/reports/[id]/prose` repeatedly until `status` is `'complete'`. Each call:
+
+- Skips any half already written (`lib/kv.js` sidecar keys `report:<id>:half:<narrative|risk>`).
+- Claims a per-half KV lock (`nx`, 75s TTL) before attempting it, so two tabs open on the same report split the two halves between them rather than duplicating spend — never retried in a hot loop if another invocation already holds it.
+- Checks the remaining budget against that half's own `minAttemptMs` (narrative 14s, risk 20s, from measured p50s) before starting — a half it can't finish this attempt simply isn't attempted, and the next call gets a fresh 60s.
+- Finalises (builds the `.docx`, writes the 90-day record) the moment both halves exist, however many calls that took.
+
+A tab that opens a shared link to a report already mid-generation elsewhere does **not** also start calling `/prose` — it polls the cheap `/api/reports/[id]/status` instead, so every viewer's tab doesn't pile onto the same lock contention.
+
+**This deployment is on Vercel Hobby: a hard 60s function ceiling.** `maxDuration = 60` on both routes. Do not raise it above 60 without moving to Pro/Fluid first: the platform kills the invocation regardless, and because the kill is external *none* of the error handling runs (no Sentry capture, no KV write, no JSON error) — Phase 2's resumability is what makes this survivable now (the next call just tries again), where it used to mean losing the whole report.
+
+`/api/warm-prose` must warm **both** schemas — a first-ever compile of an unseen schema costs ~23s, and an un-warmed half pays it on the real call.
+
+### No-KV fallback (local dev only)
+
+If `KV_REST_API_URL`/`KV_REST_API_TOKEN` are unset, `createReport()` returns `false` and Phase 1 has no shared state channel for a second request to resume from — there'd be nowhere to put the deterministic record between the two phases. `generate-report` falls back to `lib/prose.js`'s `runProseSequential()`, reproducing the old single-invocation behaviour (both halves in one request, `status: 'complete'` in the response, no `reportId` persisted anywhere). This is why KV is not really optional in production despite the graceful-degradation wrapper in `lib/kv.js` — without it, every report reverts to the original one-shot-or-lose-it reliability profile this whole split exists to fix.
 
 ## The calculators are driven by remote Excel workbooks
 
@@ -50,10 +96,11 @@ Reads sheets by exact name: `2. Master Cost Table`, `3. Percentage Rules`, `5. S
 - **Q2.3 band multiplier** is read from **Tab 5** (`bandFactors`); the design multiplier in Tab 5 is unused by cost (it lives in the Programme Modifiers sheet).
 - **Pricing is driven by each row's `Pricing Type` (col 6), not the Unit string**: `gifa_rate`→GIFA×rate×BCIS×band; `footprint_rate`→(GIFA/storeys)×rate×BCIS×band; `upperfloors_rate`→(GIFA×(storeys−1)/storeys)×rate×BCIS×band; `per_nr`→qty×rate×BCIS; `per_item`→1 (or captured count when `Quantity to capture` is a count)×rate×BCIS; `per_kwp`/`per_kwh`→qty×rate (no BCIS, no band). An unknown/blank Pricing Type is skipped (qty 0) and logged. Count-driven rows selected with no quantity are returned in `excludedNoQuantity` (surfaced in the prose so they are not lost).
 - Percentage additions A–H evaluated from Tab 3 rule rows. Contingency (H) fixed 5%. Inflation (F) tender vs construction bands are evaluated against component-specific spans (weeks-to-tender, construction-only weeks) — passed as `constructionWeeks` to `calculateCost`, not stashed on `answers`. **No percentages or risk numbers in code** (the design-stage fee ladder and risk-level RAG bands are explicit fallbacks only).
+- `checkCondition()`'s Tab 3 matching order matters: several money bugs earlier in this codebase's history came from a *general* condition (e.g. "Full planning (3–4%, use 3.5%)") matching before a *more specific* one (e.g. a listed-building 4% row), because the general row's test matched a substring of the *answer* rather than requiring its own condition text. If you touch this matcher, add a Vitest regression case in `lib/__tests__/costCalculator.test.js` alongside the two already there pinning this exact failure mode.
 
 ### programmeCalculator.js ← `PROGRAMME_FILE_URL` (Programme v4.3)
 **One unified 6-band size scheme (S1–S6)** for design *and* construction:
-`sizeBand(gifa)`: <150→S1 · ≤250→S2 · ≤500→S3 · ≤1500→S4 · ≤3000→S5 · >3000→S6.
+`sizeBand(gifa)`: <150→S1 · ≤250→S2 · ≤500→S3 · ≤1500→S4 · ≤3000→S5 · >3000→S6 (the `<`/`≤` boundaries are exact — 150 itself is S2, not S1; see `lib/__tests__/programmeCalculator.test.js` for the full boundary table).
 - Sheet `Durations` is **ID-keyed** (DS2, GW, GW3, SV1–6, PL0–5, BC1–2, TN1–3); columns are `ID · Phase · Activity · S1_Lo · S1_Hi … S6_Lo · S6_Hi · Unit · Type · ParallelWith · ScaledByQ2.3 · Trigger · Notes`. Skip rows with blank ID/Type (banners).
 - Sheet `Construction` matched by **Project Type name (col 1)**; bands `S1_Lo…S6_Hi`; `Handover` = CH1.
 - Sheet `Modifiers` owns the **Q2.3 design multiplier** (`Q23-1..Q23-4`, `Q23-NB`), occupation (`OCC`), phasing (`PH-1`), funding governance (`FN-1`), access (`ACC-1`/`ACC-2`), hard deadline (`DL-1`), float (`PROG-FLOAT`).
@@ -65,22 +112,30 @@ Changing a rate or duration means **editing the workbook, not the code**. Design
 ### senseCheck.js
 Runs after both calculators, before the AI call. Reads Sheet `8. Benchmark Check` from the NRM1 workbook (cost benchmarks live in the workbook, not in code). Also exports `budgetVerdict(answers, cost)` — a deterministic comparison of Q4.3 stated budget (incl. fees + VAT) against the gross estimate range; result goes into the AI prompt and the report payload. Programme benchmarks (wide size-band envelopes) remain in code because there is no matching programme-benchmark sheet.
 
+Exactly seven warning codes exist: `COST_LOW`, `COST_HIGH`, `POSTCODE_UNMATCHED`, `RULE_UNMATCHED` (marked `internal: true` — a workbook-parsing diagnostic for maintainers, never for the client), `PROG_SHORT`, `PROG_LONG`, `BUDGET_SHORTFALL`. `clientWarnings = warnings.filter(w => !w.internal)` is what reaches the AI prompt and the client-facing report. If you're ever debugging a risk-register entry that claims "the automated sense check raised a warning" about something not on this list, the AI fabricated it — see "SYSTEM DIAGNOSTICS" in `AI_SYSTEM_PROMPT` and "Recent Work & Status" below.
+
 ## Report output: built in code, not from the template file
 
 `reportBuilder.js` builds the Word doc programmatically with `docx` v9 (navy `#1A2E4A`, A4, 9 numbered sections). Section headings use Playfair Display in the Word output; body text uses Arial for universal compatibility. The `Estates_AI_Report_Template_PRODUCTION.docx` is the **design spec** the builder mirrors — it is not read at runtime. Keep `app/report/ReportRenderer.jsx` in sync with `reportBuilder.js` whenever report structure changes.
 
+**PDF export** (`app/api/report-pdf/[id]/route.js`) renders the *live* `/report/[id]?pdf=1` page via Puppeteer, so it shares `ReportRenderer.jsx`'s print CSS rather than having its own layout. That print CSS's section-header rule needs both `break-after: avoid` *and* `break-inside: avoid` — having only the former let a page boundary land between a "SECTION N" eyebrow label and its title, stranding the eyebrow alone and wasting a near-blank page while the title (and everything under it) moved to the next page. Fixed; if you touch `.section-hdr`'s print rules, keep both.
+
 ## Data flow & key conventions
 
 - Answer keys use `q<section>_<index>_<name>` and must match **Questionnaire v7** exactly. Canonical key set is defined at the top of `app/questionnaire/page.jsx` and used throughout. Notably: design stage = `q4_5_designStage`; phasing = `q4_6_phasing`; funding = `q4_7_funding`; BREEAM is in `q2_5_standards`; PV/BESS/lift/EV quantities are `q1_5_*`. There is **no** `q4_8`/`q4_9`.
-- **Persistence:** Vercel KV (`lib/kv.js`, key `report:<id>`, 90-day TTL). Optional — absent KV vars degrade silently. Canonical shareable URL is `/report/[id]`; `/report` is a legacy entry point that redirects to it.
-- **Access control:** `middleware.ts` (`proxy.ts`) checks the `estate_access` cookie (HMAC-signed via `lib/cookieAuth.js`) against `ACCESS_CODE`. If `ACCESS_CODE` is unset, all routes are open (dev mode).
-- **PDF export:** `app/api/report-pdf/[id]/route.js` generates a PDF from a stored report.
+- **Persistence:** Vercel KV (`lib/kv.js`, key `report:<id>`). 24h TTL while `status: 'deterministic'`, re-stamped to 90 days at finalise — see "Resumability" above for the full two-phase record lifecycle (`createReport` → `saveProseHalf` × 2 → `finaliseReport`). Absent KV vars degrade to the no-KV fallback described above rather than failing outright, but production needs KV configured for the reliability split to actually apply. Canonical shareable URL is `/report/[id]`; `/report` is a legacy entry point that redirects to it.
+- **Access control:** `proxy.ts` (Next 16's `middleware.ts` replacement) checks the `estate_access` cookie (HMAC-signed via `lib/cookieAuth.js`) against `ACCESS_CODE`, and `estate_admin` against `ADMIN_CODE` for `/admin` + `/api/admin/*`. Both gates **fail closed in production** when their code env var is unset (open only in local dev, `NODE_ENV !== 'production'`). `POST /api/logout` clears both cookies — there was previously no way to revoke either 30-day cookie short of clearing browser data by hand.
+- **Rate limiting:** `lib/rateLimit.js` (`@upstash/ratelimit` on the same KV store — no separate env var needed) sliding-window limits five routes: `check-access` (10/10m), `admin-login` (5/10m), `generate-report` (30/10m), `prose` (60/10m — generous, since the resumability driver legitimately calls it several times per report), `feedback` (10/1h). **Fails open**, not closed, on infra failure — an infra hiccup degrades to "no rate limiting" rather than "nobody can use the app," matching `lib/kv.js`'s own graceful-degradation posture.
+- **PDF export:** `app/api/report-pdf/[id]/route.js` — see "Report output" above. Guards against rendering a still-generating report (`status !== 'complete'` → 409).
 - **Scope items API:** `app/api/scope-items/route.js` returns the selectable scope codes from the NRM1 workbook, used to populate Q2.2 in the questionnaire.
 - **Building use matching:** `lib/buildingUse.js` exports `matchesBuildingUse()` and `BUILDING_USE_TAGS` — used to filter/validate Q1.3 building use against project type.
+- **Feedback:** `app/api/feedback/route.js` is **POST-only** — the GET that used to read entries back via `?key=<ACCESS_CODE>` in the query string was removed (a secret in a URL lands in logs/history/Referer, and it was redundant with `/api/admin/overview`, which serves the same `listFeedback()` data behind the proper cookie).
+- **Error boundaries:** `app/error.jsx` (any page under the root layout — preserves fonts/header, unlike `app/global-error.tsx` which only fires for a root-layout crash and discards the whole document), `app/questionnaire/error.jsx` (reassures the user their draft is still saved locally), `app/not-found.tsx`. All three capture to Sentry when `NEXT_PUBLIC_SENTRY_DSN` is set.
+- **Questionnaire draft storage:** `localStorage` key `estatesAI_v4_answers`, wrapped as `{ schemaVersion, answers }` (`STORAGE_SCHEMA_VERSION` in `app/questionnaire/page.jsx`). A version mismatch, malformed JSON, or non-object payload is discarded rather than rehydrated. Every read/write is guarded — an unguarded `localStorage.setItem` throwing (Safari private browsing, a full quota) inside a `useEffect` used to white-screen the whole page on the first keystroke.
 
 ## UI design system
 
-All shared primitives live in `app/components/ui.jsx`: `Button`, `Badge`, `Card`, `Stat`, `SectionHeader`, `Field`, `Input`, `Textarea`, `Select`, `ControlGroup`, `ProgressBar`, `Rag`. These are class-driven — the classes are defined in `app/globals.css`.
+All shared primitives live in `app/components/ui.jsx`: `Button`, `Badge`, `Card`, `Stat`, `SectionHeader`, `Field`, `Input`, `Textarea`, `Select`, `ControlGroup`, `ProgressBar`, `Rag`. These are class-driven — the classes are defined in `app/globals.css`. The questionnaire (`app/questionnaire/page.jsx`) has its own parallel set (`RadioGroup`, `CheckboxGroup`, `TextInput`, etc.) tuned for the multi-step form rather than the admin dashboard.
 
 **Fonts** (loaded in `app/layout.tsx` via `next/font/google`):
 - `--font-display` → Playfair Display (serif) — headings, decorative
@@ -89,12 +144,26 @@ All shared primitives live in `app/components/ui.jsx`: `Button`, `Badge`, `Card`
 
 **Key CSS tokens** (defined in `:root` in `globals.css`):
 - `--navy` / `--ink` — primary brand navy `#1A2E4A`
-- `--amber` / `--accent` — warm amber `#C4861A`, used sparingly
+- `--amber` / `--accent` — warm amber `#9D6B15` (darkened from the original `#C4861A` for WCAG AA contrast — see "Recent Work & Status"), used sparingly
 - `--bg` / `--tint` / `--tint-2` — warm off-white background family
 - `--border` / `--border-2` — warm neutral borders
-- `--blue` — legacy alias for `--navy` (kept so old inline references don't go off-brand; do not use for new code)
+- `--text-mute` / `--text-muted` — `#6D7182` (also darkened for contrast; was `#8B8FA0`)
+
+There is no `--blue` token any more — it was a legacy alias for `--navy` with identical hex values; all 23 usages were replaced with `var(--navy)` directly and the dead token removed. If you see `var(--blue)` anywhere, that's a sign of an un-merged branch or a copy-pasted snippet from before this cleanup — replace it with `var(--navy)`.
 
 **Key CSS utility classes**: `.btn-primary` (navy gradient), `.btn-accent` (amber gradient), `.btn-ghost`, `.panel-dark` (navy gradient panel), `.card` / `.card.lift`, `.eyebrow` (mono uppercase amber label), `.display` (Playfair), `.mono` (DM Mono), `.rise` / `.rise-1`–`.rise-4` (staggered fade-up entrance animation).
+
+### Accessibility patterns established
+
+These are the patterns to follow for any *new* interactive control — see "Recent Work & Status" for what's already been brought up to this standard and what hasn't:
+
+- **A custom single-choice control** (radio-button-shaped `<button>`s, not native `<input type="radio">`) needs `role="radiogroup"` on the container, `role="radio"` + `aria-checked` on each option, and **roving tabindex** (one tab stop — the checked option, or the first if none is checked — with Arrow keys moving *and selecting*). See `RadioGroup` in `app/questionnaire/page.jsx`.
+- **A custom multi-select** (independent toggle buttons) needs `role="group"` + `role="checkbox"`/`aria-checked` per option, but keeps native per-button tab stops — each is an independent on/off, not a set. See `CheckboxGroup`.
+- **A custom checkbox built from a visually-hidden native `<input>`** (the Q2.2 scope tiles: a real `<input type="checkbox">` at `opacity: 0, width: 1, height: 1` behind a custom-drawn box, so the screen-reader semantics are free but the browser's default focus ring lands on an invisible 1×1 box) needs `:focus-within` on the *visible* wrapping element to redraw the ring somewhere a sighted keyboard user can see it. See `.scope-tile:focus-within` in `globals.css`.
+- **A collapsible section header** must be a real `<button>` (or have `role="button" tabIndex={0}` plus Enter/Space handling) with `aria-expanded`, never a bare `<div onClick>`. See `GroupHead` in the scope picker.
+- **A modal** needs `role="dialog"`, `aria-modal="true"`, `aria-labelledby` pointing at its visible title, and an Escape-key handler — clicking the backdrop or a Cancel button isn't enough for a keyboard user who has already tabbed inside. See `FeedbackModal` in `ReportRenderer.jsx`.
+- **Dynamic status/error content** (a loading state, a submit error, a "still generating" banner) needs `role="status"`/`aria-live="polite"` or `role="alert"`/`aria-live="assertive"` so a screen reader announces it without the user having to go find it.
+- **Any new colour** used for text should be checked against its background with the WCAG contrast formula before use — `--amber`, `--amber-deep`, `--text-mute`/`--text-muted`, and ten scattered inline greys (`#888`, `#999`, `#9CA3AF`) all failed AA (as low as 2.5:1) before this pass; the ones fixed now sit at 4.6–4.8:1.
 
 ## Environment variables
 
@@ -103,29 +172,59 @@ All shared primitives live in `app/components/ui.jsx`: `Button`, `Badge`, `Card`
 | `AI_API_KEY` | Anthropic key for the prose call | step 3 fails |
 | `RATES_FILE_URL` | NRM1 v4.5 rates workbook | cost calc throws |
 | `PROGRAMME_FILE_URL` | Programme v4.3 workbook | programme calc throws |
-| `ACCESS_CODE` | Colleague gate code | all routes open (dev) |
-| `ADMIN_CODE` | Admin-area code for `/admin` + `/api/admin/*` (distinct from `ACCESS_CODE`; `estate_admin` cookie) | admin area open (dev) |
+| `ACCESS_CODE` | Colleague gate code | fails closed in production; open in dev |
+| `ADMIN_CODE` | Admin-area code for `/admin` + `/api/admin/*` (distinct from `ACCESS_CODE`; `estate_admin` cookie) | fails closed in production; open in dev |
 | `COOKIE_SECRET` | HMAC key for access + admin cookies (`lib/cookieAuth.js`) | falls back to raw-code comparison (set this in prod) |
-| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Vercel KV | persistence disabled |
-| `NEXT_PUBLIC_SENTRY_DSN` | Sentry error capture (`sentry.*.config.ts`) | error capture disabled (no-op) |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Vercel KV (Upstash Redis) — persistence **and** rate limiting (`lib/rateLimit.js` reuses the same store; no separate rate-limit env var) | persistence disabled; rate limiting fails open (no-op) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry error capture (`sentry.*.config.ts`, `instrumentation-client.ts`, `app/error.jsx` and friends) | error capture disabled (no-op) |
 
-**Security:** `AI_API_KEY` never in committed code or output; read inside the request handler, BOM-stripped. `COOKIE_SECRET` must be a cryptographically random string (≥ 32 chars); generate once with `openssl rand -hex 32`.
+**Security:** `AI_API_KEY` never in committed code or output; read inside the request handler, BOM-stripped. `COOKIE_SECRET` must be a cryptographically random string (≥ 32 chars); generate once with `openssl rand -hex 32`. Sentry events are scrubbed by `lib/sentryScrub.js` before leaving the process — never send raw `answers`.
+
+**`xlsx` is not installed from the npm registry.** `package.json` pins it to a SheetJS CDN tarball (`https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz`) because the npm-published `xlsx@0.18.5` has two unfixed high-severity CVEs (prototype pollution, ReDoS) that SheetJS only patches on their own CDN. `npm install` needs network access to `cdn.sheetjs.com` to work, and bumping this dependency means changing that URL to a newer SheetJS release, not `npm update`.
 
 ## Health check
 
-`/api/rates-check` must confirm **both** workbooks load: `ratesOk` + a sample rate, and `programmeOk` + a real sample duration (DS2 S3 mid from the Durations sheet). Use it after every workbook edit.
+`/api/rates-check` must confirm **both** workbooks load: `ratesOk` + a sample rate, and `programmeOk` + a real sample duration (DS2 S3 mid from the Durations sheet). Use it after every workbook edit. Gated by the access cookie and rate-limited like every other AI/workbook-touching route.
 
 ## Deployment
 
-Hosted on **Vercel**. `npm run build` is the gate. Both `*_FILE_URL` workbooks must be reachable from the deployment.
+Hosted on **Vercel**. `npm run build` is the gate. Both `*_FILE_URL` workbooks must be reachable from the deployment. Run `npm audit` periodically — it had never been run before September 2026, when it turned up a critical Next.js RCE sitting in production undetected (see "Recent Work & Status"); it currently reports 0 vulnerabilities.
 
 ## Frontend Design Rules
 
 When building or modifying any UI component, page, or interface in this app:
 
 - **Aesthetic direction:** The tone is authoritative, precise, and refined — this is a professional capital works tool, not a consumer product.
-- **Typography:** Use the established font trio (Playfair Display / DM Sans / DM Mono). Never introduce Inter, Roboto, Arial, or system-ui for new UI work.
-- **Colour:** Work from the established palette (`--navy`, `--amber`). Amber is a *sparingly used* accent — it should never dominate a surface. `--blue` is a legacy alias for navy; do not use it for new code.
+- **Typography:** Use the established font trio (Playfair Display / DM Sans / DM Mono). Never introduce Inter, Roboto, Arial, or system-ui for new UI work. (`global-error.tsx` is the one deliberate exception — see its own comment: it's the last-resort boundary for a crash in the root layout itself, which is what loads the real fonts, so it can't safely depend on them.)
+- **Colour:** Work from the established palette (`--navy`, `--amber`). Amber is a *sparingly used* accent — it should never dominate a surface. Check any new text colour against WCAG AA before using it (see "Accessibility patterns established" above) — several of the original palette's colours didn't pass and have since been darkened.
 - **Motion:** CSS-only animations preferred. Avoid heavy JS animation libraries.
 - **Backgrounds:** Never flat white. Use `--bg`, `--tint`, `--tint-2`, or the `panel-dark` class.
 - **Production-grade only:** No placeholder content, no lorem ipsum, no half-built components committed to the repo.
+- **Responsive:** Grids sized with `minmax(Npx, 1fr)` should use `minmax(min(Npx, 100%), 1fr)` instead — a bare `minmax(240px, 1fr)` doesn't shrink below 240px even when the viewport itself is narrower, which overflowed the page horizontally at ~320px on the scope picker and three other grids before this fix.
+
+---
+
+## Recent Work & Status
+
+*(September 2026)* The app's core questionnaire → calculators → AI prose → report pipeline was already functionally correct when this round of work began. What follows was a five-phase reliability, security, correctness and accessibility pass (Part A of the working plan), plus a separate questionnaire UX reduction (Part B), plus a couple of bugs found by reviewing a real generated report afterward. Everything below is **done and verified** (build + lint + Vitest + a live regenerated report, not just read back) unless marked otherwise.
+
+**The headline problem, and its fix.** Report generation failed close to 100% of the time on Vercel Hobby's 60-second function ceiling, because one request tried to do the deterministic maths *and* two sequential AI calls inside a single shared budget — a retry of a slow AI half had nowhere to come from. The fix (Phase 2, "Core architectural rule" above) splits generation into two requests: a deterministic phase that can't time out because it never touches the network, and an AI phase that gets a **fresh** 60 seconds on every attempt via a resumable, lock-protected KV record. This is the single most consequential change in this body of work — verified live against the real Anthropic API and the real database: deterministic phase ~1s, and a report that couldn't previously survive one slow API moment now just costs an extra round trip.
+
+**Phase 1 — stop the bleeding.** Fixed a `maxDuration` mismatch that was silently killing invocations with no error handling at all; closed an admin-API hole that failed *open* when `ADMIN_CODE` was unset in production; gated two previously-open endpoints (`/api/warm-prose`, `/api/rates-check`) that were each a cheap way to burn API credit or exhaust function concurrency; scrubbed full questionnaire `answers` out of Sentry error payloads (`lib/sentryScrub.js`); wired up client-side Sentry, which had never actually been initialised (`instrumentation-client.ts` didn't exist); fixed `next.config.ts`'s dual `module.exports`/`export default` that made the entire Sentry build plugin dead code.
+
+**Phase 2 — the two-phase split.** Covered above. Also: `lib/prose.js` was extracted from the route handler so both the resumable Phase 2 route and a same-request dev fallback (no KV configured) can share it.
+
+**Phase 3 — correctness.** A `/report/[id]` page could silently render one project's costs against a *different* project's answers if the user had gone back to the questionnaire and started editing a second report without submitting it — fixed by using exactly what was submitted rather than re-merging the live localStorage draft. A programme with construction stages but no milestones showed its Gantt chart in the `.docx` but not on the web report (a nesting bug — the two now share one condition). The questionnaire submit path had three separate ways to show a false "network error" for a report that had actually generated successfully. `localStorage` reads/writes were unguarded, version-less, and could white-screen the app; there was no way to start a fresh report without manually clearing browser storage, and no error boundary anywhere except the root-layout-nuking `global-error.tsx`. All fixed; see "Data flow & key conventions" above for the current shape.
+
+**Phase 4 — hardening.** Installing a rate limiter triggered `npm audit` for what was apparently the first time on this project, surfacing a **critical Next.js RCE** plus three riders (PostCSS, sharp) — fixed by bumping 16.2.6→16.3.5 (same major/minor line, not a breaking jump), confirmed with a full rebuild, relint, and a live end-to-end generation on the new version. Migrated `xlsx` off the abandoned, CVE-carrying npm registry version onto SheetJS's own patched CDN build. Added rate limiting to the five routes that needed it (see "Data flow & key conventions"). Removed the `/api/feedback` GET that leaked its auth key into URLs/logs. Added a logout route (there was previously no way to revoke either 30-day cookie). Permanently fixed the build/lint gate, which the three stray sibling projects in the repo root had been silently breaking. Added a real Vitest suite (33 tests) as a complement to the existing `scripts/baseline.mjs` snapshot harness — see "Commands" above for when to use which.
+
+**Phase 5 — accessibility.** Brought the questionnaire's custom `RadioGroup`/`CheckboxGroup` (previously plain `<button>`s with zero ARIA semantics) up to full radiogroup/checkbox-group patterns including roving tabindex and arrow-key navigation; fixed a scope-picker collapsible header that was a keyboard-inoperable `<div onClick>`; fixed an invisible focus ring on the scope tiles' hidden native checkboxes; added dialog semantics and Escape-to-close to the feedback modal; added live regions to error/status banners; fixed three colour tokens and ten scattered inline greys that failed WCAG AA contrast; removed the dead `--blue` legacy token entirely; fixed a horizontal-overflow bug on four grids at narrow viewports. All verified live in a real browser (roving tabindex and `aria-expanded` toggling both confirmed via actual keyboard/click events, not just read as code). **Explicitly not done**, and worth doing before any client-facing move: ~29 sites across the questionnaire where a visible label and its input aren't formally associated via `htmlFor`/`id` (a lesser gap than the ones fixed — a screen reader can still read the nearby text in browse mode); full tokenisation of the remaining ~170 hardcoded hex literals (a design-system tidiness item, not a contrast failure); a GDPR/DPIA review of `app/privacy/page.jsx` against what actually leaves the system.
+
+**Two bugs found by reviewing a real generated report.** After all of the above, a real report was read end-to-end (all 16 pages, every number re-derived by hand) and turned up two more issues, both fixed and verified against a freshly-regenerated report and its actual rendered PDF: (1) the AI had fabricated a specific, false claim that "the automated sense check raised a warning" about an NRM1 percentage rule — no such warning code exists (cross-checked against all seven real codes in `senseCheck.js`) — fixed with the thirteenth `AI_SYSTEM_PROMPT` rule described above; (2) two of the PDF's sixteen pages were wasted, near-blank pages caused by a missing `break-inside: avoid` on the section-header print CSS, described under "Report output" above.
+
+**What's outstanding**, roughly in order of what's most worth doing next:
+- The ~29-site label/`htmlFor` association gap and the full hex-literal tokenisation noted under Phase 5.
+- `checkJs`/TypeScript conversion for `lib/*.js` — the plan calls this "incremental," not urgent; `allowJs` with no `checkJs` means most of the codebase's real logic is still untyped.
+- A GDPR/DPIA review of `app/privacy/page.jsx`.
+- A small number of pre-existing cosmetic lint items (a few `<a>`→`<Link>` swaps, some unescaped quotes) — deliberately left alone rather than rushed through pages that had just been carefully verified.
+- The Word-doc PDF/`.docx` structural parity between `reportBuilder.js` and `ReportRenderer.jsx` should be spot-checked periodically — they're two independent implementations of the same report and have drifted before (the Q6.1 section-selection key mismatch, fixed earlier, is the precedent).

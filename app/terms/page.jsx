@@ -161,7 +161,7 @@ export default function TermsPage() {
       </main>
 
       <footer style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center' }}>
-        <p style={{ color: '#999', fontSize: '12px', margin: 0 }}>
+        <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>
           Estates AI Tool &nbsp;·&nbsp;
           <a href="/privacy" style={{ color: BLUE }}>Privacy Notice</a>
           &nbsp;·&nbsp;

@@ -9,17 +9,31 @@
  */
 import { NextResponse } from 'next/server'
 import { signAccessCode } from '@/lib/cookieAuth'
+import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 
 export async function POST(request) {
+  // Tighter than /api/check-access: the admin code is a higher-value target
+  // (every report's id/metadata, all free-text feedback, and a config oracle
+  // naming which secrets are unset).
+  const rl = await checkRateLimit('admin-login', request, { requests: 5, window: '10 m' })
+  if (!rl.allowed) return rateLimitedResponse(rl.retryAfterSeconds)
+
   try {
     const { code } = await request.json()
     const validCode = process.env.ADMIN_CODE
 
-    // No admin code configured → dev mode, let through with a placeholder cookie.
+    // No admin code configured. Off production this is dev convenience; ON
+    // production it would hand an `estate_admin` cookie to anyone who POSTs here,
+    // so it must fail closed — matching the gate in proxy.ts.
     if (!validCode) {
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json({ error: 'Admin area is not configured.' }, { status: 401 })
+      }
       const res = NextResponse.json({ success: true })
       res.cookies.set('estate_admin', 'dev', {
-        path: '/', httpOnly: true, sameSite: 'lax',
+        path: '/', httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 30,
       })
       return res

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { track } from '@vercel/analytics'
 
@@ -145,10 +145,16 @@ export default function ReportRenderer({ data, reportId }) {
     }
   }
 
-  const { cost, programme, aiProse, projectName, generatedAt, templateError, answers, budget } = data
-  const grade      = aiProse?.confidenceScore  || 'B'
-  const confLabel  = aiProse?.confidenceLabel  || 'Moderate Confidence'
-  const riskLevel  = cost?.percentages?.riskLevel || 'Medium'
+  const { cost, programme, aiProse, projectName, generatedAt, templateError, answers, budget, confidence, status, prosePending } = data
+  // `status` is only present on a record from the two-phase pipeline; a record
+  // with no status at all is a legacy one generated in a single shot and is
+  // always complete. `confidence` is computed deterministically in Phase 1 and
+  // known well before the AI narrative exists, so prefer it over the copy
+  // merged into aiProse at finalise — that copy just repeats the same grade.
+  const isPending  = status && status !== 'complete'
+  const grade      = confidence?.score  || aiProse?.confidenceScore  || 'B'
+  const confLabel  = confidence?.label  || aiProse?.confidenceLabel  || 'Moderate Confidence'
+  const riskLevel  = deriveCostRiskLevel(cost, aiProse)
   const roi        = calcRoi(answers, cost)
 
   const dateStr = generatedAt
@@ -156,8 +162,15 @@ export default function ReportRenderer({ data, reportId }) {
     : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
   // ── Optional section flags ─────────────────────────────────────────────────
-  const optSections = Array.isArray(answers?.q6_1_reportSections) && answers.q6_1_reportSections.length > 0
-    ? answers.q6_1_reportSections
+  // The questionnaire writes `q6_1_sections`; this read only ever looked at
+  // `q6_1_reportSections`, which nothing writes. So Q6.1 was honoured in the
+  // .docx (reportBuilder accepts both keys) and silently ignored on screen and
+  // in the PDF — the same report came out with different sections, and different
+  // section numbers, depending on which format you opened. Accept both keys, in
+  // the same order as reportBuilder.js, so all three outputs agree.
+  const chosenSections = answers?.q6_1_sections || answers?.q6_1_reportSections
+  const optSections = Array.isArray(chosenSections) && chosenSections.length > 0
+    ? chosenSections
     : ['Order of Cost Estimate (NRM1)', 'ROI & Financial Case', 'Procurement Recommendation', 'Constraints Summary']
   const showCost = optSections.includes('Order of Cost Estimate (NRM1)')
   const showROI  = !!roi && optSections.includes('ROI & Financial Case')
@@ -242,15 +255,18 @@ export default function ReportRenderer({ data, reportId }) {
 
           /* Page-break rules */
           .page-break  { break-before: page !important; }
-          .section-hdr { break-after: avoid !important; }
+          /* break-after alone stops a break landing right AFTER this header,
+             but did nothing to stop natural pagination landing INSIDE it —
+             the "SECTION 3" eyebrow could fall at the bottom of one page with
+             its own title (and everything under it) pushed to the next,
+             leaving a near-blank page behind. break-inside keeps the eyebrow
+             and title together as one unit; whichever page has room for both
+             is where the whole header goes. */
+          .section-hdr { break-after: avoid !important; break-inside: avoid !important; }
           table        { break-inside: avoid !important; }
           tr           { break-inside: avoid !important; }
           .avoid-break { break-inside: avoid !important; }
           .cost-works-table table { break-inside: auto !important; }
-
-          /* Section page breaks */
-          .report-section { break-before: page !important; }
-          .report-section:first-of-type { break-before: auto !important; }
 
           /* Keep headings with their first content line */
           h2, h3 { break-after: avoid !important; }
@@ -270,8 +286,14 @@ export default function ReportRenderer({ data, reportId }) {
             Estates AI — Report Preview
           </span>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <button onClick={() => router.push('/questionnaire')}
-              style={btnStyle('outline')}>
+            <button onClick={() => {
+              // Without this, "New Report" landed on a form silently
+              // pre-filled with this project's answers — there was no
+              // removeItem anywhere in the app. A colleague starting their
+              // next project expects a blank form, not a resumed draft.
+              try { localStorage.removeItem('estatesAI_v4_answers') } catch {}
+              router.push('/questionnaire')
+            }} style={btnStyle('outline')}>
               ← New Report
             </button>
             <button onClick={() => { setFbOpen(true); setFbStatus('idle'); setFbError('') }}
@@ -284,12 +306,14 @@ export default function ReportRenderer({ data, reportId }) {
                 {copied ? '✓ Copied!' : '🔗 Copy Link'}
               </button>
             )}
-            <button onClick={downloadPdf} disabled={pdfLoading}
-              style={btnStyle('gray', pdfLoading)}>
+            <button onClick={downloadPdf} disabled={pdfLoading || isPending}
+              title={isPending ? 'Available once the narrative sections finish generating' : undefined}
+              style={btnStyle('gray', pdfLoading || isPending)}>
               {pdfLoading ? 'Preparing PDF…' : '⬇ Download PDF'}
             </button>
-            <button onClick={downloadDocx} disabled={downloading}
-              style={btnStyle('green', downloading)}>
+            <button onClick={downloadDocx} disabled={downloading || isPending}
+              title={isPending ? 'Available once the narrative sections finish generating' : undefined}
+              style={btnStyle('green', downloading || isPending)}>
               {downloading ? 'Downloading…' : '⬇ Download Word (.docx)'}
             </button>
           </div>
@@ -298,14 +322,25 @@ export default function ReportRenderer({ data, reportId }) {
 
       {/* ── Alerts ── */}
       <div className="no-print" style={{ maxWidth: '880px', margin: '0 auto', padding: '0 16px' }}>
+        {isPending && (
+          <div role="status" aria-live="polite" style={alertStyle('#EFF6FF', '#1D4ED8')}>
+            <span aria-hidden="true" style={{ display: 'inline-block', width: 12, height: 12, marginRight: 8, verticalAlign: 'middle', border: '2px solid #1D4ED8', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <strong style={{ color: '#1D4ED8' }}>Cost and programme are final.</strong>
+            <span style={{ color: '#1D4ED8', fontSize: '13px' }}>
+              {' '}Generating the executive summary, risk register and procurement narrative
+              {prosePending && (prosePending.narrative === false || prosePending.risk === false)
+                ? ' — almost there' : ''}. This page updates automatically; no need to refresh.
+            </span>
+          </div>
+        )}
         {templateError && (
-          <div style={alertStyle('#FEF9C3', '#D97706')}>
+          <div role="alert" style={alertStyle('#FEF9C3', '#D97706')}>
             <strong style={{ color: '#92400E' }}>Note:</strong>
             <span style={{ color: '#92400E', fontSize: '13px' }}> {templateError}</span>
           </div>
         )}
         {downloadError && (
-          <div style={alertStyle('#FEF2F2', '#C00000')}>
+          <div role="alert" style={alertStyle('#FEF2F2', '#C00000')}>
             <span style={{ color: '#C00000', fontSize: '13px' }}>{downloadError}</span>
           </div>
         )}
@@ -381,7 +416,7 @@ export default function ReportRenderer({ data, reportId }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '32px' }}>
               <InfoBox label="Total Project Cost Range"
                 value={`${f1k(cost?.total?.low)} – ${f1k(cost?.total?.high)}`}
-                note={`Excl. VAT  |  ${f1k(cost?.vat)} VAT at 20% (ref)`} />
+                note={`Excl. VAT  |  ${f1k(cost?.vat)} VAT at 20% (mid-point, ref)`} />
               <InfoBox label="Programme"
                 value={`${programme?.totalWeeks} weeks`}
                 note={programme?.targetNote}
@@ -393,7 +428,9 @@ export default function ReportRenderer({ data, reportId }) {
 
             {/* ── Section 1: Executive Summary ── */}
             <SecHdr number="1" title="Executive Summary" />
-            <p style={bodyText}>{aiProse?.executiveSummary}</p>
+            {aiProse?.executiveSummary
+              ? <p style={bodyText}>{aiProse.executiveSummary}</p>
+              : isPending && <PendingNote />}
             {aiProse?.keyFindings?.length > 0 && <>
               <SubHdr>Key Findings</SubHdr>
               <ol style={listStyle}>
@@ -421,7 +458,9 @@ export default function ReportRenderer({ data, reportId }) {
             <SecHdr number="3" title="Risk Register" pageBreak />
             {aiProse?.riskRegister?.length > 0
               ? <RiskTable risks={aiProse.riskRegister} />
-              : <p style={{ ...bodyText, color: '#666' }}>No risk register data available.</p>
+              : isPending
+                ? <PendingNote />
+                : <p style={{ ...bodyText, color: '#666' }}>No risk register data available.</p>
             }
 
             {/* ── Section 4: Programme ── */}
@@ -439,12 +478,16 @@ export default function ReportRenderer({ data, reportId }) {
             {programme?.stages?.length > 0 && (
               <ProgrammeTable stages={programme.stages} totalWeeks={programme.totalWeeks} />
             )}
+            {/* Keyed on stages alone, matching reportBuilder.js's docx builder —
+                previously nested inside the milestones check below, so a
+                programme with stages but no milestones (a real combination)
+                rendered the Gantt in the .docx but not on screen. */}
+            {programme?.stages?.length > 0 && (
+              <GanttBar stages={programme.stages} totalWeeks={programme.totalWeeks} surveyWeeks={programme.surveyWeeks} />
+            )}
             {programme?.milestones?.length > 0 && <>
               <SubHdr>Key Milestones</SubHdr>
               <ul style={listStyle}>{programme.milestones.map((m, i) => <li key={i} style={liStyle}>{m}</li>)}</ul>
-              {programme?.stages?.length > 0 && (
-                <GanttBar stages={programme.stages} totalWeeks={programme.totalWeeks} surveyWeeks={programme.surveyWeeks} />
-              )}
             </>}
             {(programme?.assumptions || programme?.standardAssumptions)?.length > 0 && <>
               <SubHdr>Programme Assumptions</SubHdr>
@@ -517,6 +560,15 @@ export default function ReportRenderer({ data, reportId }) {
                 {buildNotCosted(cost).map((e, i) => <li key={i} style={liStyle}>{e}</li>)}
               </ul>
             </>}
+            {(cost?.autoIncludes?.length > 0 || cost?.adjustments?.length > 0) && <>
+              <SubHdr>Scope Selected vs Priced</SubHdr>
+              <p style={{ ...bodyText, fontStyle: 'italic', color: '#666', marginBottom: '6px' }}>
+                Every line item priced above is either something you ticked, or one of the auto-included items below with a stated reason. Nothing else is added silently.
+              </p>
+              <ul style={listStyle}>
+                {buildScopeReconciliation(cost).map((e, i) => <li key={i} style={liStyle}>{e}</li>)}
+              </ul>
+            </>}
             </>}  {/* end showCost */}
 
             {/* ── Section 6: ROI (optional + data-conditional) ── */}
@@ -541,7 +593,10 @@ export default function ReportRenderer({ data, reportId }) {
               <>
                 <SecHdr number={snProc} title="Procurement Recommendation" />
                 <p style={{ ...bodyText, marginBottom: '8px' }}>
-                  <strong style={{ color: NAVY }}>Route:</strong> {aiProse?.procurementRoute}
+                  {/* The AI is instructed to echo programme.procurementRoute verbatim
+                      (see buildProsePrompts in lib/prose.js), so the deterministic
+                      value is an exact, immediate stand-in while prose is pending. */}
+                  <strong style={{ color: NAVY }}>Route:</strong> {aiProse?.procurementRoute || programme?.procurementRoute}
                   <span style={{ color: GRAY, margin: '0 8px' }}>|</span>
                   <strong style={{ color: NAVY }}>Contract:</strong> {aiProse?.procurementContractForm}
                 </p>
@@ -550,7 +605,9 @@ export default function ReportRenderer({ data, reportId }) {
                   <span style={{ color: GRAY, margin: '0 8px' }}>|</span>
                   <strong style={{ color: NAVY }}>Tender type:</strong> {aiProse?.procurementTenderType}
                 </p>
-                <p style={{ ...bodyText, marginBottom: '16px' }}>{aiProse?.procurementNarrative}</p>
+                {aiProse?.procurementNarrative
+                  ? <p style={{ ...bodyText, marginBottom: '16px' }}>{aiProse.procurementNarrative}</p>
+                  : isPending && <PendingNote />}
                 {aiProse?.procurementConsiderations?.length > 0 && <>
                   <SubHdr>Commercial Considerations</SubHdr>
                   <ul style={listStyle}>
@@ -587,7 +644,7 @@ export default function ReportRenderer({ data, reportId }) {
               <p style={{ fontStyle: 'italic', color: '#666', lineHeight: 1.7, fontSize: '12px' }}>
                 This report has been produced at RIBA Stage 0–1 using benchmark cost and programme data from published industry sources (BCIS, RICS). All figures are indicative and subject to change following completion of surveys, design development, and competitive procurement. This report does not constitute a formal cost plan and should not be used as the basis for a financial commitment without review by a Chartered Quantity Surveyor. Programme durations are indicative and assume standard productivity and client decision-making within the gateway periods shown.
               </p>
-              <p style={{ color: '#999', fontSize: '11px', marginTop: '10px' }}>
+              <p style={{ color: '#6B7280', fontSize: '11px', marginTop: '10px' }}>
                 Use of this tool is subject to our{' '}
                 <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: NAVY, textDecoration: 'underline' }}>Terms of Use</a>
                 {' '}and{' '}
@@ -618,7 +675,7 @@ export default function ReportRenderer({ data, reportId }) {
                   </button>
                 )}
               </div>
-              {downloadError && <p style={{ color: '#C0392B', marginTop: '8px', fontSize: '12px' }}>{downloadError}</p>}
+              {downloadError && <p role="alert" style={{ color: '#C0392B', marginTop: '8px', fontSize: '12px' }}>{downloadError}</p>}
             </div>
 
           </div>
@@ -645,14 +702,24 @@ const FB_CATEGORIES = ['Wrong numbers', 'Odd programme', 'Missing scope', 'Confu
 function FeedbackModal({ category, setCategory, message, setMessage, status, error, onSubmit, onClose }) {
   const sending = status === 'sending'
   const sent    = status === 'sent'
+
+  // Escape-to-close: previously the only way out was clicking the backdrop
+  // or the Cancel button, both mouse-first affordances for a keyboard user
+  // who has just tabbed all the way into the dialog.
+  useEffect(() => {
+    const onKeyDown = e => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
+
   return (
     <div className="no-print" onClick={onClose}
       style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(18,35,58,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', fontFamily: FONT_BODY }}>
-      <div onClick={e => e.stopPropagation()}
+      <div role="dialog" aria-modal="true" aria-labelledby="feedback-modal-title" onClick={e => e.stopPropagation()}
         style={{ width: '100%', maxWidth: '440px', background: '#fff', borderRadius: '10px', boxShadow: '0 12px 40px rgba(0,0,0,0.28)', overflow: 'hidden' }}>
         {/* Header */}
         <div style={{ background: `linear-gradient(135deg, ${NAVY} 0%, #12233A 100%)`, padding: '18px 22px' }}>
-          <p style={{ margin: 0, color: '#fff', fontWeight: 700, fontSize: '16px', fontFamily: FONT_HEAD }}>Flag an issue</p>
+          <p id="feedback-modal-title" style={{ margin: 0, color: '#fff', fontWeight: 700, fontSize: '16px', fontFamily: FONT_HEAD }}>Flag an issue</p>
           <p style={{ margin: '3px 0 0', color: NAVY_LT, fontSize: '12px' }}>
             Spotted something off in this report? Tell us — it helps us fix it.
           </p>
@@ -666,18 +733,18 @@ function FeedbackModal({ category, setCategory, message, setMessage, status, err
           </div>
         ) : (
           <div style={{ padding: '20px 22px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: NAVY, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+            <label htmlFor="fb-category" style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: NAVY, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
               What kind of issue?
             </label>
-            <select value={category} onChange={e => setCategory(e.target.value)} disabled={sending}
+            <select id="fb-category" value={category} onChange={e => setCategory(e.target.value)} disabled={sending}
               style={{ width: '100%', padding: '9px 10px', fontSize: '13px', border: `1px solid ${BORDER}`, borderRadius: '6px', background: '#fff', color: '#333', fontFamily: FONT_BODY, marginBottom: '14px' }}>
               {FB_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
 
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: NAVY, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+            <label htmlFor="fb-message" style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: NAVY, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
               Describe it
             </label>
-            <textarea value={message} onChange={e => setMessage(e.target.value)} disabled={sending}
+            <textarea id="fb-message" value={message} onChange={e => setMessage(e.target.value)} disabled={sending}
               rows={4} maxLength={4000}
               placeholder="e.g. The construction cost looks far too high for a 200 m² refurb…"
               style={{ width: '100%', padding: '10px', fontSize: '13px', border: `1px solid ${BORDER}`, borderRadius: '6px', resize: 'vertical', fontFamily: FONT_BODY, color: '#333', lineHeight: 1.5, boxSizing: 'border-box' }} />
@@ -739,6 +806,17 @@ function SecHdr({ number, title, pageBreak }) {
 
 function SubHdr({ children }) {
   return <p style={{ fontWeight: 700, color: NAVY, fontSize: '13.5px', margin: '18px 0 6px', breakAfter: 'avoid' }}>{children}</p>
+}
+
+// Placeholder for an AI-only section while Phase 2 (the prose call) is still
+// running. The page polls and re-renders automatically once it lands — see
+// app/report/[id]/page.jsx — so this never needs its own retry affordance.
+function PendingNote() {
+  return (
+    <p style={{ fontStyle: 'italic', color: '#6B7280', fontSize: '13.5px', margin: '0 0 8px' }}>
+      Generating…
+    </p>
+  )
 }
 
 function InfoBox({ label, value, note, noteColor }) {
@@ -840,7 +918,7 @@ function WorksTable({ lineItems }) {
           </tbody>
         </table>
       </div>
-      <p style={{ fontSize: '10px', color: '#888', margin: '4px 0 0', lineHeight: 1.5 }}>
+      <p style={{ fontSize: '10px', color: '#6B7280', margin: '4px 0 0', lineHeight: 1.5 }}>
         * Unit rates shown as a ±11% uncertainty range (low / high). Works cost totals are based on the mid rate. In accordance with NRM1, a Stage 0–1 order-of-cost estimate carries an inherent accuracy of ±15–25%. A formal cost plan should be prepared at RIBA Stage 2.
       </p>
     </>
@@ -1147,6 +1225,19 @@ function ConstraintsTable({ constraints }) {
 }
 
 // ─── Data builders ────────────────────────────────────────────────────────────
+// Mirrors deriveCostRiskLevel in lib/reportBuilder.js — keep the two in sync.
+// The "Cost Risk" badge used to be the fixed E-code (Risk Allowance %) RAG
+// banding, disconnected from the AI-written risk register — a report could
+// show "Cost Risk: Low" while its own register carried a High-rated cost
+// risk. It now reflects the highest-rated Cost-category register entry,
+// falling back to the percentage banding only while no register exists yet.
+const RISK_RANK = { High: 3, Medium: 2, Low: 1 }
+function deriveCostRiskLevel(cost, aiProse) {
+  const costRisks = (aiProse?.riskRegister || []).filter(r => r.category === 'Cost' && RISK_RANK[r.rating])
+  if (costRisks.length === 0) return cost?.percentages?.riskLevel || 'Medium'
+  return costRisks.reduce((worst, r) => (RISK_RANK[r.rating] > RISK_RANK[worst] ? r.rating : worst), 'Low')
+}
+
 function calcRoi(answers, cost) {
   const annual = Number(answers?.q5_2_annualBenefit) || 0
   const low    = cost?.total?.low || 0
@@ -1162,11 +1253,16 @@ function calcRoi(answers, cost) {
 function buildEstimateBasis(cost, programme, dateStr) {
   if (!cost) return []
   const sources = [cost.workbookVersion, programme?.workbookVersion].filter(Boolean).join(' and ')
+  const inflationPct = cost.percentages?.inflation || 0
   return [
     `This is an NRM1 order of cost estimate prepared at RIBA Stage 0–1 from benchmark rates, not measured quantities. At this stage outturn costs typically vary by ±20–25% as the design develops; the range shown reflects benchmark rate uncertainty only.`,
     `Data sources: ${sources || 'Estates AI rates and programme workbooks'}. Report generated ${dateStr}; rates are current at the workbook issue date.`,
     `Location adjustment: BCIS factor ${cost.bcisFactor} (${cost.bcisRegion})${cost.bcisDefaulted ? ' — applied as a default because the postcode matched no BCIS region; verify the postcode before relying on location-adjusted rates' : ''}.`,
-    `Inflation allowance (F) at ${cost.percentages?.inflation}% covers forecast tender and construction inflation over the ${programme?.totalWeeks ?? '—'}-week programme, measured from the estimate base date (the date of generation).`,
+    // Conditional, not boilerplate — see lib/reportBuilder.js's estimateBasisParas.
+    inflationPct > 0
+      ? `Inflation allowance (F) at ${inflationPct}% covers forecast tender and construction inflation over the ${programme?.totalWeeks ?? '—'}-week programme, measured from the estimate base date (the date of generation).`
+      : `No inflation allowance (F) applies — the ${programme?.totalWeeks ?? '—'}-week programme falls within the zero-inflation band for both time-to-tender and construction duration in the NRM1 workbook.`,
+    `"Normalised" cost figures (where quoted) divide the actual £/m² rate by the BCIS location factor and the Q2.3 band factor, so they can be compared against national benchmark rates independent of this project's location and level of intervention.`,
   ]
 }
 
@@ -1175,8 +1271,18 @@ function buildNotCosted(cost) {
   if (!cost) return []
   return [
     ...(cost.excludedNoQuantity || []).map(e =>
-      `${e.description} — selected in scope but excluded from the estimate pending a confirmed quantity.`),
+      `${e.description} — selected in scope but excluded from the estimate pending a confirmed quantity. (${e.reason || 'not costed'})`),
     ...(cost.additionalScopeNote ? [cost.additionalScopeNote] : []),
+  ]
+}
+
+// Mirrors scopeReconciliationParas in lib/reportBuilder.js — keep the two in
+// sync. Lets a user verify "priced lines = ticked lines" for themselves.
+function buildScopeReconciliation(cost) {
+  if (!cost) return []
+  return [
+    ...(cost.autoIncludes || []).map(a => `Auto-included, not ticked: ${a.code} — ${a.reason}`),
+    ...(cost.adjustments || []).map(a => `${a.code} — ${a.reason}`),
   ]
 }
 

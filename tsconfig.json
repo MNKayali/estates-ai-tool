@@ -30,5 +30,12 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  // nutritrack/portfolio-advisor/"Beach Game" are unrelated side projects that
+  // happen to sit in this repo's root (untracked in git, not part of the app).
+  // The `**/*.ts`/`**/*.tsx` includes above are repo-relative globs with no
+  // way to scope them to just this app's directories, so without these
+  // excludes `npm run build`'s TypeScript pass fails on their files — each
+  // has its own dependencies and module shape this project's tsconfig knows
+  // nothing about.
+  "exclude": ["node_modules", "nutritrack", "portfolio-advisor", "Beach Game"]
 }

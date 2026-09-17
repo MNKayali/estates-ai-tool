@@ -46,3 +46,8 @@ next-env.d.ts
 NRM1_Cost_Estimate_Tool_v3*.xlsx
 MASTER_COORDINATION_MAP_v*.md
 Estates_AI_Report_Template.docx
+
+# Regression baselines — point-in-time captures from scripts/baseline.mjs.
+# The script is the deliverable; the snapshots are local scratch and churn on
+# every run, so they are regenerated rather than committed.
+scripts/__baseline__/

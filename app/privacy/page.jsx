@@ -222,7 +222,7 @@ export default function PrivacyPage() {
       </main>
 
       <footer style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center' }}>
-        <p style={{ color: '#999', fontSize: '12px', margin: 0 }}>
+        <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>
           Estates AI Tool &nbsp;·&nbsp;
           <a href="/terms" style={{ color: BLUE }}>Terms of Use</a>
           &nbsp;·&nbsp;

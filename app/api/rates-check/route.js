@@ -1,20 +1,26 @@
 /**
  * GET /api/rates-check
  * Health check — confirms NRM1 v4.5 and Programme v4.3 data files load correctly.
+ *
+ * Gated behind the access code in proxy.ts. It reports real sample values (a rate
+ * and a duration) on purpose: that is what proves the sheets actually PARSED,
+ * not merely that the files downloaded — see CLAUDE.md "Health check".
+ *
+ * Both workbooks are read through the calculators' own 10-minute in-module
+ * caches rather than a private uncached fetch. Doing its own download meant every
+ * health check pulled both .xlsx files again, so repeated checks could get the
+ * deployment rate-limited by the workbook host — which would take the real cost
+ * and programme calculators down with it, since they fetch from the same place.
+ * Sharing the cache also makes this a truer check: it exercises the code path the
+ * report pipeline actually uses.
  */
 import * as XLSX from 'xlsx'
+import { fetchRatesWorkbook } from '@/lib/costCalculator'
+import { fetchProgrammeWorkbook } from '@/lib/programmeCalculator'
 
 // Representative v4.5 codes (incl. building-use-specific rows) that must exist.
 const NEW_ELEMENTS = ['4.2-RES', '4.10', '4.14', '5.27', '8.10']
 const PROGRAMME_SIZE_BANDS = ['S1 (<150)', 'S2 (≤250)', 'S3 (≤500)', 'S4 (≤1500)', 'S5 (≤3000)', 'S6 (>3000)']
-
-async function loadWorkbook(url, label) {
-  if (!url) throw new Error(`${label} URL not set in environment`)
-  const res = await fetch(url, { cache: 'no-store' })
-  if (!res.ok) throw new Error(`${label}: HTTP ${res.status}`)
-  const buf = await res.arrayBuffer()
-  return XLSX.read(new Uint8Array(buf), { type: 'array' })
-}
 
 // v4.5 "2. Master Cost Table": code col0, building use col3, unit col5,
 // pricing type col6, Rfb Std col10. Group banner rows (Code "GROUP …") skipped.
@@ -73,7 +79,7 @@ export async function GET() {
 
   // ── Check NRM1 v3.7 workbook ──────────────────────────────────────────────
   try {
-    const wb = await loadWorkbook(process.env.RATES_FILE_URL, 'NRM1 workbook')
+    const wb = await fetchRatesWorkbook()
     const elements = parseRatesTab(wb)
     const elementCount = Object.keys(elements).length
 
@@ -107,7 +113,7 @@ export async function GET() {
 
   // ── Check Programme v4.3 workbook ─────────────────────────────────────────
   try {
-    const wb = await loadWorkbook(process.env.PROGRAMME_FILE_URL, 'Programme workbook')
+    const wb = await fetchProgrammeWorkbook()
     const sheetNames = wb.SheetNames
     const hasDurationsTab = sheetNames.includes('Durations')
     const hasModifiersTab = sheetNames.includes('Modifiers')

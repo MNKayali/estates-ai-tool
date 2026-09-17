@@ -33,10 +33,10 @@ export default function ReportPage() {
         return
       }
 
-      // Merge answers from localStorage for cost assumptions / ROI display
-      const answersRaw = localStorage.getItem('estatesAI_v4_answers')
-      const answers = answersRaw ? JSON.parse(answersRaw) : (result.answers || {})
-      setData({ ...result, answers })
+      // `result.answers` is exactly what was submitted (see submit() in
+      // app/questionnaire/page.jsx) — no need to reach into localStorage's
+      // live, ongoing questionnaire draft, which can have moved on since.
+      setData(result)
     } catch {
       router.push('/questionnaire')
     }

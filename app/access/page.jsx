@@ -88,9 +88,9 @@ export default function AccessPage() {
 
         <p style={{ fontSize: 12, color: 'var(--text-mute)', textAlign: 'center', marginTop: 22, lineHeight: 1.6 }}>
           By entering your access code you agree to our{' '}
-          <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--blue)' }}>Terms of Use</a>
+          <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--navy)' }}>Terms of Use</a>
           {' '}and acknowledge our{' '}
-          <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--blue)' }}>Privacy Notice</a>.
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--navy)' }}>Privacy Notice</a>.
         </p>
       </div>
     </div>

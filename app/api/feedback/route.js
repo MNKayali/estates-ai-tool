@@ -6,21 +6,26 @@
  *        configured the endpoint still returns 200 so the user sees a success
  *        state, but `persisted` is false.
  *
- * GET  — read back the flagged issues (newest first). Gated by a ?key= query
- *        matching ACCESS_CODE so a colleague who reaches the endpoint with their
- *        access cookie still cannot read everyone else's submissions. When
- *        ACCESS_CODE is unset (local dev) the key check is skipped.
- *
- * The cookie gate in proxy.ts already blocks anonymous internet traffic; the
- * ?key= check is a second factor for the read side only.
+ * There used to be a GET here too, reading the flagged issues back behind a
+ * `?key=<ACCESS_CODE>` query parameter. Removed: a secret in a query string
+ * lands in access logs, browser history and the Referer header, and the read
+ * side was already fully redundant with `/api/admin/overview`, which serves
+ * the same `listFeedback()` data properly gated by the `estate_admin` cookie
+ * rather than a URL parameter.
  */
-import { saveFeedback, listFeedback } from '@/lib/kv'
+import { saveFeedback } from '@/lib/kv'
+import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 
 // Mirror the options offered in the report-page modal. An unrecognised value is
 // coerced to 'Other' rather than rejected, so the UI can evolve without 400s.
 const CATEGORIES = ['Wrong numbers', 'Odd programme', 'Missing scope', 'Confusing UX', 'Other']
 
 export async function POST(request) {
+  // Low-value target, but an unbounded free-text submission endpoint is still
+  // a cheap way to flood the capped feedback list in KV.
+  const rl = await checkRateLimit('feedback', request, { requests: 10, window: '1 h' })
+  if (!rl.allowed) return rateLimitedResponse(rl.retryAfterSeconds)
+
   let body
   try {
     body = await request.json()
@@ -47,17 +52,4 @@ export async function POST(request) {
 
   const persisted = await saveFeedback(entry)
   return Response.json({ ok: true, persisted })
-}
-
-export async function GET(request) {
-  const adminKey = process.env.ACCESS_CODE
-  if (adminKey) {
-    const key = new URL(request.url).searchParams.get('key')
-    if (key !== adminKey) {
-      return Response.json({ error: 'Unauthorised. Append ?key=<ACCESS_CODE>.' }, { status: 401 })
-    }
-  }
-
-  const items = await listFeedback()
-  return Response.json({ count: items.length, items })
 }

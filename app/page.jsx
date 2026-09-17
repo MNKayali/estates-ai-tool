@@ -51,7 +51,7 @@ export default function LandingPage() {
 
       {/* ── Stat strip ── */}
       <section style={{ ...wrap(1120), marginTop: -36, position: 'relative', zIndex: 5 }}>
-        <Card className="rise rise-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 28, padding: '26px 30px', borderTop: '3px solid var(--amber)' }}>
+        <Card className="rise rise-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(180px, 100%), 1fr))', gap: 28, padding: '26px 30px', borderTop: '3px solid var(--amber)' }}>
           <Stat value="NRM1" label="Cost methodology" />
           <Stat value="S1–S6" label="Programme size bands" />
           <Stat value="0" label="AI-invented figures" />
@@ -63,7 +63,7 @@ export default function LandingPage() {
       <section style={{ ...wrap(1120), padding: '76px 0 24px' }}>
         <div className="eyebrow">What the report includes</div>
         <h2 style={{ fontSize: 32, margin: '12px 0 30px', color: 'var(--ink)', fontWeight: 700 }}>Every report, four deterministic pillars</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 18 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(250px, 100%), 1fr))', gap: 18 }}>
           {INCLUDED.map((c, i) => (
             <Card key={c.k} lift className={`rise rise-${(i % 4) + 1}`} style={{ padding: '26px 24px' }}>
               <div className="mono" style={{ fontSize: 13, color: 'var(--amber)', fontWeight: 500 }}>{c.k}</div>

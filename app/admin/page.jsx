@@ -79,6 +79,13 @@ export default function AdminPage() {
 
 // ─── Header ─────────────────────────────────────────────────────────────────
 function Header() {
+  // The estate_admin cookie previously had no way to revoke short of clearing
+  // browser data by hand — the more sensitive of the app's two cookies to
+  // leave signed in on a shared machine.
+  async function logout() {
+    try { await fetch('/api/logout', { method: 'POST' }) } catch {}
+    window.location.reload()
+  }
   return (
     <header style={{ position: 'sticky', top: 0, zIndex: 10, background: 'rgba(250,248,243,.82)', backdropFilter: 'blur(10px)', borderBottom: '1px solid var(--border)' }}>
       <div style={{ maxWidth: 1040, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -87,6 +94,9 @@ function Header() {
           fontFamily: 'var(--font-mono)', fontSize: 13 }}>AI</div>
         <span className="display" style={{ fontWeight: 700, fontSize: 17, color: 'var(--ink)' }}>Estates AI</span>
         <Badge>Admin</Badge>
+        <button onClick={logout} className="btn btn-ghost" style={{ marginLeft: 'auto', padding: '6px 14px', fontSize: 13 }}>
+          Log out
+        </button>
       </div>
     </header>
   )
@@ -107,7 +117,7 @@ function Dashboard({ data, health, onRefresh }) {
 
       {/* Usage counts */}
       <SectionHeader number="1" title="Usage" />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(160px, 100%), 1fr))', gap: 14, marginBottom: 32 }}>
         <Card style={{ padding: '18px 20px' }}><Stat value={counts.reports}       label="Reports generated" /></Card>
         <Card style={{ padding: '18px 20px' }}><Stat value={counts.reportsLast7d} label="Last 7 days" /></Card>
         <Card style={{ padding: '18px 20px' }}><Stat value={counts.feedback}      label="Feedback flagged" /></Card>
@@ -135,7 +145,7 @@ function HealthPanel({ config, health }) {
     { label: 'Programme workbook',  ok: health?.programmeOk, detail: health?.programmeOk ? `DS2·S3 sample ${health.sampleDuration_DS2_S3_mid}w` : 'not loaded' },
   ]
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14, marginBottom: 32 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))', gap: 14, marginBottom: 32 }}>
       <Card style={{ padding: '18px 20px' }}>
         <div className="stat-label" style={{ marginBottom: 12 }}>Data workbooks</div>
         {health

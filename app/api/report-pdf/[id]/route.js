@@ -74,6 +74,16 @@ export async function GET(request, { params }) {
     )
   }
 
+  // A record freshly created by generate-report has no docx yet — the AI
+  // prose (Phase 2) hasn't finished. Rendering a PDF now would just capture
+  // the pending placeholders, so tell the caller to wait instead.
+  if (data.status && data.status !== 'complete') {
+    return Response.json(
+      { error: 'This report is still being generated. Try again in a few seconds.' },
+      { status: 409 }
+    )
+  }
+
   const origin = getOrigin(request)
   let browser
   try {

@@ -18,7 +18,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAccessCode } from '@/lib/cookieAuth'
 
 const PROTECTED_PAGES = ['/questionnaire', '/report']
-const PROTECTED_API   = ['/api/generate-report', '/api/reports', '/api/report-pdf', '/api/feedback']
+// /api/warm-prose and /api/rates-check are gated because both are expensive to
+// call, not because they return anything secret: warm-prose makes two real
+// Anthropic requests and can hold a function open for ~50s, and rates-check
+// re-downloads both remote workbooks. Left open, either one is a cheap way for an
+// anonymous caller to burn API credit, exhaust function concurrency, or get the
+// deployment rate-limited by the workbook host — which would take the cost and
+// programme calculators down with it.
+const PROTECTED_API   = [
+  '/api/generate-report', '/api/reports', '/api/report-pdf', '/api/feedback',
+  '/api/warm-prose', '/api/rates-check',
+]
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -27,7 +37,19 @@ export async function proxy(request: NextRequest) {
   // Evaluated first so admin endpoints never fall through to the access-code path.
   if (pathname.startsWith('/api/admin') && pathname !== '/api/admin/login') {
     const adminCode = process.env.ADMIN_CODE
-    if (!adminCode) return NextResponse.next()  // dev mode: no admin code set
+    // Fail CLOSED when ADMIN_CODE is missing. An unset env var is the default
+    // state of a fresh deployment, not an exotic edge case, and this branch
+    // returns before the ACCESS_CODE gate below — so letting it through left the
+    // admin API (every report's id and metadata, all free-text feedback, and a
+    // config oracle naming which secrets are unset) open to the anonymous
+    // internet. Dev convenience is kept, but only off production.
+    if (!adminCode) {
+      if (process.env.NODE_ENV !== 'production') return NextResponse.next()
+      return NextResponse.json(
+        { error: 'Admin area is not configured.' },
+        { status: 401 }
+      )
+    }
     const adminCookie = request.cookies.get('estate_admin')?.value
     if (await verifyAccessCode(adminCookie, adminCode)) return NextResponse.next()
     return NextResponse.json(
@@ -72,6 +94,8 @@ export const config = {
     '/api/reports/:path*',
     '/api/report-pdf/:path*',
     '/api/feedback/:path*',
+    '/api/warm-prose/:path*',
+    '/api/rates-check/:path*',
     '/api/admin/:path*',
   ],
 }
