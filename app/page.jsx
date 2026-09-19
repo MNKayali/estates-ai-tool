@@ -41,7 +41,9 @@ export default function LandingPage() {
             </p>
             <div className="rise rise-4" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 36 }}>
               <Link href="/questionnaire" className="btn btn-accent" style={{ fontSize: 16, padding: '14px 26px' }}>Start questionnaire ▸</Link>
-              <Link href="/sample" className="btn btn-ghost" style={{ fontSize: 16, padding: '14px 26px', color: '#fff', borderColor: 'rgba(255,255,255,.35)' }}>See a sample report</Link>
+              {/* Explicit background and a visible border: with only a ghost
+                  border over the navy hero this read as a disabled control. */}
+              <Link href="/sample" className="btn" style={{ fontSize: 16, padding: '14px 26px', color: '#fff', background: 'rgba(255,255,255,.10)', border: '1.5px solid rgba(255,255,255,.55)' }}>See a sample report</Link>
             </div>
             <p className="rise rise-4 mono" style={{ marginTop: 18, fontSize: 12, color: '#7E8DA8', letterSpacing: '.08em' }}>
               ~10–15 MIN · PROGRESS AUTO-SAVED · ON-SCREEN + .DOCX + PDF EXPORT
