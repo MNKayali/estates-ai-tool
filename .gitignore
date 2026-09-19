@@ -47,6 +47,14 @@ NRM1_Cost_Estimate_Tool_v3*.xlsx
 MASTER_COORDINATION_MAP_v*.md
 Estates_AI_Report_Template.docx
 
+# Excel lock files. Excel writes ~$<name>.xlsx beside any open workbook, and
+# the live NRM1 and Programme workbooks are edited in place in this folder
+# (the app fetches them from raw.githubusercontent.com on this branch), so one
+# is present whenever a workbook is open. Committing it does nothing useful
+# and confuses the next person about which file is real.
+~$*.xlsx
+~$*.docx
+
 # Regression baselines — point-in-time captures from scripts/baseline.mjs.
 # The script is the deliverable; the snapshots are local scratch and churn on
 # every run, so they are regenerated rather than committed.
