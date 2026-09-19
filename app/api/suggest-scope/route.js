@@ -102,8 +102,19 @@ export async function POST(request) {
     },
   }
 
+  // The "never propose what the objective does not support" rule, on its own,
+  // made the model return an EMPTY list for any objective that states a goal
+  // rather than a list of elements ("the house needs modernisation"), which is
+  // how most people write it. The general-objective clause below is what stops
+  // a reasonable brief dead-ending in an error.
   const system = `You are a UK quantity surveyor helping a client tick the right NRM1 scope items for a RIBA Stage 0–1 feasibility estimate.
-Rules: propose only items clearly implied by the objective — a typical, defensible starting scope, not a maximal one. Never propose an item the objective does not support. Give each item a one-sentence reason in British English, no markdown. Use only codes from the catalogue you are given. Do not mention rates, costs or quantities.`
+Rules:
+- Propose a typical, defensible starting scope, not a maximal one.
+- If the objective names specific works, propose those and their unavoidable companions.
+- If the objective is GENERAL (e.g. "modernisation", "refurbishment", "bring it up to standard"), do NOT return an empty list. Propose the scope such a project normally includes for this project type, building use and level of intervention, and say so in the reason for each item, e.g. "typically included in a full systems replacement of a dwelling of this age".
+- Return at least three items unless the objective is genuinely unintelligible.
+- Never propose an item that plainly contradicts the objective.
+- Give each item ONE SHORT reason, at most 20 words, in British English, no markdown. Use only codes from the catalogue you are given. Do not mention rates, costs or quantities.`
   const user = `PROJECT TYPE: ${projectType}${buildingUse ? ` | BUILDING USE: ${buildingUse}` : ''}${interventionLevel ? ` | LEVEL OF INTERVENTION: ${interventionLevel}` : ''}
 
 OBJECTIVE (the client's own words):
@@ -120,7 +131,14 @@ ${catalogue}`
       headers: { 'Content-Type': 'application/json', 'x-api-key': getAnthropicKey(), 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
         model: PROSE_MODEL,
-        max_tokens: 900,
+        // A full domestic refurb suggestion is ~790 output tokens with terse
+        // reasons and more with generous ones. At the old 900 the tool call was
+        // truncated, and a truncated tool_use arrives with no parsable `items`,
+        // so the route reported "no scope could be suggested" for a perfectly
+        // good objective. Sized well clear of the worst case instead, and the
+        // truncation case is now detected below rather than read as an empty
+        // answer.
+        max_tokens: 2500,
         temperature: 0,
         system,
         tools: [tool],
@@ -136,6 +154,11 @@ ${catalogue}`
     const msg = await res.json()
     const block = (msg.content || []).find(b => b.type === 'tool_use' && b.name === 'suggest_scope')
     const raw = Array.isArray(block?.input?.items) ? block.input.items : []
+    // Distinguish "the model had nothing to say" from "the answer was cut off".
+    // Conflating the two is what made a truncated call look like an empty one.
+    if (raw.length === 0 && msg.stop_reason === 'max_tokens') {
+      return Response.json({ error: 'The suggestion was cut short before it could be read. Try again, or use the typical scope.' }, { status: 502 })
+    }
     const byCode = new Map(candidates.map(c => [c.code, c]))
     const seen = new Set()
     const items = raw

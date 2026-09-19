@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { matchesBuildingUse } from '../../lib/buildingUse.js'
 import { areaQuestionLabel, areaHelpText } from '../../lib/labels.js'
 import { SITE_CONTEXT_OPTIONS, SITE_CONTEXT_NONE, hrbLikelyFromAnswers } from '../../lib/siteContext.js'
-import { EXCLUDABLE_REPORT_SECTIONS } from '../../lib/reportShared.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
 // Bumped whenever the answer-key schema changes in a way that could make a
@@ -253,15 +252,6 @@ const DESIGN_STAGE_OPTIONS = [
 // (UTILITIES_OPTIONS removed — it was declared but never rendered; there is no
 // utilities question in the flow and no engine reads one.)
 
-// Q4.3a — read by budgetVerdict() in lib/senseCheck.js via vatRecoverableShare(),
-// which keys on the first word ("Fully" / "Partially"); anything else is
-// treated as not recoverable.
-const VAT_POSITION_OPTIONS = [
-  'Not recoverable — VAT is a cost to us',
-  'Fully recoverable',
-  'Partially recoverable',
-]
-
 // Only "grant or public" changes anything (a +6-week funding-governance stage).
 // "Other" plus its free-text follow-up was a fourth click and a text box that no
 // engine, prompt or report section ever read.
@@ -276,10 +266,10 @@ const FINANCIAL_BENEFIT_OPTIONS = [
 ]
 
 // ─── Report preference data (asked at the end of step 4) ─────────────────────
-// Sections the user may leave OUT. The cost estimate is no longer on this list —
-// a feasibility report without its order of cost estimate was a contradiction,
-// and "leave all unticked to include every one" confused everybody. Strings
-// must match resolveSectionFlags() in lib/reportShared.js, which both renderers use.
+// (The optional-report-sections list lived here. Q6.1 has been removed
+// entirely — every section is always included. resolveSectionFlags() in
+// lib/reportShared.js still honours the old answer keys so reports already in
+// KV keep rendering the way they were generated.)
 
 // ─── UI Components ────────────────────────────────────────────────────────────
 
@@ -304,9 +294,11 @@ function HelpText({ children }) {
 // Divides a long step into named runs of questions. Step 4 absorbed what used to
 // be two separate steps, so without a break it reads as one undifferentiated
 // wall of cards.
+// Sticky so that in the long step 4 the user can always see which run of
+// questions they are in (programme and money, financial case, or the report).
 function SubHead({ title, note }) {
   return (
-    <div style={{ marginTop: 14, paddingTop: 18, borderTop: '1px solid var(--border)' }}>
+    <div style={{ marginTop: 14, paddingTop: 18, borderTop: '1px solid var(--border)', position: 'sticky', top: 56, zIndex: 5, background: 'var(--bg)' }}>
       <p className="eyebrow" style={{ marginBottom: note ? 6 : 0 }}>{title}</p>
       {note && <p style={{ color: 'var(--text-soft)', fontSize: '13.5px', lineHeight: 1.6, margin: 0 }}>{note}</p>}
     </div>
@@ -517,7 +509,7 @@ function ScopePresetBar({ projectType, tier, selectedCount, onApply, onClear }) 
 // enum, so it can propose but never invent; the user reviews the list and the
 // deterministic engine prices whatever is finally ticked. Hidden until the
 // objective is long enough to mean something.
-function ScopeSuggestBar({ objective, projectType, buildingUse, interventionLevel, selectedCount, onApply }) {
+function ScopeSuggestBar({ objective, projectType, buildingUse, interventionLevel, selectedCount, onApply, onUsePreset, hasPreset }) {
   const [state, setState] = useState({ status: 'idle', items: [], error: '' })
   const ready = String(objective || '').trim().length >= 20 && !!projectType
   if (!projectType) return null
@@ -534,7 +526,15 @@ function ScopeSuggestBar({ objective, projectType, buildingUse, interventionLeve
       const body = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(body.error || `Suggestion failed (${res.status}).`)
       const items = Array.isArray(body.items) ? body.items : []
-      if (items.length === 0) throw new Error('No scope could be suggested from that objective — try describing the works in more detail.')
+      // A dead end here used to be the whole story: a perfectly reasonable
+      // objective that states a goal rather than a list of elements came back
+      // empty and the user was told to go and write more. The route's prompt
+      // now handles that case, and if it still returns nothing there is a real
+      // starting point one click away rather than an error.
+      if (items.length === 0) {
+        setState({ status: 'empty', items: [], error: '' })
+        return
+      }
       const applied = onApply(items.map(i => i.code))
       setState({ status: 'ready', items: items.filter(i => applied.has(i.code)), error: '' })
     } catch (e) {
@@ -561,6 +561,17 @@ function ScopeSuggestBar({ objective, projectType, buildingUse, interventionLeve
         </span>
       </div>
       {state.status === 'error' && <p role="alert" style={{ margin: '10px 0 0', color: 'var(--danger)', fontSize: 13 }}>{state.error}</p>}
+      {state.status === 'empty' && (
+        <div role="status" style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--text-mid)' }}>
+          <p style={{ margin: 0 }}>That objective did not point at specific elements. {hasPreset ? 'Start from the typical scope for this project type and edit it, or tick the elements below yourself.' : 'Tick the elements below that are in scope.'}</p>
+          {hasPreset && (
+            <button type="button" onClick={() => { onUsePreset(); setState({ status: 'idle', items: [], error: '' }) }}
+              style={{ marginTop: 8, padding: '8px 14px', borderRadius: 8, cursor: 'pointer', border: '1.5px solid var(--navy)', background: 'var(--surface)', color: 'var(--ink)', fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 13 }}>
+              Use typical scope instead
+            </button>
+          )}
+        </div>
+      )}
       {state.status === 'ready' && state.items.length > 0 && (
         <div role="status" aria-live="polite" style={{ marginTop: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -863,6 +874,11 @@ export default function QuestionnairePage() {
       if (answers.q1_2_projectType !== 'New Build' && !answers.q1_4_buildingAge) {
         errs.q1_4_buildingAge = 'Building age is required'
       }
+      // Load-bearing despite reading as optional. Left blank, matchesBuildingUse
+      // treats it as a wildcard so every scope tile shows, AND senseCheck finds
+      // no Sheet 8 benchmark band, so the COST_LOW / COST_HIGH checks — the main
+      // guard against a mispriced estimate — silently never run.
+      if (!answers.q1_3_buildingUse) errs.q1_3_buildingUse = 'Building use is required'
     }
     if (sec === 2) {
       if (!answers.q2_1_objective?.trim()) errs.q2_1_objective = 'Project objective is required'
@@ -872,6 +888,14 @@ export default function QuestionnairePage() {
       // would deadlock the section.
       if (specLevelsForType.length > 0 && !answers.q2_4_specLevel) {
         errs.q2_4_specLevel = 'Specification level is required'
+      }
+      // Mirrors Guard 1 in app/api/generate-report/route.js, which is the only
+      // thing that enforced this before — so a user could leave it blank, fill
+      // in two more steps, press Generate and only then be rejected. Same
+      // condition as the question's own visibility (refurb / fit-out /
+      // extension), so it can never deadlock a type that isn't asked.
+      if (isRefurb && !answers.q2_3_interventionLevel) {
+        errs.q2_3_interventionLevel = 'Level of intervention is required'
       }
     }
     setValidationErrors(errs)
@@ -1124,7 +1148,8 @@ export default function QuestionnairePage() {
             </QCard>
 
             <QCard>
-              <Label>Q1.3 — Building use</Label>
+              <Label required>Q1.3 — Building use</Label>
+              <HelpText>Filters the scope list to the elements that apply, and selects the benchmark band the estimate is sense-checked against.</HelpText>
               <SelectInput value={answers.q1_3_buildingUse} onChange={v => set('q1_3_buildingUse', v)}>
                 <option value="">Select building use...</option>
                 <option>Residential</option>
@@ -1138,6 +1163,7 @@ export default function QuestionnairePage() {
                 <option>Mixed use</option>
                 <option>Other</option>
               </SelectInput>
+              {validationErrors.q1_3_buildingUse && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_3_buildingUse}</p>}
               {answers.q1_3_buildingUse === 'Other' && (
                 <div className="mt-3">
                   <TextInput value={answers.q1_3_buildingUseOther} onChange={v => set('q1_3_buildingUseOther', v)} placeholder="Please describe the building use" />
@@ -1176,7 +1202,7 @@ export default function QuestionnairePage() {
 
             {isRefurb && (
               <QCard>
-                <Label>Q2.3 — Level of intervention</Label>
+                <Label required>Q2.3 — Level of intervention</Label>
                 <HelpText>Determines the rate band applied to costs and the design duration multiplier. Scope items that require a higher level are greyed out below.</HelpText>
                 <div className="flex flex-col gap-3">
                   {INTERVENTION_LEVELS.map(opt => (
@@ -1197,6 +1223,7 @@ export default function QuestionnairePage() {
                     </label>
                   ))}
                 </div>
+                {validationErrors.q2_3_interventionLevel && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q2_3_interventionLevel}</p>}
               </QCard>
             )}
 
@@ -1218,6 +1245,8 @@ export default function QuestionnairePage() {
                 interventionLevel={answers.q2_3_interventionLevel}
                 selectedCount={(answers.q2_2_scopeItems || []).length}
                 onApply={applySuggestedScope}
+                onUsePreset={applyScopePreset}
+                hasPreset={!!presetScopeFor(answers.q1_2_projectType, currentTier)}
               />
               {(() => {
                 const scopeArr = Array.isArray(answers.q2_2_scopeItems) ? answers.q2_2_scopeItems : []
@@ -1653,12 +1682,18 @@ export default function QuestionnairePage() {
               <RadioGroup options={OCCUPATION_OPTIONS} value={answers.q3_6_occupation} onChange={v => set('q3_6_occupation', v)} />
             </QCard>
 
+            <QCard>
+              <Label>Q3.7 — Additional context</Label>
+              <Textarea value={answers.q3_7_additionalContext} onChange={v => set('q3_7_additionalContext', v)} placeholder="Anything else that might affect the cost, programme or risk — location, operational constraints, heritage status, etc." rows={3} />
+            </QCard>
+
             {/* Q3.8 (September 2026). Each option is a deterministic trigger:
                 a risk-register seed for all four, plus Building Safety Act
                 fee/cost rows and a Gateway 2 programme stage for a higher-risk
                 building, and an ecology survey stage for ecological features.
-                Numbered 3.8 to sit after Q3.7 in the key sequence; shown here,
-                before the free-text question, because it is structured input. */}
+                Rendered last so the visible numbers ascend — it used to sit
+                above Q3.7, which is exactly the kind of jumble that makes a
+                precision tool look careless. */}
             <QCard>
               <Label>Q3.8 — Site and building context</Label>
               <HelpText>Select all that apply. Each one adds a specific statutory or programme risk the report must address.</HelpText>
@@ -1670,29 +1705,12 @@ export default function QuestionnairePage() {
                 </p>
               )}
             </QCard>
-
-            <QCard>
-              <Label>Q3.7 — Additional context</Label>
-              <Textarea value={answers.q3_7_additionalContext} onChange={v => set('q3_7_additionalContext', v)} placeholder="Anything else that might affect the cost, programme or risk — location, operational constraints, heritage status, etc." rows={3} />
-            </QCard>
           </div>
         )}
 
         {/* ─── SECTION 4 ─────────────────────────────────────────────────────── */}
         {section === 4 && (
           <div className="flex flex-col gap-5 section-enter">
-            {/* Q4.0 (September 2026). The programme used to run from "today"
-                with no calendar dates at all, and the target-date check assumed
-                the project started the moment the report was generated. */}
-            <QCard>
-              <Label>Q4.0 — Expected project start</Label>
-              <HelpText>When do you expect to start (Stage 1 gateway approval)? Leave blank to assume the programme starts on the report date. Used to put calendar dates on the programme and to test the target date.</HelpText>
-              <input type="date" value={answers.q4_0_startDate || ''} onChange={e => set('q4_0_startDate', e.target.value)}
-                aria-label="Expected project start date"
-                className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--navy)]"
-                style={{ border: '1.5px solid var(--border)', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF', boxSizing: 'border-box' }} />
-            </QCard>
-
             <QCard>
               <Label>Q4.1 — Target completion date</Label>
               <HelpText>Used to assess programme feasibility. Leave blank if no specific deadline.</HelpText>
@@ -1722,13 +1740,31 @@ export default function QuestionnairePage() {
               </div>
             </QCard>
 
+            {/* Expected start (September 2026). The programme used to run from
+                "today" with no calendar dates at all, and the target-date check
+                assumed the project started the moment the report was generated.
+                It takes the 4.2 slot left free when the dead budget-gate
+                question was removed, and sits after Q4.1 so the visible numbers
+                ascend. The stored key stays `q4_0_startDate` — the calculators
+                read it by key, and renaming keys is how this questionnaire has
+                broken itself before. */}
+            <QCard>
+              <Label>Q4.2 — Expected project start</Label>
+              <HelpText>When do you expect to start (Stage 1 gateway approval)? Leave blank to assume the programme starts on the report date. Used to put calendar dates on the programme and to test the target date above.</HelpText>
+              <input type="date" value={answers.q4_0_startDate || ''} onChange={e => set('q4_0_startDate', e.target.value)}
+                aria-label="Expected project start date"
+                className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--navy)]"
+                style={{ border: '1.5px solid var(--border)', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF', boxSizing: 'border-box' }} />
+            </QCard>
+
             {/* The old "Do you have a budget figure?" gate (q4_2_budgetKnown) is
                 gone. Its value was read by nothing — not the calculators, the AI
                 prompt, the confidence grade or the report — it only decided
                 whether to reveal the amount field below. Leaving the amount
                 always visible removes a required click and a duplicated "Q4.3"
                 label without changing any output: an empty budget already yields
-                a "no budget stated" verdict. */}
+                a "no budget stated" verdict. The 4.2 number is now reused by the
+                expected-start question above. */}
             <QCard>
               {/* Labelled Q4.3 to match its key `q4_3_budget`. There is no Q4.2
                   any more — the dead budget-gate question held that number. A gap
@@ -1744,22 +1780,12 @@ export default function QuestionnairePage() {
               </div>
             </QCard>
 
-            {/* Q4.3a (September 2026). The budget check used to gross the
-                estimate up by the full VAT rate for every client. Universities,
-                NHS bodies and charities recover none, some, or all of their
-                VAT, so the comparison was wrong by up to 20% for them. */}
-            <QCard>
-              <Label>Q4.3a — VAT position</Label>
-              <HelpText>How much of the VAT on this project can your organisation recover? Only affects the budget comparison; VAT is still shown for reference in the estimate.</HelpText>
-              <RadioGroup options={VAT_POSITION_OPTIONS} value={answers.q4_3a_vatPosition || VAT_POSITION_OPTIONS[0]}
-                onChange={v => set('q4_3a_vatPosition', v)} ariaLabel="VAT position" />
-              {String(answers.q4_3a_vatPosition || '').startsWith('Partially') && (
-                <div style={{ marginTop: 12 }}>
-                  <Label>Recoverable share (%)</Label>
-                  <NumberInput value={answers.q4_3a_vatRecoverablePct} onChange={v => set('q4_3a_vatRecoverablePct', v)} placeholder="e.g. 50" />
-                </div>
-              )}
-            </QCard>
+            {/* There is no VAT-position question. It briefly existed as Q4.3a
+                and was removed: it never changed a cost, only the wording of
+                the budget comparison, which is a poor return for asking a user
+                to classify their organisation's VAT recovery. The budget check
+                grosses up by the full workbook VAT rate, which is the
+                conservative reading. */}
 
             <QCard>
               <Label>Q4.4 — What matters most on this project?</Label>
@@ -1830,24 +1856,19 @@ export default function QuestionnairePage() {
             )}
 
             {/* ── Report preferences (was its own step) ──────────────────────── */}
+            {/* There is no "which sections do you want" question any more. It
+                asked the user to make a decision they had no basis for before
+                seeing a report, and it was nearly redundant: the ROI section
+                already hides itself when no financial benefit was given, and
+                the constraints section when the AI returns none. Every section
+                is now always included. */}
             <SubHead
               title="Your report"
-              note="Executive Summary, Scope, Risk Register, Programme, Order of Cost Estimate and Recommendations are always included."
+              note="Every section is included: Executive Summary, Scope, Risk Register, Programme, Order of Cost Estimate, Procurement, Constraints, ROI where you gave a financial benefit, and Recommendations."
             />
 
             <QCard>
-              <Label>Q6.1 — Sections to leave out</Label>
-              <HelpText>Every section is included by default. Tick any you do not want in this report.</HelpText>
-              <CheckboxGroup
-                options={EXCLUDABLE_REPORT_SECTIONS}
-                values={answers.q6_1_excludeSections}
-                onChange={v => set('q6_1_excludeSections', v)}
-                ariaLabel="Sections to leave out"
-              />
-            </QCard>
-
-            <QCard>
-              <Label>Q6.2 — Additional report instructions</Label>
+              <Label>Q6.1 — Additional report instructions</Label>
               <HelpText>Any specific tone, emphasis, or content requirements for the AI narrative.</HelpText>
               <Textarea value={answers.q6_2_instructions} onChange={v => set('q6_2_instructions', v)} placeholder="e.g. Emphasise the compliance risk. Write for a non-technical audience. Focus on the programme risk." rows={3} />
             </QCard>
@@ -1859,9 +1880,17 @@ export default function QuestionnairePage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {[
                   ['Project', answers.q1_0_projectName || '—'],
-                  ['Type', `${answers.q1_2_projectType || '—'} · ${answers.q1_5_size ? `${answers.q1_5_size} m²` : '—'}`],
+                  ['Type', `${answers.q1_2_projectType || '—'} · ${answers.q1_3_buildingUse || 'use not set'} · ${answers.q1_5_size ? `${answers.q1_5_size} m²` : '—'}`],
                   ['Location', `${answers.q1_1_postcode || '—'}${answers.q2_4_specLevel ? ` · Spec: ${answers.q2_4_specLevel}` : ''}`],
-                  ['Scope items', `${(answers.q2_2_scopeItems || []).length} selected`],
+                  // The four below are the answers that most change the report,
+                  // so the last thing seen before Generate shows them rather
+                  // than only the identifying details.
+                  ['Scope', `${(answers.q2_2_scopeItems || []).length} items${answers.q2_3_interventionLevel ? ` · ${answers.q2_3_interventionLevel}` : ''}`],
+                  ['Budget', answers.q4_3_budget ? `£${Number(answers.q4_3_budget).toLocaleString('en-GB')} (incl. fees & VAT)` : 'Not stated — no budget comparison'],
+                  ['Start', answers.q4_0_startDate
+                    ? new Date(answers.q4_0_startDate + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+                    : 'Assumed: the report date'],
+                  ['Priorities', (answers.q4_4_priorities || []).join(' · ') || 'Not stated'],
                 ].map(([k, v]) => (
                   <div key={k} style={{ display: 'flex', gap: 8, fontSize: '13.5px' }}>
                     <span style={{ color: 'var(--text-soft)', fontFamily: 'var(--font-body)', fontWeight: 600, minWidth: 84 }}>{k}</span>
