@@ -16,7 +16,13 @@ produce a wrong number.
 
 ---
 
-## NRM1 workbook — `NRM1_Cost_Estimate_Tool_v4_5.xlsx` → save as **v4.6**
+## NRM1 workbook — `NRM1_Cost_Estimate_Tool_v4_5.xlsx`
+
+**Keep the filename exactly as it is.** `RATES_FILE_URL` points at this file by
+name, so renaming it to v4.6 breaks the live app until the environment variable
+is changed in Vercel *and* in `.env.local`. Bump the version *inside* the
+workbook instead (see Tab 1 below); that text is what the report prints as its
+data source, so it still updates.
 
 ### Tab 1 `1. Instructions`
 
@@ -31,7 +37,9 @@ quarter the rates are current at; the report prints this as the estimate base
 date instead of the generation date. Update it every time you re-benchmark.
 
 Also bump the title in A1 to `NRM1 COST ESTIMATE TOOL - v4.6` and the issue
-line in A2, so the report's "Data sources" line shows the new version.
+line in A2, so the report's "Data sources" line shows the new version. The
+*filename* stays `..._v4_5.xlsx` for the reason given at the top of this
+section.
 
 ### Tab 2 `2. Master Cost Table`
 
@@ -123,9 +131,12 @@ old 0.89 / 1.11.
 
 ---
 
-## Programme workbook — `Estates_AI_Programme_v4_3.xlsx` → save as **v4.4**
+## Programme workbook — `Estates_AI_Programme_v4_3.xlsx`
 
-Bump the `Version` cell on the README sheet to `v4.4 · September 2026 · …`.
+**Keep the filename exactly as it is**, for the same reason as the NRM1 file:
+`PROGRAMME_FILE_URL` points at it by name. Bump the `Version` cell on the
+README sheet to `v4.4 · September 2026 · …` instead; that is what the report
+quotes.
 
 ### Sheet `Durations`
 
@@ -188,10 +199,34 @@ route and contract-form bands).
 
 ---
 
+## Where these files live, and how a change goes live
+
+Both workbooks are files in **this repository's root folder**, on `main`, and
+the app fetches them at request time over raw GitHub:
+
+```
+https://raw.githubusercontent.com/MNKayali/estates-ai-tool/main/NRM1_Cost_Estimate_Tool_v4_5.xlsx
+https://raw.githubusercontent.com/MNKayali/estates-ai-tool/main/Estates_AI_Programme_v4_3.xlsx
+```
+
+So the cycle is: edit in Excel, save, commit, push to `main`. **No deploy and
+no code change** — the workbook is data, not code. Each calculator caches its
+workbook in memory for ten minutes, so a change is live within ten minutes of
+the push.
+
+Every edit in this document is **optional and independent**. A missing sheet,
+column or row falls back to exactly the previous behaviour, and a new Tab 2 row
+with blank rate cells is simply never priced. Nothing here has to be done in
+one sitting, and the app stays correct throughout.
+
+Excel leaves a `~$<filename>.xlsx` lock file beside an open workbook. It is
+ignored by git, so it will not be committed by accident — but close Excel
+before committing anyway, or the saved file may not be the one that gets
+pushed.
+
 ## After every edit
 
-1. Push the workbook to the location `RATES_FILE_URL` / `PROGRAMME_FILE_URL`
-   point at.
+1. Commit and push the workbook to `main`.
 2. Open `/api/rates-check` — it now reports `baseDate`, whether the `Range
    Widths` and `Procurement` sheets were found, and the new row IDs.
 3. Add a line to Tab 2's UPDATE LOG with the source and date.
