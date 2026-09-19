@@ -7,6 +7,13 @@
       "runtimeArgs": ["run", "dev"],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "estates-ai-tool-open",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/dev-open.mjs"],
+      "port": 3000,
+      "autoPort": true
     }
   ]
 }

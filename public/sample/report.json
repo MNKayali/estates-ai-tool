@@ -1,0 +1,915 @@
+{
+  "success": true,
+  "status": "complete",
+  "projectName": "Refurbishment — Hargreaves Teaching Block, Example University, Birmingham",
+  "cost": {
+    "lineItems": [
+      {
+        "code": "0.5",
+        "group": 0,
+        "description": "Soft strip of finishes & fittings",
+        "unit": "m²",
+        "source": "",
+        "rate": 23.5,
+        "rateLow": 20.92,
+        "rateHigh": 26.09,
+        "qty": 1200,
+        "lineMid": 28200,
+        "lineLow": 25098,
+        "lineHigh": 31302
+      },
+      {
+        "code": "2.6",
+        "group": 2,
+        "description": "Windows & external doors",
+        "unit": "m²",
+        "source": "",
+        "rate": 141,
+        "rateLow": 125.49,
+        "rateHigh": 156.51,
+        "qty": 1200,
+        "lineMid": 169200,
+        "lineLow": 150588,
+        "lineHigh": 187812
+      },
+      {
+        "code": "2.8",
+        "group": 2,
+        "description": "Internal doors & ironmongery",
+        "unit": "m²",
+        "source": "",
+        "rate": 32.9,
+        "rateLow": 29.28,
+        "rateHigh": 36.52,
+        "qty": 1200,
+        "lineMid": 39480,
+        "lineLow": 35137,
+        "lineHigh": 43823
+      },
+      {
+        "code": "3.1",
+        "group": 3,
+        "description": "Wall finishes",
+        "unit": "m²",
+        "source": "",
+        "rate": 51.7,
+        "rateLow": 46.01,
+        "rateHigh": 57.39,
+        "qty": 1200,
+        "lineMid": 62040,
+        "lineLow": 55216,
+        "lineHigh": 68864
+      },
+      {
+        "code": "3.2",
+        "group": 3,
+        "description": "Floor finishes",
+        "unit": "m²",
+        "source": "",
+        "rate": 70.5,
+        "rateLow": 62.75,
+        "rateHigh": 78.26,
+        "qty": 1200,
+        "lineMid": 84600,
+        "lineLow": 75294,
+        "lineHigh": 93906
+      },
+      {
+        "code": "3.3",
+        "group": 3,
+        "description": "Ceiling finishes",
+        "unit": "m²",
+        "source": "",
+        "rate": 47,
+        "rateLow": 41.83,
+        "rateHigh": 52.17,
+        "qty": 1200,
+        "lineMid": 56400,
+        "lineLow": 50196,
+        "lineHigh": 62604
+      },
+      {
+        "code": "4.1",
+        "group": 4,
+        "description": "General fittings & built-in joinery",
+        "unit": "m²",
+        "source": "",
+        "rate": 42.3,
+        "rateLow": 37.65,
+        "rateHigh": 46.95,
+        "qty": 1200,
+        "lineMid": 50760,
+        "lineLow": 45176,
+        "lineHigh": 56344
+      },
+      {
+        "code": "4.7",
+        "group": 4,
+        "description": "Loose furniture & FF&E — office or education",
+        "unit": "Nr",
+        "source": "",
+        "rate": 1034,
+        "rateLow": 920.26,
+        "rateHigh": 1147.74,
+        "qty": 120,
+        "lineMid": 124080,
+        "lineLow": 110431,
+        "lineHigh": 137729
+      },
+      {
+        "code": "5.1",
+        "group": 5,
+        "description": "Sanitary plumbing (1st & 2nd fix)",
+        "unit": "m²",
+        "source": "",
+        "rate": 61.1,
+        "rateLow": 54.38,
+        "rateHigh": 67.82,
+        "qty": 1200,
+        "lineMid": 73320,
+        "lineLow": 65255,
+        "lineHigh": 81385
+      },
+      {
+        "code": "5.16",
+        "group": 5,
+        "description": "IT / data infrastructure (Cat6A)",
+        "unit": "m²",
+        "source": "",
+        "rate": 16.92,
+        "rateLow": 15.06,
+        "rateHigh": 18.78,
+        "qty": 1200,
+        "lineMid": 20304,
+        "lineLow": 18071,
+        "lineHigh": 22537
+      },
+      {
+        "code": "5.2",
+        "group": 5,
+        "description": "Heating & hot water (LTHW/heat pump)",
+        "unit": "m²",
+        "source": "",
+        "rate": 47,
+        "rateLow": 41.83,
+        "rateHigh": 52.17,
+        "qty": 1200,
+        "lineMid": 56400,
+        "lineLow": 50196,
+        "lineHigh": 62604
+      },
+      {
+        "code": "5.20",
+        "group": 5,
+        "description": "Builder's work in connection (BWIC)",
+        "unit": "m²",
+        "source": "",
+        "rate": 16.92,
+        "rateLow": 15.06,
+        "rateHigh": 18.78,
+        "qty": 1200,
+        "lineMid": 20304,
+        "lineLow": 18071,
+        "lineHigh": 22537
+      },
+      {
+        "code": "5.3",
+        "group": 5,
+        "description": "Ventilation & air handling",
+        "unit": "m²",
+        "source": "",
+        "rate": 42.3,
+        "rateLow": 37.65,
+        "rateHigh": 46.95,
+        "qty": 1200,
+        "lineMid": 50760,
+        "lineLow": 45176,
+        "lineHigh": 56344
+      },
+      {
+        "code": "5.5",
+        "group": 5,
+        "description": "Gas installation",
+        "unit": "m²",
+        "source": "",
+        "rate": 9.4,
+        "rateLow": 8.37,
+        "rateHigh": 10.43,
+        "qty": 1200,
+        "lineMid": 11280,
+        "lineLow": 10039,
+        "lineHigh": 12521
+      },
+      {
+        "code": "5.7",
+        "group": 5,
+        "description": "Electrical distribution & switchgear",
+        "unit": "m²",
+        "source": "",
+        "rate": 35.72,
+        "rateLow": 31.79,
+        "rateHigh": 39.65,
+        "qty": 1200,
+        "lineMid": 42864,
+        "lineLow": 38149,
+        "lineHigh": 47579
+      },
+      {
+        "code": "5.8",
+        "group": 5,
+        "description": "Electrical wiring (1st & 2nd fix)",
+        "unit": "m²",
+        "source": "",
+        "rate": 65.8,
+        "rateLow": 58.56,
+        "rateHigh": 73.04,
+        "qty": 1200,
+        "lineMid": 78960,
+        "lineLow": 70274,
+        "lineHigh": 87646
+      },
+      {
+        "code": "5.8c",
+        "group": 5,
+        "description": "2nd fix lighting — new luminaires, layout, controls and occupancy sensors",
+        "unit": "m²",
+        "source": "",
+        "rate": 21.62,
+        "rateLow": 19.24,
+        "rateHigh": 24,
+        "qty": 1200,
+        "lineMid": 25944,
+        "lineLow": 23090,
+        "lineHigh": 28798
+      },
+      {
+        "code": "5.9a",
+        "group": 5,
+        "description": "Fire alarm system — detection, call points, sounders, visual alarms and panel (L1–L3)",
+        "unit": "m²",
+        "source": "",
+        "rate": 16.92,
+        "rateLow": 15.06,
+        "rateHigh": 18.78,
+        "qty": 1200,
+        "lineMid": 20304,
+        "lineLow": 18071,
+        "lineHigh": 22537
+      },
+      {
+        "code": "5.9b",
+        "group": 5,
+        "description": "Emergency lighting — maintained and non-maintained luminaires, central test system",
+        "unit": "m²",
+        "source": "",
+        "rate": 9.4,
+        "rateLow": 8.37,
+        "rateHigh": 10.43,
+        "qty": 1200,
+        "lineMid": 11280,
+        "lineLow": 10039,
+        "lineHigh": 12521
+      },
+      {
+        "code": "7.4",
+        "group": 7,
+        "description": "M&E overhaul / life-expired services",
+        "unit": "m²",
+        "source": "",
+        "rate": 47,
+        "rateLow": 41.83,
+        "rateHigh": 52.17,
+        "qty": 1200,
+        "lineMid": 56400,
+        "lineLow": 50196,
+        "lineHigh": 62604
+      }
+    ],
+    "works": {
+      "mid": 1083000,
+      "low": 964000,
+      "high": 1202000
+    },
+    "construction": {
+      "mid": 1294000,
+      "low": 1152000,
+      "high": 1436000
+    },
+    "total": {
+      "mid": 1718000,
+      "low": 1528000,
+      "high": 1906000
+    },
+    "vat": 344000,
+    "bcisFactor": 0.94,
+    "bcisRegion": "West Midlands",
+    "gifa": 1200,
+    "projectType": "Refurbishment",
+    "specLevel": "Standard",
+    "interventionLevel": "Full systems replacement",
+    "bandFactor": 1,
+    "percentages": {
+      "prelims": 10,
+      "ohp": 9.5,
+      "fees": 16,
+      "devCosts": 0,
+      "risk": 8,
+      "contingency": 5,
+      "inflation": 7,
+      "riskLevel": "Medium"
+    },
+    "breakdown": {
+      "prelims": 108000,
+      "ohp": 103000,
+      "fees": 207000,
+      "devCosts": 0,
+      "risk": 87000,
+      "contingency": 54000,
+      "inflation": 76000
+    },
+    "excludedNoQuantity": [],
+    "additionalScopeNote": null,
+    "workbookVersion": "NRM1 v4.5 (May 2026)",
+    "baseDate": null,
+    "rangeApplied": {
+      "grade": "A",
+      "low": 0.89,
+      "high": 1.11,
+      "fromWorkbook": false
+    },
+    "vatPct": 20,
+    "trace": {
+      "prelims": [
+        {
+          "code": "A",
+          "label": "Base 8% — clean/vacant/short programme",
+          "pct": 8
+        },
+        {
+          "code": "A",
+          "label": "Q3.6 = Partially occupied",
+          "pct": 1
+        },
+        {
+          "code": "A",
+          "label": "Q3.5 includes Restricted working hours",
+          "pct": 0.5
+        },
+        {
+          "code": "A",
+          "label": "Programme duration > 18 months",
+          "pct": 0.5
+        }
+      ],
+      "ohp": [
+        {
+          "code": "B",
+          "label": "Works cost £1M–£5M → 9–10% (use 9.5%)",
+          "pct": 9.5
+        }
+      ],
+      "fees": [
+        {
+          "code": "C",
+          "label": "Q4.5 = Stage 0–1 → 12–15% (use 13.5%)",
+          "pct": 13.5
+        },
+        {
+          "code": "C",
+          "label": "Q2.2 has ≥4 M&E items (M&E-heavy)",
+          "pct": 1.5
+        },
+        {
+          "code": "C",
+          "label": "Q2.5 includes BREEAM",
+          "pct": 1
+        }
+      ],
+      "devCosts": [
+        {
+          "code": "D",
+          "label": "No planning consent required (Q3.4) — no developer costs applied",
+          "pct": 0
+        }
+      ],
+      "risk": [
+        {
+          "code": "E",
+          "label": "Baseline 5%",
+          "pct": 5
+        },
+        {
+          "code": "E",
+          "label": "Q3.1 = Asbestos known or suspected",
+          "pct": 1.5
+        },
+        {
+          "code": "E",
+          "label": "Q3.1 = Ageing or inadequate M&E",
+          "pct": 0.5
+        },
+        {
+          "code": "E",
+          "label": "Q4.1 = Hard deadline (specific date given)",
+          "pct": 1
+        }
+      ],
+      "contingency": [
+        {
+          "code": "H",
+          "label": "ALWAYS 5% — never adjusted. Survey uncertainty sits in E, not here.",
+          "pct": 5
+        }
+      ],
+      "inflation": [
+        {
+          "code": "F",
+          "label": "18+ months to tender → 6% (96 wks to tender)",
+          "pct": 6
+        },
+        {
+          "code": "F",
+          "label": "Construction ≤ 6 months → 1% (26 wks construction)",
+          "pct": 1
+        }
+      ]
+    },
+    "bcisDefaulted": false,
+    "autoIncludes": [
+      {
+        "code": "5.20",
+        "reason": "Builder's Work In Connection is required whenever any Group 5 M&E element is priced — auto-included, not offered as a separate tick."
+      }
+    ],
+    "adjustments": [
+      {
+        "code": "5.8a",
+        "reason": "combined into 5.8 (single wiring selection)"
+      },
+      {
+        "code": "5.8b",
+        "reason": "combined into 5.8 (single wiring selection)"
+      }
+    ],
+    "buildingUseHidden": []
+  },
+  "programme": {
+    "stages": [
+      {
+        "stage": "Asbestos Survey",
+        "activity": "Refurbishment/Demolition Survey",
+        "weeks": 3,
+        "parallel": true,
+        "notes": "Pre-design — parallel with Stage 2–3",
+        "startWeek": 0,
+        "endWeek": 3,
+        "startDate": "2027-01-11",
+        "endDate": "2027-02-01"
+      },
+      {
+        "stage": "Condition Survey",
+        "activity": "Building condition survey",
+        "weeks": 2,
+        "parallel": true,
+        "notes": "Pre-design — parallel with other surveys",
+        "startWeek": 0,
+        "endWeek": 2,
+        "startDate": "2027-01-11",
+        "endDate": "2027-01-25"
+      },
+      {
+        "stage": "Stage 2",
+        "activity": "Concept Design",
+        "weeks": 7,
+        "notes": "Includes surveys at start of stage",
+        "startWeek": 0,
+        "endWeek": 7,
+        "startDate": "2027-01-11",
+        "endDate": "2027-03-01"
+      },
+      {
+        "stage": "Gateway",
+        "activity": "Client Review — Stage 2",
+        "weeks": 2,
+        "notes": "Client sign-off",
+        "startWeek": 7,
+        "endWeek": 9,
+        "startDate": "2027-03-01",
+        "endDate": "2027-03-15"
+      },
+      {
+        "stage": "Stage 3",
+        "activity": "Developed Design",
+        "weeks": 9,
+        "notes": "Full developed design — no planning consent required",
+        "startWeek": 9,
+        "endWeek": 18,
+        "startDate": "2027-03-15",
+        "endDate": "2027-05-17"
+      },
+      {
+        "stage": "Gateway",
+        "activity": "Client Review — Stage 3",
+        "weeks": 2,
+        "notes": "Client sign-off",
+        "startWeek": 18,
+        "endWeek": 20,
+        "startDate": "2027-05-17",
+        "endDate": "2027-05-31"
+      },
+      {
+        "stage": "Stage 4",
+        "activity": "Technical Design — full construction information",
+        "weeks": 10,
+        "notes": "Full construction information",
+        "startWeek": 20,
+        "endWeek": 30,
+        "startDate": "2027-05-31",
+        "endDate": "2027-08-09"
+      },
+      {
+        "stage": "Gateway",
+        "activity": "Client Review — Stage 4",
+        "weeks": 2,
+        "notes": "Client sign-off",
+        "startWeek": 30,
+        "endWeek": 32,
+        "startDate": "2027-08-09",
+        "endDate": "2027-08-23"
+      },
+      {
+        "stage": "Tender / Procurement",
+        "activity": "Traditional — Single Stage Tender",
+        "weeks": 12,
+        "notes": "Formal competitive tender — total project cost exceeds £100,000 threshold (12 weeks)",
+        "startWeek": 32,
+        "endWeek": 44,
+        "startDate": "2027-08-23",
+        "endDate": "2027-11-15"
+      },
+      {
+        "stage": "Construction",
+        "activity": "RIBA Stage 5 — Refurb — M&E Replacement",
+        "weeks": 26,
+        "notes": "20% uplift for occupation; 18% for access constraints",
+        "startWeek": 44,
+        "endWeek": 70,
+        "startDate": "2027-11-15",
+        "endDate": "2028-05-15"
+      },
+      {
+        "stage": "Handover",
+        "activity": "RIBA Stage 6 — Commissioning, snagging, Practical Completion",
+        "weeks": 5,
+        "notes": "Defects liability period begins at Practical Completion",
+        "startWeek": 70,
+        "endWeek": 75,
+        "startDate": "2028-05-15",
+        "endDate": "2028-06-19"
+      },
+      {
+        "stage": "Phase 2+ Construction",
+        "activity": "Subsequent phases — construction and re-mobilisation",
+        "weeks": 34,
+        "notes": "Phase sizes assumed equal at Stage 0–1. Confirm split at Stage 2.",
+        "startWeek": 75,
+        "endWeek": 109,
+        "startDate": "2028-06-19",
+        "endDate": "2029-02-12"
+      },
+      {
+        "stage": "Governance",
+        "activity": "Grant governance approval",
+        "weeks": 6,
+        "notes": "Grant or public funding — formal competitive procurement required regardless of value.",
+        "startWeek": 109,
+        "endWeek": 115,
+        "startDate": "2029-02-12",
+        "endDate": "2029-03-26"
+      },
+      {
+        "stage": "Programme float",
+        "activity": "Float / contingency across the critical path",
+        "weeks": 9,
+        "notes": "9 wk(s) at 1 week per 13 weeks of critical path (Modifiers PROG-FLOAT). Best case without float: 115 weeks.",
+        "startWeek": 115,
+        "endWeek": 124,
+        "startDate": "2029-03-26",
+        "endDate": "2029-05-28"
+      }
+    ],
+    "milestones": [
+      "Week 0 (11 Jan 2027): Project Start — Stage 2 commences; pre-design surveys commissioned in parallel",
+      "Week 3 (1 Feb 2027): Pre-design surveys complete (concurrent with Stage 2)",
+      "Week 7 (1 Mar 2027): Stage 2 Concept Design complete",
+      "Week 18 (17 May 2027): Stage 3 Developed Design complete",
+      "Week 38 (4 Oct 2027): Stage 4 Technical Design complete — Tender issued",
+      "Week 50 (27 Dec 2027): Contractor appointed — construction commences",
+      "Week 110 (19 Feb 2029): Practical Completion",
+      "Week 115 (26 Mar 2029): Project Close-out — Defects liability period begins",
+      "Week 124 (28 May 2029): Programme completion including 9 week(s) float"
+    ],
+    "assumptions": [
+      "Programme durations are indicative only and based on information provided at RIBA Stage 0–1. Actual durations to be confirmed at Stage 2 once surveys, design scope, and procurement strategy are finalised.",
+      "Durations assume client decision-making within the gateway periods shown. Delays to client sign-off will extend the programme accordingly.",
+      "Planning consent is not required for these works based on the stated route (Q3.4). This is a statement about planning only — see the separate building control note below.",
+      "Building control (Building Regulations) status has not been established by this questionnaire and must not be assumed from the planning answer above — structural work, drainage, ventilation/extract, fire safety and change-of-use works are commonly notifiable even under permitted development. Confirm building control applicability with a Building Control Body at Stage 2 before proceeding.",
+      "Construction duration is benchmarked against 1200 m² Refurbishment at standard productivity rates. Actual duration to be confirmed at Stage 2 by the appointed contractor.",
+      "A 20% construction duration uplift has been applied for partial occupation — section-by-section handover and phased access.",
+      "A 18% construction duration uplift has been applied for access constraints (Q3.5) — the highest single applicable tier only; access-constraint uplifts are never stacked with each other.",
+      "Surveys shown at the start of Stage 2 are identified as required but not yet commissioned. Commissioning surveys before Stage 2 commences is a gateway condition.",
+      "Calendar dates run from the stated expected start of 11 Jan 2027 (Q4.0), taken as Stage 1 Gateway approval (Week 0). A later start shifts every date accordingly.",
+      "A programme float of 9 week(s) (1 week per 13 weeks of critical path, Modifiers PROG-FLOAT) is included in the headline programme. The best-case programme without float is 115 weeks; the client should plan around the with-float figure.",
+      "Procurement threshold rule: total project cost mid-point (£1647k) exceeds £100,000 — formal competitive tender of approximately 12 weeks applied.",
+      "Handover (RIBA Stage 6) includes commissioning, snagging, and Practical Completion. The defects liability period is not shown — it begins at Practical Completion and is typically 12 months."
+    ],
+    "standardAssumptions": [
+      "Programme durations are indicative only and based on information provided at RIBA Stage 0–1. Actual durations to be confirmed at Stage 2 once surveys, design scope, and procurement strategy are finalised.",
+      "Durations assume client decision-making within the gateway periods shown. Delays to client sign-off will extend the programme accordingly.",
+      "Planning consent is not required for these works based on the stated route (Q3.4). This is a statement about planning only — see the separate building control note below.",
+      "Building control (Building Regulations) status has not been established by this questionnaire and must not be assumed from the planning answer above — structural work, drainage, ventilation/extract, fire safety and change-of-use works are commonly notifiable even under permitted development. Confirm building control applicability with a Building Control Body at Stage 2 before proceeding.",
+      "Construction duration is benchmarked against 1200 m² Refurbishment at standard productivity rates. Actual duration to be confirmed at Stage 2 by the appointed contractor.",
+      "A 20% construction duration uplift has been applied for partial occupation — section-by-section handover and phased access.",
+      "A 18% construction duration uplift has been applied for access constraints (Q3.5) — the highest single applicable tier only; access-constraint uplifts are never stacked with each other.",
+      "Surveys shown at the start of Stage 2 are identified as required but not yet commissioned. Commissioning surveys before Stage 2 commences is a gateway condition.",
+      "Calendar dates run from the stated expected start of 11 Jan 2027 (Q4.0), taken as Stage 1 Gateway approval (Week 0). A later start shifts every date accordingly.",
+      "A programme float of 9 week(s) (1 week per 13 weeks of critical path, Modifiers PROG-FLOAT) is included in the headline programme. The best-case programme without float is 115 weeks; the client should plan around the with-float figure.",
+      "Procurement threshold rule: total project cost mid-point (£1647k) exceeds £100,000 — formal competitive tender of approximately 12 weeks applied.",
+      "Handover (RIBA Stage 6) includes commissioning, snagging, and Practical Completion. The defects liability period is not shown — it begins at Practical Completion and is typically 12 months."
+    ],
+    "totalWeeks": 124,
+    "totalWeeksBestCase": 115,
+    "floatWeeks": 9,
+    "startDate": "2027-01-11",
+    "startDateAssumed": false,
+    "endDate": "2029-05-28",
+    "fastTrackOptions": [
+      {
+        "id": "FT2",
+        "lever": "Reuse existing surveys / reports",
+        "action": "Remove the matching survey row (SV1-SV6). Reduce Risk (E) allowance (NRM1).",
+        "weeksSaved": "0 on critical path; de-risks",
+        "tradeOff": "Survey must be current and scope-relevant. Asbestos register must be a valid R&D survey to drop SV2."
+      },
+      {
+        "id": "FT7",
+        "lever": "Long-lead procurement of major plant",
+        "action": "Order switchgear / AHUs / lifts during design (advance payment / client free-issue).",
+        "weeksSaved": "8 – 30 (off critical path)",
+        "tradeOff": "Commits spend before contract award; specification must be fixed early. Flag plant lead times to the client."
+      }
+    ],
+    "tenderType": "Single stage",
+    "designResponsibility": "Client design team",
+    "procurementRationale": "",
+    "procurementSource": "value threshold (no Procurement sheet)",
+    "surveyWeeks": 3,
+    "designWeeks": 32,
+    "tenderWeeks": 12,
+    "constructionWeeks": 26,
+    "handoverWeeks": 5,
+    "planningWeeks": 0,
+    "bcWeeks": 0,
+    "targetStatus": "at-risk",
+    "targetNote": "The target date of 1 September 2028 is not achievable from a stated start of 11 Jan 2027. The 124-week programme completes around 28 May 2029, approximately 38 weeks beyond the target.",
+    "procurementRoute": "Traditional — Single Stage Tender",
+    "contractForm": "JCT Standard Building Contract 2024",
+    "occupationUplift": 20,
+    "constructionType": "Refurb — M&E Replacement",
+    "grantGovernanceWeeks": 6,
+    "procurementNote": "Grant or public funding — formal competitive procurement required regardless of value.",
+    "workbookVersion": "Programme v4.3 (June 2026)",
+    "phasingNote": "Multiple phases: construction shown (26 wks) is per phase. Allow an additional 34 weeks for subsequent phase(s) including re-mobilisation. Phase split to be confirmed at Stage 2.",
+    "programmeStartNote": ""
+  },
+  "budget": {
+    "status": "sufficient",
+    "budget": 4500000,
+    "grossLow": 1742000,
+    "grossHigh": 2173000,
+    "margin": 2327000,
+    "grossFactor": 1.14,
+    "note": "The stated budget of £4,500,000 (incl. fees and the unrecovered 70% of VAT) is sufficient against the estimated gross range of £1,742,000 – £2,173,000, with headroom of approximately £2,327,000 above the top of the range."
+  },
+  "aiProse": {
+    "executiveSummary": "This report assesses the feasibility of refurbishing Hargreaves Teaching Block, a three-storey 1960s education building of 1,200 m² at Example University, Birmingham, to provide modern flexible teaching space, replace life-expired services, upgrade fire safety, and improve thermal performance in support of the university's net-zero plan. The estimated total project cost is £1,528,000 to £1,906,000 (excluding VAT), with a confidence grade of Grade A (High Confidence). The target completion date of 1 September 2028 is not achievable from the stated start of 11 January 2027; the 124-week programme completes approximately 38 weeks later, around 28 May 2029. The single most material risk is the requirement to confine all works to vacation windows only, which constrains the construction programme and increases the risk of overrun into term time.",
+    "keyFindings": [
+      "The works cost mid-point is £1,083,000 with a range of £964,000 to £1,202,000, driven primarily by full systems replacement of heating, ventilation, electrical distribution, and fire safety systems across the entire building, together with comprehensive refurbishment of finishes and fittings.",
+      "The target date of 1 September 2028 is not achievable; the 124-week programme (including 9 weeks of float) completes around 28 May 2029, approximately 38 weeks beyond the target, and phasing for subsequent phases will extend this further.",
+      "The stated budget of £4,500,000 (including fees and unrecovered VAT) is sufficient against the estimated gross range, with headroom of approximately £2,327,000 above the top of the range.",
+      "The most significant risk is the requirement to confine works to vacation windows only, which constrains the construction programme and increases the risk of overrun into term time, compounded by asbestos known or suspected in the building and the absence of any services replacement since original construction.",
+      "The recommended procurement route is Traditional — Single Stage Tender, which suits this project because formal competitive procurement is required for grant or public funding, and the single-stage approach allows the client design team to maintain design responsibility while achieving cost certainty before construction commences."
+    ],
+    "scopeAssumptions": [
+      "The scope includes soft strip of finishes and fittings, windows and external doors, internal doors and ironmongery, wall, floor and ceiling finishes, general fittings and built-in joinery, 120 items of loose furniture and FF&E, sanitary plumbing, IT/data infrastructure, heating and hot water systems, ventilation and air handling, gas installation, electrical distribution and switchgear, electrical wiring, new lighting with occupancy sensors, fire alarm systems, emergency lighting, and M&E overhaul, all measured across the full 1,200 m² of the building.",
+      "The roof was recovered in 2011 and windows on the south elevation were replaced in 2016; the north elevation windows remain original, and no services replacement has occurred since the building's original construction in the 1960s, meaning the heating, ventilation, and electrical systems are life-expired and require full replacement.",
+      "The building is partially occupied during works, works are confined to vacation windows only, restricted working hours apply, and the site is located in a conservation area or subject to an Article 4 direction, all of which constrain the construction programme and may require enhanced external materials and detailing."
+    ],
+    "costNarrative": "The main cost drivers are the full replacement of life-expired mechanical and electrical services across the entire 1,200 m² building, including heating and hot water systems, ventilation and air handling, electrical distribution and switchgear, and fire safety systems, together with comprehensive refurbishment of all internal finishes, fittings, windows, and doors to meet modern teaching standards and net-zero performance targets. The cost is further influenced by the requirement for asbestos management, the conservation area context requiring enhanced external detailing, and the need to maintain restricted working hours and vacation-window-only access throughout the construction phase.",
+    "roiNarrative": "The project cost mid-point is £1,717,000 with an annual benefit of £95,000, yielding a simple payback period of 18.1 years. The key financial risk is that the annual benefit is dependent on achieving the assumed energy and operational cost savings; any shortfall in actual performance or changes to utility costs could extend the payback period and reduce the project's financial return.",
+    "constraints": [
+      {
+        "category": "Programme",
+        "title": "Vacation-window-only working",
+        "text": "Works must be confined to vacation and holiday periods, which constrains the construction programme to discrete windows and increases the risk of overrun into term time if any phase slips."
+      },
+      {
+        "category": "Access",
+        "title": "Restricted working hours",
+        "text": "Restricted working hours apply throughout the project, extending the construction duration and potentially attracting premium or out-of-hours rates that must be confirmed with the client."
+      },
+      {
+        "category": "Regulatory",
+        "title": "Conservation area constraints",
+        "text": "The site is in a conservation area or subject to an Article 4 direction, curtailing permitted development rights and likely requiring full planning consent for external alterations and enhanced material specification."
+      },
+      {
+        "category": "Technical",
+        "title": "Asbestos management",
+        "text": "Asbestos is known or suspected in the building, requiring a valid asbestos register and careful management during soft strip and demolition works to ensure compliance and avoid programme delay."
+      },
+      {
+        "category": "Technical",
+        "title": "Life-expired services",
+        "text": "No services replacement has occurred since the building's original 1960s construction, meaning heating, ventilation, and electrical systems are life-expired and require complete replacement, which is a significant cost and programme driver."
+      },
+      {
+        "category": "Financial",
+        "title": "Target date not achievable",
+        "text": "The target completion date of 1 September 2028 is not achievable from the stated start of 11 January 2027; the 124-week programme completes around 28 May 2029, approximately 38 weeks later, and phasing for subsequent phases will extend this further."
+      }
+    ],
+    "nextSteps": [
+      "Confirm the phasing strategy and the specific vacation windows available for each phase, including blackout dates for examinations (January and May–June), to establish a realistic and achievable programme and agree this with the client and university faculty.",
+      "Obtain and review the asbestos register to confirm its currency and scope relevance; if it is a valid R&D survey, it may be reused to reduce the survey programme and risk allowance, potentially saving time on the critical path.",
+      "Seek pre-application advice from the local planning authority and conservation officer on the expectations for external alterations, materials, and detailing to avoid delays and cost growth at the planning stage.",
+      "Confirm the permitted working hours with the client and university, and price out-of-hours working where programme-critical to the vacation windows, ensuring the Preliminaries allowance reflects the actual site constraints.",
+      "Commission or update the condition survey and any other outstanding surveys (structural, M&E, thermal, accessibility) to inform the Stage 2 design and cost plan, and confirm the scope and specification of the heating, ventilation, and electrical systems replacement to achieve net-zero performance targets."
+    ],
+    "riskRegister": [
+      {
+        "ref": "ACC-B",
+        "category": "Programme",
+        "description": "Works are confined to vacation windows only; the 124-week programme spans multiple academic terms, creating a high risk of overrun into term time and disruption to teaching activities.",
+        "likelihood": "High",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Phase works strictly to vacation windows; agree blackout dates with faculty; build programme float; consider out-of-hours working where permitted.",
+        "seedRef": "ACC-B"
+      },
+      {
+        "ref": "ACC-D",
+        "category": "Programme",
+        "description": "Restricted working hours (Q3.5) extend construction duration and may attract premium labour or out-of-hours rates, increasing cost and programme risk.",
+        "likelihood": "Medium",
+        "impact": "Medium",
+        "rating": "Medium",
+        "mitigation": "Confirm permitted hours with the client; price out-of-hours working where programme-critical; reflect in Preliminaries.",
+        "seedRef": "ACC-D"
+      },
+      {
+        "ref": "CTX-CONSERVATION",
+        "category": "Regulatory",
+        "description": "The site is in a conservation area or subject to an Article 4 direction (Q3.8); permitted development rights are curtailed and external alterations are likely to require full planning consent, with potential for enhanced material and detailing requirements.",
+        "likelihood": "Medium",
+        "impact": "Medium",
+        "rating": "Medium",
+        "mitigation": "Seek pre-application advice on the conservation officer's expectations; assume full planning for external works when programming; allow for enhanced material specification in the cost plan at Stage 2.",
+        "seedRef": "CTX-CONSERVATION"
+      },
+      {
+        "ref": "R04",
+        "category": "Cost",
+        "description": "Asbestos is known or suspected (Q3.1); survey and safe removal add cost and programme risk, particularly given the building's age (1960s) and the full systems replacement scope.",
+        "likelihood": "High",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Obtain a current asbestos register and condition survey; confirm scope and cost of removal; allow contingency for unforeseen asbestos-containing materials during strip-out.",
+        "seedRef": "NONE"
+      },
+      {
+        "ref": "R05",
+        "category": "Technical",
+        "description": "The building has life-expired M&E services with no replacement since original construction (Q3.1); full systems replacement is required, creating uncertainty in hidden condition and potential for scope growth.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Commission a detailed M&E condition survey at Stage 2; establish a robust change control process; allocate adequate contingency for unforeseen defects.",
+        "seedRef": "NONE"
+      },
+      {
+        "ref": "R06",
+        "category": "Programme",
+        "description": "The target date of 1 September 2028 is not achievable from the stated start of 11 January 2027; the 124-week programme completes around 28 May 2029, approximately 38 weeks beyond target.",
+        "likelihood": "High",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Confirm realistic target date with the client; explore acceleration options (long-lead procurement, survey reuse) at Stage 2; consider phasing to deliver priority spaces earlier.",
+        "seedRef": "NONE"
+      },
+      {
+        "ref": "R07",
+        "category": "Procurement",
+        "description": "Multiple phases are planned with re-mobilisation costs and programme gaps; phase split is not yet confirmed (Q4.6), creating uncertainty in total cost and delivery schedule.",
+        "likelihood": "Medium",
+        "impact": "Medium",
+        "rating": "Medium",
+        "mitigation": "Define phase boundaries and re-mobilisation strategy at Stage 2; confirm which spaces are priority; establish clear handover and occupation protocols between phases.",
+        "seedRef": "NONE"
+      }
+    ],
+    "procurementRoute": "Traditional — Single Stage Tender",
+    "procurementContractForm": "JCT Standard Building Contract 2024",
+    "procurementDesignResp": "Client design team",
+    "procurementTenderType": "Single stage",
+    "procurementNarrative": "A Traditional Single Stage Tender route with JCT Standard Building Contract 2024 is appropriate for this refurbishment of known scope, where the client design team will develop the detailed specification during Stage 2 and the contractor will price and deliver against a fixed specification. This route delivers the client's priority for fixed and certain final cost, as the contractor's price is locked at tender stage, and suits the formal competitive procurement required by the grant funding source regardless of project value.",
+    "procurementConsiderations": [
+      "Long-lead procurement of major plant (switchgear, air handling units) should be explored at Stage 2 to reduce the critical path by 8–30 weeks; this requires early specification and client commitment to advance payment but may help recover the current 38-week programme shortfall against the target date.",
+      "The asbestos register must be validated as a current and scope-relevant R&D survey; if confirmed, it may be reused to remove the survey contingency and de-risk the programme by approximately 3 weeks.",
+      "Phasing strategy must be confirmed before tender to allow contractors to price re-mobilisation costs accurately and to establish clear blackout dates and occupation protocols that minimise disruption to teaching activities during term time."
+    ],
+    "procurementConflicts": [],
+    "confidenceScore": "A",
+    "confidenceLabel": "High Confidence"
+  },
+  "answers": {
+    "q1_0_projectName": "Refurbishment — Hargreaves Teaching Block, Example University, Birmingham",
+    "q1_1_postcode": "B15",
+    "q1_2_projectType": "Refurbishment",
+    "q1_2_storeys": "3",
+    "q1_3_buildingUse": "Education",
+    "q1_4_buildingAge": "1900–1979",
+    "q1_5_size": "1200",
+    "q2_1_objective": "Refurbish a three-storey 1960s teaching block to provide modern flexible teaching and seminar space, replace the life-expired heating, ventilation and electrical services, upgrade fire safety, and improve the thermal performance of the building fabric to support the university net-zero plan.",
+    "q2_2_scopeItems": [
+      "0.5",
+      "2.6",
+      "2.8",
+      "3.1",
+      "3.2",
+      "3.3",
+      "4.1",
+      "4.7",
+      "5.1",
+      "5.2",
+      "5.5",
+      "5.3",
+      "5.7",
+      "5.8a",
+      "5.8b",
+      "5.8c",
+      "5.9a",
+      "5.9b",
+      "5.16",
+      "7.4"
+    ],
+    "q2_2_quantities": {
+      "4.7": "120"
+    },
+    "q2_2_wiring": "5.8",
+    "q2_3_interventionLevel": "Full systems replacement",
+    "q2_4_specLevel": "Standard",
+    "q2_5_standards": "BREEAM, Net zero, University design guide",
+    "q3_1_knownIssues": [
+      "Ageing or inadequate M&E",
+      "Asbestos known or suspected"
+    ],
+    "q3_2_previousWorks": "Roof recovered in 2011. Windows replaced on the south elevation in 2016; north elevation original. No services replacement since original construction.",
+    "q3_3_surveys": [
+      "Asbestos register",
+      "Condition"
+    ],
+    "q3_4_planningConsents": "No consent required",
+    "q3_5_accessConstraints": [
+      "Restricted working hours",
+      "Term-time only working"
+    ],
+    "q3_6_occupation": "Partially occupied",
+    "q3_7_additionalContext": "The building sits in the middle of the campus with a single service road. Works must avoid the examination periods in January and May–June.",
+    "q3_8_siteContext": [
+      "Conservation area or Article 4 direction"
+    ],
+    "q4_0_startDate": "2027-01-11",
+    "q4_1_targetDate": "2028-09-01",
+    "q4_3_budget": "4500000",
+    "q4_3a_vatPosition": "Partially recoverable",
+    "q4_3a_vatRecoverablePct": "30",
+    "q4_4_priorities": [
+      "Minimise disruption",
+      "Fixed / certain final cost"
+    ],
+    "q4_5_designStage": "Concept only (Stage 0–1)",
+    "q4_6_phasing": "Multiple phases",
+    "q4_7_funding": "Grant or public funding",
+    "q5_1_financialBenefit": [
+      "Energy or operational cost savings",
+      "Grant or funding unlock"
+    ],
+    "q5_2_annualBenefit": "95000",
+    "q6_1_excludeSections": [],
+    "q6_2_instructions": "Write for an estates committee that includes non-technical members."
+  },
+  "generatedAt": "2026-09-17T22:08:23.417Z",
+  "reportId": null,
+  "sample": true
+}

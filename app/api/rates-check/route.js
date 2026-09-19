@@ -73,6 +73,14 @@ export async function GET() {
     sampleRate_4_2RES_rfbStd:      null,
     programmeSizeBands:   PROGRAMME_SIZE_BANDS,
     sampleDuration_DS2_S3_mid: null,
+    // September 2026 workbook additions — see docs/workbook-changes-sept-2026.md.
+    // Each is reported so a missing cell/sheet is visible here rather than
+    // silently falling back inside the calculators.
+    baseDate: null,                       // Tab 1 "Base date" row
+    rangeWidthsSheet: false,              // Tab "9. Range Widths"
+    sourceColumnPresent: false,           // Tab 2 col T "Source" header
+    procurementSheet: false,              // Programme sheet "Procurement"
+    newDurationRows: { SV7: false, BS1: false },
     fetchedAt: new Date().toISOString(),
     errors: [],
   }
@@ -82,6 +90,15 @@ export async function GET() {
     const wb = await fetchRatesWorkbook()
     const elements = parseRatesTab(wb)
     const elementCount = Object.keys(elements).length
+
+    result.rangeWidthsSheet = wb.SheetNames.includes('9. Range Widths')
+    try {
+      const instr = XLSX.utils.sheet_to_json(wb.Sheets['1. Instructions'], { header: 1, defval: '' })
+      const bd = instr.find(r => String(r[0] || '').trim().toLowerCase() === 'base date')
+      result.baseDate = bd ? String(bd[1] || '').trim() || null : null
+      const hdr = XLSX.utils.sheet_to_json(wb.Sheets['2. Master Cost Table'], { header: 1, defval: '' })[3] || []
+      result.sourceColumnPresent = String(hdr[19] || '').trim().toLowerCase() === 'source'
+    } catch { /* reported as absent */ }
 
     if (elementCount > 0) {
       result.ratesOk = true
@@ -124,6 +141,8 @@ export async function GET() {
       result.errors.push(`Programme workbook missing "Modifiers" sheet. Sheets found: ${sheetNames.join(', ')}`)
     } else {
       const durTab = parseDurationsTab(wb)
+      result.procurementSheet = sheetNames.includes('Procurement')
+      result.newDurationRows = { SV7: !!durTab?.['SV7'], BS1: !!durTab?.['BS1'] }
       const ds2 = durTab?.['DS2']
       if (ds2 && ds2.activity && (ds2.S3.lo || ds2.S3.hi)) {
         result.programmeOk = true

@@ -29,7 +29,7 @@ import { calculateCost } from '@/lib/costCalculator'
 import { calculateProgramme } from '@/lib/programmeCalculator'
 import { buildReport } from '@/lib/reportBuilder'
 import { createReport } from '@/lib/kv'
-import { runSenseCheck } from '@/lib/senseCheck'
+import { runSenseCheck, budgetVerdict } from '@/lib/senseCheck'
 import { computeConfidence, runProseSequential, scrubAnswers } from '@/lib/prose'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 
@@ -160,6 +160,15 @@ export async function POST(request) {
     const senseCheck = await runSenseCheck(cost, programme, answers)
     const confidence = computeConfidence(answers, cost, senseCheck)
 
+    // ── Step 2d: Final cost pass with the confidence-linked range ────────────
+    // The estimate range widens with the deterministic confidence grade (Tab
+    // "9. Range Widths"), and the grade is only known now. Warnings and the
+    // grade itself depend on works.mid, which the range does not touch, so
+    // the sense check is not re-run — only the budget verdict, which compares
+    // the stated budget against the (now wider or narrower) gross range.
+    cost = await calculateCost(answers, programme.totalWeeks, programme.constructionWeeks, { rangeGrade: confidence.score })
+    senseCheck.budget = budgetVerdict(answers, cost)
+
     // ── Step 3: Save the deterministic record and return fast ────────────────
     const reportId    = crypto.randomUUID().replace(/-/g, '').slice(0, 16)
     const generatedAt = new Date().toISOString()
@@ -209,7 +218,13 @@ export async function POST(request) {
     console.warn('[generate-report] KV unavailable — running full pipeline inline (dev fallback)')
     let aiProse
     try {
-      const proseDeadline = requestStart + 48_000
+      // 48s keeps the old behaviour under Vercel's 60s ceiling. Off Vercel
+      // (local dev, where this fallback actually runs) nothing kills the
+      // request, so both halves get a realistic budget instead of racing a
+      // limit that does not exist there — a slow API minute used to fail the
+      // sample-report script and every local end-to-end run for no reason.
+      const inlineBudgetMs = process.env.VERCEL ? 48_000 : (Number(process.env.PROSE_INLINE_BUDGET_MS) || 150_000)
+      const proseDeadline = requestStart + inlineBudgetMs
       aiProse = await runProseSequential(answers, cost, programme, senseCheck, proseDeadline)
     } catch (e) {
       console.error('[Step 3 error]', e.message)
@@ -267,6 +282,7 @@ function serializeCost(cost) {
     bcisFactor: cost.bcisFactor,
     bcisRegion: cost.bcisRegion,
     gifa: cost.gifa,
+    projectType: cost.projectType,
     specLevel: cost.specLevel,
     interventionLevel: cost.interventionLevel,
     bandFactor: cost.bandFactor,
@@ -277,6 +293,11 @@ function serializeCost(cost) {
     excludedNoQuantity: cost.excludedNoQuantity,
     additionalScopeNote: cost.additionalScopeNote,
     workbookVersion: cost.workbookVersion,
+    baseDate: cost.baseDate,
+    rangeApplied: cost.rangeApplied,
+    vatPct: cost.vatPct,
+    // Percentage build-up — which Tab 3 rules fired for each addition.
+    trace: cost.trace,
     bcisDefaulted: cost.bcisDefaulted,
     // Scope reconciliation audit trail — see costCalculator.js's reconciliation
     // invariant. Surfaced in the report so the user can verify priced lines
@@ -294,6 +315,16 @@ function serializeProgramme(programme) {
     assumptions:         programme.assumptions,
     standardAssumptions: programme.standardAssumptions,
     totalWeeks:          programme.totalWeeks,
+    totalWeeksBestCase:  programme.totalWeeksBestCase,
+    floatWeeks:          programme.floatWeeks,
+    startDate:           programme.startDate,
+    startDateAssumed:    programme.startDateAssumed,
+    endDate:             programme.endDate,
+    fastTrackOptions:    programme.fastTrackOptions,
+    tenderType:          programme.tenderType,
+    designResponsibility: programme.designResponsibility,
+    procurementRationale: programme.procurementRationale,
+    procurementSource:   programme.procurementSource,
     surveyWeeks:         programme.surveyWeeks,
     designWeeks:         programme.designWeeks,
     tenderWeeks:         programme.tenderWeeks,
