@@ -50,15 +50,12 @@ export const SAMPLE_ANSWERS = {
   q4_0_startDate: '2027-01-11',
   q4_1_targetDate: '2028-09-01',
   q4_3_budget: '4500000',
-  q4_3a_vatPosition: 'Partially recoverable',
-  q4_3a_vatRecoverablePct: '30',
   q4_4_priorities: ['Minimise disruption', 'Fixed / certain final cost'],
   q4_5_designStage: 'Concept only (Stage 0–1)',
   q4_6_phasing: 'Multiple phases',
   q4_7_funding: 'Grant or public funding',
   q5_1_financialBenefit: ['Energy or operational cost savings', 'Grant or funding unlock'],
   q5_2_annualBenefit: '95000',
-  q6_1_excludeSections: [],
   q6_2_instructions: 'Write for an estates committee that includes non-technical members.',
 }
 

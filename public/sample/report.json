@@ -538,53 +538,53 @@
         "endDate": "2027-08-23"
       },
       {
+        "stage": "Governance",
+        "activity": "Grant governance approval",
+        "weeks": 6,
+        "notes": "Grant or public funding — formal competitive procurement required regardless of value.",
+        "startWeek": 32,
+        "endWeek": 38,
+        "startDate": "2027-08-23",
+        "endDate": "2027-10-04"
+      },
+      {
         "stage": "Tender / Procurement",
         "activity": "Traditional — Single Stage Tender",
         "weeks": 12,
         "notes": "Formal competitive tender — total project cost exceeds £100,000 threshold (12 weeks)",
-        "startWeek": 32,
-        "endWeek": 44,
-        "startDate": "2027-08-23",
-        "endDate": "2027-11-15"
+        "startWeek": 38,
+        "endWeek": 50,
+        "startDate": "2027-10-04",
+        "endDate": "2027-12-27"
       },
       {
         "stage": "Construction",
         "activity": "RIBA Stage 5 — Refurb — M&E Replacement",
         "weeks": 26,
         "notes": "20% uplift for occupation; 18% for access constraints",
-        "startWeek": 44,
-        "endWeek": 70,
-        "startDate": "2027-11-15",
-        "endDate": "2028-05-15"
+        "startWeek": 50,
+        "endWeek": 76,
+        "startDate": "2027-12-27",
+        "endDate": "2028-06-26"
       },
       {
         "stage": "Handover",
         "activity": "RIBA Stage 6 — Commissioning, snagging, Practical Completion",
         "weeks": 5,
         "notes": "Defects liability period begins at Practical Completion",
-        "startWeek": 70,
-        "endWeek": 75,
-        "startDate": "2028-05-15",
-        "endDate": "2028-06-19"
+        "startWeek": 76,
+        "endWeek": 81,
+        "startDate": "2028-06-26",
+        "endDate": "2028-07-31"
       },
       {
         "stage": "Phase 2+ Construction",
         "activity": "Subsequent phases — construction and re-mobilisation",
         "weeks": 34,
         "notes": "Phase sizes assumed equal at Stage 0–1. Confirm split at Stage 2.",
-        "startWeek": 75,
-        "endWeek": 109,
-        "startDate": "2028-06-19",
-        "endDate": "2029-02-12"
-      },
-      {
-        "stage": "Governance",
-        "activity": "Grant governance approval",
-        "weeks": 6,
-        "notes": "Grant or public funding — formal competitive procurement required regardless of value.",
-        "startWeek": 109,
+        "startWeek": 81,
         "endWeek": 115,
-        "startDate": "2029-02-12",
+        "startDate": "2028-07-31",
         "endDate": "2029-03-26"
       },
       {
@@ -685,92 +685,92 @@
   "budget": {
     "status": "sufficient",
     "budget": 4500000,
-    "grossLow": 1742000,
-    "grossHigh": 2173000,
-    "margin": 2327000,
-    "grossFactor": 1.14,
-    "note": "The stated budget of £4,500,000 (incl. fees and the unrecovered 70% of VAT) is sufficient against the estimated gross range of £1,742,000 – £2,173,000, with headroom of approximately £2,327,000 above the top of the range."
+    "grossLow": 1834000,
+    "grossHigh": 2287000,
+    "margin": 2213000,
+    "grossFactor": 1.2,
+    "note": "The stated budget of £4,500,000 (incl. fees and VAT) is sufficient against the estimated gross range of £1,834,000 – £2,287,000, with headroom of approximately £2,213,000 above the top of the range."
   },
   "aiProse": {
-    "executiveSummary": "This report assesses the feasibility of refurbishing Hargreaves Teaching Block, a three-storey 1960s education building of 1,200 m² at Example University, Birmingham, to provide modern flexible teaching space, replace life-expired services, upgrade fire safety, and improve thermal performance in support of the university's net-zero plan. The estimated total project cost is £1,528,000 to £1,906,000 (excluding VAT), with a confidence grade of Grade A (High Confidence). The target completion date of 1 September 2028 is not achievable from the stated start of 11 January 2027; the 124-week programme completes approximately 38 weeks later, around 28 May 2029. The single most material risk is the requirement to confine all works to vacation windows only, which constrains the construction programme and increases the risk of overrun into term time.",
+    "executiveSummary": "This report assesses the feasibility of refurbishing Hargreaves Teaching Block, a three-storey 1960s teaching building at Example University in Birmingham with a gross internal floor area of 1200 m². The project will replace life-expired heating, ventilation and electrical services, upgrade fire safety, improve thermal performance to support the university's net-zero plan, and create modern flexible teaching and seminar space. The estimated total project cost is £1,528,000 to £1,906,000 (excluding VAT), and this feasibility study is delivered at Grade A (High Confidence). The target completion date of 1 September 2028 is not achievable from the stated start of 11 January 2027; the 124-week programme completes approximately 38 weeks later, around 28 May 2029. The most material risk is the requirement to confine all works to vacation and holiday windows, which creates significant programme pressure and the potential for overrun into term time.",
     "keyFindings": [
-      "The works cost mid-point is £1,083,000 with a range of £964,000 to £1,202,000, driven primarily by full systems replacement of heating, ventilation, electrical distribution, and fire safety systems across the entire building, together with comprehensive refurbishment of finishes and fittings.",
-      "The target date of 1 September 2028 is not achievable; the 124-week programme (including 9 weeks of float) completes around 28 May 2029, approximately 38 weeks beyond the target, and phasing for subsequent phases will extend this further.",
-      "The stated budget of £4,500,000 (including fees and unrecovered VAT) is sufficient against the estimated gross range, with headroom of approximately £2,327,000 above the top of the range.",
-      "The most significant risk is the requirement to confine works to vacation windows only, which constrains the construction programme and increases the risk of overrun into term time, compounded by asbestos known or suspected in the building and the absence of any services replacement since original construction.",
-      "The recommended procurement route is Traditional — Single Stage Tender, which suits this project because formal competitive procurement is required for grant or public funding, and the single-stage approach allows the client design team to maintain design responsibility while achieving cost certainty before construction commences."
+      "The project is driven by the need to replace life-expired mechanical, electrical and plumbing services across the entire 1200 m² building, combined with full systems replacement and thermal fabric upgrade, resulting in a medium-risk cost estimate with 8% risk allowance reflecting asbestos presence and restricted working conditions.",
+      "The target date of 1 September 2028 is not achievable; the 124-week programme (including design, tender and construction across multiple phases) completes around 28 May 2029, approximately 38 weeks beyond the target, primarily due to the requirement to confine works to vacation windows only.",
+      "The stated budget of £4,500,000 (including fees and VAT) is sufficient against the estimated gross range of £1,834,000 to £2,287,000, providing headroom of approximately £2,213,000 above the top of the range.",
+      "The most significant risk is the requirement to confine all works to vacation and holiday windows, which spans multiple academic terms and creates a high risk of programme overrun into term time if any phase slips.",
+      "Traditional Single Stage Tender procurement is recommended because the project is grant-funded and formal competitive procurement is required regardless of value, and this route allows the client design team to maintain design responsibility and control specification through a single tender stage."
     ],
     "scopeAssumptions": [
-      "The scope includes soft strip of finishes and fittings, windows and external doors, internal doors and ironmongery, wall, floor and ceiling finishes, general fittings and built-in joinery, 120 items of loose furniture and FF&E, sanitary plumbing, IT/data infrastructure, heating and hot water systems, ventilation and air handling, gas installation, electrical distribution and switchgear, electrical wiring, new lighting with occupancy sensors, fire alarm systems, emergency lighting, and M&E overhaul, all measured across the full 1,200 m² of the building.",
-      "The roof was recovered in 2011 and windows on the south elevation were replaced in 2016; the north elevation windows remain original, and no services replacement has occurred since the building's original construction in the 1960s, meaning the heating, ventilation, and electrical systems are life-expired and require full replacement.",
-      "The building is partially occupied during works, works are confined to vacation windows only, restricted working hours apply, and the site is located in a conservation area or subject to an Article 4 direction, all of which constrain the construction programme and may require enhanced external materials and detailing."
+      "The scope includes soft strip of finishes and fittings, replacement of windows and external doors, internal doors and ironmongery, all wall, floor and ceiling finishes, general fittings and built-in joinery, 120 items of loose furniture and equipment, full sanitary plumbing first and second fix, IT and data infrastructure to Cat6A standard, heating and hot water via low-temperature hot water and heat pump, builder's work in connection, ventilation and air handling, gas installation, electrical distribution and switchgear, electrical wiring first and second fix, new lighting with occupancy sensors, fire alarm system with detection, call points, sounders and visual alarms, emergency lighting with maintained and non-maintained luminaires, and overhaul of life-expired services, all across the full 1200 m² building.",
+      "The roof was recovered in 2011 and windows on the south elevation were replaced in 2016; the north elevation windows remain original and are included in the replacement scope, and no services replacement has occurred since the building's original construction in the 1960s.",
+      "The project must comply with BREEAM and net-zero standards in accordance with the university design guide, and the building is located in a conservation area or subject to an Article 4 direction, which may require enhanced materials and detailing for external alterations."
     ],
-    "costNarrative": "The main cost drivers are the full replacement of life-expired mechanical and electrical services across the entire 1,200 m² building, including heating and hot water systems, ventilation and air handling, electrical distribution and switchgear, and fire safety systems, together with comprehensive refurbishment of all internal finishes, fittings, windows, and doors to meet modern teaching standards and net-zero performance targets. The cost is further influenced by the requirement for asbestos management, the conservation area context requiring enhanced external detailing, and the need to maintain restricted working hours and vacation-window-only access throughout the construction phase.",
-    "roiNarrative": "The project cost mid-point is £1,717,000 with an annual benefit of £95,000, yielding a simple payback period of 18.1 years. The key financial risk is that the annual benefit is dependent on achieving the assumed energy and operational cost savings; any shortfall in actual performance or changes to utility costs could extend the payback period and reduce the project's financial return.",
+    "costNarrative": "The cost estimate is driven by the comprehensive replacement of all mechanical, electrical and plumbing services across the entire building, combined with full refurbishment of internal and external fabric including windows, doors, finishes and fittings. The 16% professional fees reflect the complexity of an M&E-heavy refurbishment at Stage 0–1 design with BREEAM requirements, and the 8% risk allowance reflects the known presence of asbestos, ageing services, restricted working hours, partial occupation during works, and a hard deadline.",
+    "roiNarrative": "The project cost mid-point is £1,717,000, with an annual operational benefit of £95,000 from energy and cost savings, yielding a simple payback period of 18.1 years. The key financial risk is the long payback horizon, which depends on the realisation of the assumed annual savings and the stability of energy costs over the payback period; any delay to completion or cost overrun will extend the payback further.",
     "constraints": [
       {
         "category": "Programme",
-        "title": "Vacation-window-only working",
-        "text": "Works must be confined to vacation and holiday periods, which constrains the construction programme to discrete windows and increases the risk of overrun into term time if any phase slips."
+        "title": "Term-time working restriction",
+        "text": "All works must be confined to vacation and holiday windows only, avoiding examination periods in January and May–June, which extends the programme to 124 weeks and creates a high risk of overrun into term time if any phase slips."
       },
       {
         "category": "Access",
         "title": "Restricted working hours",
-        "text": "Restricted working hours apply throughout the project, extending the construction duration and potentially attracting premium or out-of-hours rates that must be confirmed with the client."
+        "text": "Restricted working hours on site will extend construction duration and may attract premium or out-of-hours rates, increasing both cost and programme risk."
+      },
+      {
+        "category": "Technical",
+        "title": "Asbestos presence",
+        "text": "Asbestos is known or suspected in the building; a valid asbestos register and condition survey are required to confirm scope and inform safe removal and disposal protocols."
       },
       {
         "category": "Regulatory",
         "title": "Conservation area constraints",
-        "text": "The site is in a conservation area or subject to an Article 4 direction, curtailing permitted development rights and likely requiring full planning consent for external alterations and enhanced material specification."
-      },
-      {
-        "category": "Technical",
-        "title": "Asbestos management",
-        "text": "Asbestos is known or suspected in the building, requiring a valid asbestos register and careful management during soft strip and demolition works to ensure compliance and avoid programme delay."
+        "text": "The building is located in a conservation area or subject to an Article 4 direction, which curtails permitted development rights and is likely to require full planning consent for external alterations and enhanced material specification."
       },
       {
         "category": "Technical",
         "title": "Life-expired services",
-        "text": "No services replacement has occurred since the building's original 1960s construction, meaning heating, ventilation, and electrical systems are life-expired and require complete replacement, which is a significant cost and programme driver."
+        "text": "No services replacement has occurred since the building's original construction in the 1960s; the extent of deterioration and hidden defects will only be confirmed during detailed surveys and opening up, creating cost and programme uncertainty."
       },
       {
-        "category": "Financial",
-        "title": "Target date not achievable",
-        "text": "The target completion date of 1 September 2028 is not achievable from the stated start of 11 January 2027; the 124-week programme completes around 28 May 2029, approximately 38 weeks later, and phasing for subsequent phases will extend this further."
+        "category": "Programme",
+        "title": "Multiple phasing",
+        "text": "The project is planned in multiple phases with 26 weeks of construction per phase plus 34 weeks for re-mobilisation and subsequent phases; phase split and sequencing must be confirmed at Stage 2 to avoid disruption to teaching operations."
       }
     ],
     "nextSteps": [
-      "Confirm the phasing strategy and the specific vacation windows available for each phase, including blackout dates for examinations (January and May–June), to establish a realistic and achievable programme and agree this with the client and university faculty.",
-      "Obtain and review the asbestos register to confirm its currency and scope relevance; if it is a valid R&D survey, it may be reused to reduce the survey programme and risk allowance, potentially saving time on the critical path.",
-      "Seek pre-application advice from the local planning authority and conservation officer on the expectations for external alterations, materials, and detailing to avoid delays and cost growth at the planning stage.",
-      "Confirm the permitted working hours with the client and university, and price out-of-hours working where programme-critical to the vacation windows, ensuring the Preliminaries allowance reflects the actual site constraints.",
-      "Commission or update the condition survey and any other outstanding surveys (structural, M&E, thermal, accessibility) to inform the Stage 2 design and cost plan, and confirm the scope and specification of the heating, ventilation, and electrical systems replacement to achieve net-zero performance targets."
+      "Confirm the target date with the client and estates committee; the current 124-week programme cannot deliver by 1 September 2028 and will complete around 28 May 2029 — discuss whether the date can be moved, whether acceleration options (such as long-lead procurement of major plant) are viable, or whether phasing can be resequenced to deliver critical teaching spaces earlier.",
+      "Commission or review the asbestos register and condition survey to confirm the scope and cost of safe removal and disposal; if a current valid asbestos register exists, it may be reused to remove 3 weeks from the survey programme and reduce risk allowance.",
+      "Seek pre-application advice from the local planning authority and conservation officer on the expectations for external alterations, material specification and detailing, to confirm whether full planning consent is required and to avoid delays at the formal application stage.",
+      "Confirm with the client and university estates the permitted working hours, blackout dates for examinations and key academic events, and the feasibility of out-of-hours or weekend working where programme-critical; agree these constraints in writing before Stage 2 design begins.",
+      "Develop a detailed phasing strategy at Stage 2 that sequences works to minimise disruption to teaching operations, protects the most critical teaching spaces, and aligns with the vacation windows; confirm the phase split, re-mobilisation periods and any interim fit-out requirements."
     ],
     "riskRegister": [
       {
-        "ref": "ACC-B",
+        "ref": "R01",
         "category": "Programme",
-        "description": "Works are confined to vacation windows only; the 124-week programme spans multiple academic terms, creating a high risk of overrun into term time and disruption to teaching activities.",
+        "description": "Works are confined to vacation windows only (Q3.5), and the programme spans multiple academic terms; risk of overrun into term time with disruption to teaching and examination periods.",
         "likelihood": "High",
         "impact": "High",
         "rating": "High",
-        "mitigation": "Phase works strictly to vacation windows; agree blackout dates with faculty; build programme float; consider out-of-hours working where permitted.",
+        "mitigation": "Phase works strictly to vacation windows; agree blackout dates with faculty; build programme float; consider out-of-hours working where programme-critical.",
         "seedRef": "ACC-B"
       },
       {
-        "ref": "ACC-D",
+        "ref": "R02",
         "category": "Programme",
-        "description": "Restricted working hours (Q3.5) extend construction duration and may attract premium labour or out-of-hours rates, increasing cost and programme risk.",
+        "description": "Restricted working hours (Q3.5) extend construction duration and may attract premium or out-of-hours rates, increasing cost and schedule risk.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Confirm permitted hours with the client; price out-of-hours working where programme-critical; reflect in Preliminaries.",
+        "mitigation": "Confirm permitted hours with the client; price out-of-hours working where programme-critical; reflect in Prelims and cost plan.",
         "seedRef": "ACC-D"
       },
       {
-        "ref": "CTX-CONSERVATION",
+        "ref": "R03",
         "category": "Regulatory",
-        "description": "The site is in a conservation area or subject to an Article 4 direction (Q3.8); permitted development rights are curtailed and external alterations are likely to require full planning consent, with potential for enhanced material and detailing requirements.",
+        "description": "Site is in a conservation area or subject to an Article 4 direction (Q3.8); permitted development rights are curtailed and external alterations are likely to need full planning consent.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
@@ -780,41 +780,41 @@
       {
         "ref": "R04",
         "category": "Cost",
-        "description": "Asbestos is known or suspected (Q3.1); survey and safe removal add cost and programme risk, particularly given the building's age (1960s) and the full systems replacement scope.",
-        "likelihood": "High",
+        "description": "Asbestos is known or suspected in the building (Q3.1); survey and removal costs may exceed the current risk allowance if contamination is widespread.",
+        "likelihood": "Medium",
         "impact": "High",
         "rating": "High",
-        "mitigation": "Obtain a current asbestos register and condition survey; confirm scope and cost of removal; allow contingency for unforeseen asbestos-containing materials during strip-out.",
+        "mitigation": "Obtain a detailed asbestos survey and removal specification; obtain fixed-price removal quotes; establish a separate asbestos contingency line in the cost plan.",
         "seedRef": "NONE"
       },
       {
         "ref": "R05",
         "category": "Technical",
-        "description": "The building has life-expired M&E services with no replacement since original construction (Q3.1); full systems replacement is required, creating uncertainty in hidden condition and potential for scope growth.",
+        "description": "No services replacement has been undertaken since original construction (building history); M&E systems are life-expired and may contain hidden defects or obsolete components not fully captured in the condition survey.",
         "likelihood": "Medium",
-        "impact": "High",
-        "rating": "High",
-        "mitigation": "Commission a detailed M&E condition survey at Stage 2; establish a robust change control process; allocate adequate contingency for unforeseen defects.",
+        "impact": "Medium",
+        "rating": "Medium",
+        "mitigation": "Commission a detailed M&E condition and performance audit; obtain specialist quotations for major plant replacement; allow a technical contingency for unforeseen defects during strip-out.",
         "seedRef": "NONE"
       },
       {
         "ref": "R06",
         "category": "Programme",
-        "description": "The target date of 1 September 2028 is not achievable from the stated start of 11 January 2027; the 124-week programme completes around 28 May 2029, approximately 38 weeks beyond target.",
+        "description": "The target date of 1 September 2028 is not achievable from the stated start of 11 January 2027; the 124-week programme completes around 28 May 2029, approximately 38 weeks beyond the target.",
         "likelihood": "High",
         "impact": "High",
         "rating": "High",
-        "mitigation": "Confirm realistic target date with the client; explore acceleration options (long-lead procurement, survey reuse) at Stage 2; consider phasing to deliver priority spaces earlier.",
+        "mitigation": "Confirm the target date with the client and agree a revised completion date; explore programme acceleration options (long-lead procurement, survey reuse) at Stage 2; consider phasing strategy to deliver early benefits.",
         "seedRef": "NONE"
       },
       {
         "ref": "R07",
-        "category": "Procurement",
-        "description": "Multiple phases are planned with re-mobilisation costs and programme gaps; phase split is not yet confirmed (Q4.6), creating uncertainty in total cost and delivery schedule.",
+        "category": "Cost",
+        "description": "The building is partially occupied during works (Q3.6); disruption to teaching and the need for temporary facilities, decanting, or out-of-hours working may increase costs and extend the programme.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Define phase boundaries and re-mobilisation strategy at Stage 2; confirm which spaces are priority; establish clear handover and occupation protocols between phases.",
+        "mitigation": "Develop a detailed decanting and temporary facilities plan; agree occupation protocols with the client; price temporary services and out-of-hours working in the cost plan.",
         "seedRef": "NONE"
       }
     ],
@@ -822,11 +822,11 @@
     "procurementContractForm": "JCT Standard Building Contract 2024",
     "procurementDesignResp": "Client design team",
     "procurementTenderType": "Single stage",
-    "procurementNarrative": "A Traditional Single Stage Tender route with JCT Standard Building Contract 2024 is appropriate for this refurbishment of known scope, where the client design team will develop the detailed specification during Stage 2 and the contractor will price and deliver against a fixed specification. This route delivers the client's priority for fixed and certain final cost, as the contractor's price is locked at tender stage, and suits the formal competitive procurement required by the grant funding source regardless of project value.",
+    "procurementNarrative": "A Traditional Single Stage Tender route is appropriate for this refurbishment of known scope and complexity, with formal competitive procurement required by the grant funding conditions. This approach provides the client with a fixed lump-sum contract price and a clear completion date, directly serving the stated priorities of minimising disruption and achieving cost certainty.",
     "procurementConsiderations": [
-      "Long-lead procurement of major plant (switchgear, air handling units) should be explored at Stage 2 to reduce the critical path by 8–30 weeks; this requires early specification and client commitment to advance payment but may help recover the current 38-week programme shortfall against the target date.",
-      "The asbestos register must be validated as a current and scope-relevant R&D survey; if confirmed, it may be reused to remove the survey contingency and de-risk the programme by approximately 3 weeks.",
-      "Phasing strategy must be confirmed before tender to allow contractors to price re-mobilisation costs accurately and to establish clear blackout dates and occupation protocols that minimise disruption to teaching activities during term time."
+      "Long-lead procurement of major plant (switchgear, air-handling units) should be flagged to the client during design; advance ordering during Stage 2 can save 8–30 weeks off the critical path and reduce delivery risk, though it commits spend before contract award.",
+      "The asbestos register must be a valid R&D survey to enable reuse and de-risk the programme; if current and scope-relevant, it can be dropped from the survey schedule, saving time and reducing the risk allowance.",
+      "Restricted working hours and term-time confinement will attract premium rates and out-of-hours charges; these must be priced explicitly in the tender and reflected in the Preliminaries and cost plan to avoid post-contract disputes."
     ],
     "procurementConflicts": [],
     "confidenceScore": "A",
@@ -892,8 +892,6 @@
     "q4_0_startDate": "2027-01-11",
     "q4_1_targetDate": "2028-09-01",
     "q4_3_budget": "4500000",
-    "q4_3a_vatPosition": "Partially recoverable",
-    "q4_3a_vatRecoverablePct": "30",
     "q4_4_priorities": [
       "Minimise disruption",
       "Fixed / certain final cost"
@@ -906,10 +904,9 @@
       "Grant or funding unlock"
     ],
     "q5_2_annualBenefit": "95000",
-    "q6_1_excludeSections": [],
     "q6_2_instructions": "Write for an estates committee that includes non-technical members."
   },
-  "generatedAt": "2026-09-17T22:08:23.417Z",
+  "generatedAt": "2026-09-19T07:30:50.336Z",
   "reportId": null,
   "sample": true
 }
