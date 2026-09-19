@@ -27,7 +27,7 @@ const PROTECTED_PAGES = ['/questionnaire', '/report']
 // programme calculators down with it.
 const PROTECTED_API   = [
   '/api/generate-report', '/api/reports', '/api/report-pdf', '/api/feedback',
-  '/api/warm-prose', '/api/rates-check',
+  '/api/warm-prose', '/api/rates-check', '/api/compare', '/api/suggest-scope',
 ]
 
 export async function proxy(request: NextRequest) {
@@ -96,6 +96,8 @@ export const config = {
     '/api/feedback/:path*',
     '/api/warm-prose/:path*',
     '/api/rates-check/:path*',
+    '/api/compare/:path*',
+    '/api/suggest-scope/:path*',
     '/api/admin/:path*',
   ],
 }

@@ -4,6 +4,9 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { matchesBuildingUse } from '../../lib/buildingUse.js'
+import { areaQuestionLabel, areaHelpText } from '../../lib/labels.js'
+import { SITE_CONTEXT_OPTIONS, SITE_CONTEXT_NONE, hrbLikelyFromAnswers } from '../../lib/siteContext.js'
+import { EXCLUDABLE_REPORT_SECTIONS } from '../../lib/reportShared.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
 // Bumped whenever the answer-key schema changes in a way that could make a
@@ -12,7 +15,10 @@ const STORAGE_KEY = 'estatesAI_v4_answers'
 // missing a new field, which is harmless. A mismatch means "discard, don't
 // guess" — the alternative is silently mixing an old draft's shape into a
 // calculator that no longer expects it.
-const STORAGE_SCHEMA_VERSION = 1
+// v2 (September 2026): Q6.1 changed from an include-list (`q6_1_sections`) to
+// an exclude-list (`q6_1_excludeSections`) — a v1 draft's include-list would
+// otherwise be silently ignored, which is the "changed meaning" case above.
+const STORAGE_SCHEMA_VERSION = 2
 
 // Four steps, down from six.
 //
@@ -74,8 +80,34 @@ const FOLDED_CODES = new Set(['5.2L', '5.5', '5.8'])
 function itemNeedsQty(item) {
   if (!item) return false
   const pt = item.pricingType
-  return pt === 'per_nr' || pt === 'per_kwp' || pt === 'per_kwh' ||
+  return pt === 'per_nr' || pt === 'per_kwp' || pt === 'per_kwh' || pt === 'per_kw' ||
     (pt === 'per_item' && /^(number of|per )/i.test(item.qtyCapture || ''))
+}
+
+// Label for a count prompt. The workbook's "Quantity to capture" cell is used
+// when it reads as a count ("Number of …", "Per …", "System size (kWp)");
+// anything else (a stray "GIFA (automatic, m²)" on a per-nr row, as 8.9 had)
+// is replaced with a plain count label so workbook plumbing never reaches the
+// user as a question.
+function qtyPromptLabel(item) {
+  const raw = String(item?.qtyCapture || '').trim()
+  if (/^(number of|per |system size|capacity|plant capacity)/i.test(raw)) return raw
+  const unit = String(item?.unit || '').trim()
+  if (/^kw/i.test(unit)) return `Capacity (${unit})`
+  return unit && unit !== 'Nr' && unit !== 'Item' ? `Number of ${unit}` : 'Number of units'
+}
+
+// Which rate-column family the calculator will read for this project type —
+// mirrors getRateForElement() in lib/costCalculator.js. An item with no rate
+// in that family can only ever be excluded, so the picker does not offer it.
+function priceableFor(item, projectType) {
+  if (!item?.priceable) return true   // older /api/scope-items payload — no flags, no filtering
+  const pt = String(projectType || '')
+  const family = pt === 'New Build' ? 'newBuild'
+    : pt === 'Extension' ? 'extension'
+    : pt === 'External Works' ? 'externalWorks'
+    : 'refurb'
+  return !!item.priceable[family]
 }
 
 const LEVEL_TIER = {
@@ -221,6 +253,15 @@ const DESIGN_STAGE_OPTIONS = [
 // (UTILITIES_OPTIONS removed — it was declared but never rendered; there is no
 // utilities question in the flow and no engine reads one.)
 
+// Q4.3a — read by budgetVerdict() in lib/senseCheck.js via vatRecoverableShare(),
+// which keys on the first word ("Fully" / "Partially"); anything else is
+// treated as not recoverable.
+const VAT_POSITION_OPTIONS = [
+  'Not recoverable — VAT is a cost to us',
+  'Fully recoverable',
+  'Partially recoverable',
+]
+
 // Only "grant or public" changes anything (a +6-week funding-governance stage).
 // "Other" plus its free-text follow-up was a fourth click and a text box that no
 // engine, prompt or report section ever read.
@@ -235,12 +276,10 @@ const FINANCIAL_BENEFIT_OPTIONS = [
 ]
 
 // ─── Report preference data (asked at the end of step 4) ─────────────────────
-// Must match the strings reportBuilder.js and ReportRenderer.jsx compare against
-// when deciding which optional sections to render.
-const OPTIONAL_REPORT_SECTIONS = [
-  'Order of Cost Estimate (NRM1)', 'ROI & Financial Case',
-  'Procurement Recommendation', 'Constraints Summary',
-]
+// Sections the user may leave OUT. The cost estimate is no longer on this list —
+// a feasibility report without its order of cost estimate was a contradiction,
+// and "leave all unticked to include every one" confused everybody. Strings
+// must match resolveSectionFlags() in lib/reportShared.js, which both renderers use.
 
 // ─── UI Components ────────────────────────────────────────────────────────────
 
@@ -366,22 +405,31 @@ function RadioGroup({ options, value, onChange, ariaLabel }) {
 // visits each one, exactly like a row of real checkboxes would) rather than
 // roving tabindex. It only needed role="checkbox" + aria-checked so a screen
 // reader announces state at all instead of a bare, stateless "button".
-function CheckboxGroup({ options, values = [], onChange, note, ariaLabel }) {
+// `max` caps how many may be ticked at once; the remaining pills are disabled
+// (aria-disabled, not removed) so the user can see what they would have to
+// untick. Order of ticking is preserved in `values`, which is what lets Q4.4
+// treat the first tick as the primary priority.
+function CheckboxGroup({ options, values = [], onChange, note, ariaLabel, max }) {
+  const arr = Array.isArray(values) ? values : []
+  const atMax = Number.isFinite(max) && arr.length >= max
   const toggle = opt => {
-    const arr = Array.isArray(values) ? values : []
-    onChange(arr.includes(opt) ? arr.filter(v => v !== opt) : [...arr, opt])
+    if (arr.includes(opt)) return onChange(arr.filter(v => v !== opt))
+    if (atMax) return
+    onChange([...arr, opt])
   }
   return (
     <div role="group" aria-label={ariaLabel}>
       {note && <p style={{ color: 'var(--text-soft)', fontSize: '13px', marginBottom: 10 }}>{note}</p>}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
         {options.map(opt => {
-          const sel = Array.isArray(values) && values.includes(opt)
+          const sel = arr.includes(opt)
+          const blocked = !sel && atMax
           return (
-            <button key={opt} type="button" role="checkbox" aria-checked={sel} onClick={() => toggle(opt)}
+            <button key={opt} type="button" role="checkbox" aria-checked={sel} aria-disabled={blocked || undefined} onClick={() => toggle(opt)}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
-                padding: '8px 14px', borderRadius: 8, cursor: 'pointer',
+                padding: '8px 14px', borderRadius: 8, cursor: blocked ? 'not-allowed' : 'pointer',
+                opacity: blocked ? 0.45 : 1,
                 border: sel ? '1.5px solid var(--navy)' : '1.5px solid var(--border)',
                 background: sel ? 'rgba(26,46,74,.06)' : 'var(--surface)',
                 color: sel ? 'var(--ink)' : 'var(--text-mid)',
@@ -459,6 +507,73 @@ function ScopePresetBar({ projectType, tier, selectedCount, onApply, onClear }) 
           }}>
           Clear all
         </button>
+      )}
+    </div>
+  )
+}
+
+// AI-suggested scope from the Q2.1 objective (September 2026). The model is
+// only ever shown the codes the picker would offer and answers with a strict
+// enum, so it can propose but never invent; the user reviews the list and the
+// deterministic engine prices whatever is finally ticked. Hidden until the
+// objective is long enough to mean something.
+function ScopeSuggestBar({ objective, projectType, buildingUse, interventionLevel, selectedCount, onApply }) {
+  const [state, setState] = useState({ status: 'idle', items: [], error: '' })
+  const ready = String(objective || '').trim().length >= 20 && !!projectType
+  if (!projectType) return null
+
+  async function suggest() {
+    if (!ready) return
+    if (selectedCount > 0 && !window.confirm('Replace the items currently ticked with the suggested scope? You can still edit everything afterwards.')) return
+    setState({ status: 'loading', items: [], error: '' })
+    try {
+      const res = await fetch('/api/suggest-scope', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ objective, projectType, buildingUse, interventionLevel }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `Suggestion failed (${res.status}).`)
+      const items = Array.isArray(body.items) ? body.items : []
+      if (items.length === 0) throw new Error('No scope could be suggested from that objective — try describing the works in more detail.')
+      const applied = onApply(items.map(i => i.code))
+      setState({ status: 'ready', items: items.filter(i => applied.has(i.code)), error: '' })
+    } catch (e) {
+      setState({ status: 'error', items: [], error: e.message })
+    }
+  }
+
+  return (
+    <div style={{ marginBottom: 16, padding: '12px 14px', borderRadius: 10, border: '1px solid var(--border)', backgroundColor: 'var(--surface)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <button type="button" onClick={suggest} disabled={!ready || state.status === 'loading'}
+          title={ready ? undefined : 'Describe the project objective in Q2.1 first (at least 20 characters)'}
+          style={{
+            padding: '9px 16px', borderRadius: 8, cursor: ready && state.status !== 'loading' ? 'pointer' : 'not-allowed',
+            border: '1.5px solid var(--amber)', background: 'var(--surface)', opacity: ready ? 1 : 0.55,
+            color: 'var(--amber-deep)', fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 13.5,
+          }}>
+          {state.status === 'loading' ? 'Suggesting…' : 'Suggest scope from my objective'}
+        </button>
+        <span style={{ color: 'var(--text-soft)', fontSize: 13, flex: 1, minWidth: 180 }}>
+          {ready
+            ? 'Reads your Q2.1 objective and ticks the elements it implies. You review and edit; the estimate is still calculated, never guessed.'
+            : 'Write a sentence or two in Q2.1 first, then this can propose a starting scope from it.'}
+        </span>
+      </div>
+      {state.status === 'error' && <p role="alert" style={{ margin: '10px 0 0', color: 'var(--danger)', fontSize: 13 }}>{state.error}</p>}
+      {state.status === 'ready' && state.items.length > 0 && (
+        <div role="status" aria-live="polite" style={{ marginTop: 10 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--ink)', fontWeight: 600 }}>{state.items.length} item{state.items.length === 1 ? '' : 's'} ticked — why each was suggested:</p>
+            <button type="button" onClick={() => setState({ status: 'idle', items: [], error: '' })}
+              style={{ background: 'none', border: 'none', color: 'var(--text-soft)', fontSize: 12.5, cursor: 'pointer', textDecoration: 'underline', fontFamily: 'var(--font-body)' }}>
+              Dismiss
+            </button>
+          </div>
+          <ul style={{ margin: '6px 0 0', paddingLeft: 18, fontSize: 12.5, color: 'var(--text-mid)', lineHeight: 1.5 }}>
+            {state.items.map(i => <li key={i.code}><strong style={{ color: 'var(--ink)' }}>{i.description}</strong> — {i.reason}</li>)}
+          </ul>
+        </div>
       )}
     </div>
   )
@@ -636,6 +751,7 @@ export default function QuestionnairePage() {
     if (visibleGroups && !visibleGroups.includes(it.group)) return false
     if (!matchesBuildingUse(it.buildingUse, answers.q1_3_buildingUse || '')) return false
     if (isRefurb && (it.minLvl || 1) > currentTier) return false
+    if (!priceableFor(it, answers.q1_2_projectType)) return false
     return true
   }
 
@@ -669,6 +785,21 @@ export default function QuestionnairePage() {
     setCollapsedGroups(new Set())
   }
 
+  // Applies an AI-suggested code list through exactly the same gates as the
+  // preset (selectable filter, 5.5 folded with 5.2, wiring derivation), and
+  // returns the set of codes that survived so the UI can show only those.
+  function applySuggestedScope(codes) {
+    if (!scopeData) return new Set()
+    const chosen = (codes || []).filter(c => scopeCodeSelectable(c))
+    if (chosen.includes('5.2') && itemByCode['5.5'] && !chosen.includes('5.5')) chosen.push('5.5')
+    const hasA = chosen.includes('5.8a'), hasB = chosen.includes('5.8b')
+    const wiring = (hasA && hasB) ? '5.8' : hasA ? '5.8a' : hasB ? '5.8b' : 'none'
+    setAnswers(prev => ({ ...prev, q2_2_scopeItems: chosen, q2_2_wiring: wiring }))
+    const touched = new Set(chosen.map(c => itemByCode[c]?.group).filter(g => g !== undefined))
+    setCollapsedGroups(new Set((scopeData.groups || []).map(g => g.group).filter(g => !touched.has(g))))
+    return new Set(chosen)
+  }
+
   useEffect(() => {
     if (!scopeData) return
     const visibleGroups = VISIBLE_GROUPS[answers.q1_2_projectType]
@@ -681,6 +812,7 @@ export default function QuestionnairePage() {
         if (visibleGroups && !visibleGroups.includes(it.group)) return false
         if (!matchesBuildingUse(it.buildingUse, bu)) return false
         if (isRefurb && (it.minLvl || 1) > currentTier) return false
+        if (!FOLDED_CODES.has(code) && !priceableFor(it, prev.q1_2_projectType)) return false
         return true
       })
       const wiringTier = WIRING_MIN_TIER[prev.q2_2_wiring] || 0
@@ -982,7 +1114,10 @@ export default function QuestionnairePage() {
                     <option value="3">3 storeys</option>
                     <option value="4">4 storeys</option>
                     <option value="5">5 storeys</option>
-                    <option value="6">6+ storeys</option>
+                    <option value="6">6 storeys</option>
+                    {/* 7+ is the Building Safety Act higher-risk threshold for
+                        residential / care / hospital use — see Q3.8. */}
+                    <option value="7">7 or more storeys</option>
                   </SelectInput>
                 </div>
               )}
@@ -1021,8 +1156,8 @@ export default function QuestionnairePage() {
             )}
 
             <QCard>
-              <Label required>Q1.5 — Approximate size (GIFA m²)</Label>
-              <HelpText>Gross Internal Floor Area in square metres. Used as the primary pricing quantity for all elements.</HelpText>
+              <Label required>{areaQuestionLabel(answers.q1_2_projectType)}</Label>
+              <HelpText>{areaHelpText(answers.q1_2_projectType)}</HelpText>
               <NumberInput value={answers.q1_5_size} onChange={v => set('q1_5_size', v)} placeholder="e.g. 500" min={1} />
               {validationErrors.q1_5_size && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_5_size}</p>}
             </QCard>
@@ -1075,6 +1210,14 @@ export default function QuestionnairePage() {
                 selectedCount={(answers.q2_2_scopeItems || []).length}
                 onApply={applyScopePreset}
                 onClear={clearScope}
+              />
+              <ScopeSuggestBar
+                objective={answers.q2_1_objective}
+                projectType={answers.q1_2_projectType}
+                buildingUse={answers.q1_3_buildingUse}
+                interventionLevel={answers.q2_3_interventionLevel}
+                selectedCount={(answers.q2_2_scopeItems || []).length}
+                onApply={applySuggestedScope}
               />
               {(() => {
                 const scopeArr = Array.isArray(answers.q2_2_scopeItems) ? answers.q2_2_scopeItems : []
@@ -1132,7 +1275,10 @@ export default function QuestionnairePage() {
                   tileSel: { border: '1.5px solid var(--navy)', background: 'rgba(26,46,74,.06)', boxShadow: '0 1px 6px rgba(26,46,74,0.12)' },
                   tileDis: { opacity: 0.45, cursor: 'not-allowed' },
                   checkBox: { width: 18, height: 18, borderRadius: 5, border: '1.5px solid var(--border-2)', flexShrink: 0, marginTop: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' },
-                  checkBoxSel: { background: 'var(--navy)', borderColor: 'var(--navy)', color: '#fff' },
+                  // Full shorthand, same reason as `tileSel` above: spread over
+                  // `checkBox` (which sets `border`), a bare `borderColor` made
+                  // React log a shorthand/longhand conflict once per ticked tile.
+                  checkBoxSel: { background: 'var(--navy)', border: '1.5px solid var(--navy)', color: '#fff' },
                   tileText: { display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 },
                   tileLabel: { fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 13, color: '#1A2E4A', lineHeight: 1.3 },
                   subPrompt: { background: 'var(--tint)', borderLeft: '3px solid var(--navy)', padding: '10px 14px', margin: '6px 0 2px', borderRadius: '0 8px 8px 0' },
@@ -1154,7 +1300,7 @@ export default function QuestionnairePage() {
                 const bu = answers.q1_3_buildingUse || ''
                 const displayedGroups = scopeData.groups
                   .filter(g => visibleGroups.includes(g.group))
-                  .map(g => ({ ...g, items: g.items.filter(it => matchesBuildingUse(it.buildingUse, bu) && !FOLDED_CODES.has(it.code)) }))
+                  .map(g => ({ ...g, items: g.items.filter(it => matchesBuildingUse(it.buildingUse, bu) && !FOLDED_CODES.has(it.code) && priceableFor(it, answers.q1_2_projectType)) }))
                   .filter(g => g.items.length > 0)
                 if (displayedGroups.length === 0) return <p style={{ color: '#6B7280', fontSize: 13, padding: '8px 0' }}>No scope items match this project type and building use yet.</p>
                 const MECH_CODES_5 = new Set(['5.19', '5.20', '5.21', '5.23', '5.24', '5.29'])
@@ -1176,8 +1322,10 @@ export default function QuestionnairePage() {
                     const min2L = itemByCode['5.2L']?.minLvl || 2
                     const lowestMin = Math.min(min2, min2L)
                     const heatingEnabled = !isRefurb || currentTier >= lowestMin
-                    const can2 = !isRefurb || currentTier >= min2
-                    const can2L = !isRefurb || currentTier >= min2L
+                    const can2 = (!isRefurb || currentTier >= min2) && priceableFor(itemByCode['5.2'], answers.q1_2_projectType)
+                    // 5.2L is refurb-only in the workbook (no NB/Ext rate) — on a
+                    // new build it used to be offered, ticked, and then excluded.
+                    const can2L = (!isRefurb || currentTier >= min2L) && priceableFor(itemByCode['5.2L'], answers.q1_2_projectType)
                     const sel = heatingSelected && heatingEnabled
                     return (
                       <div key="__heating__" style={{ gridColumn: '1 / -1' }}>
@@ -1241,7 +1389,7 @@ export default function QuestionnairePage() {
                     <div key={item.code} style={{ gridColumn: '1 / -1' }}>
                       {tile}
                       <div style={S.subPrompt}>
-                        <span style={S.subLabel}>{item.qtyCapture || 'Quantity'}</span>
+                        <span style={S.subLabel}>{qtyPromptLabel(item)}</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <input type="number" value={quantities[item.code] ?? ''}
                             onChange={e => setQty(item.code, e.target.value)}
@@ -1505,6 +1653,24 @@ export default function QuestionnairePage() {
               <RadioGroup options={OCCUPATION_OPTIONS} value={answers.q3_6_occupation} onChange={v => set('q3_6_occupation', v)} />
             </QCard>
 
+            {/* Q3.8 (September 2026). Each option is a deterministic trigger:
+                a risk-register seed for all four, plus Building Safety Act
+                fee/cost rows and a Gateway 2 programme stage for a higher-risk
+                building, and an ecology survey stage for ecological features.
+                Numbered 3.8 to sit after Q3.7 in the key sequence; shown here,
+                before the free-text question, because it is structured input. */}
+            <QCard>
+              <Label>Q3.8 — Site and building context</Label>
+              <HelpText>Select all that apply. Each one adds a specific statutory or programme risk the report must address.</HelpText>
+              <CheckboxGroup options={SITE_CONTEXT_OPTIONS} values={answers.q3_8_siteContext}
+                onChange={v => set('q3_8_siteContext', applyNoneMutex(answers.q3_8_siteContext || [], v, SITE_CONTEXT_NONE))} />
+              {hrbLikelyFromAnswers(answers) && !(answers.q3_8_siteContext || []).some(v => /higher-risk/i.test(v)) && (
+                <p role="status" style={{ marginTop: 10, padding: '10px 12px', borderRadius: 8, fontSize: 13, border: '1px solid var(--amber)', backgroundColor: 'rgba(196,134,26,.07)', color: 'var(--ink)' }}>
+                  Your answers (7+ storeys, {answers.q1_3_buildingUse}) suggest this may be a <strong>higher-risk building</strong> under the Building Safety Act. Tick the option above if so — it adds the Gateway 2 approval period and the associated fees.
+                </p>
+              )}
+            </QCard>
+
             <QCard>
               <Label>Q3.7 — Additional context</Label>
               <Textarea value={answers.q3_7_additionalContext} onChange={v => set('q3_7_additionalContext', v)} placeholder="Anything else that might affect the cost, programme or risk — location, operational constraints, heritage status, etc." rows={3} />
@@ -1515,6 +1681,18 @@ export default function QuestionnairePage() {
         {/* ─── SECTION 4 ─────────────────────────────────────────────────────── */}
         {section === 4 && (
           <div className="flex flex-col gap-5 section-enter">
+            {/* Q4.0 (September 2026). The programme used to run from "today"
+                with no calendar dates at all, and the target-date check assumed
+                the project started the moment the report was generated. */}
+            <QCard>
+              <Label>Q4.0 — Expected project start</Label>
+              <HelpText>When do you expect to start (Stage 1 gateway approval)? Leave blank to assume the programme starts on the report date. Used to put calendar dates on the programme and to test the target date.</HelpText>
+              <input type="date" value={answers.q4_0_startDate || ''} onChange={e => set('q4_0_startDate', e.target.value)}
+                aria-label="Expected project start date"
+                className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--navy)]"
+                style={{ border: '1.5px solid var(--border)', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF', boxSizing: 'border-box' }} />
+            </QCard>
+
             <QCard>
               <Label>Q4.1 — Target completion date</Label>
               <HelpText>Used to assess programme feasibility. Leave blank if no specific deadline.</HelpText>
@@ -1566,10 +1744,33 @@ export default function QuestionnairePage() {
               </div>
             </QCard>
 
+            {/* Q4.3a (September 2026). The budget check used to gross the
+                estimate up by the full VAT rate for every client. Universities,
+                NHS bodies and charities recover none, some, or all of their
+                VAT, so the comparison was wrong by up to 20% for them. */}
+            <QCard>
+              <Label>Q4.3a — VAT position</Label>
+              <HelpText>How much of the VAT on this project can your organisation recover? Only affects the budget comparison; VAT is still shown for reference in the estimate.</HelpText>
+              <RadioGroup options={VAT_POSITION_OPTIONS} value={answers.q4_3a_vatPosition || VAT_POSITION_OPTIONS[0]}
+                onChange={v => set('q4_3a_vatPosition', v)} ariaLabel="VAT position" />
+              {String(answers.q4_3a_vatPosition || '').startsWith('Partially') && (
+                <div style={{ marginTop: 12 }}>
+                  <Label>Recoverable share (%)</Label>
+                  <NumberInput value={answers.q4_3a_vatRecoverablePct} onChange={v => set('q4_3a_vatRecoverablePct', v)} placeholder="e.g. 50" />
+                </div>
+              )}
+            </QCard>
+
             <QCard>
               <Label>Q4.4 — What matters most on this project?</Label>
-              <HelpText>Select all that apply. Drives the procurement recommendation and programme approach.</HelpText>
-              <CheckboxGroup options={PRIORITIES} values={answers.q4_4_priorities} onChange={v => set('q4_4_priorities', v)} />
+              <HelpText>Choose up to two. The first you tick is treated as the primary priority and drives the procurement recommendation; the second informs the programme options.</HelpText>
+              <CheckboxGroup options={PRIORITIES} values={answers.q4_4_priorities} onChange={v => set('q4_4_priorities', v)} max={2} ariaLabel="Project priorities" />
+              {Array.isArray(answers.q4_4_priorities) && answers.q4_4_priorities.length > 0 && (
+                <p style={{ marginTop: 8, fontSize: 12.5, color: 'var(--text-soft)' }}>
+                  Primary: <strong style={{ color: 'var(--ink)' }}>{answers.q4_4_priorities[0]}</strong>
+                  {answers.q4_4_priorities[1] ? <> · Secondary: <strong style={{ color: 'var(--ink)' }}>{answers.q4_4_priorities[1]}</strong></> : null}
+                </p>
+              )}
             </QCard>
 
             {/* Visible numbers below now match their answer keys. They used to
@@ -1631,16 +1832,17 @@ export default function QuestionnairePage() {
             {/* ── Report preferences (was its own step) ──────────────────────── */}
             <SubHead
               title="Your report"
-              note="The core sections — Executive Summary, Scope, Risk, Programme, Recommendations — are always included."
+              note="Executive Summary, Scope, Risk Register, Programme, Order of Cost Estimate and Recommendations are always included."
             />
 
             <QCard>
-              <Label>Q6.1 — Optional report sections</Label>
-              <HelpText>Tick the additional sections you want. Leave all unticked to include every one.</HelpText>
+              <Label>Q6.1 — Sections to leave out</Label>
+              <HelpText>Every section is included by default. Tick any you do not want in this report.</HelpText>
               <CheckboxGroup
-                options={OPTIONAL_REPORT_SECTIONS}
-                values={answers.q6_1_sections}
-                onChange={v => set('q6_1_sections', v)}
+                options={EXCLUDABLE_REPORT_SECTIONS}
+                values={answers.q6_1_excludeSections}
+                onChange={v => set('q6_1_excludeSections', v)}
+                ariaLabel="Sections to leave out"
               />
             </QCard>
 
