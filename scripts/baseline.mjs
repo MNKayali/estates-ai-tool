@@ -76,7 +76,8 @@ const SCENARIOS = [
   ['type-newbuild',              { q1_2_projectType: 'New Build', q1_4_buildingAge: '', q2_3_interventionLevel: '' }],
   ['type-fitout',                { q1_2_projectType: 'Fit-out', q2_2_scopeItems: ['3.1', '3.2', '5.8b'] }],
   ['type-extension',             { q1_2_projectType: 'Extension' }],
-  ['type-externalworks',         { q1_2_projectType: 'External Works', q2_2_scopeItems: ['8.1', '8.3'], q2_2_quantities: { '8.3': '12' } }],
+  ['type-externalworks',         { q1_2_projectType: 'External works only', q2_2_scopeItems: ['8.1', '8.3'], q2_2_quantities: { '8.3': '12' } }],
+  ['type-otherormixed-substruct', { q1_2_projectType: 'Other or mixed', q2_2_scopeItems: ['1.1', '1.3', '3.1'] }],
 
   // Spec level — High ≈ x2 vs Standard on refurb; Basic is a no-op on new build.
   ['spec-basic-refurb',          { q2_4_specLevel: 'Basic' }],

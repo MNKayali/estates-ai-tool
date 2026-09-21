@@ -27,6 +27,7 @@ import path from 'node:path'
 import * as XLSX from 'xlsx'
 import { getScopeItems, fetchRatesWorkbook } from '../lib/costCalculator.js'
 import { matchesBuildingUse, BUILDING_USE_TAGS } from '../lib/buildingUse.js'
+import { PROJECT_TYPE_VALUES as PROJECT_TYPES, VISIBLE_GROUPS, priceableFor } from '../lib/projectTypes.js'
 
 // ── env ──────────────────────────────────────────────────────────────────────
 const envPath = path.join(process.cwd(), '.env.local')
@@ -38,20 +39,6 @@ if (fs.existsSync(envPath)) {
 }
 
 // ── constants mirrored from the app (kept in one place here) ─────────────────
-const PROJECT_TYPES = ['New Build', 'Refurbishment', 'Fit-out', 'Extension',
-  'External Works', 'Renewable Energy', 'Demolition', 'Mixed']
-
-// app/questionnaire/page.jsx:63
-const VISIBLE_GROUPS = {
-  'New Build':        [0, 1, 2, 3, 4, 5, 6, 8],
-  'Refurbishment':    [0, 2, 3, 4, 5, 7, 8],
-  'Fit-out':          [3, 4, 5],
-  'Extension':        [0, 1, 2, 3, 4, 5, 6, 7, 8],
-  'External Works':   [0, 8],
-  'Renewable Energy': [5, 8],
-  'Demolition':       [0],
-  'Mixed':            [0, 1, 2, 3, 4, 5, 6, 7, 8],
-}
 const FOLDED_CODES = new Set(['5.2L', '5.5', '5.8'])       // page.jsx:77
 const REFURB_TYPES = ['Refurbishment', 'Fit-out', 'Extension'] // page.jsx:743 (isRefurb)
 
@@ -62,16 +49,6 @@ const QTY_ALIASES = {
   '4.3': 'q2_2_kitchens',
   '5.11': 'q1_5_pvKwp', '5.12': 'q1_5_battKwh', '5.15': 'q1_5_evNr',
   '5.19': 'q1_5_liftNr', '8.3': 'q1_5_carParksNr', '8.9': 'q1_5_extLightNr',
-}
-
-// page.jsx:102 — which rate-column family the calculator reads per project type
-function priceableFor(item, projectType) {
-  if (!item?.priceable) return true
-  const family = projectType === 'New Build' ? 'newBuild'
-    : projectType === 'Extension' ? 'extension'
-    : projectType === 'External Works' ? 'externalWorks'
-    : 'refurb'
-  return !!item.priceable[family]
 }
 
 function itemNeedsQty(item) {           // page.jsx:80
@@ -107,7 +84,7 @@ const QUESTIONS = [
   { sec: 2, num: 'Q2.2',  key: 'q2_2_wiring',             label: 'Wiring extent (derived from 5.8a / 5.8b tiles)', control: 'Derived', required: 'No', cond: 'Derived whenever a wiring tile is ticked', src: 'page.jsx:1270', shownFor: ALWAYS },
   { sec: 2, num: 'Q2.2',  key: 'q2_2_quantities',         label: 'Per-element quantities (count / kWp / kWh / kW)', control: 'Number (per tile)', required: 'No', cond: 'Shown under each ticked count-driven tile', src: 'page.jsx:1418', shownFor: ALWAYS },
   { sec: 2, num: 'Q2.2',  key: 'q2_2_additionalScope',    label: 'Other / specialist scope + approximate value', control: 'Textarea + number', required: 'No', cond: 'Always',                        src: 'page.jsx:1540', shownFor: ALWAYS },
-  { sec: 2, num: 'Q2.4',  key: 'q2_4_specLevel',          label: 'Specification level',               control: 'Radio',           required: 'Yes when shown', cond: 'Hidden for External Works (single rate column); Basic option hidden for New Build / Extension', src: 'page.jsx:1572', shownFor: pt => pt !== 'External Works' },
+  { sec: 2, num: 'Q2.4',  key: 'q2_4_specLevel',          label: 'Specification level',               control: 'Radio',           required: 'Yes when shown', cond: 'Hidden for External works only (single rate column); Basic option hidden for New Build / Extension', src: 'page.jsx:1572', shownFor: pt => pt !== 'External works only' },
   { sec: 2, num: 'Q2.5',  key: 'q2_5_standards',          label: 'Standards and compliance requirements', control: 'Checkbox group', required: 'No', cond: 'Always',                                   src: 'page.jsx:1608', shownFor: ALWAYS },
   { sec: 2, num: '—',     key: 'q2_5_standardsOther',     label: 'Standards — other (describe)',      control: 'Textarea',        required: 'No',  cond: "q2_5_standards includes 'Other'",              src: 'page.jsx:1614', shownFor: ALWAYS },
 
