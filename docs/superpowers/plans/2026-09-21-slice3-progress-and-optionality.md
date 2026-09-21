@@ -455,7 +455,16 @@ Start the `estates-ai-tool-open` preview, then:
 | §4 rebalance step 4 | 2 step 6 |
 | Verification incl. baseline IDENTICAL | 3 |
 
-One addition beyond the spec: `q1_2_storeys` joins `HIDDEN_FOR` in Task 1. It is
-already rendered only for New Build, Refurbishment and Extension, but that
-condition was written inline in the questionnaire, so the counting helpers would
-otherwise overcount section 1 for the other four types.
+Two additions beyond the spec, both made during fix rounds and both needed for
+the same reason:
+
+1. `q1_2_storeys` joins `HIDDEN_FOR` in Task 1. It is already rendered only for
+   New Build, Refurbishment and Extension, but that condition was written
+   inline in the questionnaire, so the counting helpers would otherwise
+   overcount section 1 for the other four types.
+2. `q2_3_interventionLevel` also joins `HIDDEN_FOR` (New Build, External works
+   only, Demolition only, Other or mixed — i.e. shown only for Refurbishment,
+   Fit-out and Extension). The questionnaire gates Q2.3 on an inline `isRefurb`
+   condition rather than `isQuestionShown()`, so without this entry the
+   counting helpers would overstate section 2's total and required count for
+   the four project types that never see the question.

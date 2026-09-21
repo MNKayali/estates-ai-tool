@@ -279,7 +279,12 @@ function QCard({ children, qkey }) {
 function Label({ children, required }) {
   return (
     <label className="block mb-1.5" style={{ color: 'var(--ink)', fontSize: '15px', fontFamily: 'var(--font-body)', fontWeight: 700, letterSpacing: '-0.1px' }}>
-      {children}{required && <span style={{ color: 'var(--danger)' }} className="ml-1">*</span>}
+      {children}
+      {/* aria-label carries the word "required" to a screen reader in place of
+          the bare "*", which otherwise reads as nothing at all (or, on some
+          screen readers, literally "asterisk") — the required count going
+          from 10 to 17 on this branch is what makes that worth fixing now. */}
+      {required && <span aria-label="required" style={{ color: 'var(--danger)' }} className="ml-1">*</span>}
     </label>
   )
 }
@@ -350,7 +355,11 @@ function SelectInput({ value, onChange, children }) {
 // none is selected yet), and Up/Down/Left/Right move and select within the
 // group — matching how a native <input type="radio"> set already behaves,
 // which this custom control is standing in for.
-function RadioGroup({ options, value, onChange, ariaLabel }) {
+// `required`/`describedBy` are optional — only the seven newly-required
+// controls (Q3.4, Q3.6, Q4.5 use RadioGroup; the rest use CheckboxGroup below)
+// pass them, wiring aria-required and, while the field has an error,
+// aria-describedby at the error paragraph's id.
+function RadioGroup({ options, value, onChange, ariaLabel, required, describedBy }) {
   const refs = useRef([])
   const move = (fromIdx, dir) => {
     const next = (fromIdx + dir + options.length) % options.length
@@ -359,7 +368,8 @@ function RadioGroup({ options, value, onChange, ariaLabel }) {
   }
   const selIdx = options.findIndex(o => o === value)
   return (
-    <div role="radiogroup" aria-label={ariaLabel} style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+    <div role="radiogroup" aria-label={ariaLabel} aria-required={required || undefined} aria-describedby={describedBy}
+      style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
       {options.map((opt, i) => {
         const sel = value === opt
         // Roving tabindex: exactly one stop in the group. The checked option
@@ -411,7 +421,13 @@ function RadioGroup({ options, value, onChange, ariaLabel }) {
 // (aria-disabled, not removed) so the user can see what they would have to
 // untick. Order of ticking is preserved in `values`, which is what lets Q4.4
 // treat the first tick as the primary priority.
-function CheckboxGroup({ options, values = [], onChange, note, ariaLabel, max }) {
+// `describedBy` — see the note on RadioGroup above. No `required` prop here:
+// unlike role="radiogroup", ARIA does not define aria-required as a supported
+// property of role="group" (jsx-a11y/role-supports-aria-props flags it), so
+// the four required CheckboxGroup fields (Q3.1, Q3.3, Q3.5, Q3.8) get the
+// required marker from Label and, once invalid, aria-describedby at the error
+// — not aria-required on the container.
+function CheckboxGroup({ options, values = [], onChange, note, ariaLabel, max, describedBy }) {
   const arr = Array.isArray(values) ? values : []
   const atMax = Number.isFinite(max) && arr.length >= max
   const toggle = opt => {
@@ -420,7 +436,7 @@ function CheckboxGroup({ options, values = [], onChange, note, ariaLabel, max })
     onChange([...arr, opt])
   }
   return (
-    <div role="group" aria-label={ariaLabel}>
+    <div role="group" aria-label={ariaLabel} aria-describedby={describedBy}>
       {note && <p style={{ color: 'var(--text-soft)', fontSize: '13px', marginBottom: 10 }}>{note}</p>}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
         {options.map(opt => {
@@ -1813,8 +1829,9 @@ export default function QuestionnairePage() {
               <Label required>Q3.1 — Known issues</Label>
               <HelpText>Select all that apply. These trigger risk allowance adjustments.</HelpText>
               <CheckboxGroup options={knownIssuesFor(answers.q1_2_projectType)} values={answers.q3_1_knownIssues}
-                onChange={v => set('q3_1_knownIssues', applyNoneMutex(answers.q3_1_knownIssues || [], v, KNOWN_ISSUE_NONE))} />
-              {validationErrors.q3_1_knownIssues && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_1_knownIssues}</p>}
+                onChange={v => set('q3_1_knownIssues', applyNoneMutex(answers.q3_1_knownIssues || [], v, KNOWN_ISSUE_NONE))}
+                describedBy={validationErrors.q3_1_knownIssues ? 'err-q3_1_knownIssues' : undefined} />
+              {validationErrors.q3_1_knownIssues && <p id="err-q3_1_knownIssues" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_1_knownIssues}</p>}
             </QCard>
 
             {isQuestionShown('q3_2_previousWorks', answers.q1_2_projectType) && (
@@ -1832,21 +1849,23 @@ export default function QuestionnairePage() {
                   claim is true. */}
               <HelpText>Select all that apply. Having surveys in hand reduces the risk allowance in the estimate.</HelpText>
               <CheckboxGroup options={surveysFor(answers.q1_2_projectType, answers.q1_4_buildingAge)} values={answers.q3_3_surveys}
-                onChange={v => set('q3_3_surveys', applyNoneMutex(answers.q3_3_surveys || [], v, SURVEY_NONE))} />
+                onChange={v => set('q3_3_surveys', applyNoneMutex(answers.q3_3_surveys || [], v, SURVEY_NONE))}
+                describedBy={validationErrors.q3_3_surveys ? 'err-q3_3_surveys' : undefined} />
               {Array.isArray(answers.q3_3_surveys) && answers.q3_3_surveys.includes('Other') && (
                 <div className="mt-3">
                   <Textarea value={answers.q3_3_surveysOther} onChange={v => set('q3_3_surveysOther', v)}
                     placeholder="Please describe the survey or report available" rows={2} />
                 </div>
               )}
-              {validationErrors.q3_3_surveys && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_3_surveys}</p>}
+              {validationErrors.q3_3_surveys && <p id="err-q3_3_surveys" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_3_surveys}</p>}
             </QCard>
 
             <QCard qkey="q3_4_planningConsents">
               <Label required>Q3.4 — Planning consent required</Label>
               <HelpText>Select the most likely planning pathway. If unsure, choose 'Unsure' — pre-application advice is recommended.</HelpText>
-              <RadioGroup options={PLANNING_OPTIONS} value={answers.q3_4_planningConsents} onChange={v => set('q3_4_planningConsents', v)} />
-              {validationErrors.q3_4_planningConsents && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_4_planningConsents}</p>}
+              <RadioGroup options={PLANNING_OPTIONS} value={answers.q3_4_planningConsents} onChange={v => set('q3_4_planningConsents', v)}
+                required describedBy={validationErrors.q3_4_planningConsents ? 'err-q3_4_planningConsents' : undefined} />
+              {validationErrors.q3_4_planningConsents && <p id="err-q3_4_planningConsents" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_4_planningConsents}</p>}
             </QCard>
 
             <QCard qkey="q3_5_accessConstraints">
@@ -1856,21 +1875,23 @@ export default function QuestionnairePage() {
                   real constraint it silently suppressed every access risk seed
                   in the generated report. */}
               <CheckboxGroup options={ACCESS_OPTIONS} values={answers.q3_5_accessConstraints}
-                onChange={v => set('q3_5_accessConstraints', applyNoneMutex(answers.q3_5_accessConstraints || [], v, 'No access constraints'))} />
+                onChange={v => set('q3_5_accessConstraints', applyNoneMutex(answers.q3_5_accessConstraints || [], v, 'No access constraints'))}
+                describedBy={validationErrors.q3_5_accessConstraints ? 'err-q3_5_accessConstraints' : undefined} />
               {Array.isArray(answers.q3_5_accessConstraints) && answers.q3_5_accessConstraints.includes('Other') && (
                 <div className="mt-3">
                   <Textarea value={answers.q3_5_accessConstraintsOther} onChange={v => set('q3_5_accessConstraintsOther', v)}
                     placeholder="Please describe the access constraint" rows={2} />
                 </div>
               )}
-              {validationErrors.q3_5_accessConstraints && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_5_accessConstraints}</p>}
+              {validationErrors.q3_5_accessConstraints && <p id="err-q3_5_accessConstraints" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_5_accessConstraints}</p>}
             </QCard>
 
             <QCard qkey="q3_6_occupation">
               <Label required>{occupationCopyFor(answers.q1_2_projectType).label}</Label>
               <HelpText>{occupationCopyFor(answers.q1_2_projectType).help}</HelpText>
-              <RadioGroup options={OCCUPATION_OPTIONS} value={answers.q3_6_occupation} onChange={v => set('q3_6_occupation', v)} />
-              {validationErrors.q3_6_occupation && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_6_occupation}</p>}
+              <RadioGroup options={OCCUPATION_OPTIONS} value={answers.q3_6_occupation} onChange={v => set('q3_6_occupation', v)}
+                required describedBy={validationErrors.q3_6_occupation ? 'err-q3_6_occupation' : undefined} />
+              {validationErrors.q3_6_occupation && <p id="err-q3_6_occupation" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_6_occupation}</p>}
             </QCard>
 
             <QCard>
@@ -1889,8 +1910,9 @@ export default function QuestionnairePage() {
               <Label required>Q3.8 — Site and building context</Label>
               <HelpText>Select all that apply. Each one adds a specific statutory or programme risk the report must address.</HelpText>
               <CheckboxGroup options={SITE_CONTEXT_OPTIONS} values={answers.q3_8_siteContext}
-                onChange={v => set('q3_8_siteContext', applyNoneMutex(answers.q3_8_siteContext || [], v, SITE_CONTEXT_NONE))} />
-              {validationErrors.q3_8_siteContext && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_8_siteContext}</p>}
+                onChange={v => set('q3_8_siteContext', applyNoneMutex(answers.q3_8_siteContext || [], v, SITE_CONTEXT_NONE))}
+                describedBy={validationErrors.q3_8_siteContext ? 'err-q3_8_siteContext' : undefined} />
+              {validationErrors.q3_8_siteContext && <p id="err-q3_8_siteContext" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_8_siteContext}</p>}
             </QCard>
           </div>
         )}
@@ -1994,8 +2016,9 @@ export default function QuestionnairePage() {
             <QCard qkey="q4_5_designStage">
               <Label required>Q4.5 — Design stage already reached</Label>
               <HelpText>Determines the professional fees percentage applied to the cost estimate and the viable procurement routes.</HelpText>
-              <RadioGroup options={DESIGN_STAGE_OPTIONS} value={answers.q4_5_designStage} onChange={v => set('q4_5_designStage', v)} />
-              {validationErrors.q4_5_designStage && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_5_designStage}</p>}
+              <RadioGroup options={DESIGN_STAGE_OPTIONS} value={answers.q4_5_designStage} onChange={v => set('q4_5_designStage', v)}
+                required describedBy={validationErrors.q4_5_designStage ? 'err-q4_5_designStage' : undefined} />
+              {validationErrors.q4_5_designStage && <p id="err-q4_5_designStage" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_5_designStage}</p>}
             </QCard>
 
             <QCard>
