@@ -29,7 +29,7 @@ slice is "baseline is IDENTICAL afterwards", which is worthless if the before
 snapshot was taken after an edit.
 
 **Files:**
-- Create: `scripts/__baseline__/before-slice1/` (generated)
+- Create: `scripts/__baseline__/before-slice1.json` (generated)
 
 - [ ] **Step 1: Confirm the working tree is clean**
 
@@ -38,15 +38,14 @@ Expected: no modified tracked files.
 
 - [ ] **Step 2: Capture the baseline**
 
-Run: `node scripts/baseline.mjs --out before-slice1`
+Run: `node scripts/baseline.mjs save before-slice1`
 
-If the flag name differs, read the header of `scripts/baseline.mjs` and use its
-documented invocation. Expected: ~75 scenarios written.
+This writes `scripts/__baseline__/before-slice1.json`. Expected: ~75 scenarios.
 
 - [ ] **Step 3: Commit the snapshot**
 
 ```bash
-git add scripts/__baseline__/before-slice1
+git add scripts/__baseline__/before-slice1.json
 git commit -m "Capture baseline before the project-type axis change"
 ```
 
@@ -292,48 +291,43 @@ Append to `lib/__tests__/costCalculator.test.js`:
 // project silently carries no foundations. Six of its seven unpriceable
 // elements are fixed by falling back to the new-build rate; 5.1b has no rate in
 // any family and stays excluded.
+//
+// BASE is the fixture already defined at the top of this file, and it is a
+// Refurbishment. calculateCost returns `lineItems` (each with `code`, `rate`,
+// `lineMid`) and `excludedNoQuantity` (each with `code`, `reason`).
 describe('cost — Other or mixed rate fallback', () => {
+  const MIXED  = { ...BASE, q1_2_projectType: 'Other or mixed', q2_2_scopeItems: ['1.1', '1.3', '3.1'] }
+  const REFURB = { ...BASE, q2_2_scopeItems: ['1.1', '1.3', '3.1'] }
+
   it('prices substructure on Other or mixed', async () => {
-    const answers = {
-      ...BASE_ANSWERS,
-      q1_2_projectType: 'Other or mixed',
-      q2_2_scopeItems: ['1.1', '1.3'],
-    }
-    const cost = await calculateCost(answers, 0)
-    const codes = cost.elements.map(e => e.code)
+    const cost = await calculateCost(MIXED, 0)
+    const codes = cost.lineItems.map(l => l.code)
     expect(codes).toContain('1.1')
     expect(codes).toContain('1.3')
-    for (const e of cost.elements) {
-      if (e.code === '1.1' || e.code === '1.3') expect(e.total).toBeGreaterThan(0)
+    for (const l of cost.lineItems) {
+      if (l.code === '1.1' || l.code === '1.3') expect(l.lineMid).toBeGreaterThan(0)
     }
+    expect(cost.rateFallbacks).toEqual(expect.arrayContaining(['1.1', '1.3']))
   })
 
-  it('does not price substructure on a plain Refurbishment', async () => {
-    const answers = {
-      ...BASE_ANSWERS,
-      q1_2_projectType: 'Refurbishment',
-      q2_2_scopeItems: ['1.1', '1.3'],
-    }
-    const cost = await calculateCost(answers, 0)
-    const priced = cost.elements.filter(e => (e.code === '1.1' || e.code === '1.3') && e.total > 0)
-    expect(priced).toHaveLength(0)
+  it('still excludes substructure on a plain Refurbishment', async () => {
+    const cost = await calculateCost(REFURB, 0)
+    expect(cost.lineItems.map(l => l.code)).not.toContain('1.1')
+    const excluded = cost.excludedNoQuantity.find(e => e.code === '1.1')
+    expect(excluded).toBeDefined()
+    expect(excluded.reason).toMatch(/no applicable rate/i)
+    expect(cost.rateFallbacks).toEqual([])
   })
 
-  it('leaves an element with a refurbishment rate untouched on Other or mixed', async () => {
-    const mixed = await calculateCost(
-      { ...BASE_ANSWERS, q1_2_projectType: 'Other or mixed', q2_2_scopeItems: ['3.1'] }, 0)
-    const refurb = await calculateCost(
-      { ...BASE_ANSWERS, q1_2_projectType: 'Refurbishment', q2_2_scopeItems: ['3.1'] }, 0)
-    const pick = c => c.elements.find(e => e.code === '3.1')?.total
+  it('leaves an element that has a refurbishment rate untouched on Other or mixed', async () => {
+    const mixed  = await calculateCost(MIXED, 0)
+    const refurb = await calculateCost(REFURB, 0)
+    const pick = c => c.lineItems.find(l => l.code === '3.1')?.rate
     expect(pick(mixed)).toBe(pick(refurb))
+    expect(mixed.rateFallbacks).not.toContain('3.1')
   })
 })
 ```
-
-`BASE_ANSWERS` already exists in this test file. If its name differs, read the
-top of the file and use the fixture that is actually defined there. If
-`cost.elements` entries use a key other than `total` for the line total, read
-what `calculateCost` returns and assert on the real key — do not add a key.
 
 - [ ] **Step 2: Run the test to verify it fails**
 
@@ -390,8 +384,10 @@ sat above, so removing it changes nothing and removes a duplicate.
 
 - [ ] **Step 4: Thread the collector through `calculateCost`**
 
-Find the call to `getRateForElement` inside `calculateCost`. Before the element
-loop, add:
+There is exactly one call site, at `lib/costCalculator.js:810`
+(`const baseRate = getRateForElement(el, projectType, specLevel)`), inside the
+`for (const code of pricedCodes)` loop that begins at line 801. Immediately
+before that loop — next to `const lineItems = []` — add:
 
 ```js
   // Codes that priced from the new-build column because their own family had
@@ -405,8 +401,18 @@ Pass the collector at the call site:
 const rate = getRateForElement(el, projectType, specLevel, code => rateFallbacks.push(code))
 ```
 
-Add `rateFallbacks` to the object `calculateCost` returns, alongside the
-existing fields.
+Add `rateFallbacks` to the object `calculateCost` returns, immediately after
+`excludedNoQuantity`:
+
+```js
+  return {
+    lineItems,
+    excludedNoQuantity,
+    rateFallbacks,
+    bcisDefaulted: !bcisMatched,
+```
+
+Leave every other returned field exactly as it is.
 
 - [ ] **Step 5: Run the tests to verify they pass**
 
@@ -659,35 +665,46 @@ reaches the AI prompt and the report.
 
 Append to `lib/__tests__/senseCheck.test.js`:
 
+Change the file's import line from `import { budgetVerdict } from '../senseCheck.js'`
+to `import { budgetVerdict, runSenseCheck } from '../senseCheck.js'`, then append:
+
 ```js
-describe('senseCheck — rate fallback diagnostic', () => {
-  it('raises an internal warning when elements priced from the fallback', () => {
-    const cost = { ...MINIMAL_COST, rateFallbacks: ['1.1', '1.3'] }
-    const { warnings } = runSenseCheck({ q1_2_projectType: 'Other or mixed' }, cost, MINIMAL_PROGRAMME)
-    const w = warnings.find(x => x.code === 'RATE_FALLBACK')
+// runSenseCheck is async and its signature is (cost, programme, answers) — cost
+// first, not answers. It reads cost.gifa / bcisFactor / bandFactor / works.mid /
+// projectType, and programme.sizeBandUsed / totalWeeks. It fetches the Benchmark
+// Check sheet inside a try/catch, so a network failure degrades to "cost check
+// skipped" rather than throwing.
+describe('senseCheck — rate fallback diagnostic (internal only)', () => {
+  const COST = {
+    projectType: 'Other or mixed',
+    gifa: 850, bcisFactor: 1, bandFactor: 1,
+    works: { mid: 500_000 },
+    total: { mid: 700_000, low: 630_000, high: 770_000 },
+    rateFallbacks: ['1.1', '1.3'],
+  }
+  const PROGRAMME = { sizeBandUsed: 'S4', totalWeeks: 40 }
+  const ANSWERS = { q1_3_buildingUse: 'Commercial offices' }
+
+  it('raises an internal warning naming the codes', async () => {
+    const r = await runSenseCheck(COST, PROGRAMME, ANSWERS)
+    const w = r.warnings.find(x => x.code === 'RATE_FALLBACK')
     expect(w).toBeDefined()
     expect(w.internal).toBe(true)
     expect(w.message).toContain('1.1')
   })
 
-  it('never lets the diagnostic reach the client', () => {
-    const cost = { ...MINIMAL_COST, rateFallbacks: ['1.1'] }
-    const { clientWarnings } = runSenseCheck({ q1_2_projectType: 'Other or mixed' }, cost, MINIMAL_PROGRAMME)
-    expect(clientWarnings.find(x => x.code === 'RATE_FALLBACK')).toBeUndefined()
+  it('never lets the diagnostic reach the client', async () => {
+    const r = await runSenseCheck(COST, PROGRAMME, ANSWERS)
+    expect(r.clientWarnings.find(x => x.code === 'RATE_FALLBACK')).toBeUndefined()
   })
 
-  it('raises nothing when no element used the fallback', () => {
-    const cost = { ...MINIMAL_COST, rateFallbacks: [] }
-    const { warnings } = runSenseCheck({ q1_2_projectType: 'Refurbishment' }, cost, MINIMAL_PROGRAMME)
-    expect(warnings.find(x => x.code === 'RATE_FALLBACK')).toBeUndefined()
+  it('raises nothing when no element used the fallback', async () => {
+    const r = await runSenseCheck(
+      { ...COST, projectType: 'Refurbishment', rateFallbacks: [] }, PROGRAMME, ANSWERS)
+    expect(r.warnings.find(x => x.code === 'RATE_FALLBACK')).toBeUndefined()
   })
 })
 ```
-
-Read the top of `lib/__tests__/senseCheck.test.js` and use the fixture names and
-the exported function name that actually exist there — `MINIMAL_COST`,
-`MINIMAL_PROGRAMME` and `runSenseCheck` are placeholders for whatever that file
-and `lib/senseCheck.js` already use. Do not invent new exports.
 
 - [ ] **Step 2: Run it to verify it fails**
 
@@ -758,13 +775,11 @@ their message, not fail.
 
 - [ ] **Step 2: Run the after-baseline**
 
-Run: `node scripts/baseline.mjs --out after-slice1`
+Run: `node scripts/baseline.mjs save after-slice1`
 
 - [ ] **Step 3: Diff the baselines — this is the safety gate**
 
-Run: `node scripts/baseline.mjs --diff before-slice1 after-slice1`
-
-(Use whatever comparison the script's header documents.)
+Run: `node scripts/baseline.mjs diff before-slice1 after-slice1`
 
 **Expected: IDENTICAL for every scenario that exists in both snapshots.** The
 new `type-otherormixed-substruct` scenario exists only in the after snapshot and
@@ -797,7 +812,7 @@ then in the questionnaire:
 - [ ] **Step 5: Commit the after-baseline**
 
 ```bash
-git add scripts/__baseline__/after-slice1
+git add scripts/__baseline__/after-slice1.json
 git commit -m "Capture baseline after the project-type axis change"
 ```
 
