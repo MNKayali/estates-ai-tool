@@ -10,7 +10,7 @@ import { PROJECT_TYPES, VISIBLE_GROUPS, priceableFor } from '../../lib/projectTy
 import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
   showsHeightQuestion, KNOWN_ISSUE_NONE, SURVEY_NONE,
-  sectionCounts, unansweredRequired, progressPercent,
+  sectionCounts, unansweredRequired, progressPercent, QUESTIONS_BY_SECTION,
 } from '../../lib/questionSets.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
@@ -1038,17 +1038,23 @@ export default function QuestionnairePage() {
   // This finds the first field (in the section's own render order) that has an
   // error and scrolls it into view. `data-qkey` is a minimal addition to the
   // handful of QCards wrapping a validated field — least invasive anchor
-  // available without restructuring QCard itself. requestAnimationFrame gives
-  // the just-set validationErrors state one paint to reach the DOM before the
-  // query runs.
+  // available without restructuring QCard itself.
+  //
+  // Deliberately synchronous, not deferred to a requestAnimationFrame: every
+  // qkey-tagged QCard's render condition (isQuestionShown / isRefurb / etc.)
+  // already implies the field is required whenever it can error, so the card
+  // is mounted in the DOM before setValidationErrors ever runs — there is no
+  // "wait for the error to paint" step to wait for. (An earlier version of
+  // this did wrap the query in requestAnimationFrame on the theory that the
+  // just-set state needed a paint to reach the DOM; that turned out both
+  // unnecessary, for the reason above, and unreliable — rAF does not fire
+  // promptly in every environment a tab can be rendered in.)
   function scrollToFirstError(sec, errs) {
     const order = QUESTIONS_BY_SECTION[sec] || []
     const firstKey = order.find(k => errs[k])
     if (!firstKey) return
-    requestAnimationFrame(() => {
-      document.querySelector(`[data-qkey="${firstKey}"]`)
-        ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    })
+    document.querySelector(`[data-qkey="${firstKey}"]`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
   function next() {
