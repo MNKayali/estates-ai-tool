@@ -28,9 +28,15 @@ const LEVEL_TIER = {
   'Reconfiguration or full redesign': 4,
 }
 // Codes with no tile of their own — the picker folds them into a parent
-// (5.5 rides with 5.2; 5.8 is derived from 5.8a + 5.8b), so they are never
-// offered directly.
-const FOLDED = new Set(['5.5', '5.8'])
+// (5.5 rides with 5.2; 5.8 is derived from 5.8a + 5.8b; 5.2L is the
+// like-for-like-boiler alternative to 5.2, offered as a radio choice rather
+// than its own tile), so they are never offered directly. Must stay in step
+// with FOLDED_CODES in app/questionnaire/page.jsx — when 5.2L was missing
+// here, the model could return both 5.2 and 5.2L (mutually exclusive by
+// construction), and applySuggestedScope's scopeCodeSelectable filter tests
+// group/use/tier/priceable but not this folded set, so both survived and
+// calculateCost (no heating mutex) priced them together.
+const FOLDED = new Set(['5.2L', '5.5', '5.8'])
 
 export async function POST(request) {
   const rl = await checkRateLimit('suggest-scope', request, { requests: 20, window: '10 m' })

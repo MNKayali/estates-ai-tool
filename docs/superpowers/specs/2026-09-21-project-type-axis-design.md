@@ -91,9 +91,16 @@ goes in front of external clients; out of scope for this slice.
 
 Verified safe for stored values: `getRateForElement` matches on lowercase
 substrings, so a stored `Mixed` or `Renewable Energy` still resolves to the
-refurbishment family exactly as it does today. `VISIBLE_GROUPS` lookups return
-`undefined` and fall back to showing all groups, which only affects the
-questionnaire — a page a finished report never re-enters.
+same rate family it did before this slice. But "resolves the same way" is no
+longer the same as "prices the same": `usesRateFallback('Mixed')` returns
+`true` (it matches the `pt === 'mixed'` case), so a stored `Mixed` report,
+re-run through `/api/compare`, now also gets the new-build rate fallback and
+can price elements — substructure among them — that the original report of
+record excluded. The finished report itself is untouched (KV holds the priced
+figures, not a live recalculation), so the blast radius is `/api/compare`
+only, re-run against an old `Mixed` answer set. `VISIBLE_GROUPS` lookups
+return `undefined` and fall back to showing all groups, which only affects
+the questionnaire — a page a finished report never re-enters.
 
 ## Files touched
 
@@ -132,6 +139,7 @@ resolve correctly with no change.
 | The 33 missing Extension rates; substructure rates; 5.1b | 4 — Excel work |
 | Splitting Other or mixed by area so each part uses its own rate family | Later — a cost-engine change |
 | Narrowing the scope picker itself | The original Q2.2 problem, unchanged by this slice |
+| Programme's construction-type selector has no group-1 (substructure) test. `selectConstructionId` could previously only reach it via New Build or Extension, which return earlier — every other type had group 1 hidden by `priceableFor()`. This slice makes it reachable on Other or mixed for the first time, so a mixed project with foundations now falls through to `CF2` (Fit-Out — Basic/Cat A) for its construction duration. Not a regression from this slice — a pre-existing gap this slice exposes — but the Construction sheet has no mixed row to pick instead, and inventing one in code would violate the no-numbers-in-code rule | Later — needs a workbook row |
 
 ## Decisions taken
 

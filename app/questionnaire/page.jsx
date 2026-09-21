@@ -66,6 +66,10 @@ const BUILDING_AGES = ['Pre-1900', '1900–1979', '1980–1999', 'Post-2000']
 const HEATING_CODES = ['5.2', '5.2L', '5.5']
 const WIRING_MUTEX = ['5.8', '5.8a', '5.8b']
 const PLUMBING_MUTEX = ['5.1', '5.1b']
+// Must stay in step with FOLDED in app/api/suggest-scope/route.js — its own
+// copy of this set previously missed '5.2L' and let the AI suggester return
+// both 5.2 and 5.2L (mutually exclusive heating options), which this file's
+// selectable filter doesn't catch either.
 const FOLDED_CODES = new Set(['5.2L', '5.5', '5.8'])
 
 function itemNeedsQty(item) {
@@ -117,8 +121,8 @@ const LEVEL_TIER = {
  *  - Anything condition-specific (asbestos removal, damp, contamination). Those
  *    belong to Q3.1, not to a typical scope.
  *
- * Project types absent from this map get no button — Renewable Energy is almost
- * entirely quantity-driven and Mixed is too varied for a default to be honest.
+ * Project types absent from this map get no button — Other or mixed is too
+ * varied for a default to be honest (it is the catch-all by definition).
  */
 const REFURB_TIER_SCOPE = {
   // Tier 1 — fabric and finishes only.
@@ -447,8 +451,8 @@ function applyNoneMutex(prev, next, noneOption) {
 }
 
 // Offers a starting scope for the current project type and intervention level.
-// Hidden where no honest default exists (Renewable Energy, Mixed, or before a
-// project type is chosen) rather than guessing.
+// Hidden where no honest default exists (Other or mixed, or before a project
+// type is chosen) rather than guessing.
 function ScopePresetBar({ projectType, tier, selectedCount, onApply, onClear }) {
   if (!presetScopeFor(projectType, tier)) return null
   const has = selectedCount > 0
