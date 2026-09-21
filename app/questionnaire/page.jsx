@@ -867,12 +867,15 @@ export default function QuestionnairePage() {
       const gifa = Number(answers.q1_5_size)
       if (!answers.q1_5_size) errs.q1_5_size = 'Approximate size is required'
       else if (!Number.isFinite(gifa) || gifa <= 0) errs.q1_5_size = 'Enter a size greater than zero (m²)'
-      // Marked required on screen (hidden entirely for New Build, where it's
-      // genuinely not applicable) but never actually enforced — a user could
-      // continue past it blank. It's load-bearing (Pre-1900 alone changes the
-      // heritage fee and a Stage 2 programme uplift), so it earns the marker
-      // it already carries rather than having the marker dropped.
-      if (answers.q1_2_projectType !== 'New Build' && !answers.q1_4_buildingAge) {
+      // Marked required on screen (hidden entirely for types isQuestionShown
+      // excludes, where it's genuinely not applicable) but never actually
+      // enforced — a user could continue past it blank. It's load-bearing
+      // (Pre-1900 alone changes the heritage fee and a Stage 2 programme
+      // uplift), so it earns the marker it already carries rather than having
+      // the marker dropped. Must mirror the question's own render condition —
+      // demanding a value for a type that never sees the question deadlocks
+      // the section with an error the user cannot see or clear.
+      if (isQuestionShown('q1_4_buildingAge', answers.q1_2_projectType) && !answers.q1_4_buildingAge) {
         errs.q1_4_buildingAge = 'Building age is required'
       }
       // Load-bearing despite reading as optional. Left blank, matchesBuildingUse
@@ -886,8 +889,11 @@ export default function QuestionnairePage() {
       if (!answers.q2_2_scopeItems || answers.q2_2_scopeItems.length === 0) errs.q2_2_scopeItems = 'Please select at least one scope item'
       // Only required when the question is actually shown — External Works has a
       // single rate column, so there is nothing to choose and demanding a value
-      // would deadlock the section.
-      if (specLevelsForType.length > 0 && !answers.q2_4_specLevel) {
+      // would deadlock the section. Must mirror the question's own render
+      // condition exactly (both specLevelsForType.length > 0 AND
+      // isQuestionShown — Demolition only has spec levels but is excluded by
+      // isQuestionShown), so the next person changing one changes the other.
+      if (specLevelsForType.length > 0 && isQuestionShown('q2_4_specLevel', answers.q1_2_projectType) && !answers.q2_4_specLevel) {
         errs.q2_4_specLevel = 'Specification level is required'
       }
       // Mirrors Guard 1 in app/api/generate-report/route.js, which is the only
