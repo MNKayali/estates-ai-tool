@@ -844,6 +844,18 @@ export default function QuestionnairePage() {
   // Section 3 option lists vary by project type. Switching type must drop any
   // ticked option the new type does not offer, or the engines price an answer
   // the user can no longer see. Same reasoning as the scope-pruning effect above.
+  //
+  // Also clears any other answer whose question has been hidden — by a type
+  // change or (for Q1.6) by storeys dropping below 5 — so a value left behind
+  // by an earlier, different path through the form can't be priced or
+  // programmed as though it were still current. Each of these was a live
+  // defect: a stale q1_6_heightOver18m surviving a storeys edit could derive
+  // higher-risk status for a building that no longer qualifies (see A1/A2 in
+  // lib/siteContext.js); a stale q1_2_storeys is what made that reachable in
+  // the first place; a stale q1_4_buildingAge could fire the Tab 3 heritage
+  // rule and an asbestos survey stage on a type with no building; and a
+  // stale q5_1_financialBenefit/q5_2_annualBenefit could render a full ROI
+  // section on a Demolition only report.
   useEffect(() => {
     setAnswers(prev => {
       const pt = prev.q1_2_projectType
@@ -852,11 +864,35 @@ export default function QuestionnairePage() {
       const surveys = surveysFor(pt, prev.q1_4_buildingAge)
       const keptIssues = (prev.q3_1_knownIssues || []).filter(v => issues.includes(v))
       const keptSurveys = (prev.q3_3_surveys || []).filter(v => surveys.includes(v))
-      if (keptIssues.length === (prev.q3_1_knownIssues || []).length
-        && keptSurveys.length === (prev.q3_3_surveys || []).length) return prev
-      return { ...prev, q3_1_knownIssues: keptIssues, q3_3_surveys: keptSurveys }
+
+      // Q1.2a only applies to types that ask it; Q1.6 only above 5 storeys —
+      // evaluated against the (possibly just-cleared) storeys value so a type
+      // switch clears both in the same pass rather than leaving Q1.6 stale
+      // for one extra render.
+      const nextStoreys = STOREYS_TYPES.includes(pt) ? prev.q1_2_storeys : undefined
+      const nextHeight = showsHeightQuestion(nextStoreys) ? prev.q1_6_heightOver18m : undefined
+
+      const nextAge = isQuestionShown('q1_4_buildingAge', pt) ? prev.q1_4_buildingAge : undefined
+      const nextBenefit = isQuestionShown('q5_1_financialBenefit', pt) ? prev.q5_1_financialBenefit : undefined
+      const nextAnnual = isQuestionShown('q5_2_annualBenefit', pt) ? prev.q5_2_annualBenefit : undefined
+
+      const changed = keptIssues.length !== (prev.q3_1_knownIssues || []).length
+        || keptSurveys.length !== (prev.q3_3_surveys || []).length
+        || nextStoreys !== prev.q1_2_storeys
+        || nextHeight !== prev.q1_6_heightOver18m
+        || nextAge !== prev.q1_4_buildingAge
+        || nextBenefit !== prev.q5_1_financialBenefit
+        || nextAnnual !== prev.q5_2_annualBenefit
+      if (!changed) return prev
+      return {
+        ...prev,
+        q3_1_knownIssues: keptIssues, q3_3_surveys: keptSurveys,
+        q1_2_storeys: nextStoreys, q1_6_heightOver18m: nextHeight,
+        q1_4_buildingAge: nextAge,
+        q5_1_financialBenefit: nextBenefit, q5_2_annualBenefit: nextAnnual,
+      }
     })
-  }, [answers.q1_2_projectType, answers.q1_4_buildingAge])
+  }, [answers.q1_2_projectType, answers.q1_4_buildingAge, answers.q1_2_storeys])
 
   function validateSection(sec) {
     const errs = {}
