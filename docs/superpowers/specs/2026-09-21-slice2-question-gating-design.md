@@ -11,7 +11,8 @@ the building is.
 
 This slice makes Section 3 type-aware, moves the Building Safety Act question to
 where it belongs, and fixes three questions asked outside Section 3 that cannot
-apply. It changes **no rate, no duration and no percentage**.
+apply. It changes **no rate, no duration and no percentage** — with one
+exception found in the fix-wave review, see §9.
 
 Decided live with the user on 21 September 2026, type by type.
 
@@ -175,6 +176,34 @@ matter, not a Gateway 2 one.
 | External works only | **Hide Q1.4 building age.** There is no building. Asked today only because the question's sole condition is "not a New Build" |
 | Demolition only | **Hide Q2.4 specification level.** There is no specification standard for knocking something down |
 | Demolition only | **Hide Q5.1 / Q5.2 financial benefit and ROI.** Rarely meaningful, and the ROI section already self-hides when blank |
+
+## 9. Two decisions from the fix-wave review
+
+**A pre-branch report's declined Q3.8 tick can now derive true when re-run
+through `/api/compare`.** A report generated before this slice, where the user
+left the Q3.8 "higher-risk building" tickbox unticked, will derive
+`isHigherRiskBuilding()` = true if re-run through `/api/compare` and the
+stored answers otherwise qualify (7+ storeys or Q1.6 = Yes, a residential /
+student / healthcare use, and a project type other than Demolition only or
+External works only) — so the compare panel can show a Gateway 2 stage the
+originally printed report doesn't have. **Accepted, not fixed:** under the
+statute, 7+ storeys with a residential use IS a higher-risk building
+regardless of what the old Q3.8 tick captured, so the declined tick was very
+likely wrong; and `/api/compare` already diverges from an older report
+whenever a workbook rate or duration changes, so this is one more source of
+legitimate divergence, not a new class of bug. See the matching comment above
+the legacy `hasSiteContext(answers, 'higherRisk')` branch in
+`lib/siteContext.js`.
+
+**The "changes no rate, no duration and no percentage" claim above does not
+hold for External works only.** Hiding Q1.4 building age for that type (§8)
+also removes the only way an External works only project could ever answer
+"Pre-1900" and reach the Tab 3 heritage percentage uplift — so for that one
+type this slice DOES remove a reachable percentage. Hiding Q1.4 there was a
+deliberate decision (there is no building on an External works only project,
+so its age is meaningless), not an oversight the code should be changed to
+avoid; the claim above should be read with this one exception rather than
+literally.
 
 ## How it's verified
 

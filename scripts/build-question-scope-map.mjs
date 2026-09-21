@@ -28,6 +28,7 @@ import * as XLSX from 'xlsx'
 import { getScopeItems, fetchRatesWorkbook } from '../lib/costCalculator.js'
 import { matchesBuildingUse, BUILDING_USE_TAGS } from '../lib/buildingUse.js'
 import { PROJECT_TYPE_VALUES as PROJECT_TYPES, VISIBLE_GROUPS, priceableFor } from '../lib/projectTypes.js'
+import { isQuestionShown } from '../lib/questionSets.js'
 
 // ── env ──────────────────────────────────────────────────────────────────────
 const envPath = path.join(process.cwd(), '.env.local')
@@ -41,6 +42,7 @@ if (fs.existsSync(envPath)) {
 // ── constants mirrored from the app (kept in one place here) ─────────────────
 const FOLDED_CODES = new Set(['5.2L', '5.5', '5.8'])       // page.jsx:77
 const REFURB_TYPES = ['Refurbishment', 'Fit-out', 'Extension'] // page.jsx:743 (isRefurb)
+const STOREYS_TYPES = ['New Build', 'Refurbishment', 'Extension'] // page.jsx STOREYS_TYPES (Q1.2a / Q1.6 gate)
 
 // lib/costCalculator.js:248 — legacy quantity keys the form no longer writes
 const QTY_ALIASES = {
@@ -62,8 +64,10 @@ const ALWAYS = () => true
 /**
  * The questionnaire's question inventory, transcribed from
  * app/questionnaire/page.jsx. `shownFor` replays that file's ACTUAL gating —
- * there are only three project-type gates in the whole form, plus the spec-level
- * question which hides itself for External Works.
+ * as of the September 2026 question-gating slice there are seven project-type
+ * gates (Q1.2a/Q1.6, Q1.4, Q2.3, Q2.4, Q3.2, Q5.1, Q5.2), each mirroring
+ * lib/questionSets.js's isQuestionShown()/showsHeightQuestion() where the
+ * question uses that helper rather than an inline array.
  */
 const QUESTIONS = [
   // ── Section 1 — Project & Location ─────────────────────────────────────────
@@ -71,11 +75,12 @@ const QUESTIONS = [
   { sec: 1, num: 'Q1.1',  key: 'q1_1_postcode',           label: 'Postcode',                          control: 'Text',            required: 'Yes', cond: 'Always',                                       src: 'page.jsx:1112', shownFor: ALWAYS },
   { sec: 1, num: 'Q1.1a', key: 'q1_1_bcisRegion',         label: 'BCIS region (confirm / override)',  control: 'Region picker',   required: 'No',  cond: 'Always (picker resolves as the postcode is typed)', src: 'page.jsx:1117', shownFor: ALWAYS },
   { sec: 1, num: 'Q1.2',  key: 'q1_2_projectType',        label: 'Project type',                      control: 'Select',          required: 'Yes', cond: 'Always',                                       src: 'page.jsx:1125', shownFor: ALWAYS },
-  { sec: 1, num: 'Q1.2a', key: 'q1_2_storeys',            label: 'Number of storeys',                 control: 'Select (1–7+)',   required: 'No (defaults 1)', cond: "projectType is New Build, Refurbishment or Extension", src: 'page.jsx:1132', shownFor: pt => ['New Build', 'Refurbishment', 'Extension'].includes(pt) },
+  { sec: 1, num: 'Q1.2a', key: 'q1_2_storeys',            label: 'Number of storeys',                 control: 'Select (1–7+)',   required: 'No (defaults 1)', cond: "projectType is New Build, Refurbishment or Extension", src: 'page.jsx:1132', shownFor: pt => STOREYS_TYPES.includes(pt) },
   { sec: 1, num: 'Q1.3',  key: 'q1_3_buildingUse',        label: 'Building use',                      control: 'Select',          required: 'Yes', cond: 'Always',                                       src: 'page.jsx:1151', shownFor: ALWAYS },
   { sec: 1, num: '—',     key: 'q1_3_buildingUseOther',   label: 'Building use — other (describe)',   control: 'Text',            required: 'No',  cond: "q1_3_buildingUse === 'Other'",                 src: 'page.jsx:1167', shownFor: ALWAYS },
-  { sec: 1, num: 'Q1.4',  key: 'q1_4_buildingAge',        label: 'Building age',                      control: 'Select (4 bands)', required: 'Yes when shown', cond: "projectType !== 'New Build'",       src: 'page.jsx:1174', shownFor: pt => pt !== 'New Build' },
+  { sec: 1, num: 'Q1.4',  key: 'q1_4_buildingAge',        label: 'Building age',                      control: 'Select (4 bands)', required: 'Yes when shown', cond: "isQuestionShown — hidden for New Build and External works only", src: 'page.jsx:1174', shownFor: pt => isQuestionShown('q1_4_buildingAge', pt) },
   { sec: 1, num: 'Q1.5',  key: 'q1_5_size',               label: 'Approximate size (GIFA m²) / site area (External Works)', control: 'Number', required: 'Yes', cond: 'Always (label varies by project type)', src: 'page.jsx:1185', shownFor: ALWAYS },
+  { sec: 1, num: 'Q1.6',  key: 'q1_6_heightOver18m',      label: 'Building height (18 m or taller)',  control: 'Radio (Yes/No/Not sure)', required: 'No', cond: "projectType is New Build, Refurbishment or Extension (STOREYS_TYPES, same gate as Q1.2a) AND showsHeightQuestion(storeys) — storeys >= 5", src: 'page.jsx:1197', shownFor: pt => STOREYS_TYPES.includes(pt) },
 
   // ── Section 2 — Project Scope ──────────────────────────────────────────────
   { sec: 2, num: 'Q2.1',  key: 'q2_1_objective',          label: 'Project objective',                 control: 'Textarea',        required: 'Yes', cond: 'Always',                                       src: 'page.jsx:1197', shownFor: ALWAYS },
@@ -84,19 +89,19 @@ const QUESTIONS = [
   { sec: 2, num: 'Q2.2',  key: 'q2_2_wiring',             label: 'Wiring extent (derived from 5.8a / 5.8b tiles)', control: 'Derived', required: 'No', cond: 'Derived whenever a wiring tile is ticked', src: 'page.jsx:1270', shownFor: ALWAYS },
   { sec: 2, num: 'Q2.2',  key: 'q2_2_quantities',         label: 'Per-element quantities (count / kWp / kWh / kW)', control: 'Number (per tile)', required: 'No', cond: 'Shown under each ticked count-driven tile', src: 'page.jsx:1418', shownFor: ALWAYS },
   { sec: 2, num: 'Q2.2',  key: 'q2_2_additionalScope',    label: 'Other / specialist scope + approximate value', control: 'Textarea + number', required: 'No', cond: 'Always',                        src: 'page.jsx:1540', shownFor: ALWAYS },
-  { sec: 2, num: 'Q2.4',  key: 'q2_4_specLevel',          label: 'Specification level',               control: 'Radio',           required: 'Yes when shown', cond: 'Hidden for External works only (single rate column); Basic option hidden for New Build / Extension', src: 'page.jsx:1572', shownFor: pt => pt !== 'External works only' },
+  { sec: 2, num: 'Q2.4',  key: 'q2_4_specLevel',          label: 'Specification level',               control: 'Radio',           required: 'Yes when shown', cond: 'isQuestionShown — hidden for External works only (single rate column) and Demolition only (no specification standard); Basic option also hidden for New Build / Extension', src: 'page.jsx:1572', shownFor: pt => isQuestionShown('q2_4_specLevel', pt) },
   { sec: 2, num: 'Q2.5',  key: 'q2_5_standards',          label: 'Standards and compliance requirements', control: 'Checkbox group', required: 'No', cond: 'Always',                                   src: 'page.jsx:1608', shownFor: ALWAYS },
   { sec: 2, num: '—',     key: 'q2_5_standardsOther',     label: 'Standards — other (describe)',      control: 'Textarea',        required: 'No',  cond: "q2_5_standards includes 'Other'",              src: 'page.jsx:1614', shownFor: ALWAYS },
 
   // ── Section 3 — Condition & Constraints ────────────────────────────────────
-  { sec: 3, num: 'Q3.1',  key: 'q3_1_knownIssues',        label: 'Known building issues',             control: 'Checkbox group',  required: 'No',  cond: 'Always — NO project-type gate',                src: 'page.jsx:1629', shownFor: ALWAYS },
-  { sec: 3, num: 'Q3.2',  key: 'q3_2_previousWorks',      label: 'Previous works or relevant history', control: 'Textarea',       required: 'No',  cond: 'Always — NO project-type gate',                src: 'page.jsx:1636', shownFor: ALWAYS },
-  { sec: 3, num: 'Q3.3',  key: 'q3_3_surveys',            label: 'Surveys and reports available',     control: 'Checkbox group',  required: 'No',  cond: 'Always (blank is read as "None")',             src: 'page.jsx:1641', shownFor: ALWAYS },
+  { sec: 3, num: 'Q3.1',  key: 'q3_1_knownIssues',        label: 'Known issues',                      control: 'Checkbox group',  required: 'No',  cond: 'Always — NO project-type gate on the question itself; option list (knownIssuesFor) varies by project type', src: 'page.jsx:1629', shownFor: ALWAYS },
+  { sec: 3, num: 'Q3.2',  key: 'q3_2_previousWorks',      label: 'Previous works or relevant history', control: 'Textarea',       required: 'No',  cond: 'isQuestionShown — hidden for New Build and External works only', src: 'page.jsx:1636', shownFor: pt => isQuestionShown('q3_2_previousWorks', pt) },
+  { sec: 3, num: 'Q3.3',  key: 'q3_3_surveys',            label: 'Surveys and reports available',     control: 'Checkbox group',  required: 'No',  cond: 'Always (blank is read as "None"), NO project-type gate on the question itself; option list (surveysFor) varies by project type AND Q1.4 building age — asbestos options hidden once Q1.4 = Post-2000', src: 'page.jsx:1641', shownFor: ALWAYS },
   { sec: 3, num: '—',     key: 'q3_3_surveysOther',       label: 'Surveys — other (describe)',        control: 'Textarea',        required: 'No',  cond: "q3_3_surveys includes 'Other'",                src: 'page.jsx:1649', shownFor: ALWAYS },
   { sec: 3, num: 'Q3.4',  key: 'q3_4_planningConsents',   label: 'Planning consent required',         control: 'Radio',           required: 'No',  cond: 'Always',                                       src: 'page.jsx:1658', shownFor: ALWAYS },
   { sec: 3, num: 'Q3.5',  key: 'q3_5_accessConstraints',  label: 'Access constraints',                control: 'Checkbox group',  required: 'No',  cond: 'Always',                                       src: 'page.jsx:1664', shownFor: ALWAYS },
   { sec: 3, num: '—',     key: 'q3_5_accessConstraintsOther', label: 'Access constraints — other (describe)', control: 'Textarea', required: 'No', cond: "q3_5_accessConstraints includes 'Other'",      src: 'page.jsx:1671', shownFor: ALWAYS },
-  { sec: 3, num: 'Q3.6',  key: 'q3_6_occupation',         label: 'Occupation during works',           control: 'Radio',           required: 'No',  cond: 'Always — NO project-type gate',                src: 'page.jsx:1680', shownFor: ALWAYS },
+  { sec: 3, num: 'Q3.6',  key: 'q3_6_occupation',         label: 'Occupation during works',           control: 'Radio',           required: 'No',  cond: 'Always — NO project-type gate on the question itself; label/help text (occupationCopyFor) vary by project type', src: 'page.jsx:1680', shownFor: ALWAYS },
   { sec: 3, num: 'Q3.7',  key: 'q3_7_additionalContext',  label: 'Additional context',                control: 'Textarea',        required: 'No',  cond: 'Always',                                       src: 'page.jsx:1686', shownFor: ALWAYS },
   { sec: 3, num: 'Q3.8',  key: 'q3_8_siteContext',        label: 'Site and building context',         control: 'Checkbox group',  required: 'No',  cond: 'Always',                                       src: 'page.jsx:1698', shownFor: ALWAYS },
 
@@ -108,8 +113,8 @@ const QUESTIONS = [
   { sec: 4, num: 'Q4.5',  key: 'q4_5_designStage',        label: 'Design stage already reached',      control: 'Radio',           required: 'No',  cond: 'Always',                                       src: 'page.jsx:1808', shownFor: ALWAYS },
   { sec: 4, num: 'Q4.6',  key: 'q4_6_phasing',            label: 'Single or phased delivery',         control: 'Select',          required: 'No (defaults Single phase)', cond: 'Always',               src: 'page.jsx:1814', shownFor: ALWAYS },
   { sec: 4, num: 'Q4.7',  key: 'q4_7_funding',            label: 'Funding source',                    control: 'Radio',           required: 'No',  cond: 'Always',                                       src: 'page.jsx:1823', shownFor: ALWAYS },
-  { sec: 4, num: 'Q5.1',  key: 'q5_1_financialBenefit',   label: 'Financial benefit type',            control: 'Checkbox group',  required: 'No',  cond: 'Always',                                       src: 'page.jsx:1835', shownFor: ALWAYS },
-  { sec: 4, num: 'Q5.2',  key: 'q5_2_annualBenefit',      label: 'Estimated annual benefit (£)',      control: 'Number',          required: 'No',  cond: 'q5_1 has a benefit and it is not "No direct financial return"', src: 'page.jsx:1847', shownFor: ALWAYS },
+  { sec: 4, num: 'Q5.1',  key: 'q5_1_financialBenefit',   label: 'Financial benefit type',            control: 'Checkbox group',  required: 'No',  cond: 'isQuestionShown — hidden for Demolition only', src: 'page.jsx:1835', shownFor: pt => isQuestionShown('q5_1_financialBenefit', pt) },
+  { sec: 4, num: 'Q5.2',  key: 'q5_2_annualBenefit',      label: 'Estimated annual benefit (£)',      control: 'Number',          required: 'No',  cond: 'q5_1 has a benefit and it is not "No direct financial return"; isQuestionShown also hides it entirely for Demolition only', src: 'page.jsx:1847', shownFor: pt => isQuestionShown('q5_2_annualBenefit', pt) },
   { sec: 4, num: 'Q6.1',  key: 'q6_2_instructions',       label: 'Additional report instructions',    control: 'Textarea',        required: 'No',  cond: 'Always (KEY says 6.2, LABEL says Q6.1 — deliberate)', src: 'page.jsx:1871', shownFor: ALWAYS },
 ]
 
@@ -186,7 +191,7 @@ addSheet('0. Read me', [
   ['6. Tab3 Conditions',  'Every NRM1 percentage rule and the question number its condition text quotes.',                       'GUARDRAIL — these strings are matched literally; renumbering breaks them.'],
   [],
   ['Two things to know before you start'],
-  ['1.', 'There are only THREE project-type gates in the whole questionnaire (Q1.2a, Q1.4, Q2.3), plus Q2.4 hiding itself for External Works. Everything else is asked of everyone — that is why a New Build is asked about known building issues and previous works.'],
+  ['1.', 'There are seven project-type gates in the whole questionnaire (Q1.2a, Q1.6, Q1.4, Q2.3, Q2.4, Q3.2, Q5.1, Q5.2) — see lib/questionSets.js. Everything else is asked of everyone, though several (Q3.1, Q3.3, Q3.6) vary their OPTIONS or COPY by project type without hiding the question itself.'],
   ['2.', 'The NRM1 Tab 3 conditions quote visible question numbers verbatim ("Q3.6 = Fully occupied throughout"). Changing a visible number in the UI without changing the workbook silently breaks the rule that reads it. Sheet 6 lists every one.'],
 ], [16, 62, 60])
 
