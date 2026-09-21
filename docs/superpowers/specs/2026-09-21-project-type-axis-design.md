@@ -68,9 +68,19 @@ Scoped to Other or mixed deliberately. Refurbishment has the same gap on 0.4 and
 8.10, but that is a missing rate in the workbook rather than a design flaw, and
 it belongs with the rate work in a later slice.
 
-The report must state what it did: *"Priced from refurbishment rates, using new
-build rates for elements that have no refurbishment rate."* Without that line a
-reader would assume a precision that isn't there.
+**The fallback is not disclosed in the client-facing report** (decided
+21 September 2026). No sentence about the mixed rate basis appears in the web
+report, the `.docx` or the PDF.
+
+It is recorded internally instead, following the existing `internal: true`
+convention in `lib/senseCheck.js` — a diagnostic visible to maintainers and in
+the admin view, never to the client. That keeps the information from being lost
+without putting it in front of a reader.
+
+Noted once, not re-argued: an Other-or-mixed estimate will therefore use two
+rate families without saying so, in a report whose Estimate Basis section
+otherwise states where every figure came from. Worth revisiting before the tool
+goes in front of external clients; out of scope for this slice.
 
 ### 3. Stored data
 
@@ -123,9 +133,11 @@ resolve correctly with no change.
 | Splitting Other or mixed by area so each part uses its own rate family | Later — a cost-engine change |
 | Narrowing the scope picker itself | The original Q2.2 problem, unchanged by this slice |
 
-## Open question
+## Decisions taken
 
-Renaming `External Works` → `External works only` is cosmetic and costs two
-exact-match updates plus a baseline scenario rename. It buys symmetry with
-`Demolition only` — both read as *this and nothing else*. Say if you'd rather
-leave it as `External Works` and I'll drop that part.
+| Question | Decision (21 September 2026) |
+|---|---|
+| Rename `External Works` → `External works only`? | **Yes.** Symmetry with `Demolition only` — both read as *this and nothing else*. Costs two exact-match updates and a baseline scenario rename. |
+| Disclose the rate fallback in the client report? | **No.** Recorded as an internal diagnostic instead. See §2. |
+
+No open questions. Ready for an implementation plan.
