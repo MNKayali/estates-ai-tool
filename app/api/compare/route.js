@@ -14,6 +14,7 @@
  */
 import { runDeterministicPipeline } from '@/lib/pipeline'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
+import { isQuestionShown } from '@/lib/questionSets'
 
 export const maxDuration = 60
 
@@ -22,9 +23,13 @@ const AXES = {
     key: 'q2_4_specLevel',
     label: 'Specification level (Q2.4)',
     variants: (answers) => {
+      // Mirrors the questionnaire: Demolition only has no Q2.4 at all
+      // (isQuestionShown), so it gets no priced variants on this axis rather
+      // than falling through to the general case below.
+      if (!isQuestionShown('q2_4_specLevel', answers.q1_2_projectType)) return []
       const pt = String(answers.q1_2_projectType || '').toLowerCase()
-      // Mirrors the questionnaire: no Basic column for new build/extension,
-      // a single column for external works.
+      // No Basic column for new build/extension, a single column for
+      // external works.
       if (pt.includes('external works')) return ['Standard']
       if (pt.includes('new build') || pt.includes('extension')) return ['Standard', 'High']
       return ['Basic', 'Standard', 'High']

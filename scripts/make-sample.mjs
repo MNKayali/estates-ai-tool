@@ -41,7 +41,7 @@ export const SAMPLE_ANSWERS = {
   q2_5_standards: 'BREEAM, Net zero, University design guide',
   q3_1_knownIssues: ['Ageing or inadequate M&E', 'Asbestos known or suspected'],
   q3_2_previousWorks: 'Roof recovered in 2011. Windows replaced on the south elevation in 2016; north elevation original. No services replacement since original construction.',
-  q3_3_surveys: ['Asbestos register', 'Condition'],
+  q3_3_surveys: ['Asbestos management survey', 'Condition'],
   q3_4_planningConsents: 'No consent required',
   q3_5_accessConstraints: ['Restricted working hours', 'Term-time only working'],
   q3_6_occupation: 'Partially occupied',

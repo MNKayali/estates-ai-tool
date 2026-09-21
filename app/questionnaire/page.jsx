@@ -5,8 +5,12 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { matchesBuildingUse } from '../../lib/buildingUse.js'
 import { areaQuestionLabel, areaHelpText } from '../../lib/labels.js'
-import { SITE_CONTEXT_OPTIONS, SITE_CONTEXT_NONE, hrbLikelyFromAnswers } from '../../lib/siteContext.js'
+import { SITE_CONTEXT_OPTIONS, SITE_CONTEXT_NONE, isHigherRiskBuilding } from '../../lib/siteContext.js'
 import { PROJECT_TYPES, VISIBLE_GROUPS, priceableFor } from '../../lib/projectTypes.js'
+import {
+  isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
+  showsHeightQuestion, KNOWN_ISSUE_NONE, SURVEY_NONE,
+} from '../../lib/questionSets.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
 // Bumped whenever the answer-key schema changes in a way that could make a
@@ -21,7 +25,17 @@ const STORAGE_KEY = 'estatesAI_v4_answers'
 // v3 (September 2026): Q1.2 lost "Renewable Energy" and renamed three options.
 // A v2 draft can hold a project type the form no longer offers, which would
 // leave the select blank while the rest of the draft rehydrates around it.
-const STORAGE_SCHEMA_VERSION = 3
+// v4 (September 2026): Section 3 option lists now vary by project type, Q3.8
+// lost its higher-risk option, and Q1.6 (building height) is new. A v3 draft
+// can hold ticked options the current type no longer offers.
+const STORAGE_SCHEMA_VERSION = 4
+
+// Project types that ask Q1.2a (storeys) and, above 5 storeys, Q1.6 (height).
+// Shared by both questions' render conditions and the pruning effect below so
+// the three can't drift apart the way Q1.2a and Q1.6 briefly did (Q1.6's own
+// gate forgot the project-type half of this and derived higher-risk status
+// for Demolition only / External works only off a stale storeys value).
+const STOREYS_TYPES = ['New Build', 'Refurbishment', 'Extension']
 
 // Four steps, down from six.
 //
@@ -192,17 +206,8 @@ const SPEC_LEVELS = [
 ]
 
 // ─── Section 3 data ───────────────────────────────────────────────────────────
-const KNOWN_ISSUES = [
-  'Asbestos known or suspected', 'Structural concerns', 'Ageing or inadequate M&E',
-  'Damp or water ingress', 'Drainage issues', 'Fire safety deficiencies',
-  'Contaminated land', 'Unsure — surveys needed', 'None identified',
-]
-
-const SURVEY_OPTIONS = [
-  'Asbestos register', 'Structural', 'Condition', 'Topographic',
-  'Ground investigation', 'Energy audit', 'Fire risk assessment', 'None', 'Other',
-]
-
+// KNOWN_ISSUES and SURVEY_OPTIONS were static arrays here; Q3.1 and Q3.3 now
+// vary by project type via knownIssuesFor()/surveysFor() in lib/questionSets.js.
 const PLANNING_OPTIONS = [
   'No consent required', 'Permitted development', 'Prior approval', 'Full planning',
   'Full planning + Listed Building Consent', 'Change of use', 'Unsure (pre-application advice)',
@@ -836,6 +841,59 @@ export default function QuestionnairePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers.q1_2_projectType, answers.q1_3_buildingUse, answers.q2_3_interventionLevel, scopeData])
 
+  // Section 3 option lists vary by project type. Switching type must drop any
+  // ticked option the new type does not offer, or the engines price an answer
+  // the user can no longer see. Same reasoning as the scope-pruning effect above.
+  //
+  // Also clears any other answer whose question has been hidden — by a type
+  // change or (for Q1.6) by storeys dropping below 5 — so a value left behind
+  // by an earlier, different path through the form can't be priced or
+  // programmed as though it were still current. Each of these was a live
+  // defect: a stale q1_6_heightOver18m surviving a storeys edit could derive
+  // higher-risk status for a building that no longer qualifies (see A1/A2 in
+  // lib/siteContext.js); a stale q1_2_storeys is what made that reachable in
+  // the first place; a stale q1_4_buildingAge could fire the Tab 3 heritage
+  // rule and an asbestos survey stage on a type with no building; and a
+  // stale q5_1_financialBenefit/q5_2_annualBenefit could render a full ROI
+  // section on a Demolition only report.
+  useEffect(() => {
+    setAnswers(prev => {
+      const pt = prev.q1_2_projectType
+      if (!pt) return prev
+      const issues = knownIssuesFor(pt)
+      const surveys = surveysFor(pt, prev.q1_4_buildingAge)
+      const keptIssues = (prev.q3_1_knownIssues || []).filter(v => issues.includes(v))
+      const keptSurveys = (prev.q3_3_surveys || []).filter(v => surveys.includes(v))
+
+      // Q1.2a only applies to types that ask it; Q1.6 only above 5 storeys —
+      // evaluated against the (possibly just-cleared) storeys value so a type
+      // switch clears both in the same pass rather than leaving Q1.6 stale
+      // for one extra render.
+      const nextStoreys = STOREYS_TYPES.includes(pt) ? prev.q1_2_storeys : undefined
+      const nextHeight = showsHeightQuestion(nextStoreys) ? prev.q1_6_heightOver18m : undefined
+
+      const nextAge = isQuestionShown('q1_4_buildingAge', pt) ? prev.q1_4_buildingAge : undefined
+      const nextBenefit = isQuestionShown('q5_1_financialBenefit', pt) ? prev.q5_1_financialBenefit : undefined
+      const nextAnnual = isQuestionShown('q5_2_annualBenefit', pt) ? prev.q5_2_annualBenefit : undefined
+
+      const changed = keptIssues.length !== (prev.q3_1_knownIssues || []).length
+        || keptSurveys.length !== (prev.q3_3_surveys || []).length
+        || nextStoreys !== prev.q1_2_storeys
+        || nextHeight !== prev.q1_6_heightOver18m
+        || nextAge !== prev.q1_4_buildingAge
+        || nextBenefit !== prev.q5_1_financialBenefit
+        || nextAnnual !== prev.q5_2_annualBenefit
+      if (!changed) return prev
+      return {
+        ...prev,
+        q3_1_knownIssues: keptIssues, q3_3_surveys: keptSurveys,
+        q1_2_storeys: nextStoreys, q1_6_heightOver18m: nextHeight,
+        q1_4_buildingAge: nextAge,
+        q5_1_financialBenefit: nextBenefit, q5_2_annualBenefit: nextAnnual,
+      }
+    })
+  }, [answers.q1_2_projectType, answers.q1_4_buildingAge, answers.q1_2_storeys])
+
   function validateSection(sec) {
     const errs = {}
     if (sec === 1) {
@@ -851,12 +909,15 @@ export default function QuestionnairePage() {
       const gifa = Number(answers.q1_5_size)
       if (!answers.q1_5_size) errs.q1_5_size = 'Approximate size is required'
       else if (!Number.isFinite(gifa) || gifa <= 0) errs.q1_5_size = 'Enter a size greater than zero (m²)'
-      // Marked required on screen (hidden entirely for New Build, where it's
-      // genuinely not applicable) but never actually enforced — a user could
-      // continue past it blank. It's load-bearing (Pre-1900 alone changes the
-      // heritage fee and a Stage 2 programme uplift), so it earns the marker
-      // it already carries rather than having the marker dropped.
-      if (answers.q1_2_projectType !== 'New Build' && !answers.q1_4_buildingAge) {
+      // Marked required on screen (hidden entirely for types isQuestionShown
+      // excludes, where it's genuinely not applicable) but never actually
+      // enforced — a user could continue past it blank. It's load-bearing
+      // (Pre-1900 alone changes the heritage fee and a Stage 2 programme
+      // uplift), so it earns the marker it already carries rather than having
+      // the marker dropped. Must mirror the question's own render condition —
+      // demanding a value for a type that never sees the question deadlocks
+      // the section with an error the user cannot see or clear.
+      if (isQuestionShown('q1_4_buildingAge', answers.q1_2_projectType) && !answers.q1_4_buildingAge) {
         errs.q1_4_buildingAge = 'Building age is required'
       }
       // Load-bearing despite reading as optional. Left blank, matchesBuildingUse
@@ -870,8 +931,11 @@ export default function QuestionnairePage() {
       if (!answers.q2_2_scopeItems || answers.q2_2_scopeItems.length === 0) errs.q2_2_scopeItems = 'Please select at least one scope item'
       // Only required when the question is actually shown — External Works has a
       // single rate column, so there is nothing to choose and demanding a value
-      // would deadlock the section.
-      if (specLevelsForType.length > 0 && !answers.q2_4_specLevel) {
+      // would deadlock the section. Must mirror the question's own render
+      // condition exactly (both specLevelsForType.length > 0 AND
+      // isQuestionShown — Demolition only has spec levels but is excluded by
+      // isQuestionShown), so the next person changing one changes the other.
+      if (specLevelsForType.length > 0 && isQuestionShown('q2_4_specLevel', answers.q1_2_projectType) && !answers.q2_4_specLevel) {
         errs.q2_4_specLevel = 'Specification level is required'
       }
       // Mirrors Guard 1 in app/api/generate-report/route.js, which is the only
@@ -1120,7 +1184,7 @@ export default function QuestionnairePage() {
               )}
               {validationErrors.q1_2_projectType && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_2_projectType}</p>}
 
-              {['New Build', 'Refurbishment', 'Extension'].includes(answers.q1_2_projectType) && (
+              {STOREYS_TYPES.includes(answers.q1_2_projectType) && (
                 <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
                   <Label>Q1.2a — Number of storeys{answers.q1_2_projectType === 'Extension' ? ' in the extension' : ''}</Label>
                   <SelectInput value={answers.q1_2_storeys || '1'} onChange={v => set('q1_2_storeys', v)}>
@@ -1131,7 +1195,7 @@ export default function QuestionnairePage() {
                     <option value="5">5 storeys</option>
                     <option value="6">6 storeys</option>
                     {/* 7+ is the Building Safety Act higher-risk threshold for
-                        residential / care / hospital use — see Q3.8. */}
+                        residential / care / hospital use — see Q1.6. */}
                     <option value="7">7 or more storeys</option>
                   </SelectInput>
                 </div>
@@ -1162,13 +1226,41 @@ export default function QuestionnairePage() {
               )}
             </QCard>
 
-            {answers.q1_2_projectType !== 'New Build' && (
+            {isQuestionShown('q1_4_buildingAge', answers.q1_2_projectType) && (
               <QCard>
                 <Label required>Q1.4 — Building age</Label>
                 <div style={{ marginTop: 4 }}>
                   <RadioGroup options={BUILDING_AGES} value={answers.q1_4_buildingAge} onChange={v => set('q1_4_buildingAge', v)} />
                 </div>
                 {validationErrors.q1_4_buildingAge && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_4_buildingAge}</p>}
+              </QCard>
+            )}
+
+            {STOREYS_TYPES.includes(answers.q1_2_projectType) && showsHeightQuestion(answers.q1_2_storeys) && (
+              <QCard>
+                <Label>Q1.6 — Building height</Label>
+                {/* Q1.2a asks for the EXTENSION's own storeys on this type, not
+                    the host building's — so the question here must ask about
+                    the completed building (existing + extension), which is
+                    the only thing the higher-risk derivation can use for an
+                    Extension. See the A2 comment in lib/siteContext.js. */}
+                <HelpText>{answers.q1_2_projectType === 'Extension'
+                  ? 'Is the completed building — the existing building plus this extension — 18 metres or taller, measured to the floor level of the top storey?'
+                  : 'Is the building 18 metres or taller, measured to the floor level of the top storey?'}</HelpText>
+                <RadioGroup
+                  options={['Yes', 'No', 'Not sure']}
+                  value={answers.q1_6_heightOver18m}
+                  onChange={v => set('q1_6_heightOver18m', v)}
+                  ariaLabel="Is the building 18 metres or taller"
+                />
+                {/* The consequence, not the jargon — "higher-risk building"
+                    means nothing to most clients, and the gateway is what
+                    actually changes their programme. */}
+                {isHigherRiskBuilding(answers) && (
+                  <p role="status" style={{ marginTop: 10, padding: '10px 12px', borderRadius: 8, fontSize: 13, border: '1px solid var(--amber)', backgroundColor: 'rgba(196,134,26,.07)', color: 'var(--ink)' }}>
+                    This is a <strong>higher-risk building</strong> under the Building Safety Act. Construction cannot start until Gateway 2 approval is granted, which is added to the programme.
+                  </p>
+                )}
               </QCard>
             )}
 
@@ -1560,7 +1652,7 @@ export default function QuestionnairePage() {
                 a saving they have not made, so it is hidden where it is a no-op.
                 External Works has a single rate column, so the whole question is
                 meaningless there. */}
-            {specLevelsForType.length > 0 && (
+            {specLevelsForType.length > 0 && isQuestionShown('q2_4_specLevel', answers.q1_2_projectType) && (
             <QCard>
               <Label required>Q2.4 — Specification level</Label>
               <HelpText>Selects the rate column from the NRM1 benchmark table.</HelpText>
@@ -1617,16 +1709,18 @@ export default function QuestionnairePage() {
         {section === 3 && (
           <div className="flex flex-col gap-5 section-enter">
             <QCard>
-              <Label>Q3.1 — Known building issues</Label>
+              <Label>Q3.1 — Known issues</Label>
               <HelpText>Select all that apply. These trigger risk allowance adjustments.</HelpText>
-              <CheckboxGroup options={KNOWN_ISSUES} values={answers.q3_1_knownIssues}
-                onChange={v => set('q3_1_knownIssues', applyNoneMutex(answers.q3_1_knownIssues || [], v, 'None identified'))} />
+              <CheckboxGroup options={knownIssuesFor(answers.q1_2_projectType)} values={answers.q3_1_knownIssues}
+                onChange={v => set('q3_1_knownIssues', applyNoneMutex(answers.q3_1_knownIssues || [], v, KNOWN_ISSUE_NONE))} />
             </QCard>
 
-            <QCard>
-              <Label>Q3.2 — Previous works or relevant history</Label>
-              <Textarea value={answers.q3_2_previousWorks} onChange={v => set('q3_2_previousWorks', v)} placeholder="e.g. M&E replaced in 2015. New roof in 2018. No structural works since original construction." rows={3} />
-            </QCard>
+            {isQuestionShown('q3_2_previousWorks', answers.q1_2_projectType) && (
+              <QCard>
+                <Label>Q3.2 — Previous works or relevant history</Label>
+                <Textarea value={answers.q3_2_previousWorks} onChange={v => set('q3_2_previousWorks', v)} placeholder="e.g. M&E replaced in 2015. New roof in 2018. No structural works since original construction." rows={3} />
+              </QCard>
+            )}
 
             <QCard>
               <Label>Q3.3 — Surveys and reports available</Label>
@@ -1635,8 +1729,8 @@ export default function QuestionnairePage() {
                   and surveyWeeks is never added to the total. Only the risk
                   claim is true. */}
               <HelpText>Select all that apply. Having surveys in hand reduces the risk allowance in the estimate.</HelpText>
-              <CheckboxGroup options={SURVEY_OPTIONS} values={answers.q3_3_surveys}
-                onChange={v => set('q3_3_surveys', applyNoneMutex(answers.q3_3_surveys || [], v, 'None'))} />
+              <CheckboxGroup options={surveysFor(answers.q1_2_projectType, answers.q1_4_buildingAge)} values={answers.q3_3_surveys}
+                onChange={v => set('q3_3_surveys', applyNoneMutex(answers.q3_3_surveys || [], v, SURVEY_NONE))} />
               {Array.isArray(answers.q3_3_surveys) && answers.q3_3_surveys.includes('Other') && (
                 <div className="mt-3">
                   <Textarea value={answers.q3_3_surveysOther} onChange={v => set('q3_3_surveysOther', v)}
@@ -1668,8 +1762,8 @@ export default function QuestionnairePage() {
             </QCard>
 
             <QCard>
-              <Label>Q3.6 — Occupation during works</Label>
-              <HelpText>Affects construction duration and preliminary costs.</HelpText>
+              <Label>{occupationCopyFor(answers.q1_2_projectType).label}</Label>
+              <HelpText>{occupationCopyFor(answers.q1_2_projectType).help}</HelpText>
               <RadioGroup options={OCCUPATION_OPTIONS} value={answers.q3_6_occupation} onChange={v => set('q3_6_occupation', v)} />
             </QCard>
 
@@ -1690,11 +1784,6 @@ export default function QuestionnairePage() {
               <HelpText>Select all that apply. Each one adds a specific statutory or programme risk the report must address.</HelpText>
               <CheckboxGroup options={SITE_CONTEXT_OPTIONS} values={answers.q3_8_siteContext}
                 onChange={v => set('q3_8_siteContext', applyNoneMutex(answers.q3_8_siteContext || [], v, SITE_CONTEXT_NONE))} />
-              {hrbLikelyFromAnswers(answers) && !(answers.q3_8_siteContext || []).some(v => /higher-risk/i.test(v)) && (
-                <p role="status" style={{ marginTop: 10, padding: '10px 12px', borderRadius: 8, fontSize: 13, border: '1px solid var(--amber)', backgroundColor: 'rgba(196,134,26,.07)', color: 'var(--ink)' }}>
-                  Your answers (7+ storeys, {answers.q1_3_buildingUse}) suggest this may be a <strong>higher-risk building</strong> under the Building Safety Act. Tick the option above if so — it adds the Gateway 2 approval period and the associated fees.
-                </p>
-              )}
             </QCard>
           </div>
         )}
@@ -1822,6 +1911,7 @@ export default function QuestionnairePage() {
               note="Optional. Complete only if you want the report to include an ROI analysis."
             />
 
+            {isQuestionShown('q5_1_financialBenefit', answers.q1_2_projectType) && (
             <QCard>
               <Label>Q5.1 — Financial benefit type</Label>
               <HelpText>Select all that apply. &lsquo;No direct financial return&rsquo; is mutually exclusive.</HelpText>
@@ -1832,8 +1922,9 @@ export default function QuestionnairePage() {
                   applyNoneMutex(answers.q5_1_financialBenefit || [], v, NO_FINANCIAL_RETURN))}
               />
             </QCard>
+            )}
 
-            {showRoiAmount && (
+            {showRoiAmount && isQuestionShown('q5_2_annualBenefit', answers.q1_2_projectType) && (
               <QCard>
                 <Label>Q5.2 — Estimated annual benefit (£)</Label>
                 <HelpText>Used to calculate simple payback period and ROI.</HelpText>
