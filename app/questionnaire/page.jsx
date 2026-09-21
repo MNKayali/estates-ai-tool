@@ -10,6 +10,7 @@ import { PROJECT_TYPES, VISIBLE_GROUPS, priceableFor } from '../../lib/projectTy
 import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
   showsHeightQuestion, KNOWN_ISSUE_NONE, SURVEY_NONE,
+  isQuestionRequired, sectionCounts, unansweredRequired, progressPercent,
 } from '../../lib/questionSets.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
@@ -292,6 +293,21 @@ function SubHead({ title, note }) {
       <p className="eyebrow" style={{ marginBottom: note ? 6 : 0 }}>{title}</p>
       {note && <p style={{ color: 'var(--text-soft)', fontSize: '13.5px', lineHeight: 1.6, margin: 0 }}>{note}</p>}
     </div>
+  )
+}
+function Disclosure({ open, onToggle, label, note }) {
+  return (
+    <button type="button" onClick={onToggle} aria-expanded={open}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+        padding: '13px 16px', borderRadius: 10, cursor: 'pointer', textAlign: 'left',
+        border: '1.5px solid var(--border)', background: 'var(--tint)',
+        fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--ink)',
+      }}>
+      <span style={{ fontWeight: 700, transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .18s ease', display: 'inline-block' }}>›</span>
+      <span style={{ fontWeight: 600 }}>{label}</span>
+      <span style={{ color: 'var(--text-mute)', fontSize: 13 }}>{note}</span>
+    </button>
   )
 }
 function TextInput({ value, onChange, placeholder }) {
@@ -643,6 +659,21 @@ export default function QuestionnairePage() {
   const [collapsedGroups, setCollapsedGroups] = useState(() => new Set())
   // Group 4's sector-specific tail is folded until asked for — see the picker.
   const [showSectorTail, setShowSectorTail] = useState(false)
+  // Q5 and Q6.1 are entirely optional and sit at the end of the longest step.
+  // Collapsed by default so the default last step is seven questions rather
+  // than ten — but opened when a draft already holds an answer, so a returning
+  // user never finds their own input hidden.
+  const [showFinancialCase, setShowFinancialCase] = useState(false)
+  const [showReportInstructions, setShowReportInstructions] = useState(false)
+  // Deps on `answers` (not `[]`): the draft is rehydrated asynchronously by the
+  // localStorage-load effect below, so on first mount `answers` is still `{}`
+  // and a `[]`-only run would never see a returning user's saved values. This
+  // only ever sets state to `true`, so re-running on every keystroke is inert
+  // once opened.
+  useEffect(() => {
+    if ((answers.q5_1_financialBenefit || []).length > 0 || answers.q5_2_annualBenefit) setShowFinancialCase(true)
+    if (answers.q6_2_instructions) setShowReportInstructions(true)
+  }, [answers])
   const toggleGroupCollapse = g =>
     setCollapsedGroups(prev => { const n = new Set(prev); n.has(g) ? n.delete(g) : n.add(g); return n })
 
@@ -947,6 +978,23 @@ export default function QuestionnairePage() {
         errs.q2_3_interventionLevel = 'Level of intervention is required'
       }
     }
+    // Sections 3 and 4 had no validation at all. Every key here has a one-click
+    // None / Unsure option, and isQuestionRequired refuses to demand a question
+    // that is not shown, so this cannot deadlock a section.
+    const LABELS = {
+      q3_1_knownIssues:       'Known issues',
+      q3_3_surveys:           'Surveys and reports available',
+      q3_4_planningConsents:  'Planning consent',
+      q3_5_accessConstraints: 'Access constraints',
+      q3_6_occupation:        'Occupation during works',
+      q3_8_siteContext:       'Site and building context',
+      q4_5_designStage:       'Design stage already reached',
+    }
+    for (const key of unansweredRequired(sec, answers.q1_2_projectType, answers)) {
+      if (!errs[key] && LABELS[key]) {
+        errs[key] = `${LABELS[key]} is required — pick an option, including "None" if that is the answer`
+      }
+    }
     setValidationErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -1059,6 +1107,9 @@ export default function QuestionnairePage() {
     )
   }
 
+  const counts = sectionCounts(section, answers.q1_2_projectType, answers)
+  const openRequired = unansweredRequired(section, answers.q1_2_projectType, answers)
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'transparent' }}>
       {/* Header */}
@@ -1106,6 +1157,11 @@ export default function QuestionnairePage() {
               )
             })}
           </div>
+          <div style={{ marginTop: 8, textAlign: 'right' }}>
+            <span className="mono" style={{ fontSize: 10, letterSpacing: '.06em', color: 'var(--text-mute)' }}>
+              {progressPercent(section, SECTIONS.length)}% COMPLETE
+            </span>
+          </div>
         </div>
       </div>
 
@@ -1114,7 +1170,7 @@ export default function QuestionnairePage() {
         <div className="mb-8">
           <div style={{ marginBottom: 10 }}>
             <span className="mono" style={{ color: 'var(--amber-deep)', fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase' }}>
-              Section {section} of {SECTIONS.length}
+              Section {section} of {SECTIONS.length} · {counts.total} question{counts.total === 1 ? '' : 's'} · {counts.required === 0 ? 'none required' : `${counts.required} need an answer`}
             </span>
           </div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '28px', color: 'var(--ink)', letterSpacing: '-0.2px', margin: '0 0 6px' }}>{SECTIONS[section - 1].title}</h1>
@@ -1709,10 +1765,11 @@ export default function QuestionnairePage() {
         {section === 3 && (
           <div className="flex flex-col gap-5 section-enter">
             <QCard>
-              <Label>Q3.1 — Known issues</Label>
+              <Label required>Q3.1 — Known issues</Label>
               <HelpText>Select all that apply. These trigger risk allowance adjustments.</HelpText>
               <CheckboxGroup options={knownIssuesFor(answers.q1_2_projectType)} values={answers.q3_1_knownIssues}
                 onChange={v => set('q3_1_knownIssues', applyNoneMutex(answers.q3_1_knownIssues || [], v, KNOWN_ISSUE_NONE))} />
+              {validationErrors.q3_1_knownIssues && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_1_knownIssues}</p>}
             </QCard>
 
             {isQuestionShown('q3_2_previousWorks', answers.q1_2_projectType) && (
@@ -1723,7 +1780,7 @@ export default function QuestionnairePage() {
             )}
 
             <QCard>
-              <Label>Q3.3 — Surveys and reports available</Label>
+              <Label required>Q3.3 — Surveys and reports available</Label>
               {/* The old copy promised surveys also reduce "survey programme
                   time". They do not: survey activities run parallel to design
                   and surveyWeeks is never added to the total. Only the risk
@@ -1737,16 +1794,18 @@ export default function QuestionnairePage() {
                     placeholder="Please describe the survey or report available" rows={2} />
                 </div>
               )}
+              {validationErrors.q3_3_surveys && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_3_surveys}</p>}
             </QCard>
 
             <QCard>
-              <Label>Q3.4 — Planning consent required</Label>
+              <Label required>Q3.4 — Planning consent required</Label>
               <HelpText>Select the most likely planning pathway. If unsure, choose 'Unsure' — pre-application advice is recommended.</HelpText>
               <RadioGroup options={PLANNING_OPTIONS} value={answers.q3_4_planningConsents} onChange={v => set('q3_4_planningConsents', v)} />
+              {validationErrors.q3_4_planningConsents && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_4_planningConsents}</p>}
             </QCard>
 
             <QCard>
-              <Label>Q3.5 — Access constraints</Label>
+              <Label required>Q3.5 — Access constraints</Label>
               <HelpText>Select all that apply. These affect the contractor's preliminaries allowance.</HelpText>
               {/* "No access constraints" must be exclusive: ticked alongside a
                   real constraint it silently suppressed every access risk seed
@@ -1759,12 +1818,14 @@ export default function QuestionnairePage() {
                     placeholder="Please describe the access constraint" rows={2} />
                 </div>
               )}
+              {validationErrors.q3_5_accessConstraints && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_5_accessConstraints}</p>}
             </QCard>
 
             <QCard>
-              <Label>{occupationCopyFor(answers.q1_2_projectType).label}</Label>
+              <Label required>{occupationCopyFor(answers.q1_2_projectType).label}</Label>
               <HelpText>{occupationCopyFor(answers.q1_2_projectType).help}</HelpText>
               <RadioGroup options={OCCUPATION_OPTIONS} value={answers.q3_6_occupation} onChange={v => set('q3_6_occupation', v)} />
+              {validationErrors.q3_6_occupation && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_6_occupation}</p>}
             </QCard>
 
             <QCard>
@@ -1780,10 +1841,11 @@ export default function QuestionnairePage() {
                 above Q3.7, which is exactly the kind of jumble that makes a
                 precision tool look careless. */}
             <QCard>
-              <Label>Q3.8 — Site and building context</Label>
+              <Label required>Q3.8 — Site and building context</Label>
               <HelpText>Select all that apply. Each one adds a specific statutory or programme risk the report must address.</HelpText>
               <CheckboxGroup options={SITE_CONTEXT_OPTIONS} values={answers.q3_8_siteContext}
                 onChange={v => set('q3_8_siteContext', applyNoneMutex(answers.q3_8_siteContext || [], v, SITE_CONTEXT_NONE))} />
+              {validationErrors.q3_8_siteContext && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_8_siteContext}</p>}
             </QCard>
           </div>
         )}
@@ -1885,9 +1947,10 @@ export default function QuestionnairePage() {
                 to the one the code, CLAUDE.md and the report all call Q4.5. The
                 keys are canonical and unchanged; only the labels moved. */}
             <QCard>
-              <Label>Q4.5 — Design stage already reached</Label>
+              <Label required>Q4.5 — Design stage already reached</Label>
               <HelpText>Determines the professional fees percentage applied to the cost estimate and the viable procurement routes.</HelpText>
               <RadioGroup options={DESIGN_STAGE_OPTIONS} value={answers.q4_5_designStage} onChange={v => set('q4_5_designStage', v)} />
+              {validationErrors.q4_5_designStage && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_5_designStage}</p>}
             </QCard>
 
             <QCard>
@@ -1905,36 +1968,43 @@ export default function QuestionnairePage() {
               <RadioGroup options={FUNDING_OPTIONS} value={answers.q4_7_funding} onChange={v => set('q4_7_funding', v)} />
             </QCard>
 
-            {/* ── Financial case (was its own step) ──────────────────────────── */}
-            <SubHead
-              title="Financial case"
-              note="Optional. Complete only if you want the report to include an ROI analysis."
-            />
+            {/* ── Financial case (was its own step) ───────────────────────────── */}
+            {/* Collapsed by default — folding it behind a disclosure, rather than
+                the always-visible SubHead this used to be, is what takes the
+                default last step from ten questions down to seven. Opened
+                automatically (see the showFinancialCase effect above) when a
+                returning draft already holds an answer here. */}
+            <Disclosure open={showFinancialCase} onToggle={() => setShowFinancialCase(v => !v)}
+              label="Add a financial case" note="Optional — gives the report a payback and ROI section" />
 
-            {isQuestionShown('q5_1_financialBenefit', answers.q1_2_projectType) && (
-            <QCard>
-              <Label>Q5.1 — Financial benefit type</Label>
-              <HelpText>Select all that apply. &lsquo;No direct financial return&rsquo; is mutually exclusive.</HelpText>
-              <CheckboxGroup
-                options={FINANCIAL_BENEFIT_OPTIONS}
-                values={answers.q5_1_financialBenefit}
-                onChange={v => set('q5_1_financialBenefit',
-                  applyNoneMutex(answers.q5_1_financialBenefit || [], v, NO_FINANCIAL_RETURN))}
-              />
-            </QCard>
-            )}
+            {showFinancialCase && (
+              <>
+                {isQuestionShown('q5_1_financialBenefit', answers.q1_2_projectType) && (
+                <QCard>
+                  <Label>Q5.1 — Financial benefit type</Label>
+                  <HelpText>Select all that apply. &lsquo;No direct financial return&rsquo; is mutually exclusive.</HelpText>
+                  <CheckboxGroup
+                    options={FINANCIAL_BENEFIT_OPTIONS}
+                    values={answers.q5_1_financialBenefit}
+                    onChange={v => set('q5_1_financialBenefit',
+                      applyNoneMutex(answers.q5_1_financialBenefit || [], v, NO_FINANCIAL_RETURN))}
+                  />
+                </QCard>
+                )}
 
-            {showRoiAmount && isQuestionShown('q5_2_annualBenefit', answers.q1_2_projectType) && (
-              <QCard>
-                <Label>Q5.2 — Estimated annual benefit (£)</Label>
-                <HelpText>Used to calculate simple payback period and ROI.</HelpText>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
-                  <input type="number" value={answers.q5_2_annualBenefit || ''} onChange={e => set('q5_2_annualBenefit', e.target.value)} placeholder="e.g. 80000" min={0}
-                    className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--navy)]"
-                    style={{ border: '1.5px solid var(--border)', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
-                </div>
-              </QCard>
+                {showRoiAmount && isQuestionShown('q5_2_annualBenefit', answers.q1_2_projectType) && (
+                  <QCard>
+                    <Label>Q5.2 — Estimated annual benefit (£)</Label>
+                    <HelpText>Used to calculate simple payback period and ROI.</HelpText>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
+                      <input type="number" value={answers.q5_2_annualBenefit || ''} onChange={e => set('q5_2_annualBenefit', e.target.value)} placeholder="e.g. 80000" min={0}
+                        className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--navy)]"
+                        style={{ border: '1.5px solid var(--border)', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+                    </div>
+                  </QCard>
+                )}
+              </>
             )}
 
             {/* ── Report preferences (was its own step) ──────────────────────── */}
@@ -1943,17 +2013,24 @@ export default function QuestionnairePage() {
                 seeing a report, and it was nearly redundant: the ROI section
                 already hides itself when no financial benefit was given, and
                 the constraints section when the AI returns none. Every section
-                is now always included. */}
+                is now always included. The note below stays visible outside the
+                disclosure — it tells the user what the report contains, which
+                is information, not an input. */}
             <SubHead
               title="Your report"
               note="Every section is included: Executive Summary, Scope, Risk Register, Programme, Order of Cost Estimate, Procurement, Constraints, ROI where you gave a financial benefit, and Recommendations."
             />
 
-            <QCard>
-              <Label>Q6.1 — Additional report instructions</Label>
-              <HelpText>Any specific tone, emphasis, or content requirements for the AI narrative.</HelpText>
-              <Textarea value={answers.q6_2_instructions} onChange={v => set('q6_2_instructions', v)} placeholder="e.g. Emphasise the compliance risk. Write for a non-technical audience. Focus on the programme risk." rows={3} />
-            </QCard>
+            <Disclosure open={showReportInstructions} onToggle={() => setShowReportInstructions(v => !v)}
+              label="Add instructions for the report" note="Optional — tone, emphasis or specific content" />
+
+            {showReportInstructions && (
+              <QCard>
+                <Label>Q6.1 — Additional report instructions</Label>
+                <HelpText>Any specific tone, emphasis, or content requirements for the AI narrative.</HelpText>
+                <Textarea value={answers.q6_2_instructions} onChange={v => set('q6_2_instructions', v)} placeholder="e.g. Emphasise the compliance risk. Write for a non-technical audience. Focus on the programme risk." rows={3} />
+              </QCard>
+            )}
 
             {/* Review panel — sits immediately above the Generate button so the
                 last thing seen before committing is what was actually captured. */}
@@ -1994,6 +2071,14 @@ export default function QuestionnairePage() {
               </div>
             </div>
           </div>
+        )}
+
+        {section < SECTIONS.length && (
+          <p role="status" style={{ marginTop: 18, textAlign: 'center', fontSize: 13, color: openRequired.length ? 'var(--amber-deep)' : 'var(--text-mute)' }}>
+            {openRequired.length
+              ? `${openRequired.length} answer${openRequired.length === 1 ? '' : 's'} still needed in this section`
+              : 'All set — continue when you’re ready.'}
+          </p>
         )}
 
         {/* ─── Navigation ────────────────────────────────────────────────────── */}
