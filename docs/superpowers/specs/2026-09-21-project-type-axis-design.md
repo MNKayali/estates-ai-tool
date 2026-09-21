@@ -137,7 +137,7 @@ resolve correctly with no change.
 | The ~10 proposed new questions that need no workbook edit | 3 |
 | Extension priced from New Build rates plus uplifts, instead of its own columns | 4 — moves numbers, needs the workbook |
 | The 33 missing Extension rates; substructure rates; 5.1b | 4 — Excel work |
-| Splitting Other or mixed by area so each part uses its own rate family | Later — a cost-engine change |
+| Splitting Other or mixed by area so each part uses its own rate family | **Dropped — decided 21 September 2026.** See §10. |
 | Narrowing the scope picker itself | The original Q2.2 problem, unchanged by this slice |
 | Programme's construction-type selector has no group-1 (substructure) test. `selectConstructionId` could previously only reach it via New Build or Extension, which return earlier — every other type had group 1 hidden by `priceableFor()`. This slice makes it reachable on Other or mixed for the first time, so a mixed project with foundations now falls through to `CF2` (Fit-Out — Basic/Cat A) for its construction duration. Not a regression from this slice — a pre-existing gap this slice exposes — but the Construction sheet has no mixed row to pick instead, and inventing one in code would violate the no-numbers-in-code rule | Later — needs a workbook row |
 
@@ -149,3 +149,41 @@ resolve correctly with no change.
 | Disclose the rate fallback in the client report? | **No.** Recorded as an internal diagnostic instead. See §2. |
 
 No open questions. Ready for an implementation plan.
+
+## 10. Two decisions taken after this slice shipped
+
+*21 September 2026.*
+
+### The Other-or-mixed area split is dropped, not deferred
+
+The original note called this "later work". It is now out for good.
+
+Splitting a mixed project by area means asking the user how many square metres
+are new build and how many are refurbishment. **At RIBA Stage 0–1 they do not
+know that.** A feasibility study is precisely the stage before anyone has drawn
+the split, so the question would force a number the user has to invent — the
+same failure as asking for an annual benefit figure rather than the inputs that
+produce it. An invented split feeding a rate-family choice would look more
+precise than the single-family estimate it replaced, while being less reliable.
+
+**So the rate-family fallback in §2 is not a stopgap — it is the answer.** An
+Other-or-mixed project prices from the refurbishment columns and falls back to
+the new build column where no refurbishment rate exists. That is the permanent
+design for this project type.
+
+The residual approximation stands and is unchanged: an element that exists in
+both families prices at refurbishment rates even when it sits in the new-build
+portion. The estimate is a single-family approximation of a two-family project,
+which is an honest thing for a Stage 0–1 order-of-cost estimate to be.
+
+### Extension rates stay as they are
+
+The review found the workbook's Extension rate columns read as a *discount* to
+New Build — a structural frame at £130 against £350, a roof at £75 against £150
+— where an extension normally prices at a premium, because fixed costs spread
+over fewer square metres and the site is constrained by a live building.
+
+**No change for now.** Recalibrating a rate column is a pricing decision for the
+workbook owner, not something to infer from first principles, and nothing else
+in the questionnaire work depends on it. The finding stays recorded here so it
+is a known position rather than an oversight.
