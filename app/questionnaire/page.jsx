@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { matchesBuildingUse } from '../../lib/buildingUse.js'
 import { areaQuestionLabel, areaHelpText } from '../../lib/labels.js'
-import { SITE_CONTEXT_OPTIONS, SITE_CONTEXT_NONE, hrbLikelyFromAnswers, isHigherRiskBuilding } from '../../lib/siteContext.js'
+import { SITE_CONTEXT_OPTIONS, SITE_CONTEXT_NONE, isHigherRiskBuilding } from '../../lib/siteContext.js'
 import { PROJECT_TYPES, VISIBLE_GROUPS, priceableFor } from '../../lib/projectTypes.js'
 import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
@@ -29,6 +29,13 @@ const STORAGE_KEY = 'estatesAI_v4_answers'
 // lost its higher-risk option, and Q1.6 (building height) is new. A v3 draft
 // can hold ticked options the current type no longer offers.
 const STORAGE_SCHEMA_VERSION = 4
+
+// Project types that ask Q1.2a (storeys) and, above 5 storeys, Q1.6 (height).
+// Shared by both questions' render conditions and the pruning effect below so
+// the three can't drift apart the way Q1.2a and Q1.6 briefly did (Q1.6's own
+// gate forgot the project-type half of this and derived higher-risk status
+// for Demolition only / External works only off a stale storeys value).
+const STOREYS_TYPES = ['New Build', 'Refurbishment', 'Extension']
 
 // Four steps, down from six.
 //
@@ -849,7 +856,6 @@ export default function QuestionnairePage() {
         && keptSurveys.length === (prev.q3_3_surveys || []).length) return prev
       return { ...prev, q3_1_knownIssues: keptIssues, q3_3_surveys: keptSurveys }
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers.q1_2_projectType, answers.q1_4_buildingAge])
 
   function validateSection(sec) {
@@ -1142,7 +1148,7 @@ export default function QuestionnairePage() {
               )}
               {validationErrors.q1_2_projectType && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_2_projectType}</p>}
 
-              {['New Build', 'Refurbishment', 'Extension'].includes(answers.q1_2_projectType) && (
+              {STOREYS_TYPES.includes(answers.q1_2_projectType) && (
                 <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
                   <Label>Q1.2a — Number of storeys{answers.q1_2_projectType === 'Extension' ? ' in the extension' : ''}</Label>
                   <SelectInput value={answers.q1_2_storeys || '1'} onChange={v => set('q1_2_storeys', v)}>
@@ -1194,10 +1200,17 @@ export default function QuestionnairePage() {
               </QCard>
             )}
 
-            {showsHeightQuestion(answers.q1_2_storeys) && (
+            {STOREYS_TYPES.includes(answers.q1_2_projectType) && showsHeightQuestion(answers.q1_2_storeys) && (
               <QCard>
                 <Label>Q1.6 — Building height</Label>
-                <HelpText>Is the building 18 metres or taller, measured to the floor level of the top storey?</HelpText>
+                {/* Q1.2a asks for the EXTENSION's own storeys on this type, not
+                    the host building's — so the question here must ask about
+                    the completed building (existing + extension), which is
+                    the only thing the higher-risk derivation can use for an
+                    Extension. See the A2 comment in lib/siteContext.js. */}
+                <HelpText>{answers.q1_2_projectType === 'Extension'
+                  ? 'Is the completed building — the existing building plus this extension — 18 metres or taller, measured to the floor level of the top storey?'
+                  : 'Is the building 18 metres or taller, measured to the floor level of the top storey?'}</HelpText>
                 <RadioGroup
                   options={['Yes', 'No', 'Not sure']}
                   value={answers.q1_6_heightOver18m}
