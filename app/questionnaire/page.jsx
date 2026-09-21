@@ -1179,7 +1179,7 @@ export default function QuestionnairePage() {
         <div className="mb-8">
           <div style={{ marginBottom: 10 }}>
             <span className="mono" style={{ color: 'var(--amber-deep)', fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase' }}>
-              Section {section} of {SECTIONS.length} · {counts.total} question{counts.total === 1 ? '' : 's'} · {counts.required === 0 ? 'none required' : `${counts.required} need an answer`}
+              Section {section} of {SECTIONS.length} · {counts.total} question{counts.total === 1 ? '' : 's'} · {counts.required === 0 ? 'none required' : `${counts.required} need${counts.required === 1 ? 's' : ''} an answer`}
             </span>
           </div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '28px', color: 'var(--ink)', letterSpacing: '-0.2px', margin: '0 0 6px' }}>{SECTIONS[section - 1].title}</h1>
@@ -1982,36 +1982,42 @@ export default function QuestionnairePage() {
                 the always-visible SubHead this used to be, is what takes the
                 default last step from ten questions down to seven. Opened
                 automatically (see the showFinancialCase effect above) when a
-                returning draft already holds an answer here. */}
-            <Disclosure open={showFinancialCase} onToggle={() => setShowFinancialCase(v => !v)}
-              label="Add a financial case" note="Optional — gives the report a payback and ROI section" />
-
-            {showFinancialCase && (
+                returning draft already holds an answer here.
+                The whole block (button included) is gated on isQuestionShown:
+                Demolition only hides Q5.1/Q5.2 entirely, and without this outer
+                guard the disclosure button still rendered and opened onto an
+                empty panel — "Add a financial case" with nothing behind it. */}
+            {isQuestionShown('q5_1_financialBenefit', answers.q1_2_projectType) && (
               <>
-                {isQuestionShown('q5_1_financialBenefit', answers.q1_2_projectType) && (
-                <QCard>
-                  <Label>Q5.1 — Financial benefit type</Label>
-                  <HelpText>Select all that apply. &lsquo;No direct financial return&rsquo; is mutually exclusive.</HelpText>
-                  <CheckboxGroup
-                    options={FINANCIAL_BENEFIT_OPTIONS}
-                    values={answers.q5_1_financialBenefit}
-                    onChange={v => set('q5_1_financialBenefit',
-                      applyNoneMutex(answers.q5_1_financialBenefit || [], v, NO_FINANCIAL_RETURN))}
-                  />
-                </QCard>
-                )}
+                <Disclosure open={showFinancialCase} onToggle={() => setShowFinancialCase(v => !v)}
+                  label="Add a financial case" note="Optional — gives the report a payback and ROI section" />
 
-                {showRoiAmount && isQuestionShown('q5_2_annualBenefit', answers.q1_2_projectType) && (
-                  <QCard>
-                    <Label>Q5.2 — Estimated annual benefit (£)</Label>
-                    <HelpText>Used to calculate simple payback period and ROI.</HelpText>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
-                      <input type="number" value={answers.q5_2_annualBenefit || ''} onChange={e => set('q5_2_annualBenefit', e.target.value)} placeholder="e.g. 80000" min={0}
-                        className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--navy)]"
-                        style={{ border: '1.5px solid var(--border)', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
-                    </div>
-                  </QCard>
+                {showFinancialCase && (
+                  <>
+                    <QCard>
+                      <Label>Q5.1 — Financial benefit type</Label>
+                      <HelpText>Select all that apply. &lsquo;No direct financial return&rsquo; is mutually exclusive.</HelpText>
+                      <CheckboxGroup
+                        options={FINANCIAL_BENEFIT_OPTIONS}
+                        values={answers.q5_1_financialBenefit}
+                        onChange={v => set('q5_1_financialBenefit',
+                          applyNoneMutex(answers.q5_1_financialBenefit || [], v, NO_FINANCIAL_RETURN))}
+                      />
+                    </QCard>
+
+                    {showRoiAmount && isQuestionShown('q5_2_annualBenefit', answers.q1_2_projectType) && (
+                      <QCard>
+                        <Label>Q5.2 — Estimated annual benefit (£)</Label>
+                        <HelpText>Used to calculate simple payback period and ROI.</HelpText>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
+                          <input type="number" value={answers.q5_2_annualBenefit || ''} onChange={e => set('q5_2_annualBenefit', e.target.value)} placeholder="e.g. 80000" min={0}
+                            className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--navy)]"
+                            style={{ border: '1.5px solid var(--border)', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
+                        </div>
+                      </QCard>
+                    )}
+                  </>
                 )}
               </>
             )}
