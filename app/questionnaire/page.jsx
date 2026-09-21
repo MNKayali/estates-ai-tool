@@ -264,9 +264,13 @@ const FINANCIAL_BENEFIT_OPTIONS = [
 
 // ─── UI Components ────────────────────────────────────────────────────────────
 
-function QCard({ children }) {
+// `qkey` is optional and purely an anchor: it puts a `data-qkey` attribute on
+// the card so scrollToFirstError() (see submit()/next()) can find the first
+// invalid field's card and scroll it into view. Cards for fields that are
+// never validated simply omit it.
+function QCard({ children, qkey }) {
   return (
-    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '28px', boxShadow: 'var(--shadow-1)' }}>
+    <div data-qkey={qkey} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '28px', boxShadow: 'var(--shadow-1)' }}>
       {children}
     </div>
   )
@@ -1005,11 +1009,35 @@ export default function QuestionnairePage() {
       }
     }
     setValidationErrors(errs)
-    return Object.keys(errs).length === 0
+    // Returning the errs object itself (not just a boolean) lets next()/submit()
+    // find which field failed without re-deriving it from state that may not
+    // have committed to the DOM yet — see scrollToFirstError below.
+    return errs
+  }
+
+  // A blank required field used to fail validateSection() silently: no scroll,
+  // no banner, nothing visible changed. Q4.5 in particular sits about ten cards
+  // and two disclosures above the Generate button, so a user could click
+  // Generate on a fully-scrolled page and see no evidence anything happened.
+  // This finds the first field (in the section's own render order) that has an
+  // error and scrolls it into view. `data-qkey` is a minimal addition to the
+  // handful of QCards wrapping a validated field — least invasive anchor
+  // available without restructuring QCard itself. requestAnimationFrame gives
+  // the just-set validationErrors state one paint to reach the DOM before the
+  // query runs.
+  function scrollToFirstError(sec, errs) {
+    const order = QUESTIONS_BY_SECTION[sec] || []
+    const firstKey = order.find(k => errs[k])
+    if (!firstKey) return
+    requestAnimationFrame(() => {
+      document.querySelector(`[data-qkey="${firstKey}"]`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
   }
 
   function next() {
-    if (!validateSection(section)) return
+    const errs = validateSection(section)
+    if (Object.keys(errs).length > 0) { scrollToFirstError(section, errs); return }
     setSection(s => Math.min(s + 1, SECTIONS.length))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -1027,7 +1055,8 @@ export default function QuestionnairePage() {
   }
 
   async function submit() {
-    if (!validateSection(section)) return
+    const errs = validateSection(section)
+    if (Object.keys(errs).length > 0) { scrollToFirstError(section, errs); return }
     setLoading(true)
     setError('')
     setAuthError(false)
@@ -1215,14 +1244,14 @@ export default function QuestionnairePage() {
         {/* ─── SECTION 1 ─────────────────────────────────────────────────────── */}
         {section === 1 && (
           <div className="flex flex-col gap-5 section-enter">
-            <QCard>
+            <QCard qkey="q1_0_projectName">
               <Label required>Q1.0 — Project title</Label>
               <HelpText>This becomes the heading of your report. Include the work type, building type, and location — e.g. "Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" or "New Sports Hall, University of Birmingham, Edgbaston".</HelpText>
               <TextInput value={answers.q1_0_projectName} onChange={v => set('q1_0_projectName', v)} placeholder="e.g. Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" />
               {validationErrors.q1_0_projectName && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_0_projectName}</p>}
             </QCard>
 
-            <QCard>
+            <QCard qkey="q1_1_postcode">
               <Label required>Q1.1 — Postcode</Label>
               <HelpText>Used to apply the BCIS regional cost factor. First 2–3 characters are sufficient.</HelpText>
               <TextInput value={answers.q1_1_postcode} onChange={v => set('q1_1_postcode', v)} placeholder="e.g. B15" />
@@ -1235,7 +1264,7 @@ export default function QuestionnairePage() {
               />
             </QCard>
 
-            <QCard>
+            <QCard qkey="q1_2_projectType">
               <Label required>Q1.2 — Project type</Label>
               <SelectInput value={answers.q1_2_projectType} onChange={v => set('q1_2_projectType', v)}>
                 <option value="">Select project type...</option>
@@ -1267,7 +1296,7 @@ export default function QuestionnairePage() {
               )}
             </QCard>
 
-            <QCard>
+            <QCard qkey="q1_3_buildingUse">
               <Label required>Q1.3 — Building use</Label>
               <HelpText>Filters the scope list to the elements that apply, and selects the benchmark band the estimate is sense-checked against.</HelpText>
               <SelectInput value={answers.q1_3_buildingUse} onChange={v => set('q1_3_buildingUse', v)}>
@@ -1292,7 +1321,7 @@ export default function QuestionnairePage() {
             </QCard>
 
             {isQuestionShown('q1_4_buildingAge', answers.q1_2_projectType) && (
-              <QCard>
+              <QCard qkey="q1_4_buildingAge">
                 <Label required>Q1.4 — Building age</Label>
                 <div style={{ marginTop: 4 }}>
                   <RadioGroup options={BUILDING_AGES} value={answers.q1_4_buildingAge} onChange={v => set('q1_4_buildingAge', v)} />
@@ -1329,7 +1358,7 @@ export default function QuestionnairePage() {
               </QCard>
             )}
 
-            <QCard>
+            <QCard qkey="q1_5_size">
               <Label required>{areaQuestionLabel(answers.q1_2_projectType)}</Label>
               <HelpText>{areaHelpText(answers.q1_2_projectType)}</HelpText>
               <NumberInput value={answers.q1_5_size} onChange={v => set('q1_5_size', v)} placeholder="e.g. 500" min={1} />
@@ -1341,7 +1370,7 @@ export default function QuestionnairePage() {
         {/* ─── SECTION 2 ─────────────────────────────────────────────────────── */}
         {section === 2 && (
           <div className="flex flex-col gap-5 section-enter">
-            <QCard>
+            <QCard qkey="q2_1_objective">
               <Label required>Q2.1 — Project objective</Label>
               <HelpText>Describe what you are trying to achieve and why this project is needed.</HelpText>
               <Textarea value={answers.q2_1_objective} onChange={v => set('q2_1_objective', v)} placeholder="e.g. Refurbish the first floor to provide modern open-plan office space and upgrade the M&E to current standards." rows={4} />
@@ -1349,7 +1378,7 @@ export default function QuestionnairePage() {
             </QCard>
 
             {isRefurb && (
-              <QCard>
+              <QCard qkey="q2_3_interventionLevel">
                 <Label required>Q2.3 — Level of intervention</Label>
                 <HelpText>Determines the rate band applied to costs and the design duration multiplier. Scope items that require a higher level are greyed out below.</HelpText>
                 <div className="flex flex-col gap-3">
@@ -1376,7 +1405,7 @@ export default function QuestionnairePage() {
             )}
 
             {/* Q2.3 Scope picker — its own visual container */}
-            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '28px', boxShadow: 'var(--shadow-1)' }}>
+            <div data-qkey="q2_2_scopeItems" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '28px', boxShadow: 'var(--shadow-1)' }}>
               <Label>Q2.2 — Scope of works</Label>
               <HelpText>Tick every element that is in scope. Use Other / Specialist below for anything not listed.</HelpText>
               <ScopePresetBar
@@ -1718,7 +1747,7 @@ export default function QuestionnairePage() {
                 External Works has a single rate column, so the whole question is
                 meaningless there. */}
             {specLevelsForType.length > 0 && isQuestionShown('q2_4_specLevel', answers.q1_2_projectType) && (
-            <QCard>
+            <QCard qkey="q2_4_specLevel">
               <Label required>Q2.4 — Specification level</Label>
               <HelpText>Selects the rate column from the NRM1 benchmark table.</HelpText>
               <div className="flex flex-col gap-3">
@@ -1773,7 +1802,7 @@ export default function QuestionnairePage() {
         {/* ─── SECTION 3 ─────────────────────────────────────────────────────── */}
         {section === 3 && (
           <div className="flex flex-col gap-5 section-enter">
-            <QCard>
+            <QCard qkey="q3_1_knownIssues">
               <Label required>Q3.1 — Known issues</Label>
               <HelpText>Select all that apply. These trigger risk allowance adjustments.</HelpText>
               <CheckboxGroup options={knownIssuesFor(answers.q1_2_projectType)} values={answers.q3_1_knownIssues}
@@ -1788,7 +1817,7 @@ export default function QuestionnairePage() {
               </QCard>
             )}
 
-            <QCard>
+            <QCard qkey="q3_3_surveys">
               <Label required>Q3.3 — Surveys and reports available</Label>
               {/* The old copy promised surveys also reduce "survey programme
                   time". They do not: survey activities run parallel to design
@@ -1806,14 +1835,14 @@ export default function QuestionnairePage() {
               {validationErrors.q3_3_surveys && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_3_surveys}</p>}
             </QCard>
 
-            <QCard>
+            <QCard qkey="q3_4_planningConsents">
               <Label required>Q3.4 — Planning consent required</Label>
               <HelpText>Select the most likely planning pathway. If unsure, choose 'Unsure' — pre-application advice is recommended.</HelpText>
               <RadioGroup options={PLANNING_OPTIONS} value={answers.q3_4_planningConsents} onChange={v => set('q3_4_planningConsents', v)} />
               {validationErrors.q3_4_planningConsents && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_4_planningConsents}</p>}
             </QCard>
 
-            <QCard>
+            <QCard qkey="q3_5_accessConstraints">
               <Label required>Q3.5 — Access constraints</Label>
               <HelpText>Select all that apply. These affect the contractor's preliminaries allowance.</HelpText>
               {/* "No access constraints" must be exclusive: ticked alongside a
@@ -1830,7 +1859,7 @@ export default function QuestionnairePage() {
               {validationErrors.q3_5_accessConstraints && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_5_accessConstraints}</p>}
             </QCard>
 
-            <QCard>
+            <QCard qkey="q3_6_occupation">
               <Label required>{occupationCopyFor(answers.q1_2_projectType).label}</Label>
               <HelpText>{occupationCopyFor(answers.q1_2_projectType).help}</HelpText>
               <RadioGroup options={OCCUPATION_OPTIONS} value={answers.q3_6_occupation} onChange={v => set('q3_6_occupation', v)} />
@@ -1849,7 +1878,7 @@ export default function QuestionnairePage() {
                 Rendered last so the visible numbers ascend — it used to sit
                 above Q3.7, which is exactly the kind of jumble that makes a
                 precision tool look careless. */}
-            <QCard>
+            <QCard qkey="q3_8_siteContext">
               <Label required>Q3.8 — Site and building context</Label>
               <HelpText>Select all that apply. Each one adds a specific statutory or programme risk the report must address.</HelpText>
               <CheckboxGroup options={SITE_CONTEXT_OPTIONS} values={answers.q3_8_siteContext}
@@ -1955,7 +1984,7 @@ export default function QuestionnairePage() {
                 "Q4.3"), so a colleague quoting "Q4.5" meant a different question
                 to the one the code, CLAUDE.md and the report all call Q4.5. The
                 keys are canonical and unchanged; only the labels moved. */}
-            <QCard>
+            <QCard qkey="q4_5_designStage">
               <Label required>Q4.5 — Design stage already reached</Label>
               <HelpText>Determines the professional fees percentage applied to the cost estimate and the viable procurement routes.</HelpText>
               <RadioGroup options={DESIGN_STAGE_OPTIONS} value={answers.q4_5_designStage} onChange={v => set('q4_5_designStage', v)} />
@@ -2088,13 +2117,18 @@ export default function QuestionnairePage() {
           </div>
         )}
 
-        {section < SECTIONS.length && (
-          <p role="status" style={{ marginTop: 18, textAlign: 'center', fontSize: 13, color: openRequired.length ? 'var(--amber-deep)' : 'var(--text-mute)' }}>
-            {openRequired.length
-              ? `${openRequired.length} answer${openRequired.length === 1 ? '' : 's'} still needed in this section`
+        {/* Was gated `section < SECTIONS.length`, so this never rendered on the
+            last section — exactly where a blank required field (Q4.5) now
+            needs it most, sitting well above a Generate button that otherwise
+            gives no sign anything is wrong. Renders on every section; only the
+            "all clear" wording changes on the last one to match the button. */}
+        <p role="status" style={{ marginTop: 18, textAlign: 'center', fontSize: 13, color: openRequired.length ? 'var(--amber-deep)' : 'var(--text-mute)' }}>
+          {openRequired.length
+            ? `${openRequired.length} answer${openRequired.length === 1 ? '' : 's'} still needed in this section`
+            : section === SECTIONS.length
+              ? 'All set — generate when you’re ready.'
               : 'All set — continue when you’re ready.'}
-          </p>
-        )}
+        </p>
 
         {/* ─── Navigation ────────────────────────────────────────────────────── */}
         <div className="mt-10 flex gap-3">
