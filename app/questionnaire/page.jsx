@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { matchesBuildingUse } from '../../lib/buildingUse.js'
 import { areaQuestionLabel, areaHelpText } from '../../lib/labels.js'
 import { SITE_CONTEXT_OPTIONS, SITE_CONTEXT_NONE, hrbLikelyFromAnswers } from '../../lib/siteContext.js'
+import { PROJECT_TYPES, VISIBLE_GROUPS, priceableFor } from '../../lib/projectTypes.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
 // Bumped whenever the answer-key schema changes in a way that could make a
@@ -17,7 +18,10 @@ const STORAGE_KEY = 'estatesAI_v4_answers'
 // v2 (September 2026): Q6.1 changed from an include-list (`q6_1_sections`) to
 // an exclude-list (`q6_1_excludeSections`) — a v1 draft's include-list would
 // otherwise be silently ignored, which is the "changed meaning" case above.
-const STORAGE_SCHEMA_VERSION = 2
+// v3 (September 2026): Q1.2 lost "Renewable Energy" and renamed three options.
+// A v2 draft can hold a project type the form no longer offers, which would
+// leave the select blank while the rest of the draft rehydrates around it.
+const STORAGE_SCHEMA_VERSION = 3
 
 // Four steps, down from six.
 //
@@ -50,7 +54,6 @@ const GEN_STEPS = [
 const GEN_STEP_ADVANCE_MS = [2000]   // when step 2 becomes active
 
 // ─── Section 1 data ───────────────────────────────────────────────────────────
-const PROJECT_TYPES = ['New Build', 'Refurbishment', 'Fit-out', 'Extension', 'External Works', 'Renewable Energy', 'Demolition', 'Mixed']
 // Was six bands. Only "Pre-1900" changes a number (a +2% heritage fee and a
 // Stage-2 programme uplift); the remaining boundaries that matter are 1980 and
 // 2000, which decide whether an asbestos survey is listed. 1900–1945 and
@@ -60,17 +63,6 @@ const PROJECT_TYPES = ['New Build', 'Refurbishment', 'Fit-out', 'Extension', 'Ex
 const BUILDING_AGES = ['Pre-1900', '1900–1979', '1980–1999', 'Post-2000']
 
 // ─── Section 2 scope picker config ───────────────────────────────────────────
-const VISIBLE_GROUPS = {
-  'New Build':        [0, 1, 2, 3, 4, 5, 6, 8],
-  'Refurbishment':    [0, 2, 3, 4, 5, 7, 8],
-  'Fit-out':          [3, 4, 5],
-  'Extension':        [0, 1, 2, 3, 4, 5, 6, 7, 8],
-  'External Works':   [0, 8],
-  'Renewable Energy': [5, 8],
-  'Demolition':       [0],
-  'Mixed':            [0, 1, 2, 3, 4, 5, 6, 7, 8],
-}
-
 const HEATING_CODES = ['5.2', '5.2L', '5.5']
 const WIRING_MUTEX = ['5.8', '5.8a', '5.8b']
 const PLUMBING_MUTEX = ['5.1', '5.1b']
@@ -94,19 +86,6 @@ function qtyPromptLabel(item) {
   const unit = String(item?.unit || '').trim()
   if (/^kw/i.test(unit)) return `Capacity (${unit})`
   return unit && unit !== 'Nr' && unit !== 'Item' ? `Number of ${unit}` : 'Number of units'
-}
-
-// Which rate-column family the calculator will read for this project type —
-// mirrors getRateForElement() in lib/costCalculator.js. An item with no rate
-// in that family can only ever be excluded, so the picker does not offer it.
-function priceableFor(item, projectType) {
-  if (!item?.priceable) return true   // older /api/scope-items payload — no flags, no filtering
-  const pt = String(projectType || '')
-  const family = pt === 'New Build' ? 'newBuild'
-    : pt === 'Extension' ? 'extension'
-    : pt === 'External Works' ? 'externalWorks'
-    : 'refurb'
-  return !!item.priceable[family]
 }
 
 const LEVEL_TIER = {
@@ -167,8 +146,10 @@ function presetScopeFor(projectType, tier) {
   const pt = String(projectType || '')
   if (pt === 'New Build' || pt === 'Extension') return NEW_BUILD_SCOPE
   if (pt === 'Refurbishment' || pt === 'Fit-out') return REFURB_TIER_SCOPE[tier] || REFURB_TIER_SCOPE[3]
-  if (pt === 'External Works') return ['8.1', '8.2', '8.4', '8.7', '8.8']
-  if (pt === 'Demolition') return ['0.2', '0.5']
+  if (pt === 'External works only') return ['8.1', '8.2', '8.4', '8.7', '8.8']
+  if (pt === 'Demolition only') return ['0.2', '0.5']
+  // No honest default for Other or mixed — it is the catch-all by definition,
+  // so ScopePresetBar hides itself rather than guessing.
   return null
 }
 
@@ -1125,8 +1106,14 @@ export default function QuestionnairePage() {
               <Label required>Q1.2 — Project type</Label>
               <SelectInput value={answers.q1_2_projectType} onChange={v => set('q1_2_projectType', v)}>
                 <option value="">Select project type...</option>
-                {PROJECT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                {PROJECT_TYPES.map(t => <option key={t.value} value={t.value}>{t.value}</option>)}
               </SelectInput>
+              {/* The help line sits under the select and follows the choice,
+                  rather than being crammed into the option text — seven long
+                  options make a dropdown unreadable. */}
+              {PROJECT_TYPES.find(t => t.value === answers.q1_2_projectType) && (
+                <HelpText>{PROJECT_TYPES.find(t => t.value === answers.q1_2_projectType).help}</HelpText>
+              )}
               {validationErrors.q1_2_projectType && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_2_projectType}</p>}
 
               {['New Build', 'Refurbishment', 'Extension'].includes(answers.q1_2_projectType) && (
