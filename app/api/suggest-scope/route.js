@@ -17,20 +17,10 @@ import { getScopeItems } from '@/lib/costCalculator'
 import { matchesBuildingUse } from '@/lib/buildingUse'
 import { PROSE_MODEL, getAnthropicKey } from '@/lib/proseSchema'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
+import { VISIBLE_GROUPS, priceableFor } from '@/lib/projectTypes'
 
 export const maxDuration = 30
 
-// Mirrors VISIBLE_GROUPS in app/questionnaire/page.jsx.
-const VISIBLE_GROUPS = {
-  'New Build':        [0, 1, 2, 3, 4, 5, 6, 8],
-  'Refurbishment':    [0, 2, 3, 4, 5, 7, 8],
-  'Fit-out':          [3, 4, 5],
-  'Extension':        [0, 1, 2, 3, 4, 5, 6, 7, 8],
-  'External Works':   [0, 8],
-  'Renewable Energy': [5, 8],
-  'Demolition':       [0],
-  'Mixed':            [0, 1, 2, 3, 4, 5, 6, 7, 8],
-}
 const LEVEL_TIER = {
   'Fabric and finishes only': 1,
   'Finishes with minor services': 2,
@@ -41,14 +31,6 @@ const LEVEL_TIER = {
 // (5.5 rides with 5.2; 5.8 is derived from 5.8a + 5.8b), so they are never
 // offered directly.
 const FOLDED = new Set(['5.5', '5.8'])
-
-function priceableFor(item, projectType) {
-  const family = projectType === 'New Build' ? 'newBuild'
-    : projectType === 'Extension' ? 'extension'
-    : projectType === 'External Works' ? 'externalWorks'
-    : 'refurb'
-  return !!item.priceable?.[family]
-}
 
 export async function POST(request) {
   const rl = await checkRateLimit('suggest-scope', request, { requests: 20, window: '10 m' })
