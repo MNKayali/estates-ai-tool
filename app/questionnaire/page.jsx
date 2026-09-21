@@ -10,7 +10,7 @@ import { PROJECT_TYPES, VISIBLE_GROUPS, priceableFor } from '../../lib/projectTy
 import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
   showsHeightQuestion, KNOWN_ISSUE_NONE, SURVEY_NONE,
-  isQuestionRequired, sectionCounts, unansweredRequired, progressPercent,
+  sectionCounts, unansweredRequired, progressPercent,
 } from '../../lib/questionSets.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
@@ -665,13 +665,22 @@ export default function QuestionnairePage() {
   // user never finds their own input hidden.
   const [showFinancialCase, setShowFinancialCase] = useState(false)
   const [showReportInstructions, setShowReportInstructions] = useState(false)
-  // Deps on `answers` (not `[]`): the draft is rehydrated asynchronously by the
-  // localStorage-load effect below, so on first mount `answers` is still `{}`
-  // and a `[]`-only run would never see a returning user's saved values. This
-  // only ever sets state to `true`, so re-running on every keystroke is inert
-  // once opened.
+  // Runs the auto-open exactly once, after the draft has rehydrated, then never
+  // again. `answers` starts as `{}` and is populated asynchronously by the
+  // localStorage-load effect below, so a `[]`-only run would never see a
+  // returning user's saved values — but re-running on every `answers` change
+  // (every keystroke anywhere in the form) would fight the user's own toggle,
+  // since `set()` always produces a new `answers` reference and this effect
+  // only ever sets state to `true`, never `false`. The ref latches on the
+  // first render where `answers` is non-empty (rehydrated, or the user's own
+  // first keystroke on a fresh form) and is never checked again after that.
+  const disclosuresInitialised = useRef(false)
   useEffect(() => {
-    if ((answers.q5_1_financialBenefit || []).length > 0 || answers.q5_2_annualBenefit) setShowFinancialCase(true)
+    if (disclosuresInitialised.current) return
+    if (Object.keys(answers).length === 0) return
+    disclosuresInitialised.current = true
+    const benefits = Array.isArray(answers.q5_1_financialBenefit) ? answers.q5_1_financialBenefit : []
+    if (benefits.length > 0 || answers.q5_2_annualBenefit) setShowFinancialCase(true)
     if (answers.q6_2_instructions) setShowReportInstructions(true)
   }, [answers])
   const toggleGroupCollapse = g =>
