@@ -1208,7 +1208,7 @@ export default function QuestionnairePage() {
         <div className="mb-8">
           <div style={{ marginBottom: 10 }}>
             <span className="mono" style={{ color: 'var(--amber-deep)', fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase' }}>
-              Section {section} of {SECTIONS.length} · {counts.total} question{counts.total === 1 ? '' : 's'} · {counts.required === 0 ? 'none required' : `${counts.required} need${counts.required === 1 ? 's' : ''} an answer`}
+              Section {section} of {SECTIONS.length} · {counts.total} question{counts.total === 1 ? '' : 's'} · {counts.required === 0 ? 'none required' : `${counts.required} need${counts.required === 1 ? 's' : ''} an answer`}{counts.optionalExtras > 0 ? ` · ${counts.optionalExtras} optional extra${counts.optionalExtras === 1 ? '' : 's'}` : ''}
             </span>
           </div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '28px', color: 'var(--ink)', letterSpacing: '-0.2px', margin: '0 0 6px' }}>{SECTIONS[section - 1].title}</h1>
@@ -1220,6 +1220,13 @@ export default function QuestionnairePage() {
                 try { localStorage.removeItem(STORAGE_KEY) } catch {}
                 setAnswers({})
                 setValidationErrors({})
+                // Without this, a disclosure the user had opened on the old
+                // draft stayed open over the now-empty form — the auto-open
+                // effect only ever latches true, and this ref is what stops
+                // it running a second time to correct that.
+                disclosuresInitialised.current = false
+                setShowFinancialCase(false)
+                setShowReportInstructions(false)
               }}
               style={{ marginTop: 10, background: 'none', border: 'none', padding: 0, color: 'var(--text-soft)', fontSize: '12.5px', textDecoration: 'underline', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
               Clear form &amp; start a new report

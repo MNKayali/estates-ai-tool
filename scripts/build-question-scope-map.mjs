@@ -28,7 +28,7 @@ import * as XLSX from 'xlsx'
 import { getScopeItems, fetchRatesWorkbook } from '../lib/costCalculator.js'
 import { matchesBuildingUse, BUILDING_USE_TAGS } from '../lib/buildingUse.js'
 import { PROJECT_TYPE_VALUES as PROJECT_TYPES, VISIBLE_GROUPS, priceableFor } from '../lib/projectTypes.js'
-import { isQuestionShown } from '../lib/questionSets.js'
+import { isQuestionShown, isQuestionRequired } from '../lib/questionSets.js'
 
 // ── env ──────────────────────────────────────────────────────────────────────
 const envPath = path.join(process.cwd(), '.env.local')
@@ -61,6 +61,13 @@ function itemNeedsQty(item) {           // page.jsx:80
 
 const ALWAYS = () => true
 
+// Derived rather than retyped: none of the seven questions this labels (Q3.1,
+// Q3.3, Q3.4, Q3.5, Q3.6, Q3.8, Q4.5) has a project-type gate on the question
+// itself (only their OPTIONS or COPY vary — see the `cond` text below), so
+// isQuestionRequired's answer is the same for every project type and
+// 'Refurbishment' is as good a representative as any.
+const req = key => (isQuestionRequired(key, 'Refurbishment') ? 'Yes' : 'No')
+
 /**
  * The questionnaire's question inventory, transcribed from
  * app/questionnaire/page.jsx. `shownFor` replays that file's ACTUAL gating —
@@ -80,7 +87,7 @@ const QUESTIONS = [
   { sec: 1, num: '—',     key: 'q1_3_buildingUseOther',   label: 'Building use — other (describe)',   control: 'Text',            required: 'No',  cond: "q1_3_buildingUse === 'Other'",                 src: 'page.jsx:1167', shownFor: ALWAYS },
   { sec: 1, num: 'Q1.4',  key: 'q1_4_buildingAge',        label: 'Building age',                      control: 'Select (4 bands)', required: 'Yes when shown', cond: "isQuestionShown — hidden for New Build and External works only", src: 'page.jsx:1174', shownFor: pt => isQuestionShown('q1_4_buildingAge', pt) },
   { sec: 1, num: 'Q1.5',  key: 'q1_5_size',               label: 'Approximate size (GIFA m²) / site area (External Works)', control: 'Number', required: 'Yes', cond: 'Always (label varies by project type)', src: 'page.jsx:1185', shownFor: ALWAYS },
-  { sec: 1, num: 'Q1.6',  key: 'q1_6_heightOver18m',      label: 'Building height (18 m or taller)',  control: 'Radio (Yes/No/Not sure)', required: 'No', cond: "projectType is New Build, Refurbishment or Extension (STOREYS_TYPES, same gate as Q1.2a) AND showsHeightQuestion(storeys) — storeys >= 5", src: 'page.jsx:1197', shownFor: pt => STOREYS_TYPES.includes(pt) },
+  { sec: 1, num: 'Q1.6',  key: 'q1_6_heightOver18m',      label: 'Building height (18 m or taller)',  control: 'Radio (Yes/No/Not sure)', required: 'No', cond: "projectType is New Build, Refurbishment or Extension (STOREYS_TYPES, same gate as Q1.2a) AND showsHeightQuestion(storeys) — storeys >= 5. NOTE: the Building Safety Act's higher-risk threshold is 18 m OR 7 storeys, whichever comes first, and storeys alone can't answer that (a 6-storey building with tall floor-to-floors can clear 18 m) — the question is offered from 5 storeys as a safety margin below the 7-storey trigger, not because 5 is itself a threshold", src: 'page.jsx:1197', shownFor: pt => STOREYS_TYPES.includes(pt) },
 
   // ── Section 2 — Project Scope ──────────────────────────────────────────────
   { sec: 2, num: 'Q2.1',  key: 'q2_1_objective',          label: 'Project objective',                 control: 'Textarea',        required: 'Yes', cond: 'Always',                                       src: 'page.jsx:1197', shownFor: ALWAYS },
@@ -94,23 +101,23 @@ const QUESTIONS = [
   { sec: 2, num: '—',     key: 'q2_5_standardsOther',     label: 'Standards — other (describe)',      control: 'Textarea',        required: 'No',  cond: "q2_5_standards includes 'Other'",              src: 'page.jsx:1614', shownFor: ALWAYS },
 
   // ── Section 3 — Condition & Constraints ────────────────────────────────────
-  { sec: 3, num: 'Q3.1',  key: 'q3_1_knownIssues',        label: 'Known issues',                      control: 'Checkbox group',  required: 'No',  cond: 'Always — NO project-type gate on the question itself; option list (knownIssuesFor) varies by project type', src: 'page.jsx:1629', shownFor: ALWAYS },
+  { sec: 3, num: 'Q3.1',  key: 'q3_1_knownIssues',        label: 'Known issues',                      control: 'Checkbox group',  required: req('q3_1_knownIssues'),  cond: 'Always — NO project-type gate on the question itself; option list (knownIssuesFor) varies by project type', src: 'page.jsx:1629', shownFor: ALWAYS },
   { sec: 3, num: 'Q3.2',  key: 'q3_2_previousWorks',      label: 'Previous works or relevant history', control: 'Textarea',       required: 'No',  cond: 'isQuestionShown — hidden for New Build and External works only', src: 'page.jsx:1636', shownFor: pt => isQuestionShown('q3_2_previousWorks', pt) },
-  { sec: 3, num: 'Q3.3',  key: 'q3_3_surveys',            label: 'Surveys and reports available',     control: 'Checkbox group',  required: 'No',  cond: 'Always (blank is read as "None"), NO project-type gate on the question itself; option list (surveysFor) varies by project type AND Q1.4 building age — asbestos options hidden once Q1.4 = Post-2000', src: 'page.jsx:1641', shownFor: ALWAYS },
+  { sec: 3, num: 'Q3.3',  key: 'q3_3_surveys',            label: 'Surveys and reports available',     control: 'Checkbox group',  required: req('q3_3_surveys'),  cond: 'Always — NO project-type gate on the question itself; option list (surveysFor) varies by project type AND Q1.4 building age — asbestos options hidden once Q1.4 = Post-2000. Blank is read as "None" by the ENGINE (computeConfidence, checkCondition) but the form now requires an explicit answer — the ENGINE contract did not change, only what the form will let through', src: 'page.jsx:1641', shownFor: ALWAYS },
   { sec: 3, num: '—',     key: 'q3_3_surveysOther',       label: 'Surveys — other (describe)',        control: 'Textarea',        required: 'No',  cond: "q3_3_surveys includes 'Other'",                src: 'page.jsx:1649', shownFor: ALWAYS },
-  { sec: 3, num: 'Q3.4',  key: 'q3_4_planningConsents',   label: 'Planning consent required',         control: 'Radio',           required: 'No',  cond: 'Always',                                       src: 'page.jsx:1658', shownFor: ALWAYS },
-  { sec: 3, num: 'Q3.5',  key: 'q3_5_accessConstraints',  label: 'Access constraints',                control: 'Checkbox group',  required: 'No',  cond: 'Always',                                       src: 'page.jsx:1664', shownFor: ALWAYS },
+  { sec: 3, num: 'Q3.4',  key: 'q3_4_planningConsents',   label: 'Planning consent required',         control: 'Radio',           required: req('q3_4_planningConsents'),  cond: 'Always',                                       src: 'page.jsx:1658', shownFor: ALWAYS },
+  { sec: 3, num: 'Q3.5',  key: 'q3_5_accessConstraints',  label: 'Access constraints',                control: 'Checkbox group',  required: req('q3_5_accessConstraints'),  cond: 'Always',                                       src: 'page.jsx:1664', shownFor: ALWAYS },
   { sec: 3, num: '—',     key: 'q3_5_accessConstraintsOther', label: 'Access constraints — other (describe)', control: 'Textarea', required: 'No', cond: "q3_5_accessConstraints includes 'Other'",      src: 'page.jsx:1671', shownFor: ALWAYS },
-  { sec: 3, num: 'Q3.6',  key: 'q3_6_occupation',         label: 'Occupation during works',           control: 'Radio',           required: 'No',  cond: 'Always — NO project-type gate on the question itself; label/help text (occupationCopyFor) vary by project type', src: 'page.jsx:1680', shownFor: ALWAYS },
+  { sec: 3, num: 'Q3.6',  key: 'q3_6_occupation',         label: 'Occupation during works',           control: 'Radio',           required: req('q3_6_occupation'),  cond: 'Always — NO project-type gate on the question itself; label/help text (occupationCopyFor) vary by project type', src: 'page.jsx:1680', shownFor: ALWAYS },
   { sec: 3, num: 'Q3.7',  key: 'q3_7_additionalContext',  label: 'Additional context',                control: 'Textarea',        required: 'No',  cond: 'Always',                                       src: 'page.jsx:1686', shownFor: ALWAYS },
-  { sec: 3, num: 'Q3.8',  key: 'q3_8_siteContext',        label: 'Site and building context',         control: 'Checkbox group',  required: 'No',  cond: 'Always',                                       src: 'page.jsx:1698', shownFor: ALWAYS },
+  { sec: 3, num: 'Q3.8',  key: 'q3_8_siteContext',        label: 'Site and building context',         control: 'Checkbox group',  required: req('q3_8_siteContext'),  cond: 'Always',                                       src: 'page.jsx:1698', shownFor: ALWAYS },
 
   // ── Section 4 — Programme, Budget & Delivery ───────────────────────────────
   { sec: 4, num: 'Q4.1',  key: 'q4_1_targetDate',         label: 'Target completion date',            control: 'Radio + date',    required: 'No',  cond: 'Always',                                       src: 'page.jsx:1715', shownFor: ALWAYS },
   { sec: 4, num: 'Q4.2',  key: 'q4_0_startDate',          label: 'Expected project start',            control: 'Date',            required: 'No',  cond: 'Always (KEY says 4.0, LABEL says Q4.2 — deliberate)', src: 'page.jsx:1752', shownFor: ALWAYS },
   { sec: 4, num: 'Q4.3',  key: 'q4_3_budget',             label: 'Total budget, if you have one',     control: 'Number',          required: 'No',  cond: 'Always',                                       src: 'page.jsx:1773', shownFor: ALWAYS },
   { sec: 4, num: 'Q4.4',  key: 'q4_4_priorities',         label: 'What matters most (max 2, first = primary)', control: 'Checkbox group (max 2)', required: 'No', cond: 'Always',                      src: 'page.jsx:1791', shownFor: ALWAYS },
-  { sec: 4, num: 'Q4.5',  key: 'q4_5_designStage',        label: 'Design stage already reached',      control: 'Radio',           required: 'No',  cond: 'Always',                                       src: 'page.jsx:1808', shownFor: ALWAYS },
+  { sec: 4, num: 'Q4.5',  key: 'q4_5_designStage',        label: 'Design stage already reached',      control: 'Radio',           required: req('q4_5_designStage'),  cond: 'Always',                                       src: 'page.jsx:1808', shownFor: ALWAYS },
   { sec: 4, num: 'Q4.6',  key: 'q4_6_phasing',            label: 'Single or phased delivery',         control: 'Select',          required: 'No (defaults Single phase)', cond: 'Always',               src: 'page.jsx:1814', shownFor: ALWAYS },
   { sec: 4, num: 'Q4.7',  key: 'q4_7_funding',            label: 'Funding source',                    control: 'Radio',           required: 'No',  cond: 'Always',                                       src: 'page.jsx:1823', shownFor: ALWAYS },
   { sec: 4, num: 'Q5.1',  key: 'q5_1_financialBenefit',   label: 'Financial benefit type',            control: 'Checkbox group',  required: 'No',  cond: 'isQuestionShown — hidden for Demolition only', src: 'page.jsx:1835', shownFor: pt => isQuestionShown('q5_1_financialBenefit', pt) },
