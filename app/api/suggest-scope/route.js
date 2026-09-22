@@ -1,7 +1,7 @@
 /**
  * POST /api/suggest-scope  { objective, projectType, buildingUse, interventionLevel }
  *
- * Proposes Q2.2 scope codes from the plain-English objective in Q2.1. The
+ * Proposes Q2.3 scope codes from the plain-English objective in Q2.1. The
  * model is shown ONLY the codes the picker would offer for these answers
  * (same visible-group, building-use, intervention-tier and priceable filters
  * as app/questionnaire/page.jsx) and must answer with a strict tool whose

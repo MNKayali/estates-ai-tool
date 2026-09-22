@@ -85,7 +85,9 @@ export async function POST(request) {
 
     // ── Fix 9: Validation guards ──────────────────────────────────────────────
 
-    // Guard 1 — Q2.3 must be recognised (refurb/fit-out/extension only)
+    // Guard 1 — level of works must be recognised (refurb/fit-out/extension
+    // only). Keyed q2_3_interventionLevel, displayed as Q2.2 — see the
+    // numbering note in app/questionnaire/page.jsx.
     const refurbTypes = ['Refurbishment', 'Fit-out', 'Extension']
     const validInterventionLevels = [
       'Fabric and finishes only',
@@ -95,7 +97,7 @@ export async function POST(request) {
     ]
     if (refurbTypes.includes(answers.q1_2_projectType) && !validInterventionLevels.includes(answers.q2_3_interventionLevel)) {
       return Response.json({
-        error: 'Q2.3 — Level of works is required. Please select one of the four options.',
+        error: 'Q2.2 — Level of works is required. Please select one of the four options.',
         field: 'q2_3_interventionLevel',
       }, { status: 400 })
     }
@@ -103,7 +105,7 @@ export async function POST(request) {
     // Guard 2 — scope must have at least one item
     if (!answers.q2_2_scopeItems || answers.q2_2_scopeItems.length === 0) {
       return Response.json({
-        error: 'At least one scope item must be selected in Q2.2.',
+        error: 'At least one scope item must be selected in Q2.3.',
         field: 'q2_2_scopeItems',
       }, { status: 400 })
     }

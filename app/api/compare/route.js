@@ -5,7 +5,7 @@
  * deterministic pipeline with ONE input varied.
  *
  *   axis = 'spec'          → Q2.4 Basic / Standard / High
- *   axis = 'intervention'  → Q2.3 the four levels of intervention
+ *   axis = 'intervention'  → Q2.2 the four levels of works
  *
  * Deterministic only — no AI, so it costs nothing to run and cannot disagree
  * with the report (same lib/pipeline.js). Returns per-variant headline
@@ -37,7 +37,7 @@ const AXES = {
   },
   intervention: {
     key: 'q2_3_interventionLevel',
-    label: 'Level of intervention (Q2.3)',
+    label: 'Level of works (Q2.2)',
     variants: (answers) => {
       const pt = String(answers.q1_2_projectType || '')
       if (!['Refurbishment', 'Fit-out', 'Extension'].includes(pt)) return []

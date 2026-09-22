@@ -3,7 +3,7 @@
  * Workbook-derived reference data for the questionnaire, in one request:
  *  - `groups`: the NRM1 v4.5 "Master Cost Table" grouped by NRM1 group, with the
  *    metadata the picker needs to filter by building use (Q1.3), project type
- *    (Q1.2) and intervention level (Q2.3). No filtering happens here — the
+ *    (Q1.2) and level of works (Q2.2). No filtering happens here — the
  *    client filters live as those answers change.
  *  - `bcisRegions`: Tab 6 regions and their postcode prefixes, so Q1.1 can
  *    resolve the BCIS factor as the user types instead of the server silently

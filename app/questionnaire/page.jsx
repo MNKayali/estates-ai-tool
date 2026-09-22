@@ -123,7 +123,7 @@ const LEVEL_TIER = {
  * full picker stays exactly as it was underneath.
  *
  * These are not invented. The refurbishment tiers are a direct transcription of
- * the Q2.3 option descriptions already shown to the user — "decoration, floor
+ * the Q2.2 option descriptions already shown to the user — "decoration, floor
  * and wall finishes, ceilings, fixtures and fittings" is 3.1/3.2/3.3/4.1/2.8,
  * "second-fix only M&E" is 5.1b/5.8b/5.8c, "complete replacement of heating,
  * plumbing and electrical" is 5.1/5.2/5.8a+5.8b, and "walls moved or removed"
@@ -1408,7 +1408,15 @@ export default function QuestionnairePage() {
 
             {isRefurb && (
               <QCard qkey="q2_3_interventionLevel">
-                <Label required>Q2.3 — Level of intervention</Label>
+                {/* Displayed as Q2.2, keyed q2_3_interventionLevel. The form has
+                    always asked level of works BEFORE the scope picker, because
+                    the answer decides which scope tiles are available — the
+                    numbers were simply the wrong way round. Swapped September
+                    2026 so the visible order ascends. The answer KEYS are
+                    deliberately unchanged, the same way q4_0_startDate displays
+                    as Q4.2: renaming a key would orphan every draft in
+                    localStorage and every report in KV. */}
+                <Label required>Q2.2 — Level of works</Label>
                 <HelpText>Determines the rate band applied to costs and the design duration multiplier. Scope items that require a higher level are greyed out below.</HelpText>
                 <div className="flex flex-col gap-3">
                   {INTERVENTION_LEVELS.map(opt => (
@@ -1433,9 +1441,10 @@ export default function QuestionnairePage() {
               </QCard>
             )}
 
-            {/* Q2.3 Scope picker — its own visual container */}
+            {/* Scope picker — displayed as Q2.3, keyed q2_2_scopeItems. See the
+                numbering note on the level-of-works question above. */}
             <div data-qkey="q2_2_scopeItems" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '28px', boxShadow: 'var(--shadow-1)' }}>
-              <Label>Q2.2 — Scope of works</Label>
+              <Label>Q2.3 — Scope of works</Label>
               <HelpText>Tick every element that is in scope. Use Other / Specialist below for anything not listed.</HelpText>
               <ScopePresetBar
                 projectType={answers.q1_2_projectType}

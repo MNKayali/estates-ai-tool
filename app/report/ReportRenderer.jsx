@@ -1450,7 +1450,7 @@ function buildEstimateBasis(cost, programme, dateStr) {
     inflationPct > 0
       ? `Inflation allowance (F) at ${inflationPct}% covers forecast tender and construction inflation over the ${programme?.totalWeeks ?? '—'}-week programme, measured from the estimate base date (${baseDate}).`
       : `No inflation allowance (F) applies — the ${programme?.totalWeeks ?? '—'}-week programme falls within the zero-inflation band for both time-to-tender and construction duration in the NRM1 workbook.`,
-    `"Normalised" cost figures (where quoted) divide the actual £/m² rate by the BCIS location factor and the Q2.3 band factor, so they can be compared against national benchmark rates independent of this project's location and level of intervention.`,
+    `"Normalised" cost figures (where quoted) divide the actual £/m² rate by the BCIS location factor and the Q2.2 band factor, so they can be compared against national benchmark rates independent of this project's location and level of intervention.`,
   ]
 }
 
