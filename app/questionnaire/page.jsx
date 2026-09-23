@@ -761,6 +761,10 @@ export default function QuestionnairePage() {
       const nextHeight = showsHeightQuestion(nextStoreys) ? prev.q1_6_heightOver18m : undefined
 
       const nextAge = isQuestionShown('q1_4_buildingAge', pt) ? prev.q1_4_buildingAge : undefined
+      // Level of intervention is only asked for Refurbishment and Fit-out
+      // (NRM1 v5.2). A value left from another type, or from an Extension
+      // draft saved before it stopped being asked, is cleared.
+      const nextLevel = isQuestionShown('q2_3_interventionLevel', pt) ? prev.q2_3_interventionLevel : undefined
       const nextBenefit = isQuestionShown('q5_1_financialBenefit', pt) ? prev.q5_1_financialBenefit : undefined
       const nextAnnual = isQuestionShown('q5_2_annualBenefit', pt) ? prev.q5_2_annualBenefit : undefined
 
@@ -769,6 +773,7 @@ export default function QuestionnairePage() {
         || nextStoreys !== prev.q1_2_storeys
         || nextHeight !== prev.q1_6_heightOver18m
         || nextAge !== prev.q1_4_buildingAge
+        || nextLevel !== prev.q2_3_interventionLevel
         || nextBenefit !== prev.q5_1_financialBenefit
         || nextAnnual !== prev.q5_2_annualBenefit
       if (!changed) return prev
@@ -776,7 +781,7 @@ export default function QuestionnairePage() {
         ...prev,
         q3_1_knownIssues: keptIssues, q3_3_surveys: keptSurveys,
         q1_2_storeys: nextStoreys, q1_6_heightOver18m: nextHeight,
-        q1_4_buildingAge: nextAge,
+        q1_4_buildingAge: nextAge, q2_3_interventionLevel: nextLevel,
         q5_1_financialBenefit: nextBenefit, q5_2_annualBenefit: nextAnnual,
       }
     })
