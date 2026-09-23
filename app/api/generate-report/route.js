@@ -166,7 +166,7 @@ export async function POST(request) {
 
     // ── Step 2d: Final cost pass with the confidence-linked range ────────────
     // The estimate range widens with the deterministic confidence grade (Tab
-    // "9. Range Widths"), and the grade is only known now. Warnings and the
+    // ▶ range_widths on '3. Settings'), and the grade is only known now. Warnings and the
     // grade itself depend on works.mid, which the range does not touch, so
     // the sense check is not re-run — only the budget verdict, which compares
     // the stated budget against the (now wider or narrower) gross range.
