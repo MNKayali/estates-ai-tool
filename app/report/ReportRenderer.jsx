@@ -7,6 +7,8 @@ import {
   buildUpRows, fmtSignedPct, fmtPlainPct, rangeSentence, baseDateLabel,
   rateSourcesSentence, programmeHeadline, fastTrackLines, resolveSectionFlags,
   stageDateRange, fmtDate,
+  groupHeading, lineBasis, quantityBasisSentence, unverifiedRatesSentence, bcisGroupSentence,
+  belowLineRows, scopeAssumptionLines, bandFactorSentence, applicableExclusions,
 } from '../../lib/reportShared.js'
 import { areaLabel } from '../../lib/labels.js'
 
@@ -897,8 +899,9 @@ function Rag({ val, filled = false }) {
 function ScopeText({ lineItems }) {
   if (!lineItems?.length) return <p style={{ ...bodyText, fontStyle: 'italic', color: '#666' }}>To be confirmed following completion of surveys and Stage 2 design.</p>
   const groups = {}
+  const heads = {}
   for (const item of lineItems) {
-    if (!groups[item.group]) groups[item.group] = []
+    if (!groups[item.group]) { groups[item.group] = []; heads[item.group] = groupHeading(item, GROUP_NAMES) }
     groups[item.group].push(item.description)
   }
   return (
@@ -906,7 +909,7 @@ function ScopeText({ lineItems }) {
       {Object.entries(groups).map(([grp, items]) => (
         <div key={grp} style={{ marginBottom: '10px' }}>
           <p style={{ fontWeight: 700, color: NAVY, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.4px', margin: '0 0 4px' }}>
-            {GROUP_NAMES[Number(grp)] || `Group ${grp}`}
+            {heads[grp]}
           </p>
           <ul style={{ paddingLeft: '18px', margin: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
             {items.map((desc, i) => <li key={i} style={{ color: '#333' }}>{desc}</li>)}
@@ -930,7 +933,7 @@ function WorksTable({ lineItems }) {
       rows.push(
         <tr key={`g${item.group}`} style={{ background: '#2E4A6E' }}>
           <td colSpan={6} style={{ ...tdStyle, fontWeight: 700, fontSize: '11px', color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase', letterSpacing: '0.3px', padding: '6px 10px' }}>
-            {GROUP_NAMES[item.group] || `GROUP ${item.group}`}
+            {groupHeading(item, GROUP_NAMES)}
           </td>
         </tr>
       )
@@ -941,7 +944,10 @@ function WorksTable({ lineItems }) {
     rows.push(
       <tr key={`r${item.group}_${ri}`} style={{ background: bg, borderBottom: `1px solid ${BORDER}` }}>
         <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '11px', color: '#5A6E88' }}>{item.code}</td>
-        <td style={tdStyle}>{item.description}</td>
+        <td style={tdStyle}>
+          {item.description}
+          {lineBasis(item) && <div style={{ fontSize: '10.5px', color: '#5A6E88', marginTop: '2px' }}>{lineBasis(item)}</div>}
+        </td>
         <td style={{ ...tdStyle, textAlign: 'right' }}>{f(item.rateLow || 0)}</td>
         <td style={{ ...tdStyle, textAlign: 'right' }}>{f(item.rateHigh || 0)}</td>
         <td style={{ ...tdStyle, textAlign: 'right' }}>{f100(item.lineLow  || 0)}</td>
@@ -1022,6 +1028,7 @@ function TotalCostTable({ cost }) {
   // Inflation is negligible on short programmes — only show the row when it rounds to a non-zero figure.
   if (Math.round((wH*p.inflation/100)/1000) > 0 || Math.round((wL*p.inflation/100)/1000) > 0)
     rows.push(['Inflation Allowance (F)', `${pct(p.inflation)} of Works`, wL*p.inflation/100, wH*p.inflation/100, false, false])
+  for (const b of belowLineRows(cost)) rows.push([b.label, b.basis, b.low, b.high, false, false])
   const vatPct = cost.vatPct > 0 ? cost.vatPct : 20
   rows.push(
     ['TOTAL PROJECT COST (excl. VAT)', '',                       tL,                 tH,                 true,  false],
@@ -1445,6 +1452,9 @@ function buildEstimateBasis(cost, programme, dateStr) {
     `This is an NRM1 order of cost estimate prepared at RIBA Stage 0–1 from benchmark rates, not measured quantities. At this stage outturn costs typically vary by ±20–25% as the design develops. ${rangeSentence(cost)}`,
     `Data sources: ${sources || 'Estates AI rates and programme workbooks'}. Estimate base date: ${baseDate} (the date the rates are current at). Report generated ${dateStr}.`,
     ...(rateSourcesSentence(cost) ? [rateSourcesSentence(cost)] : []),
+    ...(quantityBasisSentence(cost) ? [quantityBasisSentence(cost)] : []),
+    ...(unverifiedRatesSentence(cost) ? [unverifiedRatesSentence(cost)] : []),
+    ...(bcisGroupSentence(cost) ? [bcisGroupSentence(cost)] : []),
     `Location adjustment: BCIS factor ${cost.bcisFactor} (${cost.bcisRegion})${cost.bcisDefaulted ? ' — applied as a default because the postcode matched no BCIS region; verify the postcode before relying on location-adjusted rates' : ''}.`,
     // Conditional, not boilerplate — see lib/reportBuilder.js's estimateBasisParas.
     inflationPct > 0
@@ -1480,11 +1490,12 @@ function buildCostAssumptions(cost, answers) {
   return [
     `All rates are national mean benchmark rates at the estimate base date (${baseDateLabel(cost)}). BCIS location factor ${cost.bcisFactor} applied for ${cost.bcisRegion}.`,
     `${areaLabel(cost.projectType || answers?.q1_2_projectType)} of ${cost.gifa} m² used as the pricing quantity. Rates are £/m² unless stated.`,
-    `Band position factor of ${cost.bandFactor} applied (${cost.interventionLevel}).`,
+    bandFactorSentence(cost),
     `Professional fees at ${cost.percentages?.fees}% reflect the project being at RIBA Stage ${answers?.q4_5_designStage || '0–1'}.`,
     `Contingency fixed at ${cost.percentages?.contingency ?? 5}% (RIBA Stage 0–1 standard). Survey uncertainty is captured in Risk Allowance (E).`,
     `VAT at ${vatPct}% is shown for reference only. Recoverability to be confirmed by the client's Finance team.`,
     `This estimate has not been prepared from measured quantities. A formal cost plan by a Chartered Quantity Surveyor is required before any financial commitment.`,
+    ...scopeAssumptionLines(cost),
   ]
 }
 
@@ -1504,6 +1515,6 @@ const COST_EXCLUSIONS = [
 function costExclusions(cost) {
   const groups = new Set((cost?.lineItems || []).map(i => i.group))
   const hasGroundworks = groups.has(0) || groups.has(1) || groups.has(8)
-  return COST_EXCLUSIONS.filter(e =>
-    hasGroundworks || !/archaeolog|ground conditions/i.test(e))
+  return applicableExclusions(COST_EXCLUSIONS.filter(e =>
+    hasGroundworks || !/archaeolog|ground conditions/i.test(e)), cost)
 }
