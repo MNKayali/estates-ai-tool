@@ -15,6 +15,9 @@ import { spawn } from 'node:child_process'
 
 process.env.ACCESS_CODE = ''
 process.env.ADMIN_CODE = ''
+// NRM1 v5.2: verify against the workbook in the repository (the loader reads a
+// non-URL value as a local path). Set RATES_FILE_URL yourself to override.
+if (!process.env.RATES_FILE_URL) process.env.RATES_FILE_URL = 'NRM1_Cost_Estimate_Tool_v5_2.xlsx'
 
 const child = spawn(
   process.platform === 'win32' ? 'npx.cmd' : 'npx',

@@ -15,33 +15,35 @@
 import { runDeterministicPipeline } from '@/lib/pipeline'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 import { isQuestionShown } from '@/lib/questionSets'
+import { getScopeCatalogue } from '@/lib/costCalculator'
+import { loadNrmWorkbook, distinctSpecLevels } from '@/lib/nrmWorkbook'
+import { projectTypeCode, projectTypeUsesLevel } from '@/lib/scopeEngine'
 
 export const maxDuration = 60
 
+// Both axes read their options from the NRM1 workbook ('3. Settings'), so a
+// variant is offered only where it can actually price differently.
 const AXES = {
   spec: {
     key: 'q2_4_specLevel',
     label: 'Specification level (Q2.4)',
-    variants: (answers) => {
-      // Mirrors the questionnaire: Demolition only has no Q2.4 at all
-      // (isQuestionShown), so it gets no priced variants on this axis rather
-      // than falling through to the general case below.
+    variants: async (answers) => {
+      // Mirrors the questionnaire: Demolition only and External works only
+      // have no Q2.4 at all (isQuestionShown).
       if (!isQuestionShown('q2_4_specLevel', answers.q1_2_projectType)) return []
-      const pt = String(answers.q1_2_projectType || '').toLowerCase()
-      // No Basic column for new build/extension, a single column for
-      // external works.
-      if (pt.includes('external works')) return ['Standard']
-      if (pt.includes('new build') || pt.includes('extension')) return ['Standard', 'High']
-      return ['Basic', 'Standard', 'High']
+      const model = await loadNrmWorkbook()
+      // A level that reads the same rate column as another (new build has no
+      // Basic column — Basic reads NB Std) is not a real variant.
+      return distinctSpecLevels(model.settings, projectTypeCode(model, answers.q1_2_projectType))
     },
   },
   intervention: {
     key: 'q2_3_interventionLevel',
-    label: 'Level of works (Q2.2)',
-    variants: (answers) => {
-      const pt = String(answers.q1_2_projectType || '')
-      if (!['Refurbishment', 'Fit-out', 'Extension'].includes(pt)) return []
-      return ['Fabric and finishes only', 'Finishes with minor services', 'Full systems replacement', 'Reconfiguration or full redesign']
+    label: 'Level of intervention (Q2.2)',
+    variants: async (answers) => {
+      const cat = await getScopeCatalogue()
+      if (!projectTypeUsesLevel(cat, answers.q1_2_projectType)) return []
+      return cat.settings.interventionLevels.map(l => l.name)
     },
   },
 }
@@ -62,7 +64,7 @@ export async function POST(request) {
     return Response.json({ error: 'At least one scope item is required.' }, { status: 400 })
   }
 
-  const variants = def.variants(answers)
+  const variants = await def.variants(answers)
   if (variants.length < 2) {
     return Response.json({ axis, label: def.label, current: answers[def.key] || null, scenarios: [], note: 'This project type has only one option on this axis.' })
   }

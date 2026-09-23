@@ -1,42 +1,25 @@
 /**
- * POST /api/suggest-scope  { objective, projectType, buildingUse, interventionLevel }
+ * POST /api/suggest-scope  { objective, projectType, buildingUse, interventionLevel, buildingAge, storeys }
  *
- * Proposes Q2.3 scope codes from the plain-English objective in Q2.1. The
- * model is shown ONLY the codes the picker would offer for these answers
- * (same visible-group, building-use, intervention-tier and priceable filters
- * as app/questionnaire/page.jsx) and must answer with a strict tool whose
- * `code` enum is that list — it cannot name an item that does not exist or is
- * not selectable. The user reviews and edits the result; the deterministic
+ * Proposes Q2.3 scope items (v5.2 Scope IDs) from the plain-English objective
+ * in Q2.1. The model is shown ONLY the items the picker offers for these
+ * answers — the same lib/scopeEngine.js tests the questionnaire runs ('Shown
+ * on', availability at the chosen level of intervention) — and must answer
+ * with a strict tool whose `code` enum is that list, so it cannot name an item
+ * that does not exist or is not selectable. Items tagged for the building use
+ * are listed first. The user reviews and edits the result; the deterministic
  * engine prices it. The AI never sees a rate and never touches a number.
  *
  * Gated by the access cookie (proxy.ts). Rate-limited: each call is a small
  * Haiku request (~£0.001), but an unbounded endpoint is still a cheap way to
  * burn credit.
  */
-import { getScopeItems } from '@/lib/costCalculator'
-import { matchesBuildingUse } from '@/lib/buildingUse'
+import { getScopeCatalogue } from '@/lib/costCalculator'
+import { buildContext, isOffered, isItemAvailable, isRelevant } from '@/lib/scopeEngine'
 import { PROSE_MODEL, getAnthropicKey } from '@/lib/proseSchema'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
-import { VISIBLE_GROUPS, priceableFor } from '@/lib/projectTypes'
 
 export const maxDuration = 30
-
-const LEVEL_TIER = {
-  'Fabric and finishes only': 1,
-  'Finishes with minor services': 2,
-  'Full systems replacement': 3,
-  'Reconfiguration or full redesign': 4,
-}
-// Codes with no tile of their own — the picker folds them into a parent
-// (5.5 rides with 5.2; 5.8 is derived from 5.8a + 5.8b; 5.2L is the
-// like-for-like-boiler alternative to 5.2, offered as a radio choice rather
-// than its own tile), so they are never offered directly. Must stay in step
-// with FOLDED_CODES in app/questionnaire/page.jsx — when 5.2L was missing
-// here, the model could return both 5.2 and 5.2L (mutually exclusive by
-// construction), and applySuggestedScope's scopeCodeSelectable filter tests
-// group/use/tier/priceable but not this folded set, so both survived and
-// calculateCost (no heating mutex) priced them together.
-const FOLDED = new Set(['5.2L', '5.5', '5.8'])
 
 export async function POST(request) {
   const rl = await checkRateLimit('suggest-scope', request, { requests: 20, window: '10 m' })
@@ -49,22 +32,22 @@ export async function POST(request) {
   const buildingUse = String(body?.buildingUse || '')
   const interventionLevel = String(body?.interventionLevel || '')
   if (objective.length < 20) return Response.json({ error: 'Describe the objective in a sentence or two first (at least 20 characters).' }, { status: 400 })
-  if (!VISIBLE_GROUPS[projectType]) return Response.json({ error: 'Select a project type first.' }, { status: 400 })
+  const cat = await getScopeCatalogue()
+  const ctx = buildContext(cat, {
+    q1_2_projectType: projectType, q1_3_buildingUse: buildingUse, q2_3_interventionLevel: interventionLevel,
+    q1_4_buildingAge: body?.buildingAge, q1_2_storeys: body?.storeys,
+  })
+  if (!ctx.PT) return Response.json({ error: 'Select a project type first.' }, { status: 400 })
   if (!getAnthropicKey()) return Response.json({ error: 'AI is not configured on this deployment.' }, { status: 503 })
 
-  const isRefurb = ['Refurbishment', 'Fit-out', 'Extension'].includes(projectType)
-  const tier = isRefurb ? (LEVEL_TIER[interventionLevel] || 4) : 4
-  const { groups } = await getScopeItems()
-  const candidates = groups
-    .filter(g => VISIBLE_GROUPS[projectType].includes(g.group))
-    .flatMap(g => g.items)
-    .filter(it => !FOLDED.has(it.code))
-    .filter(it => matchesBuildingUse(it.buildingUse, buildingUse))
-    .filter(it => !isRefurb || (it.minLvl || 1) <= tier)
-    .filter(it => priceableFor(it, projectType))
+  const offered = cat.items.filter(it => isOffered(it, ctx) && isItemAvailable(it, ctx))
+  // Tagged for this building use first, the rest after — the model sees the
+  // same ordering the picker shows ("More items" last).
+  const candidates = [...offered.filter(it => isRelevant(it, ctx)), ...offered.filter(it => !isRelevant(it, ctx))]
+    .map(it => ({ code: it.id, description: it.name, group: it.groupLabel, included: it.included }))
   if (candidates.length === 0) return Response.json({ items: [], note: 'No scope items are available for these answers.' })
 
-  const catalogue = candidates.map(c => `${c.code} — ${c.description}${c.unit && c.unit !== 'm²' ? ` (per ${c.unit})` : ''}`).join('\n')
+  const catalogue = candidates.map(c => `${c.code} — ${c.group}: ${c.description}${c.included ? ` (${c.included})` : ''}`).join('\n')
   const tool = {
     name: 'suggest_scope',
     description: 'Propose the NRM1 scope items implied by the project objective. Call exactly once.',
@@ -102,7 +85,8 @@ Rules:
 - If the objective is GENERAL (e.g. "modernisation", "refurbishment", "bring it up to standard"), do NOT return an empty list. Propose the scope such a project normally includes for this project type, building use and level of intervention, and say so in the reason for each item, e.g. "typically included in a full systems replacement of a dwelling of this age".
 - Return at least three items unless the objective is genuinely unintelligible.
 - Never propose an item that plainly contradicts the objective.
-- Give each item ONE SHORT reason, at most 20 words, in British English, no markdown. Use only codes from the catalogue you are given. Do not mention rates, costs or quantities.`
+- Give each item ONE SHORT reason, at most 20 words, in British English, no markdown. Use only codes from the catalogue you are given. Do not mention rates, costs or quantities.
+- Builder's work in connection is added automatically; never propose it.`
   const user = `PROJECT TYPE: ${projectType}${buildingUse ? ` | BUILDING USE: ${buildingUse}` : ''}${interventionLevel ? ` | LEVEL OF INTERVENTION: ${interventionLevel}` : ''}
 
 OBJECTIVE (the client's own words):
