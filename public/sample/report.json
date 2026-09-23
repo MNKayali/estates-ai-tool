@@ -5,302 +5,743 @@
   "cost": {
     "lineItems": [
       {
-        "code": "0.5",
+        "code": "S-0001",
+        "rateKey": "S-0001-01",
         "group": 0,
-        "description": "Soft strip of finishes & fittings",
+        "groupLabel": "Facilitating works",
+        "section": null,
+        "item": "Asbestos removal",
+        "option": "Standard",
+        "description": "Asbestos removal",
         "unit": "m²",
-        "source": "",
+        "source": "Derived from v4.5",
+        "aiEstimate": false,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
+        "rate": 37.6,
+        "rateLow": 33.46,
+        "rateHigh": 41.74,
+        "lineMid": 45120,
+        "lineLow": 40157,
+        "lineHigh": 50083,
+        "bcis": [
+          {
+            "element": "0.1",
+            "share": 1
+          }
+        ]
+      },
+      {
+        "code": "S-0003",
+        "rateKey": "S-0003-01",
+        "group": 0,
+        "groupLabel": "Facilitating works",
+        "section": null,
+        "item": "Strip-out",
+        "option": "Standard",
+        "description": "Strip-out",
+        "unit": "m²",
+        "source": "v4.5 – no source recorded",
+        "aiEstimate": false,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
         "rate": 23.5,
         "rateLow": 20.92,
         "rateHigh": 26.09,
-        "qty": 1200,
         "lineMid": 28200,
         "lineLow": 25098,
-        "lineHigh": 31302
+        "lineHigh": 31302,
+        "bcis": [
+          {
+            "element": "0.2",
+            "share": 1
+          }
+        ]
       },
       {
-        "code": "2.6",
+        "code": "S-0017",
+        "rateKey": "S-0017-01",
         "group": 2,
-        "description": "Windows & external doors",
+        "groupLabel": "Superstructure and envelope",
+        "section": "Roof and walls",
+        "item": "Windows and external doors",
+        "option": "Standard",
+        "description": "Windows and external doors",
         "unit": "m²",
-        "source": "",
+        "source": "v4.5 – no source recorded",
+        "aiEstimate": false,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
         "rate": 141,
         "rateLow": 125.49,
         "rateHigh": 156.51,
-        "qty": 1200,
         "lineMid": 169200,
         "lineLow": 150588,
-        "lineHigh": 187812
+        "lineHigh": 187812,
+        "bcis": [
+          {
+            "element": "2.6",
+            "share": 1
+          }
+        ]
       },
       {
-        "code": "2.8",
+        "code": "S-0019",
+        "rateKey": "S-0019-01",
         "group": 2,
-        "description": "Internal doors & ironmongery",
+        "groupLabel": "Superstructure and envelope",
+        "section": "Internal walls and doors",
+        "item": "Internal doors",
+        "option": "Standard",
+        "description": "Internal doors",
         "unit": "m²",
-        "source": "",
+        "source": "v4.5 – no source recorded",
+        "aiEstimate": false,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
         "rate": 32.9,
         "rateLow": 29.28,
         "rateHigh": 36.52,
-        "qty": 1200,
         "lineMid": 39480,
         "lineLow": 35137,
-        "lineHigh": 43823
+        "lineHigh": 43823,
+        "bcis": [
+          {
+            "element": "2.8",
+            "share": 1
+          }
+        ]
       },
       {
-        "code": "3.1",
+        "code": "S-0020",
+        "rateKey": "S-0020-01",
+        "group": 2,
+        "groupLabel": "Superstructure and envelope",
+        "section": "Internal walls and doors",
+        "item": "Fire stopping",
+        "option": "Standard",
+        "description": "Fire stopping",
+        "unit": "m²",
+        "source": "AI estimate – verify",
+        "aiEstimate": true,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
+        "rate": 28.2,
+        "rateLow": 25.1,
+        "rateHigh": 31.3,
+        "lineMid": 33840,
+        "lineLow": 30118,
+        "lineHigh": 37562,
+        "bcis": [
+          {
+            "element": "2.7",
+            "share": 1
+          }
+        ]
+      },
+      {
+        "code": "S-0021",
+        "rateKey": "S-0021-01",
         "group": 3,
+        "groupLabel": "Internal finishes",
+        "section": null,
+        "item": "Wall finishes",
+        "option": "Standard",
         "description": "Wall finishes",
         "unit": "m²",
-        "source": "",
+        "source": "v4.5 – no source recorded",
+        "aiEstimate": false,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
         "rate": 51.7,
         "rateLow": 46.01,
         "rateHigh": 57.39,
-        "qty": 1200,
         "lineMid": 62040,
         "lineLow": 55216,
-        "lineHigh": 68864
+        "lineHigh": 68864,
+        "bcis": [
+          {
+            "element": "3.1",
+            "share": 1
+          }
+        ]
       },
       {
-        "code": "3.2",
+        "code": "S-0022",
+        "rateKey": "S-0022-01",
         "group": 3,
-        "description": "Floor finishes",
+        "groupLabel": "Internal finishes",
+        "section": null,
+        "item": "Floor finishes",
+        "option": "Raised access floor: No",
+        "description": "Floor finishes — Raised access floor: No",
         "unit": "m²",
-        "source": "",
+        "source": "v4.5 – no source recorded",
+        "aiEstimate": false,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
         "rate": 70.5,
         "rateLow": 62.75,
         "rateHigh": 78.26,
-        "qty": 1200,
         "lineMid": 84600,
         "lineLow": 75294,
-        "lineHigh": 93906
+        "lineHigh": 93906,
+        "bcis": [
+          {
+            "element": "3.2",
+            "share": 1
+          }
+        ]
       },
       {
-        "code": "3.3",
+        "code": "S-0023",
+        "rateKey": "S-0023-01",
         "group": 3,
+        "groupLabel": "Internal finishes",
+        "section": null,
+        "item": "Ceiling finishes",
+        "option": "Standard",
         "description": "Ceiling finishes",
         "unit": "m²",
-        "source": "",
+        "source": "v4.5 – no source recorded",
+        "aiEstimate": false,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
         "rate": 47,
         "rateLow": 41.83,
         "rateHigh": 52.17,
-        "qty": 1200,
         "lineMid": 56400,
         "lineLow": 50196,
-        "lineHigh": 62604
+        "lineHigh": 62604,
+        "bcis": [
+          {
+            "element": "3.3",
+            "share": 1
+          }
+        ]
       },
       {
-        "code": "4.1",
+        "code": "S-0024",
+        "rateKey": "S-0024-01",
         "group": 4,
-        "description": "General fittings & built-in joinery",
+        "groupLabel": "Toilets, kitchens and fittings",
+        "section": "Toilets, bathrooms and kitchens",
+        "item": "Toilets",
+        "option": "Standard",
+        "description": "Toilets — Standard",
+        "unit": "nr",
+        "source": "Derived from v4.5",
+        "aiEstimate": false,
+        "qty": 18,
+        "qtySource": "user",
+        "ratioEstimate": false,
+        "estimate": 12,
+        "rate": 4653,
+        "rateLow": 4141.17,
+        "rateHigh": 5164.83,
+        "lineMid": 83754,
+        "lineLow": 74541,
+        "lineHigh": 92967,
+        "bcis": [
+          {
+            "element": "5.1",
+            "share": 0.8
+          },
+          {
+            "element": "2.7",
+            "share": 0.2
+          }
+        ]
+      },
+      {
+        "code": "S-0024",
+        "rateKey": "S-0024-04",
+        "group": 4,
+        "groupLabel": "Toilets, kitchens and fittings",
+        "section": "Toilets, bathrooms and kitchens",
+        "item": "Toilets",
+        "option": "Accessible",
+        "description": "Toilets — Accessible",
+        "unit": "nr",
+        "source": "AI estimate – verify",
+        "aiEstimate": true,
+        "qty": 3,
+        "qtySource": "user",
+        "ratioEstimate": false,
+        "estimate": 3,
+        "rate": 5170,
+        "rateLow": 4601.3,
+        "rateHigh": 5738.7,
+        "lineMid": 15510,
+        "lineLow": 13804,
+        "lineHigh": 17216,
+        "bcis": [
+          {
+            "element": "5.1",
+            "share": 0.8
+          },
+          {
+            "element": "2.7",
+            "share": 0.2
+          }
+        ]
+      },
+      {
+        "code": "S-0028",
+        "rateKey": "S-0028-01",
+        "group": 4,
+        "groupLabel": "Toilets, kitchens and fittings",
+        "section": "Fittings and furniture",
+        "item": "Fixed joinery",
+        "option": "Standard",
+        "description": "Fixed joinery",
         "unit": "m²",
-        "source": "",
+        "source": "v4.5 – no source recorded",
+        "aiEstimate": false,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
         "rate": 42.3,
         "rateLow": 37.65,
         "rateHigh": 46.95,
-        "qty": 1200,
         "lineMid": 50760,
         "lineLow": 45176,
-        "lineHigh": 56344
+        "lineHigh": 56344,
+        "bcis": [
+          {
+            "element": "4.1",
+            "share": 1
+          }
+        ]
       },
       {
-        "code": "4.7",
-        "group": 4,
-        "description": "Loose furniture & FF&E — office or education",
-        "unit": "Nr",
-        "source": "",
-        "rate": 1034,
-        "rateLow": 920.26,
-        "rateHigh": 1147.74,
-        "qty": 120,
-        "lineMid": 124080,
-        "lineLow": 110431,
-        "lineHigh": 137729
-      },
-      {
-        "code": "5.1",
+        "code": "S-0039",
+        "rateKey": "S-0039-02",
         "group": 5,
-        "description": "Sanitary plumbing (1st & 2nd fix)",
+        "groupLabel": "Services",
+        "section": "Mechanical",
+        "item": "Heating and hot water",
+        "option": "System: Air source heat pump · Scope: Full system",
+        "description": "Heating and hot water — Air source heat pump, Full system",
         "unit": "m²",
-        "source": "",
+        "source": "AI estimate – verify",
+        "aiEstimate": true,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
+        "rate": 73.32,
+        "rateLow": 65.25,
+        "rateHigh": 81.39,
+        "lineMid": 87984,
+        "lineLow": 78306,
+        "lineHigh": 97662,
+        "bcis": [
+          {
+            "element": "5.5",
+            "share": 0.4
+          },
+          {
+            "element": "5.6",
+            "share": 0.6
+          }
+        ]
+      },
+      {
+        "code": "S-0040",
+        "rateKey": "S-0040-01",
+        "group": 5,
+        "groupLabel": "Services",
+        "section": "Mechanical",
+        "item": "Water and drainage",
+        "option": "Scope: Full installation",
+        "description": "Water and drainage — Full installation",
+        "unit": "m²",
+        "source": "v4.5 – no source recorded",
+        "aiEstimate": false,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
         "rate": 61.1,
         "rateLow": 54.38,
         "rateHigh": 67.82,
-        "qty": 1200,
         "lineMid": 73320,
         "lineLow": 65255,
-        "lineHigh": 81385
+        "lineHigh": 81385,
+        "bcis": [
+          {
+            "element": "5.3",
+            "share": 0.5
+          },
+          {
+            "element": "5.4",
+            "share": 0.5
+          }
+        ]
       },
       {
-        "code": "5.16",
+        "code": "S-0041",
+        "rateKey": "S-0041-01",
         "group": 5,
-        "description": "IT / data infrastructure (Cat6A)",
+        "groupLabel": "Services",
+        "section": "Mechanical",
+        "item": "Ventilation",
+        "option": "Standard",
+        "description": "Ventilation",
         "unit": "m²",
-        "source": "",
-        "rate": 16.92,
-        "rateLow": 15.06,
-        "rateHigh": 18.78,
+        "source": "v4.5 – no source recorded",
+        "aiEstimate": false,
         "qty": 1200,
-        "lineMid": 20304,
-        "lineLow": 18071,
-        "lineHigh": 22537
-      },
-      {
-        "code": "5.2",
-        "group": 5,
-        "description": "Heating & hot water (LTHW/heat pump)",
-        "unit": "m²",
-        "source": "",
-        "rate": 47,
-        "rateLow": 41.83,
-        "rateHigh": 52.17,
-        "qty": 1200,
-        "lineMid": 56400,
-        "lineLow": 50196,
-        "lineHigh": 62604
-      },
-      {
-        "code": "5.20",
-        "group": 5,
-        "description": "Builder's work in connection (BWIC)",
-        "unit": "m²",
-        "source": "",
-        "rate": 16.92,
-        "rateLow": 15.06,
-        "rateHigh": 18.78,
-        "qty": 1200,
-        "lineMid": 20304,
-        "lineLow": 18071,
-        "lineHigh": 22537
-      },
-      {
-        "code": "5.3",
-        "group": 5,
-        "description": "Ventilation & air handling",
-        "unit": "m²",
-        "source": "",
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
         "rate": 42.3,
         "rateLow": 37.65,
         "rateHigh": 46.95,
-        "qty": 1200,
         "lineMid": 50760,
         "lineLow": 45176,
-        "lineHigh": 56344
+        "lineHigh": 56344,
+        "bcis": [
+          {
+            "element": "5.7",
+            "share": 1
+          }
+        ]
       },
       {
-        "code": "5.5",
+        "code": "S-0045",
+        "rateKey": "S-0045-01",
         "group": 5,
-        "description": "Gas installation",
+        "groupLabel": "Services",
+        "section": "Electrical",
+        "item": "Power",
+        "option": "Scope: Full installation",
+        "description": "Power — Full installation",
         "unit": "m²",
-        "source": "",
+        "source": "Derived from v4.5",
+        "aiEstimate": false,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
+        "rate": 118.44,
+        "rateLow": 105.41,
+        "rateHigh": 131.47,
+        "lineMid": 142128,
+        "lineLow": 126494,
+        "lineHigh": 157762,
+        "bcis": [
+          {
+            "element": "5.8",
+            "share": 1
+          }
+        ]
+      },
+      {
+        "code": "S-0046",
+        "rateKey": "S-0046-01",
+        "group": 5,
+        "groupLabel": "Services",
+        "section": "Electrical",
+        "item": "Lighting",
+        "option": "Scope: Full installation",
+        "description": "Lighting — Full installation",
+        "unit": "m²",
+        "source": "Derived from v4.5",
+        "aiEstimate": false,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
+        "rate": 31.02,
+        "rateLow": 27.61,
+        "rateHigh": 34.43,
+        "lineMid": 37224,
+        "lineLow": 33129,
+        "lineHigh": 41319,
+        "bcis": [
+          {
+            "element": "5.8",
+            "share": 1
+          }
+        ]
+      },
+      {
+        "code": "S-0047",
+        "rateKey": "S-0047-01",
+        "group": 5,
+        "groupLabel": "Services",
+        "section": "Electrical",
+        "item": "Emergency lighting",
+        "option": "Standard",
+        "description": "Emergency lighting",
+        "unit": "m²",
+        "source": "v4.5 – BCIS cited",
+        "aiEstimate": false,
+        "qty": 1200,
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
         "rate": 9.4,
         "rateLow": 8.37,
         "rateHigh": 10.43,
-        "qty": 1200,
         "lineMid": 11280,
         "lineLow": 10039,
-        "lineHigh": 12521
+        "lineHigh": 12521,
+        "bcis": [
+          {
+            "element": "5.8",
+            "share": 1
+          }
+        ]
       },
       {
-        "code": "5.7",
+        "code": "S-0049",
+        "rateKey": "S-0049-01",
         "group": 5,
-        "description": "Electrical distribution & switchgear",
+        "groupLabel": "Services",
+        "section": "Fire safety",
+        "item": "Fire alarm",
+        "option": "Standard",
+        "description": "Fire alarm",
         "unit": "m²",
-        "source": "",
-        "rate": 35.72,
-        "rateLow": 31.79,
-        "rateHigh": 39.65,
+        "source": "v4.5 – BCIS cited",
+        "aiEstimate": false,
         "qty": 1200,
-        "lineMid": 42864,
-        "lineLow": 38149,
-        "lineHigh": 47579
-      },
-      {
-        "code": "5.8",
-        "group": 5,
-        "description": "Electrical wiring (1st & 2nd fix)",
-        "unit": "m²",
-        "source": "",
-        "rate": 65.8,
-        "rateLow": 58.56,
-        "rateHigh": 73.04,
-        "qty": 1200,
-        "lineMid": 78960,
-        "lineLow": 70274,
-        "lineHigh": 87646
-      },
-      {
-        "code": "5.8c",
-        "group": 5,
-        "description": "2nd fix lighting — new luminaires, layout, controls and occupancy sensors",
-        "unit": "m²",
-        "source": "",
-        "rate": 21.62,
-        "rateLow": 19.24,
-        "rateHigh": 24,
-        "qty": 1200,
-        "lineMid": 25944,
-        "lineLow": 23090,
-        "lineHigh": 28798
-      },
-      {
-        "code": "5.9a",
-        "group": 5,
-        "description": "Fire alarm system — detection, call points, sounders, visual alarms and panel (L1–L3)",
-        "unit": "m²",
-        "source": "",
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
         "rate": 16.92,
         "rateLow": 15.06,
         "rateHigh": 18.78,
-        "qty": 1200,
         "lineMid": 20304,
         "lineLow": 18071,
-        "lineHigh": 22537
+        "lineHigh": 22537,
+        "bcis": [
+          {
+            "element": "5.12",
+            "share": 1
+          }
+        ]
       },
       {
-        "code": "5.9b",
+        "code": "S-0052",
+        "rateKey": "S-0052-01",
         "group": 5,
-        "description": "Emergency lighting — maintained and non-maintained luminaires, central test system",
+        "groupLabel": "Services",
+        "section": "Data and security",
+        "item": "Data and IT",
+        "option": "Standard",
+        "description": "Data and IT",
         "unit": "m²",
-        "source": "",
-        "rate": 9.4,
-        "rateLow": 8.37,
-        "rateHigh": 10.43,
+        "source": "v4.5 – no source recorded",
+        "aiEstimate": false,
         "qty": 1200,
-        "lineMid": 11280,
-        "lineLow": 10039,
-        "lineHigh": 12521
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
+        "rate": 16.92,
+        "rateLow": 15.06,
+        "rateHigh": 18.78,
+        "lineMid": 20304,
+        "lineLow": 18071,
+        "lineHigh": 22537,
+        "bcis": [
+          {
+            "element": "5.12",
+            "share": 1
+          }
+        ]
       },
       {
-        "code": "7.4",
-        "group": 7,
-        "description": "M&E overhaul / life-expired services",
+        "code": "S-0083",
+        "rateKey": "S-0083-01",
+        "group": 5,
+        "groupLabel": "Services",
+        "section": null,
+        "item": "Builder's work in connection",
+        "option": "Standard",
+        "description": "Builder's work in connection",
         "unit": "m²",
-        "source": "",
-        "rate": 47,
-        "rateLow": 41.83,
-        "rateHigh": 52.17,
+        "source": "v4.5 – no source recorded",
+        "aiEstimate": false,
         "qty": 1200,
-        "lineMid": 56400,
-        "lineLow": 50196,
-        "lineHigh": 62604
+        "qtySource": "estimate",
+        "ratioEstimate": false,
+        "estimate": 1200,
+        "rate": 16.92,
+        "rateLow": 15.06,
+        "rateHigh": 18.78,
+        "lineMid": 20304,
+        "lineLow": 18071,
+        "lineHigh": 22537,
+        "bcis": [
+          {
+            "element": "5.14",
+            "share": 1
+          }
+        ]
       }
     ],
+    "belowLine": {
+      "items": [],
+      "mid": 0,
+      "low": 0,
+      "high": 0
+    },
+    "bcisTotals": [
+      {
+        "element": "0.1",
+        "group": 0,
+        "amount": 45120
+      },
+      {
+        "element": "0.2",
+        "group": 0,
+        "amount": 28200
+      },
+      {
+        "element": "2.6",
+        "group": 2,
+        "amount": 169200
+      },
+      {
+        "element": "2.7",
+        "group": 2,
+        "amount": 53693
+      },
+      {
+        "element": "2.8",
+        "group": 2,
+        "amount": 39480
+      },
+      {
+        "element": "3.1",
+        "group": 3,
+        "amount": 62040
+      },
+      {
+        "element": "3.2",
+        "group": 3,
+        "amount": 84600
+      },
+      {
+        "element": "3.3",
+        "group": 3,
+        "amount": 56400
+      },
+      {
+        "element": "4.1",
+        "group": 4,
+        "amount": 50760
+      },
+      {
+        "element": "5.1",
+        "group": 5,
+        "amount": 79411
+      },
+      {
+        "element": "5.3",
+        "group": 5,
+        "amount": 36660
+      },
+      {
+        "element": "5.4",
+        "group": 5,
+        "amount": 36660
+      },
+      {
+        "element": "5.5",
+        "group": 5,
+        "amount": 35194
+      },
+      {
+        "element": "5.6",
+        "group": 5,
+        "amount": 52790
+      },
+      {
+        "element": "5.7",
+        "group": 5,
+        "amount": 50760
+      },
+      {
+        "element": "5.8",
+        "group": 5,
+        "amount": 190632
+      },
+      {
+        "element": "5.12",
+        "group": 5,
+        "amount": 40608
+      },
+      {
+        "element": "5.14",
+        "group": 5,
+        "amount": 20304
+      }
+    ],
+    "inputs": {
+      "GIFA": 1200,
+      "STOREYS": 3,
+      "FOOTPRINT": 400,
+      "UPPER": 800,
+      "EXT_AREA": 600,
+      "DEMOLISHED": 1200
+    },
+    "constructionMethod": "Traditional",
+    "scopeEffects": {
+      "risks": [
+        {
+          "itemId": "S-0039",
+          "item": "Heating and hot water",
+          "optionKey": "S-0039-02",
+          "text": "electrical capacity and DNO check"
+        }
+      ],
+      "assumptions": [
+        {
+          "itemId": "S-0039",
+          "item": "Heating and hot water",
+          "optionKey": "S-0039-02",
+          "text": "external plant space included"
+        }
+      ]
+    },
     "works": {
-      "mid": 1083000,
-      "low": 964000,
-      "high": 1202000
+      "mid": 1133000,
+      "low": 1008000,
+      "high": 1257000
     },
     "construction": {
-      "mid": 1294000,
-      "low": 1152000,
-      "high": 1436000
+      "mid": 1354000,
+      "low": 1205000,
+      "high": 1502000
     },
     "total": {
-      "mid": 1718000,
-      "low": 1528000,
-      "high": 1906000
+      "mid": 1798000,
+      "low": 1600000,
+      "high": 1994000
     },
-    "vat": 344000,
+    "vat": 360000,
     "bcisFactor": 0.94,
     "bcisRegion": "West Midlands",
     "gifa": 1200,
@@ -319,17 +760,18 @@
       "riskLevel": "Medium"
     },
     "breakdown": {
-      "prelims": 108000,
-      "ohp": 103000,
-      "fees": 207000,
+      "prelims": 113000,
+      "ohp": 108000,
+      "fees": 217000,
       "devCosts": 0,
-      "risk": 87000,
-      "contingency": 54000,
-      "inflation": 76000
+      "risk": 91000,
+      "contingency": 57000,
+      "inflation": 79000,
+      "belowLine": 0
     },
     "excludedNoQuantity": [],
     "additionalScopeNote": null,
-    "workbookVersion": "NRM1 v4.5 (May 2026)",
+    "workbookVersion": "NRM1 v5.2 (2026-09-23)",
     "baseDate": null,
     "rangeApplied": {
       "grade": "A",
@@ -437,20 +879,11 @@
     "bcisDefaulted": false,
     "autoIncludes": [
       {
-        "code": "5.20",
-        "reason": "Builder's Work In Connection is required whenever any Group 5 M&E element is priced — auto-included, not offered as a separate tick."
+        "code": "S-0083",
+        "reason": "Builder's work in connection — add when any Group 5 item is selected; never shown"
       }
     ],
-    "adjustments": [
-      {
-        "code": "5.8a",
-        "reason": "combined into 5.8 (single wiring selection)"
-      },
-      {
-        "code": "5.8b",
-        "reason": "combined into 5.8 (single wiring selection)"
-      }
-    ],
+    "adjustments": [],
     "buildingUseHidden": []
   },
   "programme": {
@@ -620,7 +1053,7 @@
       "Surveys shown at the start of Stage 2 are identified as required but not yet commissioned. Commissioning surveys before Stage 2 commences is a gateway condition.",
       "Calendar dates run from the stated expected start of 11 Jan 2027 (Q4.0), taken as Stage 1 Gateway approval (Week 0). A later start shifts every date accordingly.",
       "A programme float of 9 week(s) (1 week per 13 weeks of critical path, Modifiers PROG-FLOAT) is included in the headline programme. The best-case programme without float is 115 weeks; the client should plan around the with-float figure.",
-      "Procurement threshold rule: total project cost mid-point (£1647k) exceeds £100,000 — formal competitive tender of approximately 12 weeks applied.",
+      "Procurement threshold rule: total project cost mid-point (£1724k) exceeds £100,000 — formal competitive tender of approximately 12 weeks applied.",
       "Handover (RIBA Stage 6) includes commissioning, snagging, and Practical Completion. The defects liability period is not shown — it begins at Practical Completion and is typically 12 months."
     ],
     "standardAssumptions": [
@@ -634,7 +1067,7 @@
       "Surveys shown at the start of Stage 2 are identified as required but not yet commissioned. Commissioning surveys before Stage 2 commences is a gateway condition.",
       "Calendar dates run from the stated expected start of 11 Jan 2027 (Q4.0), taken as Stage 1 Gateway approval (Week 0). A later start shifts every date accordingly.",
       "A programme float of 9 week(s) (1 week per 13 weeks of critical path, Modifiers PROG-FLOAT) is included in the headline programme. The best-case programme without float is 115 weeks; the client should plan around the with-float figure.",
-      "Procurement threshold rule: total project cost mid-point (£1647k) exceeds £100,000 — formal competitive tender of approximately 12 weeks applied.",
+      "Procurement threshold rule: total project cost mid-point (£1724k) exceeds £100,000 — formal competitive tender of approximately 12 weeks applied.",
       "Handover (RIBA Stage 6) includes commissioning, snagging, and Practical Completion. The defects liability period is not shown — it begins at Practical Completion and is typically 12 months."
     ],
     "totalWeeks": 124,
@@ -685,92 +1118,83 @@
   "budget": {
     "status": "sufficient",
     "budget": 4500000,
-    "grossLow": 1834000,
-    "grossHigh": 2287000,
-    "margin": 2213000,
+    "grossLow": 1920000,
+    "grossHigh": 2393000,
+    "margin": 2107000,
     "grossFactor": 1.2,
-    "note": "The stated budget of £4,500,000 (incl. fees and VAT) is sufficient against the estimated gross range of £1,834,000 – £2,287,000, with headroom of approximately £2,213,000 above the top of the range."
+    "note": "The stated budget of £4,500,000 (incl. fees and VAT) is sufficient against the estimated gross range of £1,920,000 – £2,393,000, with headroom of approximately £2,107,000 above the top of the range."
   },
   "aiProse": {
-    "executiveSummary": "This report assesses the feasibility of refurbishing Hargreaves Teaching Block, a three-storey 1960s teaching building at Example University in Birmingham with a gross internal floor area of 1200 m². The project will replace life-expired heating, ventilation and electrical services, upgrade fire safety, improve thermal performance to support the university's net-zero plan, and create modern flexible teaching and seminar space. The estimated total project cost is £1,528,000 to £1,906,000 (excluding VAT), and this feasibility study is delivered at Grade A (High Confidence). The target completion date of 1 September 2028 is not achievable from the stated start of 11 January 2027; the 124-week programme completes approximately 38 weeks later, around 28 May 2029. The most material risk is the requirement to confine all works to vacation and holiday windows, which creates significant programme pressure and the potential for overrun into term time.",
+    "executiveSummary": "This report assesses the feasibility of refurbishing Hargreaves Teaching Block, a three-storey 1960s teaching building at Example University in Birmingham (1200 m² GIFA), to provide modern flexible teaching and seminar space with full systems replacement, upgraded fire safety, and improved thermal performance to support the university's net-zero plan. The estimated total project cost is £1,600,000 to £1,994,000 (excluding VAT), with a confidence grade of Grade A (High Confidence). The target completion date of 1 September 2028 is not achievable; the programme extends to approximately 28 May 2029, some 38 weeks beyond the target. The most material risk is the requirement to confine all works to vacation and holiday windows only, which significantly constrains the construction programme and creates a high risk of overrun into term time.",
     "keyFindings": [
-      "The project is driven by the need to replace life-expired mechanical, electrical and plumbing services across the entire 1200 m² building, combined with full systems replacement and thermal fabric upgrade, resulting in a medium-risk cost estimate with 8% risk allowance reflecting asbestos presence and restricted working conditions.",
-      "The target date of 1 September 2028 is not achievable; the 124-week programme (including design, tender and construction across multiple phases) completes around 28 May 2029, approximately 38 weeks beyond the target, primarily due to the requirement to confine works to vacation windows only.",
-      "The stated budget of £4,500,000 (including fees and VAT) is sufficient against the estimated gross range of £1,834,000 to £2,287,000, providing headroom of approximately £2,213,000 above the top of the range.",
-      "The most significant risk is the requirement to confine all works to vacation and holiday windows, which spans multiple academic terms and creates a high risk of programme overrun into term time if any phase slips.",
-      "Traditional Single Stage Tender procurement is recommended because the project is grant-funded and formal competitive procurement is required regardless of value, and this route allows the client design team to maintain design responsibility and control specification through a single tender stage."
+      " The project is cost-driven by full systems replacement across heating, ventilation, electrical, water and drainage, and data infrastructure, combined with asbestos removal and comprehensive strip-out and refurbishment of all finishes across 1200 m². The target date of 1 September 2028 is not achievable; the 124-week programme (including design, tender, and construction phases) completes around 28 May 2029, approximately 38 weeks beyond the target. The stated budget of £4,500,000 (including fees and VAT) is sufficient against the estimated gross range of £1,920,000 to £2,393,000, providing headroom of approximately £2,107,000 above the top of the range. The most significant survey gap is confirmation of electrical capacity and DNO requirements for the proposed air source heat pump system, which must be investigated during Stage 2 design. Traditional Single Stage Tender procurement is recommended because it suits public funding requirements, allows formal competitive procurement, and provides cost certainty through a fixed-price contract before works commence."
     ],
     "scopeAssumptions": [
-      "The scope includes soft strip of finishes and fittings, replacement of windows and external doors, internal doors and ironmongery, all wall, floor and ceiling finishes, general fittings and built-in joinery, 120 items of loose furniture and equipment, full sanitary plumbing first and second fix, IT and data infrastructure to Cat6A standard, heating and hot water via low-temperature hot water and heat pump, builder's work in connection, ventilation and air handling, gas installation, electrical distribution and switchgear, electrical wiring first and second fix, new lighting with occupancy sensors, fire alarm system with detection, call points, sounders and visual alarms, emergency lighting with maintained and non-maintained luminaires, and overhaul of life-expired services, all across the full 1200 m² building.",
-      "The roof was recovered in 2011 and windows on the south elevation were replaced in 2016; the north elevation windows remain original and are included in the replacement scope, and no services replacement has occurred since the building's original construction in the 1960s.",
-      "The project must comply with BREEAM and net-zero standards in accordance with the university design guide, and the building is located in a conservation area or subject to an Article 4 direction, which may require enhanced materials and detailing for external alterations."
+      "The scope includes full replacement of heating and hot water systems via an air source heat pump serving the entire 1200 m² building, with external plant space included in the cost estimate.",
+      "The scope includes asbestos removal across the estimated 1200 m² of the building, strip-out of all existing systems and finishes, and installation of 18 standard and 3 accessible toilet facilities as specified by the client.",
+      "The scope assumes that the roof, recovered in 2011, and the south elevation windows, replaced in 2016, do not require further intervention; all other building elements are included in the refurbishment."
     ],
-    "costNarrative": "The cost estimate is driven by the comprehensive replacement of all mechanical, electrical and plumbing services across the entire building, combined with full refurbishment of internal and external fabric including windows, doors, finishes and fittings. The 16% professional fees reflect the complexity of an M&E-heavy refurbishment at Stage 0–1 design with BREEAM requirements, and the 8% risk allowance reflects the known presence of asbestos, ageing services, restricted working hours, partial occupation during works, and a hard deadline.",
-    "roiNarrative": "The project cost mid-point is £1,717,000, with an annual operational benefit of £95,000 from energy and cost savings, yielding a simple payback period of 18.1 years. The key financial risk is the long payback horizon, which depends on the realisation of the assumed annual savings and the stability of energy costs over the payback period; any delay to completion or cost overrun will extend the payback further.",
+    "costNarrative": "The main cost drivers are the full replacement of life-expired mechanical, electrical, and plumbing systems across the entire building, the removal of asbestos from an estimated 1200 m², and comprehensive refurbishment of all internal and external finishes, wall, floor, and ceiling surfaces. The specification of an air source heat pump system, combined with the need for enhanced fire safety measures, modern ventilation, and full data and IT infrastructure, reflects the university's net-zero objectives and the building's age and condition.",
+    "roiNarrative": "The project cost mid-point is £1,797,000, with an estimated annual operational benefit of £95,000, yielding a simple payback period of 18.9 years. The key financial risk is that the payback period is lengthy; if annual benefits are lower than forecast or if the project cost increases beyond the mid-point estimate, the return on investment will be further delayed.",
     "constraints": [
       {
         "category": "Programme",
         "title": "Term-time working restriction",
-        "text": "All works must be confined to vacation and holiday windows only, avoiding examination periods in January and May–June, which extends the programme to 124 weeks and creates a high risk of overrun into term time if any phase slips."
+        "text": "All works must be confined to vacation and holiday windows only, which severely constrains the construction programme and creates a high risk of overrun into term time if any phase slips."
       },
       {
         "category": "Access",
         "title": "Restricted working hours",
-        "text": "Restricted working hours on site will extend construction duration and may attract premium or out-of-hours rates, increasing both cost and programme risk."
-      },
-      {
-        "category": "Technical",
-        "title": "Asbestos presence",
-        "text": "Asbestos is known or suspected in the building; a valid asbestos register and condition survey are required to confirm scope and inform safe removal and disposal protocols."
+        "text": "The building is partially occupied during works and sits in the middle of campus; restricted working hours will extend the construction duration and may attract premium or out-of-hours rates."
       },
       {
         "category": "Regulatory",
         "title": "Conservation area constraints",
-        "text": "The building is located in a conservation area or subject to an Article 4 direction, which curtails permitted development rights and is likely to require full planning consent for external alterations and enhanced material specification."
+        "text": "The site is in a conservation area or subject to an Article 4 direction; external alterations are likely to require full planning consent and the local authority may require enhanced materials and detailing."
       },
       {
         "category": "Technical",
-        "title": "Life-expired services",
-        "text": "No services replacement has occurred since the building's original construction in the 1960s; the extent of deterioration and hidden defects will only be confirmed during detailed surveys and opening up, creating cost and programme uncertainty."
+        "title": "Electrical capacity for heat pump",
+        "text": "The proposed air source heat pump system requires confirmation of available electrical capacity and DNO approval; this must be investigated during Stage 2 design to avoid cost and programme impact."
       },
       {
         "category": "Programme",
-        "title": "Multiple phasing",
-        "text": "The project is planned in multiple phases with 26 weeks of construction per phase plus 34 weeks for re-mobilisation and subsequent phases; phase split and sequencing must be confirmed at Stage 2 to avoid disruption to teaching operations."
+        "title": "Multi-phase delivery",
+        "text": "The project is planned as multiple phases; the construction programme of 26 weeks shown is per phase, with an additional 34 weeks required for subsequent phases including re-mobilisation, extending the overall delivery timeline."
       }
     ],
     "nextSteps": [
-      "Confirm the target date with the client and estates committee; the current 124-week programme cannot deliver by 1 September 2028 and will complete around 28 May 2029 — discuss whether the date can be moved, whether acceleration options (such as long-lead procurement of major plant) are viable, or whether phasing can be resequenced to deliver critical teaching spaces earlier.",
-      "Commission or review the asbestos register and condition survey to confirm the scope and cost of safe removal and disposal; if a current valid asbestos register exists, it may be reused to remove 3 weeks from the survey programme and reduce risk allowance.",
-      "Seek pre-application advice from the local planning authority and conservation officer on the expectations for external alterations, material specification and detailing, to confirm whether full planning consent is required and to avoid delays at the formal application stage.",
-      "Confirm with the client and university estates the permitted working hours, blackout dates for examinations and key academic events, and the feasibility of out-of-hours or weekend working where programme-critical; agree these constraints in writing before Stage 2 design begins.",
-      "Develop a detailed phasing strategy at Stage 2 that sequences works to minimise disruption to teaching operations, protects the most critical teaching spaces, and aligns with the vacation windows; confirm the phase split, re-mobilisation periods and any interim fit-out requirements."
+      "Confirm the asbestos management survey is current and scope-relevant; if so, it may be reused to reduce the survey programme and risk allowance. Obtain the asbestos register and verify it is a valid Refurbishment and Demolition survey.",
+      "Engage with the university estates and academic teams to agree detailed blackout dates for examination periods (January and May–June) and to confirm which vacation windows are available for each phase of construction.",
+      "Commission a Stage 2 electrical feasibility study to confirm the building's available electrical capacity and to obtain DNO approval for the air source heat pump system; allow sufficient time for DNO response in the design programme.",
+      "Seek pre-application advice from the local planning authority and conservation officer on the scope of external works (windows, doors, plant, and any façade alterations) to confirm whether full planning consent is required and what material and detailing standards will be expected.",
+      "Develop a detailed phasing strategy at Stage 2, confirming the split of works between phases, the re-mobilisation and interim closure periods, and the impact on the overall delivery date and cost; present options to the client for achieving the target date or securing a revised target that is achievable within the constraints."
     ],
     "riskRegister": [
       {
-        "ref": "R01",
+        "ref": "ACC-B",
         "category": "Programme",
-        "description": "Works are confined to vacation windows only (Q3.5), and the programme spans multiple academic terms; risk of overrun into term time with disruption to teaching and examination periods.",
+        "description": "Works are confined to vacation windows only; the 124-week programme spans multiple academic terms and risks overrun into term time when the building remains partially occupied.",
         "likelihood": "High",
         "impact": "High",
         "rating": "High",
-        "mitigation": "Phase works strictly to vacation windows; agree blackout dates with faculty; build programme float; consider out-of-hours working where programme-critical.",
+        "mitigation": "Phase works to align with vacation windows; agree blackout dates with faculty; build programme float; consider out-of-hours working where programme-critical.",
         "seedRef": "ACC-B"
       },
       {
-        "ref": "R02",
+        "ref": "ACC-D",
         "category": "Programme",
         "description": "Restricted working hours (Q3.5) extend construction duration and may attract premium or out-of-hours rates, increasing cost and schedule risk.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Confirm permitted hours with the client; price out-of-hours working where programme-critical; reflect in Prelims and cost plan.",
+        "mitigation": "Confirm permitted hours with the client; price out-of-hours working where programme-critical; reflect in Preliminaries.",
         "seedRef": "ACC-D"
       },
       {
-        "ref": "R03",
+        "ref": "CTX-CONSERVATION",
         "category": "Regulatory",
-        "description": "Site is in a conservation area or subject to an Article 4 direction (Q3.8); permitted development rights are curtailed and external alterations are likely to need full planning consent.",
+        "description": "The site is in a conservation area or subject to an Article 4 direction; permitted development rights are curtailed and external alterations are likely to require full planning consent.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
@@ -778,55 +1202,75 @@
         "seedRef": "CTX-CONSERVATION"
       },
       {
-        "ref": "R04",
-        "category": "Cost",
-        "description": "Asbestos is known or suspected in the building (Q3.1); survey and removal costs may exceed the current risk allowance if contamination is widespread.",
+        "ref": "SCOPE-S-0039-1",
+        "category": "Technical",
+        "description": "Heating and hot water system uses an air source heat pump for full system replacement; electrical capacity and DNO check are required to confirm the site can support the demand.",
         "likelihood": "Medium",
-        "impact": "High",
-        "rating": "High",
-        "mitigation": "Obtain a detailed asbestos survey and removal specification; obtain fixed-price removal quotes; establish a separate asbestos contingency line in the cost plan.",
+        "impact": "Medium",
+        "rating": "Medium",
+        "mitigation": "Investigate and confirm electrical capacity and DNO requirements during Stage 2 design; carry the outcome into the cost plan.",
         "seedRef": "NONE"
       },
       {
         "ref": "R05",
-        "category": "Technical",
-        "description": "No services replacement has been undertaken since original construction (building history); M&E systems are life-expired and may contain hidden defects or obsolete components not fully captured in the condition survey.",
+        "category": "Cost",
+        "description": "Asbestos is known or suspected in a 1960s building; the estimated removal quantity of 1200 m² is based on survey data and carries inherent uncertainty in extent and condition.",
         "likelihood": "Medium",
-        "impact": "Medium",
-        "rating": "Medium",
-        "mitigation": "Commission a detailed M&E condition and performance audit; obtain specialist quotations for major plant replacement; allow a technical contingency for unforeseen defects during strip-out.",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Obtain a detailed asbestos management survey; establish a contingency protocol for unexpected findings; price removal at Stage 2 based on confirmed survey.",
         "seedRef": "NONE"
       },
       {
         "ref": "R06",
-        "category": "Programme",
-        "description": "The target date of 1 September 2028 is not achievable from the stated start of 11 January 2027; the 124-week programme completes around 28 May 2029, approximately 38 weeks beyond the target.",
-        "likelihood": "High",
-        "impact": "High",
-        "rating": "High",
-        "mitigation": "Confirm the target date with the client and agree a revised completion date; explore programme acceleration options (long-lead procurement, survey reuse) at Stage 2; consider phasing strategy to deliver early benefits.",
+        "category": "Technical",
+        "description": "No services have been replaced since original construction; the building has ageing or inadequate M&E infrastructure that may harbour hidden defects or require scope expansion once opened up.",
+        "likelihood": "Medium",
+        "impact": "Medium",
+        "rating": "Medium",
+        "mitigation": "Carry out intrusive M&E surveys at Stage 2; allow contingency for unforeseen remedial work; phase strip-out to reveal and assess hidden conditions progressively.",
         "seedRef": "NONE"
       },
       {
         "ref": "R07",
-        "category": "Cost",
-        "description": "The building is partially occupied during works (Q3.6); disruption to teaching and the need for temporary facilities, decanting, or out-of-hours working may increase costs and extend the programme.",
+        "category": "Programme",
+        "description": "The target date of 1 September 2028 is not achievable; the 124-week programme completes around 28 May 2029, approximately 38 weeks beyond the target, creating a hard deadline risk.",
+        "likelihood": "High",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Confirm with the client whether the target date is firm or negotiable; explore programme acceleration options (long-lead procurement, phasing strategy) at Stage 2; establish a formal change control process.",
+        "seedRef": "NONE"
+      },
+      {
+        "ref": "R08",
+        "category": "Procurement",
+        "description": "Multiple phases are planned; re-mobilisation and phasing strategy are not yet confirmed, creating uncertainty in cost and programme for subsequent phases.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Develop a detailed decanting and temporary facilities plan; agree occupation protocols with the client; price temporary services and out-of-hours working in the cost plan.",
+        "mitigation": "Confirm phase split, re-mobilisation costs and programme at Stage 2; establish a framework contract or standing agreement with the main contractor to lock in rates and resource continuity.",
         "seedRef": "NONE"
+      },
+      {
+        "ref": "R09",
+        "category": "Technical",
+        "description": "Heating and hot water: Electrical capacity and DNO check — raised by the selected scope.",
+        "likelihood": "Medium",
+        "impact": "Medium",
+        "rating": "Medium",
+        "mitigation": "Investigate and confirm during Stage 2 design, and carry the outcome into the cost plan.",
+        "seedRef": "SCOPE-S-0039-1"
       }
     ],
     "procurementRoute": "Traditional — Single Stage Tender",
     "procurementContractForm": "JCT Standard Building Contract 2024",
     "procurementDesignResp": "Client design team",
     "procurementTenderType": "Single stage",
-    "procurementNarrative": "A Traditional Single Stage Tender route is appropriate for this refurbishment of known scope and complexity, with formal competitive procurement required by the grant funding conditions. This approach provides the client with a fixed lump-sum contract price and a clear completion date, directly serving the stated priorities of minimising disruption and achieving cost certainty.",
+    "procurementNarrative": "A Traditional Single Stage Tender route is appropriate for this refurbishment project, which has a clear scope, a defined budget of £4,500,000 and formal competitive procurement requirements under public funding rules. This route delivers the client's priorities of minimising disruption and achieving a fixed, certain final cost by locking the contractor's price at tender stage before construction begins.",
     "procurementConsiderations": [
-      "Long-lead procurement of major plant (switchgear, air-handling units) should be flagged to the client during design; advance ordering during Stage 2 can save 8–30 weeks off the critical path and reduce delivery risk, though it commits spend before contract award.",
-      "The asbestos register must be a valid R&D survey to enable reuse and de-risk the programme; if current and scope-relevant, it can be dropped from the survey schedule, saving time and reducing the risk allowance.",
-      "Restricted working hours and term-time confinement will attract premium rates and out-of-hours charges; these must be priced explicitly in the tender and reflected in the Preliminaries and cost plan to avoid post-contract disputes."
+      "Confirm the phasing strategy and re-mobilisation costs at Stage 2; consider a framework or standing agreement with the main contractor to maintain resource continuity and cost certainty across multiple phases.",
+      "Long-lead procurement of major plant (switchgear, AHUs, heat pump) should be explored during design to reduce the critical path by 8–30 weeks; this requires early specification freeze and client commitment to advance payment.",
+      "Restricted working hours and vacation-window constraints will increase Preliminaries and may attract out-of-hours premiums; price these explicitly in the tender and confirm permitted hours with the client before design finalisation."
     ],
     "procurementConflicts": [],
     "confidenceScore": "A",
@@ -842,31 +1286,38 @@
     "q1_5_size": "1200",
     "q2_1_objective": "Refurbish a three-storey 1960s teaching block to provide modern flexible teaching and seminar space, replace the life-expired heating, ventilation and electrical services, upgrade fire safety, and improve the thermal performance of the building fabric to support the university net-zero plan.",
     "q2_2_scopeItems": [
-      "0.5",
-      "2.6",
-      "2.8",
-      "3.1",
-      "3.2",
-      "3.3",
-      "4.1",
-      "4.7",
-      "5.1",
-      "5.2",
-      "5.5",
-      "5.3",
-      "5.7",
-      "5.8a",
-      "5.8b",
-      "5.8c",
-      "5.9a",
-      "5.9b",
-      "5.16",
-      "7.4"
+      "S-0001",
+      "S-0003",
+      "S-0017",
+      "S-0019",
+      "S-0020",
+      "S-0021",
+      "S-0022",
+      "S-0023",
+      "S-0024",
+      "S-0028",
+      "S-0039",
+      "S-0040",
+      "S-0041",
+      "S-0045",
+      "S-0046",
+      "S-0047",
+      "S-0049",
+      "S-0052"
     ],
-    "q2_2_quantities": {
-      "4.7": "120"
+    "q2_2_scopeOptions": {
+      "S-0039": [
+        "S-0039-02"
+      ],
+      "S-0024": [
+        "S-0024-01",
+        "S-0024-04"
+      ]
     },
-    "q2_2_wiring": "5.8",
+    "q2_2_quantities": {
+      "S-0024-01": "18",
+      "S-0024-04": "3"
+    },
     "q2_3_interventionLevel": "Full systems replacement",
     "q2_4_specLevel": "Standard",
     "q2_5_standards": "BREEAM, Net zero, University design guide",
@@ -876,7 +1327,7 @@
     ],
     "q3_2_previousWorks": "Roof recovered in 2011. Windows replaced on the south elevation in 2016; north elevation original. No services replacement since original construction.",
     "q3_3_surveys": [
-      "Asbestos register",
+      "Asbestos management survey",
       "Condition"
     ],
     "q3_4_planningConsents": "No consent required",
@@ -906,7 +1357,7 @@
     "q5_2_annualBenefit": "95000",
     "q6_2_instructions": "Write for an estates committee that includes non-technical members."
   },
-  "generatedAt": "2026-09-19T07:30:50.336Z",
+  "generatedAt": "2026-09-23T13:58:37.000Z",
   "reportId": null,
   "sample": true
 }

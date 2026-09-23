@@ -33,9 +33,13 @@ export const SAMPLE_ANSWERS = {
   q1_4_buildingAge: '1900–1979',
   q1_5_size: '1200',
   q2_1_objective: 'Refurbish a three-storey 1960s teaching block to provide modern flexible teaching and seminar space, replace the life-expired heating, ventilation and electrical services, upgrade fire safety, and improve the thermal performance of the building fabric to support the university net-zero plan.',
-  q2_2_scopeItems: ['0.5', '2.6', '2.8', '3.1', '3.2', '3.3', '4.1', '4.7', '5.1', '5.2', '5.5', '5.3', '5.7', '5.8a', '5.8b', '5.8c', '5.9a', '5.9b', '5.16', '7.4'],
-  q2_2_quantities: { '4.7': '120' },
-  q2_2_wiring: '5.8',
+  // NRM1 v5.2 Scope IDs: the level-3 typical scope plus windows, fixed joinery,
+  // toilets (the client's own counts) and data, with the heating drop-downs set
+  // to an air source heat pump for the net-zero objective.
+  q2_2_scopeItems: ['S-0001', 'S-0003', 'S-0017', 'S-0019', 'S-0020', 'S-0021', 'S-0022', 'S-0023', 'S-0024', 'S-0028',
+    'S-0039', 'S-0040', 'S-0041', 'S-0045', 'S-0046', 'S-0047', 'S-0049', 'S-0052'],
+  q2_2_scopeOptions: { 'S-0039': ['S-0039-02'], 'S-0024': ['S-0024-01', 'S-0024-04'] },
+  q2_2_quantities: { 'S-0024-01': '18', 'S-0024-04': '3' },
   q2_3_interventionLevel: 'Full systems replacement',
   q2_4_specLevel: 'Standard',
   q2_5_standards: 'BREEAM, Net zero, University design guide',
