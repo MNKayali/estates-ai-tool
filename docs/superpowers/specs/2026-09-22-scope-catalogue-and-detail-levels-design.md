@@ -1,7 +1,10 @@
 # Scope catalogue and detail levels — design
 
 **Date:** 22 September 2026
-**Status:** awaiting user review
+**Status:** superseded (23 September 2026) — the scope catalogue was rebuilt as
+NRM1 workbook v5.x and implemented from `docs/scope-of-works-brief-2026-09-23.md` in
+PR #12. Kept for the analysis behind it (catalogue gaps, cost concentration, detail
+levels); its proposals are not the plan of record.
 **Extends:** the questionnaire remap (PRs #7, #9, #10, #11)
 
 ---

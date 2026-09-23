@@ -1,5 +1,15 @@
 # Workbook changes — September 2026
 
+> **Status (23 September 2026): the NRM1 half of this spec is superseded.** The
+> rates workbook is now NRM1 v5.x (`NRM1_Cost_Estimate_Tool_v5_2.xlsx`, content
+> v5.3), read by `lib/nrmWorkbook.js` — the v4.5 tabs named below no longer
+> exist. From this spec, v5.3 carries only the range widths (now '3. Settings'
+> ▶ range_widths, same illustrative values). **Not carried into v5.x:** the base
+> date row, the three higher-risk-building percentage rows and the extra
+> benchmark bands — add them to '3. Settings' ▶ percentage_rules / ▶ benchmarks
+> (and a base date to ▶ workbook_info, which also needs a small loader change)
+> if still wanted. **The Programme half below is still to apply.**
+
 Cell-by-cell spec for the two reference workbooks. Apply these in Excel (not via
 a script, so cell formatting, comments and the UPDATE LOG survive), then push
 and check `/api/rates-check`.
