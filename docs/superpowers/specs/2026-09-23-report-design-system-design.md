@@ -160,7 +160,7 @@ The layout is fixed in code, but the AI's text is not: today only the prompt ask
 |---|---|---|
 | `executiveSummary` | 1 | 90–130 |
 | `keyFindings` | **exactly 5** | 15–35 |
-| `scopeAssumptions` | 3–4 | ≤ 35 |
+| `scopeAssumptions` | 3–4 | ≤ 28 (so four fit the half-width column on page 3) |
 | `costNarrative` (the 4-line intro above the works table on page 6) | 1 | 45–65 |
 | `roiNarrative` (only when the ROI section shows) | 1 | 35–60 |
 | `constraints` | 3–5 rows | title ≤ 5, text ≤ 35 |
