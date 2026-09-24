@@ -1,9 +1,13 @@
 /**
  * build-scope-relevance-sheet.mjs
  *
- * Emits docs/scope-relevance-TO-FILL.xlsx — the sheet that decides which scope
- * elements each project type offers by default, so Q2.2 stops showing ~100
- * tiles to everyone.
+ * Emits docs/scope-relevance-TO-FILL.xlsx — the one document that maps every
+ * scope element against the three things that decide whether the user is
+ * offered it: Q1.2 project type, Q1.3 building use, and Q2.2 level of works.
+ *
+ * Nothing here decides PRICE. Price comes only from what the user ticks in Q2.3
+ * and the specification level in Q2.4. This sheet decides what reaches the
+ * tick-list in the first place.
  *
  * It is PRE-FILLED with a suggestion rather than left blank, so the job is
  * correcting rather than authoring. The suggestion is derived, not invented:
@@ -15,14 +19,10 @@
  *            which is the list the "Use typical scope" button already applies
  *   Optional everything else that is priceable and visible
  *
- * The Min Lvl column carries the intervention-level dimension: it is the
- * workbook's own "Min Lvl" for each row, i.e. the lowest Q2.3 tier at which the
- * element becomes selectable on a refurbishment-family project. There is a
- * blank column beside it to override.
- *
- * Specification level is deliberately NOT a relevance dimension here — Q2.4
- * picks which RATE COLUMN is read for an element, not whether the element
- * applies. If that turns out to be wrong, say so and it becomes another axis.
+ * MERGE MODE is automatic: if the output file already exists, every answered
+ * cell in it is carried forward before the new suggestion is applied, so the
+ * sheet can be filled in today and regenerated later without losing the work.
+ * Rows that have since left the workbook are dropped with a printed warning.
  *
  * Usage:  node scripts/build-scope-relevance-sheet.mjs
  * Needs:  RATES_FILE_URL in .env.local
@@ -33,6 +33,7 @@ import * as XLSX from 'xlsx'
 import { getScopeItems } from '../lib/costCalculator.js'
 import { BUILDING_USE_TAGS, matchesBuildingUse } from '../lib/buildingUse.js'
 import { PROJECT_TYPE_VALUES, VISIBLE_GROUPS, priceableFor } from '../lib/projectTypes.js'
+import { CODE_TO_NRM1, NRM1, PRICING_BASIS } from './nrm1-elements.mjs'
 
 const envPath = path.join(process.cwd(), '.env.local')
 if (fs.existsSync(envPath)) {
@@ -41,6 +42,8 @@ if (fs.existsSync(envPath)) {
     if (m && !(m[1] in process.env)) process.env[m[1]] = m[2].trim()
   }
 }
+
+const OUT = path.join(process.cwd(), 'docs', 'scope-relevance-TO-FILL.xlsx')
 
 // The existing "typical scope" presets, transcribed from app/questionnaire/page.jsx.
 // These are the only statement of "what a project of this type usually includes"
@@ -60,6 +63,14 @@ const PRESET_BY_TYPE = {
 }
 
 const FOLDED_CODES = new Set(['5.2L', '5.5', '5.8'])
+const FOLDED_NOTE = 'n/a — folded into parent'
+
+const LEVEL_NAMES = {
+  1: '1 Fabric and finishes only',
+  2: '2 Finishes with minor services',
+  3: '3 Full systems replacement',
+  4: '4 Reconfiguration or full redesign',
+}
 
 function suggestFor(item, pt) {
   if (!VISIBLE_GROUPS[pt]?.includes(item.group)) return 'N/A'
@@ -68,13 +79,55 @@ function suggestFor(item, pt) {
   return 'Optional'
 }
 
+// ── Merge: read whatever the user has already filled in ──────────────────────
+// Keyed by code, by COLUMN HEADER rather than index, so adding a column here
+// never silently shifts someone's answers into the wrong field.
+const MERGED_COLUMNS = [
+  'Building use (override)', 'Min Lvl (override)', 'Notes', ...PROJECT_TYPE_VALUES,
+]
+function readExistingAnswers() {
+  if (!fs.existsSync(OUT)) return { answers: {}, found: 0 }
+  let wb
+  try {
+    wb = XLSX.read(fs.readFileSync(OUT), { type: 'buffer' })
+  } catch (e) {
+    console.warn(`  ! could not read the existing sheet (${e.message}) — starting fresh`)
+    return { answers: {}, found: 0 }
+  }
+  const ws = wb.Sheets['1. Relevance']
+  if (!ws) return { answers: {}, found: 0 }
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' })
+  if (rows.length < 2) return { answers: {}, found: 0 }
+  const header = rows[0].map(h => String(h).trim())
+  const codeIdx = header.indexOf('Code')
+  if (codeIdx < 0) return { answers: {}, found: 0 }
+  const answers = {}
+  let found = 0
+  for (const r of rows.slice(1)) {
+    const code = String(r[codeIdx] || '').trim()
+    if (!code) continue
+    const kept = {}
+    for (const col of MERGED_COLUMNS) {
+      const i = header.indexOf(col)
+      if (i < 0) continue
+      const v = String(r[i] ?? '').trim()
+      if (v && v !== FOLDED_NOTE) kept[col] = v
+    }
+    if (Object.keys(kept).length) { answers[code] = kept; found++ }
+  }
+  return { answers, found }
+}
+
+const { answers: prior, found: priorRows } = readExistingAnswers()
+
 const { groups } = await getScopeItems()
 const items = groups.flatMap(g => g.items)
 const groupLabel = Object.fromEntries(groups.map(g => [g.group, g.label]))
 const USES = Object.keys(BUILDING_USE_TAGS)
+const liveCodes = new Set(items.map(i => i.code))
+const orphaned = Object.keys(prior).filter(c => !liveCodes.has(c))
 
 const wb = XLSX.utils.book_new()
-const NAVY = '1A2E4A'
 const addSheet = (name, aoa, widths) => {
   const ws = XLSX.utils.aoa_to_sheet(aoa)
   ws['!cols'] = widths.map(w => ({ wch: w }))
@@ -84,15 +137,19 @@ const addSheet = (name, aoa, widths) => {
 
 // ── Read me ──────────────────────────────────────────────────────────────────
 addSheet('0. Read me', [
-  ['Scope relevance — which elements each project type offers by default'],
+  ['Scope relevance — which elements each project type offers, and how each one is priced'],
   [`Generated ${new Date().toISOString().slice(0, 10)} by scripts/build-scope-relevance-sheet.mjs`],
   [],
+  ['What this sheet decides — and what it does NOT'],
+  ['It decides what reaches the Q2.3 tick-list. It does NOT decide price.'],
+  ['Price comes only from what the user actually ticks in Q2.3, and the specification level in Q2.4.'],
+  [],
   ['The problem this solves'],
-  ['Q2.2 shows up to 98 tiles on a new build. Three NRM1 groups carry 76 of them: group 4 (fittings, 35 tiles), group 5 (M&E, 28) and group 8 (external works, 13).'],
+  ['Q2.3 shows up to 98 tiles on a new build. Three NRM1 groups carry 76 of them: group 4 (fittings, 35 tiles), group 5 (M&E, 34) and group 8 (external works, 13).'],
   ['Once this sheet is filled, the picker shows the Core elements and folds everything Optional behind a "+N more" disclosure per group. Nothing is ever unreachable.'],
   [],
   ['What to do'],
-  ['1.', 'Open sheet "1. Relevance". Columns H to N are one per project type and are ALREADY FILLED with a suggestion.'],
+  ['1.', 'Open sheet "1. Relevance". The project-type columns are ALREADY FILLED with a suggestion.'],
   ['2.', 'Correct the ones that are wrong. You are editing, not authoring — most rows will be right.'],
   ['3.', 'Only three values are valid. Anything else is treated as Optional.'],
   [],
@@ -101,42 +158,62 @@ addSheet('0. Read me', [
   ['Optional', 'Sometimes relevant — the user should be able to find it', 'Folded behind "+N more" in its group'],
   ['N/A', 'Cannot apply, or has no rate for this type', 'Not offered at all'],
   [],
+  ['Core is NOT pre-ticked. It only decides where the tile sits on the page. Nothing reaches the price except by the user ticking it.'],
+  [],
   ['Where the suggestion came from'],
   ['N/A', 'Derived: the element has no rate in that type’s rate family, or its NRM1 group is not offered for that type. These are facts, not opinions — change one only if you intend to add a rate.'],
   ['Core', 'Derived: the element is in that type’s existing "Use typical scope" preset. That preset is deliberately conservative, so expect to promote things — external works especially, where it only picks site preparation.'],
   ['Optional', 'Everything else that is priceable and visible today.'],
   [],
-  ['The intervention-level dimension'],
-  ['Column F "Min Lvl" is the workbook’s own value: the lowest Q2.3 tier at which the element becomes selectable on a refurbishment-family project. 1 = fabric and finishes only, 4 = reconfiguration or full redesign.'],
-  ['Column G is blank for you to override it. Leave blank to keep the workbook value.'],
+  ['The three columns that are yours to change'],
+  ['Building use (override)', 'Which Q1.3 building uses this element applies to. "All" means any. Leave blank to keep the workbook value.'],
+  ['', 'Building use will DEMOTE a Core element to Optional when it does not match — it will never hide it. That is the fix for the bar counter being unreachable in a university coffee shop.'],
+  ['Min Lvl (override)', 'The lowest Q2.2 Level of Works at which this element becomes available. 1 = always available. Leave blank to keep the workbook value.'],
+  ['', 'Min Lvl only applies to Refurbishment, Fit-out and Extension. New Build, External works only, Demolition only and Other or mixed ignore it entirely.'],
+  ['Notes', 'Anything you want recorded against the row. Carried forward when this sheet is regenerated.'],
+  [],
+  ['The "Priced on" column is read-only, and is worth checking'],
+  ['Every floor (GIFA)', 'Charged across the whole building. Right for finishes, partitions, services, facade.'],
+  ['One floor (footprint)', 'Charged on GIFA ÷ storeys. Right for roof, foundations, ground slab — you only have one of each.'],
+  ['Upper floors only', 'Charged on GIFA × (storeys − 1) ÷ storeys. Right for suspended upper floor structure.'],
+  ['Per unit / Lump sum', 'A count or a single figure, not an area.'],
+  ['A wrong basis is as costly as a wrong relevance: 2.9 tanking was charged across every floor of the building when it only applies to one.'],
   [],
   ['Specification level is deliberately NOT an axis here'],
-  ['Q2.4 picks which rate COLUMN is read for an element, not whether the element applies. If you think spec level should also narrow the list, say so and it becomes another set of columns.'],
+  ['Q2.4 picks which rate COLUMN is read for an element, not whether the element applies.'],
   [],
-  ['Building use'],
-  ['Column D shows the workbook’s Building Use tags, which already filter the picker independently. 62 of 112 rows are tagged "All", which is why that filter alone leaves so many tiles.'],
-  ['Sheet "2. Today" shows how many tiles each combination currently produces, so you can see what the change is worth.'],
-], [14, 62, 58])
+  ['Regenerating this sheet is safe'],
+  ['Re-running the script carries every answer forward automatically. Fill it in as you go.'],
+], [16, 62, 58])
 
 // ── 1. Relevance (the fillable grid) ─────────────────────────────────────────
-const relRows = [[
-  'Code', 'Group', 'Element / description', 'Building Use tags', 'Pricing type',
+const relHeader = [
+  'Code', 'Group', 'Element / description', 'Priced on', 'NRM1 Ref', 'NRM1 element',
+  'Building Use (workbook)', 'Building use (override)',
   'Min Lvl (workbook)', 'Min Lvl (override)',
   ...PROJECT_TYPE_VALUES,
   'Notes',
-]]
+]
+const relRows = [relHeader]
 for (const it of items) {
+  const [ref = '', ] = CODE_TO_NRM1[it.code] || []
+  const keep = prior[it.code] || {}
+  const folded = FOLDED_CODES.has(it.code)
   relRows.push([
     it.code, it.group, it.description,
+    PRICING_BASIS[it.pricingType] || it.pricingType || '',
+    ref, NRM1[ref] || '',
     it.buildingUse || 'All',
-    it.pricingType,
-    it.minLvl || 1, '',
-    ...PROJECT_TYPE_VALUES.map(pt => (FOLDED_CODES.has(it.code) ? 'n/a — folded into parent' : suggestFor(it, pt))),
-    '',
+    keep['Building use (override)'] || '',
+    LEVEL_NAMES[it.minLvl || 1] || (it.minLvl || 1),
+    keep['Min Lvl (override)'] || '',
+    ...PROJECT_TYPE_VALUES.map(pt =>
+      folded ? FOLDED_NOTE : (keep[pt] || suggestFor(it, pt))),
+    keep['Notes'] || '',
   ])
 }
 addSheet('1. Relevance', relRows,
-  [10, 7, 58, 30, 16, 17, 17, ...PROJECT_TYPE_VALUES.map(() => 15), 40])
+  [10, 7, 52, 22, 11, 40, 26, 26, 30, 18, ...PROJECT_TYPE_VALUES.map(() => 15), 40])
 
 // ── 2. Today (what the change is worth) ──────────────────────────────────────
 const todayRows = [['Building use', ...PROJECT_TYPE_VALUES]]
@@ -148,8 +225,10 @@ const countFor = (pt, use) => items.filter(it =>
 todayRows.push(['Any (wildcard — the worst case)', ...PROJECT_TYPE_VALUES.map(pt => countFor(pt, null))])
 for (const u of USES) todayRows.push([u, ...PROJECT_TYPE_VALUES.map(pt => countFor(pt, u))])
 todayRows.push([])
-todayRows.push(['If your sheet marks these Core, the default view becomes:'])
-todayRows.push(['(fill sheet 1, re-run this script, and this row fills in)'])
+todayRows.push(['Core once this sheet is applied — how many tiles the user sees first:'])
+todayRows.push(['Any (wildcard)', ...PROJECT_TYPE_VALUES.map(pt =>
+  items.filter(it => !FOLDED_CODES.has(it.code) &&
+    ((prior[it.code] || {})[pt] || suggestFor(it, pt)) === 'Core').length)])
 addSheet('2. Today', todayRows, [34, ...PROJECT_TYPE_VALUES.map(() => 16)])
 
 // ── 3. Where the tiles are ───────────────────────────────────────────────────
@@ -163,14 +242,38 @@ for (const g of groups) {
 }
 addSheet('3. Where the tiles are', grpRows, [8, 40, 10, ...PROJECT_TYPE_VALUES.map(() => 15)])
 
-const out = path.join(process.cwd(), 'docs', 'scope-relevance-TO-FILL.xlsx')
-fs.mkdirSync(path.dirname(out), { recursive: true })
-fs.writeFileSync(out, XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }))
-console.log(`Wrote ${out}`)
-console.log(`  ${items.length} elements x ${PROJECT_TYPE_VALUES.length} project types`)
-const counts = { Core: 0, Optional: 0, 'N/A': 0 }
-for (const it of items) for (const pt of PROJECT_TYPE_VALUES) {
-  if (FOLDED_CODES.has(it.code)) continue
-  counts[suggestFor(it, pt)]++
+// ── 4. Level of works ────────────────────────────────────────────────────────
+// The Min Lvl axis, as a list rather than buried in one column, so it can be
+// reviewed on its own. Only the three refurbishment-family types use it.
+const lvlRows = [['Level of works (Q2.2)', 'Elements available at this level and below', 'Applies to']]
+for (const lvl of [1, 2, 3, 4]) {
+  lvlRows.push([
+    LEVEL_NAMES[lvl],
+    items.filter(it => !FOLDED_CODES.has(it.code) && (it.minLvl || 1) <= lvl).length,
+    'Refurbishment, Fit-out, Extension only',
+  ])
 }
-console.log(`  pre-filled suggestion: ${counts.Core} Core, ${counts.Optional} Optional, ${counts['N/A']} N/A`)
+lvlRows.push([])
+lvlRows.push(['Elements that first become available at each level:'])
+for (const lvl of [1, 2, 3, 4]) {
+  const newly = items.filter(it => !FOLDED_CODES.has(it.code) && (it.minLvl || 1) === lvl)
+  lvlRows.push([LEVEL_NAMES[lvl], newly.length, newly.map(i => i.code).join(', ')])
+}
+addSheet('4. Level of works', lvlRows, [34, 42, 90])
+
+fs.mkdirSync(path.dirname(OUT), { recursive: true })
+fs.writeFileSync(OUT, XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }))
+
+console.log(`Wrote ${OUT}`)
+console.log(`  ${items.length} elements x ${PROJECT_TYPE_VALUES.length} project types`)
+if (priorRows) console.log(`  merged answers carried forward from ${priorRows} existing row(s)`)
+if (orphaned.length) console.warn(`  ! dropped ${orphaned.length} row(s) no longer in the workbook: ${orphaned.join(', ')}`)
+const counts = { Core: 0, Optional: 0, 'N/A': 0 }
+for (const it of items) {
+  if (FOLDED_CODES.has(it.code)) continue
+  for (const pt of PROJECT_TYPE_VALUES) {
+    const v = (prior[it.code] || {})[pt] || suggestFor(it, pt)
+    if (v in counts) counts[v]++
+  }
+}
+console.log(`  ${counts.Core} Core, ${counts.Optional} Optional, ${counts['N/A']} N/A`)

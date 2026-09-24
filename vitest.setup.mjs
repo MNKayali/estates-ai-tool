@@ -16,3 +16,9 @@ if (fs.existsSync(envPath)) {
     if (m && !(m[1] in process.env)) process.env[m[1]] = m[2].trim()
   }
 }
+
+// NRM1 v5.2 (September 2026): the rates workbook is read from the copy in this
+// repository, not the network — tests are then offline and deterministic for
+// the cost side, and pinned to exactly the workbook the code was written
+// against. Point RATES_FILE_URL_TEST elsewhere to test a different issue.
+process.env.RATES_FILE_URL = process.env.RATES_FILE_URL_TEST || 'NRM1_Cost_Estimate_Tool_v5_2.xlsx'

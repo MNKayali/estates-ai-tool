@@ -193,7 +193,7 @@ const SCENARIOS = [
 async function runScenario(overrides) {
   const answers = { ...BASE, ...overrides }
   const c1 = await calculateCost(answers, 0)
-  const programme = await calculateProgramme(answers, c1.total.mid)
+  const programme = await calculateProgramme(answers, c1.total.mid, { scope: c1.scopeSummary })
   const cost = await calculateCost(answers, programme.totalWeeks, programme.constructionWeeks)
   const sense = await runSenseCheck(cost, programme, answers)
   return {
@@ -202,7 +202,7 @@ async function runScenario(overrides) {
       bcisFactor: cost.bcisFactor, bcisRegion: cost.bcisRegion, bcisDefaulted: cost.bcisDefaulted,
       bandFactor: cost.bandFactor, percentages: cost.percentages,
       lineItemCount: (cost.lineItems || []).length,
-      lineTotals: Object.fromEntries((cost.lineItems || []).map(li => [li.code, li.lineMid])),
+      lineTotals: Object.fromEntries((cost.lineItems || []).map(li => [li.rateKey || li.code, li.lineMid])),
       excludedNoQuantity: (cost.excludedNoQuantity || []).map(e => e.code ?? e.description),
       unmatchedConditions: cost.unmatchedConditions || [],
     },

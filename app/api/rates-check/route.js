@@ -1,47 +1,29 @@
 /**
  * GET /api/rates-check
- * Health check — confirms NRM1 v4.5 and Programme v4.3 data files load correctly.
+ * Health check — confirms NRM1 v5.2 and Programme v4.3 data files load correctly.
  *
  * Gated behind the access code in proxy.ts. It reports real sample values (a rate
  * and a duration) on purpose: that is what proves the sheets actually PARSED,
  * not merely that the files downloaded — see CLAUDE.md "Health check".
  *
+ * The NRM1 side goes through lib/nrmWorkbook.js's checked, cached loader, so it
+ * also reports what the admin needs to know about the workbook in use: its
+ * version, any newer upload that was REJECTED (and why — the last good version
+ * stays live), and the data gaps the engine works around rather than hides
+ * (items shown on a project type with no rate for it, project types with no
+ * pre-ticked items, optional tables not yet added).
+ *
  * Both workbooks are read through the calculators' own 10-minute in-module
- * caches rather than a private uncached fetch. Doing its own download meant every
- * health check pulled both .xlsx files again, so repeated checks could get the
- * deployment rate-limited by the workbook host — which would take the real cost
- * and programme calculators down with it, since they fetch from the same place.
- * Sharing the cache also makes this a truer check: it exercises the code path the
- * report pipeline actually uses.
+ * caches rather than a private uncached fetch, so repeated checks can't get the
+ * deployment rate-limited by the workbook host.
  */
 import * as XLSX from 'xlsx'
-import { fetchRatesWorkbook } from '@/lib/costCalculator'
+import { loadNrmWorkbook, workbookStatus, columnsFor } from '@/lib/nrmWorkbook'
 import { fetchProgrammeWorkbook } from '@/lib/programmeCalculator'
 
-// Representative v4.5 codes (incl. building-use-specific rows) that must exist.
-const NEW_ELEMENTS = ['4.2-RES', '4.10', '4.14', '5.27', '8.10']
 const PROGRAMME_SIZE_BANDS = ['S1 (<150)', 'S2 (≤250)', 'S3 (≤500)', 'S4 (≤1500)', 'S5 (≤3000)', 'S6 (>3000)']
-
-// v4.5 "2. Master Cost Table": code col0, building use col3, unit col5,
-// pricing type col6, Rfb Std col10. Group banner rows (Code "GROUP …") skipped.
-function parseRatesTab(wb) {
-  const ws = wb.Sheets['2. Master Cost Table']
-  if (!ws) return {}
-  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' })
-  const elements = {}
-  for (let i = 4; i < rows.length; i++) {
-    const r = rows[i]
-    const code = String(r[0] || '').trim()
-    if (!code || /^GROUP/i.test(code)) continue
-    elements[code] = {
-      buildingUse: String(r[3] || '').trim(),
-      unit: String(r[5] || '').trim(),
-      pricingType: String(r[6] || '').trim(),
-      rfbStd: Number(r[10]) || 0,
-    }
-  }
-  return elements
-}
+// One representative line whose rate proves '2. Scope and Rates' parsed.
+const SAMPLE_ITEM = 'Wall finishes'
 
 function parseDurationsTab(wb) {
   const ws = wb.Sheets['Durations']
@@ -65,69 +47,58 @@ export async function GET() {
     ratesOk:    false,
     programmeOk: false,
     templateOk:  true,
-    newElementsPresent: Object.fromEntries(NEW_ELEMENTS.map(c => [c, false])),
-    elementCount: 0,
-    sampleRate_3_1_unit:    null,
-    sampleRate_3_1_rfbStd:  null,
-    sampleRate_4_2RES_buildingUse: null,
-    sampleRate_4_2RES_rfbStd:      null,
+    workbook: null,               // version in use, loadedAt, rejectedUpdate, lastError
+    itemCount: 0,
+    optionCount: 0,
+    sampleRate: null,             // { item, rateKey, column, rate }
     programmeSizeBands:   PROGRAMME_SIZE_BANDS,
     sampleDuration_DS2_S3_mid: null,
-    // September 2026 workbook additions — see docs/workbook-changes-sept-2026.md.
-    // Each is reported so a missing cell/sheet is visible here rather than
-    // silently falling back inside the calculators.
-    baseDate: null,                       // Tab 1 "Base date" row
-    rangeWidthsSheet: false,              // Tab "9. Range Widths"
-    sourceColumnPresent: false,           // Tab 2 col T "Source" header
-    procurementSheet: false,              // Programme sheet "Procurement"
+    // Data the engine works around rather than inventing numbers for.
+    gaps: {
+      shownWithoutRate: [],       // items 'Shown on' a project type with no rate in its columns
+      noTypicalScope: [],         // project types no item is 'Pre-ticked on' (and that don't use level of intervention)
+      rangeWidthsTable: false,    // '3. Settings' ▶ range_widths (optional; legacy ±11% applies without it)
+      baseDate: null,             // v5.2 has no rate base date; reports say "the workbook issue date"
+    },
+    procurementSheet: false,      // Programme sheet "Procurement"
     newDurationRows: { SV7: false, BS1: false },
     fetchedAt: new Date().toISOString(),
     errors: [],
   }
 
-  // ── Check NRM1 v3.7 workbook ──────────────────────────────────────────────
+  // ── NRM1 v5.2 ─────────────────────────────────────────────────────────────
   try {
-    const wb = await fetchRatesWorkbook()
-    const elements = parseRatesTab(wb)
-    const elementCount = Object.keys(elements).length
-
-    result.rangeWidthsSheet = wb.SheetNames.includes('9. Range Widths')
-    try {
-      const instr = XLSX.utils.sheet_to_json(wb.Sheets['1. Instructions'], { header: 1, defval: '' })
-      const bd = instr.find(r => String(r[0] || '').trim().toLowerCase() === 'base date')
-      result.baseDate = bd ? String(bd[1] || '').trim() || null : null
-      const hdr = XLSX.utils.sheet_to_json(wb.Sheets['2. Master Cost Table'], { header: 1, defval: '' })[3] || []
-      result.sourceColumnPresent = String(hdr[19] || '').trim().toLowerCase() === 'source'
-    } catch { /* reported as absent */ }
-
-    if (elementCount > 0) {
-      result.ratesOk = true
-      result.elementCount = elementCount
-
-      for (const code of NEW_ELEMENTS) {
-        result.newElementsPresent[code] = code in elements
-      }
-
-      if (elements['3.1']) {
-        result.sampleRate_3_1_unit   = elements['3.1'].unit
-        result.sampleRate_3_1_rfbStd = elements['3.1'].rfbStd
-      }
-      if (elements['4.2-RES']) {
-        result.sampleRate_4_2RES_buildingUse = elements['4.2-RES'].buildingUse
-        result.sampleRate_4_2RES_rfbStd      = elements['4.2-RES'].rfbStd
-      }
-
-      const missing = NEW_ELEMENTS.filter(c => !elements[c])
-      if (missing.length > 0) {
-        result.errors.push(`Missing elements in NRM1 v4.5: ${missing.join(', ')}`)
-      }
-    } else {
-      result.errors.push('NRM1 workbook loaded but no elements parsed from "2. Master Cost Table"')
+    const model = await loadNrmWorkbook()
+    const s = model.settings
+    result.ratesOk = model.items.length > 0
+    result.itemCount = model.items.length
+    result.optionCount = model.items.reduce((n, it) => n + it.options.length, 0)
+    const sample = model.items.find(it => it.name === SAMPLE_ITEM)
+    if (sample) {
+      const [col] = columnsFor(s, 'RF', 'Standard')
+      const row = sample.options[0].rows[0]
+      result.sampleRate = { item: sample.name, rateKey: row.key, column: col, rate: row.rates[col] }
     }
+    for (const it of model.items.filter(i => !i.auto)) {
+      for (const pt of it.shownOn) {
+        if (!it.options.some(o => o.priceableFor?.[pt])) {
+          const cols = [...new Set(columnsFor(s, pt).flat())]
+          result.gaps.shownWithoutRate.push(`${it.id} ${it.name} — ${pt} (${cols.join(' / ')})`)
+        }
+      }
+    }
+    for (const p of s.projectTypes) {
+      if (!p.usesLevel && !model.items.some(it => it.preOn.includes(p.code))) result.gaps.noTypicalScope.push(`${p.code} ${p.label}`)
+    }
+    result.gaps.rangeWidthsTable = !!s.rangeWidths
   } catch (e) {
     result.errors.push('NRM1 workbook: ' + e.message)
+    if (e.problems) result.errors.push(...e.problems.slice(0, 25).map(p => '  · ' + p))
   }
-
+  result.workbook = workbookStatus()
+  if (result.workbook.rejectedUpdate) {
+    result.errors.push(`A newer NRM1 workbook was rejected at ${result.workbook.rejectedUpdate.at}; still using ${result.workbook.version}. First problem: ${result.workbook.rejectedUpdate.problems[0]}`)
+  }
   // ── Check Programme v4.3 workbook ─────────────────────────────────────────
   try {
     const wb = await fetchProgrammeWorkbook()
@@ -155,8 +126,7 @@ export async function GET() {
     result.errors.push('Programme workbook: ' + e.message)
   }
 
-  const allNewPresent = NEW_ELEMENTS.every(c => result.newElementsPresent[c])
-  const httpStatus = (result.ratesOk && result.programmeOk && allNewPresent) ? 200 : 503
+  const httpStatus = (result.ratesOk && result.programmeOk) ? 200 : 503
 
   return Response.json(result, { status: httpStatus })
 }

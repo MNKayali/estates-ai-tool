@@ -1,12 +1,17 @@
 'use client'
 
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { matchesBuildingUse } from '../../lib/buildingUse.js'
 import { areaQuestionLabel, areaHelpText } from '../../lib/labels.js'
 import { SITE_CONTEXT_OPTIONS, SITE_CONTEXT_NONE, isHigherRiskBuilding } from '../../lib/siteContext.js'
-import { PROJECT_TYPES, VISIBLE_GROUPS, priceableFor } from '../../lib/projectTypes.js'
+import { PROJECT_TYPES } from '../../lib/projectTypes.js'
+import {
+  buildContext, indexCatalogue, normaliseScopeAnswers, defaultOptionKeys,
+  isOffered, isItemAvailable, projectTypeUsesLevel,
+} from '../../lib/scopeEngine.js'
+import ScopePicker from './ScopePicker.jsx'
+import { titleLooksThin } from '../../lib/reportContent.js'
 import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
   showsHeightQuestion, KNOWN_ISSUE_NONE, SURVEY_NONE,
@@ -29,7 +34,13 @@ const STORAGE_KEY = 'estatesAI_v4_answers'
 // v4 (September 2026): Section 3 option lists now vary by project type, Q3.8
 // lost its higher-risk option, and Q1.6 (building height) is new. A v3 draft
 // can hold ticked options the current type no longer offers.
-const STORAGE_SCHEMA_VERSION = 4
+// v5 (September 2026): NRM1 v5.2 scope. q2_2_scopeItems holds Scope IDs, with
+// q2_2_scopeOptions / q2_2_quantities keyed by rate key. A v4 draft is NOT
+// discarded: its v4.5 codes are translated through the workbook's 'Replaces
+// old codes' once the catalogue loads (see the migration effect below), so a
+// saved project reopens with the same scope ticked.
+const STORAGE_SCHEMA_VERSION = 5
+const MIGRATABLE_SCHEMA_VERSIONS = [4]
 
 // Project types that ask Q1.2a (storeys) and, above 5 storeys, Q1.6 (height).
 // Shared by both questions' render conditions and the pruning effect below so
@@ -77,134 +88,34 @@ const GEN_STEP_ADVANCE_MS = [2000]   // when step 2 becomes active
 // output.
 const BUILDING_AGES = ['Pre-1900', '1900–1979', '1980–1999', 'Post-2000']
 
-// ─── Section 2 scope picker config ───────────────────────────────────────────
-const HEATING_CODES = ['5.2', '5.2L', '5.5']
-const WIRING_MUTEX = ['5.8', '5.8a', '5.8b']
-const PLUMBING_MUTEX = ['5.1', '5.1b']
-// Must stay in step with FOLDED in app/api/suggest-scope/route.js — its own
-// copy of this set previously missed '5.2L' and let the AI suggester return
-// both 5.2 and 5.2L (mutually exclusive heating options), which this file's
-// selectable filter doesn't catch either.
-const FOLDED_CODES = new Set(['5.2L', '5.5', '5.8'])
-
-function itemNeedsQty(item) {
-  if (!item) return false
-  const pt = item.pricingType
-  return pt === 'per_nr' || pt === 'per_kwp' || pt === 'per_kwh' || pt === 'per_kw' ||
-    (pt === 'per_item' && /^(number of|per )/i.test(item.qtyCapture || ''))
-}
-
-// Label for a count prompt. The workbook's "Quantity to capture" cell is used
-// when it reads as a count ("Number of …", "Per …", "System size (kWp)");
-// anything else (a stray "GIFA (automatic, m²)" on a per-nr row, as 8.9 had)
-// is replaced with a plain count label so workbook plumbing never reaches the
-// user as a question.
-function qtyPromptLabel(item) {
-  const raw = String(item?.qtyCapture || '').trim()
-  if (/^(number of|per |system size|capacity|plant capacity)/i.test(raw)) return raw
-  const unit = String(item?.unit || '').trim()
-  if (/^kw/i.test(unit)) return `Capacity (${unit})`
-  return unit && unit !== 'Nr' && unit !== 'Item' ? `Number of ${unit}` : 'Number of units'
-}
-
-const LEVEL_TIER = {
-  'Fabric and finishes only': 1,
-  'Finishes with minor services': 2,
-  'Full systems replacement': 3,
-  'Reconfiguration or full redesign': 4,
-}
-
-/**
- * Starting scopes for "Use typical scope".
- *
- * The picker can show up to 109 tiles across nine groups, and working through
- * them is where most of the questionnaire's time goes. This gives a defensible
- * starting point the user then edits — it is never the final answer, and the
- * full picker stays exactly as it was underneath.
- *
- * These are not invented. The refurbishment tiers are a direct transcription of
- * the Q2.3 option descriptions already shown to the user — "decoration, floor
- * and wall finishes, ceilings, fixtures and fittings" is 3.1/3.2/3.3/4.1/2.8,
- * "second-fix only M&E" is 5.1b/5.8b/5.8c, "complete replacement of heating,
- * plumbing and electrical" is 5.1/5.2/5.8a+5.8b, and "walls moved or removed"
- * is 0.2/2.7/7.5. So the preset says back what the user just told us.
- *
- * Two deliberate exclusions:
- *  - Count-driven items (per_nr / per_kwp / per_kwh). Pre-ticking one with no
- *    quantity would drop it into `excludedNoQuantity` and quietly produce an
- *    "excluded pending quantity" line in the report the user never asked for.
- *  - Anything condition-specific (asbestos removal, damp, contamination). Those
- *    belong to Q3.1, not to a typical scope.
- *
- * Project types absent from this map get no button — Other or mixed is too
- * varied for a default to be honest (it is the catch-all by definition).
- */
-const REFURB_TIER_SCOPE = {
-  // Tier 1 — fabric and finishes only.
-  1: ['0.5', '2.8', '3.1', '3.2', '3.3', '4.1'],
-  // Tier 2 — the above plus second-fix-only services.
-  2: ['0.5', '2.8', '3.1', '3.2', '3.3', '4.1', '5.1b', '5.8b', '5.8c'],
-  // Tier 3 — full systems: heating, plumbing and electrics replaced throughout.
-  // 5.5 rides with 5.2 exactly as the heating tile writes it; 5.8a + 5.8b
-  // together are what the picker resolves to "1st & 2nd fix" wiring.
-  3: ['0.5', '2.8', '3.1', '3.2', '3.3', '4.1', '5.1', '5.2', '5.5', '5.8a', '5.8b', '5.8c'],
-  // Tier 4 — plus the structural work implied by moving or removing walls.
-  4: ['0.2', '0.5', '2.7', '2.8', '3.1', '3.2', '3.3', '4.1', '5.1', '5.2', '5.5',
-      '5.8a', '5.8b', '5.8c', '7.5'],
-}
-
-const NEW_BUILD_SCOPE = [
-  '1.1', '1.3',                                   // substructure
-  '2.1', '2.2', '2.3', '2.5', '2.6', '2.7', '2.8', // frame, envelope, internal
-  '3.1', '3.2', '3.3', '4.1',                      // finishes and fittings
-  '5.1', '5.2', '5.5', '5.3', '5.7', '5.8a', '5.8b', '5.8c', // services
-  '8.1',                                           // site preparation
+// Q1.3 labels, shown only for the moment before the workbook's ▶ building_uses
+// list arrives (same labels — the workbook's list replaces this as soon as it
+// loads, so a building use added there appears without a code change).
+const BUILDING_USE_LABELS = [
+  'Residential', 'Student accommodation (PBSA / halls)', 'Commercial offices', 'Education',
+  'Healthcare', 'Retail', 'Industrial / warehouse', 'Hospitality / leisure', 'Mixed use', 'Other',
 ]
 
-function presetScopeFor(projectType, tier) {
-  const pt = String(projectType || '')
-  if (pt === 'New Build' || pt === 'Extension') return NEW_BUILD_SCOPE
-  if (pt === 'Refurbishment' || pt === 'Fit-out') return REFURB_TIER_SCOPE[tier] || REFURB_TIER_SCOPE[3]
-  if (pt === 'External works only') return ['8.1', '8.2', '8.4', '8.7', '8.8']
-  if (pt === 'Demolition only') return ['0.2', '0.5']
-  // No honest default for Other or mixed — it is the catch-all by definition,
-  // so ScopePresetBar hides itself rather than guessing.
-  return null
-}
+// ─── Section 2 scope picker ──────────────────────────────────────────────────
+// The picker, its rules and its lists all come from the NRM1 v5.2 workbook
+// (see ScopePicker.jsx and lib/scopeEngine.js). Nothing about scope items,
+// options, typical scopes or quantities is held in this file.
 
 const STANDARDS_OPTIONS = [
   'BREEAM', 'PAS 2035', 'NHS design guide', 'Net zero', 'University design guide',
   'Acoustic', 'Food hygiene', 'MCS', 'DNO', 'Highways', 'Dark sky', 'None', 'Other',
 ]
 
-const INTERVENTION_LEVELS = [
-  {
-    value: 'Fabric and finishes only',
-    signal: 'Lower cost · Minimal design',
-    description: 'Decoration, floor and wall finishes, ceilings, fixtures and fittings replaced in-place. No mechanical or electrical work whatsoever. No walls moved.',
-  },
-  {
-    value: 'Finishes with minor services',
-    signal: 'Moderate cost · Light design',
-    description: 'All of the above, plus second-fix only M&E: replacement sockets, switches, light fittings, radiators, TRVs, taps and visible fittings only. No new pipe runs or cable routes — the existing first-fix wiring and pipework is retained in place.',
-  },
-  {
-    value: 'Full systems replacement',
-    signal: 'Higher cost · Moderate design',
-    description: 'Complete replacement of heating, plumbing and electrical systems throughout. Everything replaced in the same position — no layout changes, no structural alterations. The building is essentially rewired and re-plumbed.',
-  },
-  {
-    value: 'Reconfiguration or full redesign',
-    signal: 'Highest cost · Full design team required',
-    description: 'Layout changes, walls moved or removed, or the building is stripped back to structure and redesigned. Requires architect, structural engineer, building control, and possibly planning consent.',
-  },
-]
-
-const SPEC_LEVELS = [
-  { value: 'Basic', tag: 'Lowest cost', description: 'Functional and durable. Standard materials, minimal detailing. Back-of-house, student accommodation, warehouses.' },
-  { value: 'Standard', tag: 'Mid-range', description: 'Good commercial standard. Durable mid-range materials. Typical offices, education, general academic space.' },
-  { value: 'High', tag: 'Premium', description: 'Flagship or prestige finish. High-end materials, bespoke elements, enhanced M&E. Boardrooms, reception, executive areas.' },
-]
+// Level-of-intervention names and descriptions, and specification levels, come
+// from the workbook ('3. Settings' ▶ intervention_levels / ▶ spec_levels). These
+// two maps only add the short cost/design signal shown beside each name.
+const INTERVENTION_SIGNAL = {
+  1: 'Lower cost · Minimal design',
+  2: 'Moderate cost · Light design',
+  3: 'Higher cost · Moderate design',
+  4: 'Highest cost · Full design team required',
+}
+const SPEC_TAG = { Basic: 'Lowest cost', Standard: 'Mid-range', High: 'Premium' }
 
 // ─── Section 3 data ───────────────────────────────────────────────────────────
 // KNOWN_ISSUES and SURVEY_OPTIONS were static arrays here; Q3.1 and Q3.3 now
@@ -491,51 +402,12 @@ function applyNoneMutex(prev, next, noneOption) {
   return next
 }
 
-// Offers a starting scope for the current project type and intervention level.
-// Hidden where no honest default exists (Other or mixed, or before a project
-// type is chosen) rather than guessing.
-function ScopePresetBar({ projectType, tier, selectedCount, onApply, onClear }) {
-  if (!presetScopeFor(projectType, tier)) return null
-  const has = selectedCount > 0
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
-      marginBottom: 16, padding: '12px 14px', borderRadius: 10,
-      border: '1px solid var(--border)', backgroundColor: 'var(--tint)',
-    }}>
-      <button type="button" onClick={onApply}
-        style={{
-          padding: '9px 16px', borderRadius: 8, cursor: 'pointer',
-          border: '1.5px solid var(--navy)', background: 'var(--surface)',
-          color: 'var(--ink)', fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 13.5,
-        }}>
-        {has ? 'Reset to typical scope' : 'Use typical scope'}
-      </button>
-      <span style={{ color: 'var(--text-soft)', fontSize: 13, flex: 1, minWidth: 180 }}>
-        {has
-          ? `${selectedCount} item${selectedCount === 1 ? '' : 's'} selected — add or remove anything below.`
-          : 'Starts you off with the elements this type of project usually includes. You can change everything.'}
-      </span>
-      {has && (
-        <button type="button" onClick={onClear}
-          style={{
-            padding: '9px 14px', borderRadius: 8, cursor: 'pointer',
-            border: '1.5px solid var(--border-2)', background: 'transparent',
-            color: 'var(--text-soft)', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 13.5,
-          }}>
-          Clear all
-        </button>
-      )}
-    </div>
-  )
-}
-
 // AI-suggested scope from the Q2.1 objective (September 2026). The model is
 // only ever shown the codes the picker would offer and answers with a strict
 // enum, so it can propose but never invent; the user reviews the list and the
 // deterministic engine prices whatever is finally ticked. Hidden until the
 // objective is long enough to mean something.
-function ScopeSuggestBar({ objective, projectType, buildingUse, interventionLevel, selectedCount, onApply, onUsePreset, hasPreset }) {
+function ScopeSuggestBar({ objective, projectType, buildingUse, interventionLevel, buildingAge, storeys, selectedCount, onApply }) {
   const [state, setState] = useState({ status: 'idle', items: [], error: '' })
   const ready = String(objective || '').trim().length >= 20 && !!projectType
   if (!projectType) return null
@@ -547,7 +419,7 @@ function ScopeSuggestBar({ objective, projectType, buildingUse, interventionLeve
     try {
       const res = await fetch('/api/suggest-scope', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ objective, projectType, buildingUse, interventionLevel }),
+        body: JSON.stringify({ objective, projectType, buildingUse, interventionLevel, buildingAge, storeys }),
       })
       const body = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(body.error || `Suggestion failed (${res.status}).`)
@@ -569,7 +441,7 @@ function ScopeSuggestBar({ objective, projectType, buildingUse, interventionLeve
   }
 
   return (
-    <div style={{ marginBottom: 16, padding: '12px 14px', borderRadius: 10, border: '1px solid var(--border)', backgroundColor: 'var(--surface)' }}>
+    <div style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid var(--border)', backgroundColor: 'var(--surface)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <button type="button" onClick={suggest} disabled={!ready || state.status === 'loading'}
           title={ready ? undefined : 'Describe the project objective in Q2.1 first (at least 20 characters)'}
@@ -589,13 +461,7 @@ function ScopeSuggestBar({ objective, projectType, buildingUse, interventionLeve
       {state.status === 'error' && <p role="alert" style={{ margin: '10px 0 0', color: 'var(--danger)', fontSize: 13 }}>{state.error}</p>}
       {state.status === 'empty' && (
         <div role="status" style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--text-mid)' }}>
-          <p style={{ margin: 0 }}>That objective did not point at specific elements. {hasPreset ? 'Start from the typical scope for this project type and edit it, or tick the elements below yourself.' : 'Tick the elements below that are in scope.'}</p>
-          {hasPreset && (
-            <button type="button" onClick={() => { onUsePreset(); setState({ status: 'idle', items: [], error: '' }) }}
-              style={{ marginTop: 8, padding: '8px 14px', borderRadius: 8, cursor: 'pointer', border: '1.5px solid var(--navy)', background: 'var(--surface)', color: 'var(--ink)', fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 13 }}>
-              Use typical scope instead
-            </button>
-          )}
+          <p style={{ margin: 0 }}>That objective did not point at specific elements. Use &ldquo;Use typical scope&rdquo; above, or tick the groups and items below yourself.</p>
         </div>
       )}
       {state.status === 'ready' && state.items.length > 0 && (
@@ -662,6 +528,31 @@ function BcisResolver({ postcode, regions, chosen, onChoose }) {
   )
 }
 
+// A draft saved before NRM1 v5.2 holds v4.5 codes ('3.1', '5.8a'). They are
+// translated through the workbook's 'Replaces old codes' as soon as the
+// catalogue arrives, so the same scope reopens ticked instead of the draft
+// being thrown away. Quantities typed against an old code move to the default
+// option of the item that now covers it; the retired wiring answer is dropped.
+function migrateDraftScope(catalogue, prev) {
+  const items = Array.isArray(prev.q2_2_scopeItems) ? prev.q2_2_scopeItems : []
+  const { byId, byOldCode } = indexCatalogue(catalogue)
+  const legacyQty = Object.keys(prev.q2_2_quantities || {}).some(k => !/^S-\d{4}-\d{2}$/.test(k))
+  if (items.every(c => byId.has(c)) && !legacyQty && prev.q2_2_wiring === undefined) return prev
+  const next = normaliseScopeAnswers(catalogue, prev)
+  const ctx = buildContext(catalogue, next)
+  const qtys = {}
+  for (const [k, v] of Object.entries(prev.q2_2_quantities || {})) {
+    if (/^S-\d{4}-\d{2}$/.test(k)) { qtys[k] = v; continue }
+    const id = byOldCode.get(k)
+    const item = id && byId.get(id)
+    const key = item && defaultOptionKeys(item, ctx)[0]
+    if (key && Number(v) > 0 && qtys[key] === undefined) qtys[key] = v
+  }
+  const rest = { ...next }
+  delete rest.q2_2_wiring
+  return { ...rest, q2_2_quantities: qtys }
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function QuestionnairePage() {
   const router = useRouter()
@@ -676,9 +567,6 @@ export default function QuestionnairePage() {
   const [authError, setAuthError] = useState(false)
   const [validationErrors, setValidationErrors] = useState({})
   const [scopeData, setScopeData] = useState(null)
-  const [collapsedGroups, setCollapsedGroups] = useState(() => new Set())
-  // Group 4's sector-specific tail is folded until asked for — see the picker.
-  const [showSectorTail, setShowSectorTail] = useState(false)
   // Q5 and Q6.1 are entirely optional and sit at the end of the longest step.
   // Collapsed by default so the default last step is seven questions rather
   // than ten — but opened when a draft already holds an answer, so a returning
@@ -703,8 +591,6 @@ export default function QuestionnairePage() {
     if (benefits.length > 0 || answers.q5_2_annualBenefit) setShowFinancialCase(true)
     if (answers.q6_2_instructions) setShowReportInstructions(true)
   }, [answers])
-  const toggleGroupCollapse = g =>
-    setCollapsedGroups(prev => { const n = new Set(prev); n.has(g) ? n.delete(g) : n.add(g); return n })
 
   useEffect(() => {
     try {
@@ -718,7 +604,7 @@ export default function QuestionnairePage() {
       // render is worse than starting blank.
       if (
         parsed && typeof parsed === 'object' && !Array.isArray(parsed) &&
-        parsed.schemaVersion === STORAGE_SCHEMA_VERSION &&
+        (parsed.schemaVersion === STORAGE_SCHEMA_VERSION || MIGRATABLE_SCHEMA_VERSIONS.includes(parsed.schemaVersion)) &&
         parsed.answers && typeof parsed.answers === 'object' && !Array.isArray(parsed.answers)
       ) {
         setAnswers(parsed.answers)
@@ -735,7 +621,11 @@ export default function QuestionnairePage() {
     let alive = true
     fetch('/api/scope-items')
       .then(r => r.json())
-      .then(d => { if (alive && Array.isArray(d.groups)) setScopeData(d) })
+      .then(d => {
+        if (!alive || !d?.catalogue) return
+        setScopeData(d)
+        setAnswers(prev => migrateDraftScope(d.catalogue, prev))
+      })
       .catch(() => {})
     return () => { alive = false }
   }, [])
@@ -773,16 +663,22 @@ export default function QuestionnairePage() {
   const standardsList = String(answers.q2_5_standards || '')
     .split(',').map(s => s.trim()).filter(Boolean)
 
-  // Spec levels the workbook can actually price differently for this project
-  // type. New build and extension have no Basic rate column (Basic resolves to
-  // the Standard column), and External Works has a single column for everything.
+  // The v5.2 scope catalogue (items, options, rules and the Settings lists).
+  const catalogue = scopeData?.catalogue || null
+
+  // Spec levels that read a different rate column for this project type, from
+  // '3. Settings' ▶ project_types: new build has no Basic column (Basic reads NB
+  // Std), and External works only has a single column for everything, so Q2.4
+  // offers only the levels that actually change the price.
   const specLevelsForType = (() => {
-    const pt = String(answers.q1_2_projectType || '').toLowerCase()
-    if (pt.includes('external works')) return []
-    if (pt.includes('new build') || pt.includes('extension')) {
-      return SPEC_LEVELS.filter(o => o.value !== 'Basic')
-    }
-    return SPEC_LEVELS
+    if (!catalogue) return []
+    const pt = catalogue.settings.projectTypes.find(t => t.label === answers.q1_2_projectType)
+    const levels = pt?.specLevels || []
+    if (levels.length < 2) return []
+    return levels.map(l => ({
+      value: l, tag: SPEC_TAG[l] || '',
+      description: catalogue.settings.specLevels.find(s => s.level === l)?.description || '',
+    }))
   })()
 
   // The annual-benefit field only makes sense once a benefit type is chosen and
@@ -790,116 +686,49 @@ export default function QuestionnairePage() {
   const financialBenefits = Array.isArray(answers.q5_1_financialBenefit) ? answers.q5_1_financialBenefit : []
   const showRoiAmount = financialBenefits.length > 0 && !financialBenefits.includes(NO_FINANCIAL_RETURN)
 
-  const isRefurb = ['Refurbishment', 'Fit-out', 'Extension'].includes(answers.q1_2_projectType)
+  // Level of intervention is asked where ▶ project_types says 'Uses level of
+  // intervention' (Refurbishment and Fit-out). Until the catalogue arrives the
+  // same two types are assumed, so the question does not flicker.
+  const isRefurb = catalogue
+    ? projectTypeUsesLevel(catalogue, answers.q1_2_projectType)
+    : ['Refurbishment', 'Fit-out'].includes(answers.q1_2_projectType)
 
-  const itemByCode = useMemo(() => {
-    const m = {}
-    for (const grp of scopeData?.groups || []) for (const it of grp.items) m[it.code] = it
-    return m
-  }, [scopeData])
 
-  const WIRING_MIN_TIER = { '5.8': 3, '5.8a': 3, '5.8b': 2, '5.8c': 2 }
-  const currentTier = isRefurb ? (LEVEL_TIER[answers.q2_3_interventionLevel] || 4) : 4
-
-  // Is this code selectable right now? Same four tests the pruning effect below
-  // applies, so a preset can never tick a tile the picker would not show — a
-  // preset that selected a hidden item would be invisible to the user but still
-  // priced in the report.
-  const scopeCodeSelectable = code => {
-    const it = itemByCode[code]
-    if (!it) return false
-    const visibleGroups = VISIBLE_GROUPS[answers.q1_2_projectType]
-    if (visibleGroups && !visibleGroups.includes(it.group)) return false
-    if (!matchesBuildingUse(it.buildingUse, answers.q1_3_buildingUse || '')) return false
-    if (isRefurb && (it.minLvl || 1) > currentTier) return false
-    if (!priceableFor(it, answers.q1_2_projectType)) return false
-    return true
-  }
-
-  function applyScopePreset() {
-    const preset = presetScopeFor(answers.q1_2_projectType, currentTier)
-    if (!preset || !scopeData) return
-    // FOLDED_CODES have no tile of their own but are written alongside their
-    // parent (5.5 rides with the heating tile), so they bypass the selectable
-    // test and are kept only when their parent survived it.
-    const chosen = preset.filter(c => (FOLDED_CODES.has(c) ? true : scopeCodeSelectable(c)))
-    const withoutOrphanedFolds = chosen.filter(c => (c === '5.5' ? chosen.includes('5.2') : true))
-
-    // Mirror the wiring derivation the tiles perform, so q2_2_wiring stays
-    // consistent with the codes — the cost engine reads it to pick which of
-    // 5.8 / 5.8a / 5.8b to price, and throws if more than one is present.
-    const hasA = withoutOrphanedFolds.includes('5.8a')
-    const hasB = withoutOrphanedFolds.includes('5.8b')
-    const wiring = (hasA && hasB) ? '5.8' : hasA ? '5.8a' : hasB ? '5.8b' : 'none'
-
-    setAnswers(prev => ({ ...prev, q2_2_scopeItems: withoutOrphanedFolds, q2_2_wiring: wiring }))
-
-    // Fold away the groups the preset did not touch. The long tail (sector
-    // equipment, specialist/modular) is the bulk of the tile count and most
-    // projects never open it; it stays one click away.
-    const touched = new Set(withoutOrphanedFolds.map(c => itemByCode[c]?.group).filter(g => g !== undefined))
-    setCollapsedGroups(new Set((scopeData.groups || []).map(g => g.group).filter(g => !touched.has(g))))
-  }
-
-  function clearScope() {
-    setAnswers(prev => ({ ...prev, q2_2_scopeItems: [], q2_2_wiring: 'none' }))
-    setCollapsedGroups(new Set())
-  }
-
-  // Applies an AI-suggested code list through exactly the same gates as the
-  // preset (selectable filter, 5.5 folded with 5.2, wiring derivation), and
-  // returns the set of codes that survived so the UI can show only those.
-  function applySuggestedScope(codes) {
-    if (!scopeData) return new Set()
-    const chosen = (codes || []).filter(c => scopeCodeSelectable(c))
-    if (chosen.includes('5.2') && itemByCode['5.5'] && !chosen.includes('5.5')) chosen.push('5.5')
-    const hasA = chosen.includes('5.8a'), hasB = chosen.includes('5.8b')
-    const wiring = (hasA && hasB) ? '5.8' : hasA ? '5.8a' : hasB ? '5.8b' : 'none'
-    setAnswers(prev => ({ ...prev, q2_2_scopeItems: chosen, q2_2_wiring: wiring }))
-    const touched = new Set(chosen.map(c => itemByCode[c]?.group).filter(g => g !== undefined))
-    setCollapsedGroups(new Set((scopeData.groups || []).map(g => g.group).filter(g => !touched.has(g))))
+  // Applies an AI-suggested list of Scope IDs through the same tests the picker
+  // shows (offered for this project type, available at the chosen level), and
+  // returns the IDs that survived so the suggestion panel lists only those.
+  function applySuggestedScope(ids) {
+    if (!catalogue) return new Set()
+    const ctx = buildContext(catalogue, answers)
+    const { byId } = indexCatalogue(catalogue)
+    const chosen = (ids || []).filter(id => { const it = byId.get(id); return it && isOffered(it, ctx) && isItemAvailable(it, ctx) })
+    setAnswers(prev => ({ ...prev, q2_2_scopeItems: chosen, q2_2_scopeOptions: {} }))
     return new Set(chosen)
   }
 
+  // Switching project type, building use or level of intervention can leave
+  // a ticked item the picker no longer offers (not shown for the new type) or
+  // can no longer select (needs a higher level). Dropped here so the stored
+  // answer always matches what the user can see — the engine would otherwise
+  // list it as "not priced". Also keeps the stored spec level inside the set
+  // on offer, which the calculator would otherwise price as Standard.
   useEffect(() => {
-    if (!scopeData) return
-    const visibleGroups = VISIBLE_GROUPS[answers.q1_2_projectType]
-    const bu = answers.q1_3_buildingUse || ''
+    if (!catalogue) return
     setAnswers(prev => {
+      const ctx = buildContext(catalogue, prev)
+      if (!ctx.PT) return prev
+      const { byId } = indexCatalogue(catalogue)
       const prevItems = prev.q2_2_scopeItems || []
-      const kept = prevItems.filter(code => {
-        const it = itemByCode[code]
-        if (!it) return false
-        if (visibleGroups && !visibleGroups.includes(it.group)) return false
-        if (!matchesBuildingUse(it.buildingUse, bu)) return false
-        if (isRefurb && (it.minLvl || 1) > currentTier) return false
-        if (!FOLDED_CODES.has(code) && !priceableFor(it, prev.q1_2_projectType)) return false
-        return true
-      })
-      const wiringTier = WIRING_MIN_TIER[prev.q2_2_wiring] || 0
-      const newWiring = (prev.q2_2_wiring && prev.q2_2_wiring !== 'none' && wiringTier <= currentTier)
-        ? prev.q2_2_wiring : 'none'
-
-      // Keep the stored spec level inside the set currently on offer. Picking
-      // Basic on a refurb then switching to New Build would otherwise leave
-      // "Basic" stored with no tile selected — and the calculator prices it as
-      // Standard regardless. Snapping makes the stored answer agree with both
-      // the UI and the arithmetic. Folded into this effect rather than its own
-      // because it reacts to the same answer (project type).
+      const kept = prevItems.filter(id => { const it = byId.get(id); return it && isOffered(it, ctx) && isItemAvailable(it, ctx) })
       const allowedSpec = specLevelsForType.map(o => o.value)
       const newSpec = allowedSpec.length === 0
         ? 'Standard'
-        : (!prev.q2_4_specLevel || allowedSpec.includes(prev.q2_4_specLevel))
-          ? prev.q2_4_specLevel
-          : 'Standard'
-
-      if (kept.length === prevItems.length
-        && newWiring === (prev.q2_2_wiring || 'none')
-        && newSpec === prev.q2_4_specLevel) return prev
-      return { ...prev, q2_2_scopeItems: kept, q2_2_wiring: newWiring, q2_4_specLevel: newSpec }
+        : (!prev.q2_4_specLevel || allowedSpec.includes(prev.q2_4_specLevel)) ? prev.q2_4_specLevel : 'Standard'
+      if (kept.length === prevItems.length && newSpec === prev.q2_4_specLevel) return prev
+      return { ...prev, q2_2_scopeItems: kept, q2_4_specLevel: newSpec }
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answers.q1_2_projectType, answers.q1_3_buildingUse, answers.q2_3_interventionLevel, scopeData])
+  }, [answers.q1_2_projectType, answers.q1_3_buildingUse, answers.q2_3_interventionLevel, catalogue])
 
   // Section 3 option lists vary by project type. Switching type must drop any
   // ticked option the new type does not offer, or the engines price an answer
@@ -933,6 +762,10 @@ export default function QuestionnairePage() {
       const nextHeight = showsHeightQuestion(nextStoreys) ? prev.q1_6_heightOver18m : undefined
 
       const nextAge = isQuestionShown('q1_4_buildingAge', pt) ? prev.q1_4_buildingAge : undefined
+      // Level of intervention is only asked for Refurbishment and Fit-out
+      // (NRM1 v5.2). A value left from another type, or from an Extension
+      // draft saved before it stopped being asked, is cleared.
+      const nextLevel = isQuestionShown('q2_3_interventionLevel', pt) ? prev.q2_3_interventionLevel : undefined
       const nextBenefit = isQuestionShown('q5_1_financialBenefit', pt) ? prev.q5_1_financialBenefit : undefined
       const nextAnnual = isQuestionShown('q5_2_annualBenefit', pt) ? prev.q5_2_annualBenefit : undefined
 
@@ -941,6 +774,7 @@ export default function QuestionnairePage() {
         || nextStoreys !== prev.q1_2_storeys
         || nextHeight !== prev.q1_6_heightOver18m
         || nextAge !== prev.q1_4_buildingAge
+        || nextLevel !== prev.q2_3_interventionLevel
         || nextBenefit !== prev.q5_1_financialBenefit
         || nextAnnual !== prev.q5_2_annualBenefit
       if (!changed) return prev
@@ -948,7 +782,7 @@ export default function QuestionnairePage() {
         ...prev,
         q3_1_knownIssues: keptIssues, q3_3_surveys: keptSurveys,
         q1_2_storeys: nextStoreys, q1_6_heightOver18m: nextHeight,
-        q1_4_buildingAge: nextAge,
+        q1_4_buildingAge: nextAge, q2_3_interventionLevel: nextLevel,
         q5_1_financialBenefit: nextBenefit, q5_2_annualBenefit: nextAnnual,
       }
     })
@@ -980,9 +814,9 @@ export default function QuestionnairePage() {
       if (isQuestionShown('q1_4_buildingAge', answers.q1_2_projectType) && !answers.q1_4_buildingAge) {
         errs.q1_4_buildingAge = 'Building age is required'
       }
-      // Load-bearing despite reading as optional. Left blank, matchesBuildingUse
-      // treats it as a wildcard so every scope tile shows, AND senseCheck finds
-      // no Sheet 8 benchmark band, so the COST_LOW / COST_HIGH checks — the main
+      // Load-bearing despite reading as optional. Left blank, the scope picker
+      // treats it as "any use" (nothing is folded under More items and nothing
+      // prices at a building-use rate), AND senseCheck finds no ▶ benchmarks band, so the COST_LOW / COST_HIGH checks — the main
       // guard against a mispriced estimate — silently never run.
       if (!answers.q1_3_buildingUse) errs.q1_3_buildingUse = 'Building use is required'
     }
@@ -1278,6 +1112,18 @@ export default function QuestionnairePage() {
               <HelpText>This becomes the heading of your report. Include the work type, building type, and location — e.g. "Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" or "New Sports Hall, University of Birmingham, Edgbaston".</HelpText>
               <TextInput value={answers.q1_0_projectName} onChange={v => set('q1_0_projectName', v)} placeholder="e.g. Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" />
               {validationErrors.q1_0_projectName && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_0_projectName}</p>}
+              {/* The title is the largest text on the report cover — show it,
+                  and nudge (never block) when it is too thin to identify the project. */}
+              {answers.q1_0_projectName?.trim() && (
+                <p className="mt-2 text-sm" style={{ color: 'var(--text-soft)' }}>
+                  Cover title: <strong style={{ color: 'var(--ink)' }}>{answers.q1_0_projectName.trim()}</strong>
+                  {titleLooksThin(answers.q1_0_projectName, answers.q1_1_postcode) && (
+                    <span role="status" style={{ display: 'block', color: 'var(--amber-deep)', marginTop: 4 }}>
+                      Add the work and the building, e.g. &ldquo;Refurbishment of Block C, first floor&rdquo;.
+                    </span>
+                  )}
+                </p>
+              )}
             </QCard>
 
             <QCard qkey="q1_1_postcode">
@@ -1297,7 +1143,7 @@ export default function QuestionnairePage() {
               <Label required>Q1.2 — Project type</Label>
               <SelectInput value={answers.q1_2_projectType} onChange={v => set('q1_2_projectType', v)}>
                 <option value="">Select project type...</option>
-                {PROJECT_TYPES.map(t => <option key={t.value} value={t.value}>{t.value}</option>)}
+                {(catalogue?.settings.projectTypes.map(t => t.label) || PROJECT_TYPES.map(t => t.value)).map(v => <option key={v} value={v}>{v}</option>)}
               </SelectInput>
               {/* The help line sits under the select and follows the choice,
                   rather than being crammed into the option text — seven long
@@ -1327,19 +1173,10 @@ export default function QuestionnairePage() {
 
             <QCard qkey="q1_3_buildingUse">
               <Label required>Q1.3 — Building use</Label>
-              <HelpText>Filters the scope list to the elements that apply, and selects the benchmark band the estimate is sense-checked against.</HelpText>
+              <HelpText>Puts the scope items that apply to this use first (nothing is hidden), picks building-use rates, and selects the benchmark band the estimate is sense-checked against.</HelpText>
               <SelectInput value={answers.q1_3_buildingUse} onChange={v => set('q1_3_buildingUse', v)}>
                 <option value="">Select building use...</option>
-                <option>Residential</option>
-                <option>Student accommodation (PBSA / halls)</option>
-                <option>Commercial offices</option>
-                <option>Education</option>
-                <option>Healthcare</option>
-                <option>Retail</option>
-                <option>Industrial / warehouse</option>
-                <option>Hospitality / leisure</option>
-                <option>Mixed use</option>
-                <option>Other</option>
+                {(catalogue?.settings.buildingUses.filter(u => u.code !== 'ALL').map(u => u.label) || BUILDING_USE_LABELS).map(v => <option key={v}>{v}</option>)}
               </SelectInput>
               {validationErrors.q1_3_buildingUse && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_3_buildingUse}</p>}
               {answers.q1_3_buildingUse === 'Other' && (
@@ -1408,364 +1245,88 @@ export default function QuestionnairePage() {
 
             {isRefurb && (
               <QCard qkey="q2_3_interventionLevel">
-                <Label required>Q2.3 — Level of intervention</Label>
-                <HelpText>Determines the rate band applied to costs and the design duration multiplier. Scope items that require a higher level are greyed out below.</HelpText>
+                {/* Displayed as Q2.2, keyed q2_3_interventionLevel. The form has
+                    always asked level of intervention BEFORE the scope picker,
+                    because the answer decides which scope items are available
+                    and which start ticked — so the numbers follow the page
+                    order. The answer KEYS are deliberately unchanged, the same
+                    way q4_0_startDate displays as Q4.2: renaming a key would
+                    orphan every draft in localStorage and every report in KV.
+                    Names and descriptions come from the workbook's
+                    ▶ intervention_levels table. */}
+                <Label required>Q2.2 — Level of intervention</Label>
+                <HelpText>You choose this — the app never picks it for you. It sets the rate band, the design duration, which scope items start ticked below, and which are greyed out because they need a higher level.</HelpText>
                 <div className="flex flex-col gap-3">
-                  {INTERVENTION_LEVELS.map(opt => (
-                    <label key={opt.value} className="flex items-start gap-3 cursor-pointer rounded-xl p-4"
+                  {(catalogue?.settings.interventionLevels || []).map(opt => (
+                    <label key={opt.name} className="flex items-start gap-3 cursor-pointer rounded-xl p-4"
                       style={{
-                        border: answers.q2_3_interventionLevel === opt.value ? '2px solid var(--navy)' : '1.5px solid var(--border)',
-                        backgroundColor: answers.q2_3_interventionLevel === opt.value ? 'rgba(26,46,74,.06)' : 'var(--tint)',
+                        border: answers.q2_3_interventionLevel === opt.name ? '2px solid var(--navy)' : '1.5px solid var(--border)',
+                        backgroundColor: answers.q2_3_interventionLevel === opt.name ? 'rgba(26,46,74,.06)' : 'var(--tint)',
                         transition: 'border-color 0.13s ease, background 0.13s ease',
                       }}>
-                      <input type="radio" value={opt.value} checked={answers.q2_3_interventionLevel === opt.value}
-                        onChange={() => set('q2_3_interventionLevel', opt.value)}
+                      <input type="radio" value={opt.name} checked={answers.q2_3_interventionLevel === opt.name}
+                        onChange={() => set('q2_3_interventionLevel', opt.name)}
                         className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ accentColor: 'var(--navy)' }} />
                       <div>
-                        <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, color: '#1A2E4A', fontSize: '14px' }}>{opt.value}</div>
-                        <div style={{ color: 'var(--navy)', fontSize: '12px', fontWeight: 600, marginTop: '3px' }}>{opt.signal}</div>
-                        <div style={{ color: '#6B7280', fontSize: '13px', marginTop: '4px', lineHeight: 1.5 }}>{opt.description}</div>
+                        <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, color: 'var(--ink)', fontSize: '14px' }}>{opt.level}. {opt.name}</div>
+                        {INTERVENTION_SIGNAL[opt.level] && <div style={{ color: 'var(--navy)', fontSize: '12px', fontWeight: 600, marginTop: '3px' }}>{INTERVENTION_SIGNAL[opt.level]}</div>}
+                        <div style={{ color: 'var(--text-soft)', fontSize: '13px', marginTop: '4px', lineHeight: 1.5 }}>{opt.description}</div>
                       </div>
                     </label>
                   ))}
+                  {!catalogue && <p style={{ color: 'var(--text-soft)', fontSize: 13 }}>Loading levels…</p>}
                 </div>
                 {validationErrors.q2_3_interventionLevel && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q2_3_interventionLevel}</p>}
               </QCard>
             )}
 
-            {/* Q2.3 Scope picker — its own visual container */}
+            {/* Scope picker — displayed as Q2.3, keyed q2_2_scopeItems. See the
+                numbering note on the level-of-intervention question above. */}
             <div data-qkey="q2_2_scopeItems" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '28px', boxShadow: 'var(--shadow-1)' }}>
-              <Label>Q2.2 — Scope of works</Label>
-              <HelpText>Tick every element that is in scope. Use Other / Specialist below for anything not listed.</HelpText>
-              <ScopePresetBar
-                projectType={answers.q1_2_projectType}
-                tier={currentTier}
-                selectedCount={(answers.q2_2_scopeItems || []).length}
-                onApply={applyScopePreset}
-                onClear={clearScope}
-              />
-              <ScopeSuggestBar
-                objective={answers.q2_1_objective}
-                projectType={answers.q1_2_projectType}
-                buildingUse={answers.q1_3_buildingUse}
-                interventionLevel={answers.q2_3_interventionLevel}
-                selectedCount={(answers.q2_2_scopeItems || []).length}
-                onApply={applySuggestedScope}
-                onUsePreset={applyScopePreset}
-                hasPreset={!!presetScopeFor(answers.q1_2_projectType, currentTier)}
-              />
-              {(() => {
-                const scopeArr = Array.isArray(answers.q2_2_scopeItems) ? answers.q2_2_scopeItems : []
-                const quantities = answers.q2_2_quantities || {}
-                const setQty = (code, val) => set('q2_2_quantities', { ...(answers.q2_2_quantities || {}), [code]: val })
-                const toggleScope = code => {
-                  set('q2_2_scopeItems', scopeArr.includes(code) ? scopeArr.filter(v => v !== code) : [...scopeArr, code])
-                }
-                const heatingSelected = scopeArr.includes('5.2') || scopeArr.includes('5.2L')
-                const heatingType = scopeArr.includes('5.2') ? '5.2' : scopeArr.includes('5.2L') ? '5.2L' : ''
-                const clearHeating = arr => arr.filter(v => !HEATING_CODES.includes(v))
-                const toggleHeating = () => {
-                  set('q2_2_scopeItems', heatingSelected ? clearHeating(scopeArr) : [...clearHeating(scopeArr), '5.2', '5.5'])
-                }
-                const selectHeatingType = (type) => {
-                  const cleaned = clearHeating(scopeArr)
-                  set('q2_2_scopeItems', type === '5.2' ? [...cleaned, '5.2', '5.5'] : [...cleaned, '5.2L'])
-                }
-                const toggleWiring = (code) => {
-                  const newScope = scopeArr.includes(code)
-                    ? scopeArr.filter(v => v !== code)
-                    : [...scopeArr, code]
-                  const has8a = newScope.includes('5.8a')
-                  const has8b = newScope.includes('5.8b')
-                  set('q2_2_scopeItems', newScope)
-                  set('q2_2_wiring', (has8a && has8b) ? '5.8' : has8a ? '5.8a' : has8b ? '5.8b' : 'none')
-                }
-                const togglePlumbing = (code) => {
-                  const other = code === '5.1' ? '5.1b' : '5.1'
-                  const newScope = scopeArr.includes(code)
-                    ? scopeArr.filter(v => v !== code)
-                    : [...scopeArr.filter(v => v !== other), code]
-                  set('q2_2_scopeItems', newScope)
-                }
-                const tierName = mlvl => Object.entries(LEVEL_TIER).find(([, v]) => v === mlvl)?.[0]
-                const groupSelectedCount = items =>
-                  items.reduce((n, it) => n + (scopeArr.includes(it.code) ? 1 : 0), 0)
-                const S = {
-                  grpBlock: { marginBottom: 12 },
-                  groupHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 14px', background: 'var(--tint-2)', border: '1px solid var(--border)', borderRadius: 9, cursor: 'pointer', userSelect: 'none' },
-                  groupLabel: { fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 12, color: '#1A2E4A', textTransform: 'uppercase', letterSpacing: '0.4px' },
-                  countPill: { fontFamily: 'var(--font-body)', background: 'rgba(26,46,74,.06)', color: 'var(--navy)', fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 20 },
-                  chevron: { width: 16, height: 16, color: 'var(--text-mute)', transition: 'transform 0.18s ease', flexShrink: 0 },
-                  // minmax(240px, 1fr) alone never shrinks a column below
-                  // 240px even when the grid's own container is narrower —
-                  // at a 320px viewport (minus the page's side padding) that
-                  // overflowed the whole page horizontally. min(240px, 100%)
-                  // caps the minimum to whatever width is actually available.
-                  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))', gap: 8, padding: '10px 0 4px' },
-                  tile: { display: 'flex', alignItems: 'flex-start', gap: 9, border: '1.5px solid var(--border)', borderRadius: 10, padding: '10px 12px', background: '#fff', cursor: 'pointer' },
-                  // Full `border` shorthand, not a `borderColor` override: this
-                  // object is spread over `tile`, which sets the shorthand, and
-                  // React warns (35 times per render of this picker) that mixing
-                  // the two can drop the value on re-render.
-                  tileSel: { border: '1.5px solid var(--navy)', background: 'rgba(26,46,74,.06)', boxShadow: '0 1px 6px rgba(26,46,74,0.12)' },
-                  tileDis: { opacity: 0.45, cursor: 'not-allowed' },
-                  checkBox: { width: 18, height: 18, borderRadius: 5, border: '1.5px solid var(--border-2)', flexShrink: 0, marginTop: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' },
-                  // Full shorthand, same reason as `tileSel` above: spread over
-                  // `checkBox` (which sets `border`), a bare `borderColor` made
-                  // React log a shorthand/longhand conflict once per ticked tile.
-                  checkBoxSel: { background: 'var(--navy)', border: '1.5px solid var(--navy)', color: '#fff' },
-                  tileText: { display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 },
-                  tileLabel: { fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 13, color: '#1A2E4A', lineHeight: 1.3 },
-                  subPrompt: { background: 'var(--tint)', borderLeft: '3px solid var(--navy)', padding: '10px 14px', margin: '6px 0 2px', borderRadius: '0 8px 8px 0' },
-                  subLabel: { fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 5, fontWeight: 500 },
-                  subInput: { fontSize: 14, padding: '6px 10px', border: '1.5px solid var(--border)', borderRadius: 7, color: '#111827', outline: 'none' },
-                  radioRow: { display: 'flex', alignItems: 'flex-start', gap: 9, padding: '5px 0', cursor: 'pointer' },
-                  radioCheck: { marginTop: 2, flexShrink: 0, accentColor: 'var(--navy)', width: 15, height: 15 },
-                  radioLabel: { fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 12.5, color: '#1A2E4A', lineHeight: 1.3 },
-                  radioDesc: { fontWeight: 400, fontSize: 11.5, color: '#6B7280', lineHeight: 1.45 },
-                  reqNote: { fontSize: 10.5, color: '#B06000', fontWeight: 500 },
-                  subGrpLabel: { display: 'inline-block', fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 10.5, color: 'var(--navy)', textTransform: 'uppercase', letterSpacing: '0.6px', background: 'rgba(26,46,74,.06)', padding: '3px 10px', borderRadius: 6, marginTop: 12 },
-                }
-                const Check = () => (
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                )
-                if (!scopeData) return <p style={{ color: '#6B7280', fontSize: 13, padding: '8px 0' }}>Loading scope items…</p>
-                if (!answers.q1_2_projectType) return <p style={{ color: '#6B7280', fontSize: 13, padding: '8px 0' }}>Select a project type (Q1.2) above to see the relevant scope items.</p>
-                const visibleGroups = VISIBLE_GROUPS[answers.q1_2_projectType] || scopeData.groups.map(g => g.group)
-                const bu = answers.q1_3_buildingUse || ''
-                const displayedGroups = scopeData.groups
-                  .filter(g => visibleGroups.includes(g.group))
-                  .map(g => ({ ...g, items: g.items.filter(it => matchesBuildingUse(it.buildingUse, bu) && !FOLDED_CODES.has(it.code) && priceableFor(it, answers.q1_2_projectType)) }))
-                  .filter(g => g.items.length > 0)
-                if (displayedGroups.length === 0) return <p style={{ color: '#6B7280', fontSize: 13, padding: '8px 0' }}>No scope items match this project type and building use yet.</p>
-                const MECH_CODES_5 = new Set(['5.19', '5.20', '5.21', '5.23', '5.24', '5.29'])
-                const getMechElec = code => {
-                  if (MECH_CODES_5.has(code)) return 'mech'
-                  const m = code.match(/^5\.(\d+)/)
-                  return (m && Number(m[1]) >= 7) ? 'elec' : 'mech'
-                }
-                const getGroup4Split = code => {
-                  const m = code.match(/^4\.(\d+)/)
-                  return (m && Number(m[1]) <= 9) ? 'general' : 'specialist'
-                }
-                const hiddenInput = { position: 'absolute', opacity: 0, width: 1, height: 1, pointerEvents: 'none' }
-                const renderItem = item => {
-                  const minLvl = item.minLvl || 1
-                  const isEnabled = !isRefurb || currentTier >= minLvl
-                  if (item.code === '5.2') {
-                    const min2 = itemByCode['5.2']?.minLvl || 3
-                    const min2L = itemByCode['5.2L']?.minLvl || 2
-                    const lowestMin = Math.min(min2, min2L)
-                    const heatingEnabled = !isRefurb || currentTier >= lowestMin
-                    const can2 = (!isRefurb || currentTier >= min2) && priceableFor(itemByCode['5.2'], answers.q1_2_projectType)
-                    // 5.2L is refurb-only in the workbook (no NB/Ext rate) — on a
-                    // new build it used to be offered, ticked, and then excluded.
-                    const can2L = (!isRefurb || currentTier >= min2L) && priceableFor(itemByCode['5.2L'], answers.q1_2_projectType)
-                    const sel = heatingSelected && heatingEnabled
-                    return (
-                      <div key="__heating__" style={{ gridColumn: '1 / -1' }}>
-                        <label className={`scope-tile${heatingEnabled ? '' : ' is-disabled'}`}
-                          style={{ ...S.tile, ...(sel ? S.tileSel : {}), ...(heatingEnabled ? {} : S.tileDis) }}>
-                          <input type="checkbox" checked={sel} disabled={!heatingEnabled}
-                            onChange={() => { if (heatingEnabled) toggleHeating() }} style={hiddenInput} />
-                          <span style={{ ...S.checkBox, ...(sel ? S.checkBoxSel : {}) }}>{sel && <Check />}</span>
-                          <div style={S.tileText}>
-                            <span style={S.tileLabel}>Heating system</span>
-                            {!heatingEnabled && <span style={S.reqNote}>Requires: {tierName(lowestMin)}</span>}
-                          </div>
-                        </label>
-                        {sel && (
-                          <div style={S.subPrompt}>
-                            <span style={S.subLabel}>Type of heating works</span>
-                            {[
-                              { value: '5.2',  label: 'New or upgraded system', desc: 'Full design and installation — LTHW, heat pump or underfloor heating', can: can2, min: min2 },
-                              { value: '5.2L', label: 'Like-for-like boiler replacement', desc: 'Swap end-of-life unit only — no new pipework or system redesign', can: can2L, min: min2L },
-                            ].map(opt => (
-                              <label key={opt.value} style={{ ...S.radioRow, ...(opt.can ? {} : { opacity: 0.4, cursor: 'not-allowed' }) }}>
-                                <input type="radio" value={opt.value} checked={heatingType === opt.value} disabled={!opt.can}
-                                  onChange={() => { if (opt.can) selectHeatingType(opt.value) }} style={S.radioCheck} />
-                                <div style={S.tileText}>
-                                  <span style={S.radioLabel}>{opt.label}</span>
-                                  <span style={S.radioDesc}>{opt.desc}</span>
-                                  {!opt.can && <span style={S.reqNote}>Requires: {tierName(opt.min)}</span>}
-                                </div>
-                              </label>
-                            ))}
-                            <p style={{ fontSize: 11, color: '#6B7280', marginTop: 8, fontStyle: 'italic' }}>Gas supply pipework is included automatically when a new or upgraded system is selected.</p>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  }
-                  const isWiring = WIRING_MUTEX.includes(item.code)
-                  const isPlumbing = PLUMBING_MUTEX.includes(item.code)
-                  const isTicked = scopeArr.includes(item.code)
-                  const sel = isTicked && isEnabled
-                  const showQty = sel && itemNeedsQty(item)
-                  const onToggle = () => {
-                    if (!isEnabled) return
-                    if (isWiring)        toggleWiring(item.code)
-                    else if (isPlumbing) togglePlumbing(item.code)
-                    else                 toggleScope(item.code)
-                  }
-                  const tile = (
-                    <label className={`scope-tile${isEnabled ? '' : ' is-disabled'}`}
-                      style={{ ...S.tile, ...(sel ? S.tileSel : {}), ...(isEnabled ? {} : S.tileDis) }}>
-                      <input type="checkbox" checked={sel} disabled={!isEnabled} onChange={onToggle} style={hiddenInput} />
-                      <span style={{ ...S.checkBox, ...(sel ? S.checkBoxSel : {}) }}>{sel && <Check />}</span>
-                      <div style={S.tileText}>
-                        <span style={S.tileLabel}>{item.description}</span>
-                        {!isEnabled && <span style={S.reqNote}>Requires: {tierName(minLvl)}</span>}
-                      </div>
-                    </label>
-                  )
-                  if (!showQty) return <div key={item.code}>{tile}</div>
-                  return (
-                    <div key={item.code} style={{ gridColumn: '1 / -1' }}>
-                      {tile}
-                      <div style={S.subPrompt}>
-                        <span style={S.subLabel}>{qtyPromptLabel(item)}</span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <input type="number" value={quantities[item.code] ?? ''}
-                            onChange={e => setQty(item.code, e.target.value)}
-                            placeholder="e.g. 4" min={0}
-                            style={{ ...S.subInput, width: 100 }} />
-                          <span style={{ fontSize: 12, color: '#6B7280' }}>{item.unit}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                }
-                const GroupHead = ({ grp, count }) => {
-                  const collapsed = collapsedGroups.has(grp.group)
-                  // Was a <div onClick> — invisible to keyboard users entirely
-                  // (no tabIndex, no key handler), so a group could only ever
-                  // be collapsed or reopened with a mouse. A real <button>
-                  // gets Tab reachability and Enter/Space activation for free.
-                  return (
-                    <button type="button" className="scope-group-head" style={{ ...S.groupHead, width: '100%', font: 'inherit', textAlign: 'left' }}
-                      aria-expanded={!collapsed}
-                      onClick={() => toggleGroupCollapse(grp.group)}>
-                      <span style={S.groupLabel}>{grp.label}</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        {count > 0 && <span style={S.countPill}>{count} selected</span>}
-                        <svg style={{ ...S.chevron, transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}
-                          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="6 9 12 15 18 9" />
-                        </svg>
-                      </div>
-                    </button>
-                  )
-                }
-                return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                    {displayedGroups.map(grp => {
-                      const collapsed = collapsedGroups.has(grp.group)
-                      const count = groupSelectedCount(grp.items)
-                      if (grp.group === 4) {
-                        const generalItems    = grp.items.filter(it => getGroup4Split(it.code) === 'general')
-                        const specialistItems = grp.items.filter(it => getGroup4Split(it.code) === 'specialist')
-                        return (
-                          <div key={grp.group} style={S.grpBlock}>
-                            <GroupHead grp={grp} count={count} />
-                            {!collapsed && (
-                              <>
-                                {generalItems.length > 0 && (
-                                  <>
-                                    <div style={S.subGrpLabel}>Fittings, Furniture &amp; Sanitary</div>
-                                    <div style={S.grid}>{generalItems.map(renderItem)}</div>
-                                  </>
-                                )}
-                                {/* The sector-specific tail (4.10–4.32) is over
-                                    twenty tiles — catering canopies, fume
-                                    cupboards, dock levellers, spectator seating
-                                    — and most projects need none of it. Folded
-                                    behind a disclosure unless something in it is
-                                    already selected, so it stays one click away
-                                    without padding the list everyone scrolls. */}
-                                {specialistItems.length > 0 && (() => {
-                                  const specialistCount = groupSelectedCount(specialistItems)
-                                  const open = showSectorTail || specialistCount > 0
-                                  return (
-                                    <>
-                                      <button type="button" onClick={() => setShowSectorTail(v => !v)}
-                                        style={{
-                                          ...S.subGrpLabel, display: 'flex', alignItems: 'center', gap: 6,
-                                          background: 'none', border: 'none', padding: '6px 0', cursor: 'pointer',
-                                          textAlign: 'left', width: '100%', fontFamily: 'var(--font-body)',
-                                        }}>
-                                        <span>Sector-Specific Equipment</span>
-                                        {specialistCount > 0
-                                          ? <span style={S.countPill}>{specialistCount} selected</span>
-                                          : <span style={{ color: 'var(--text-mute)' }}>
-                                              ({specialistItems.length}) {open ? '−' : '+'}
-                                            </span>}
-                                      </button>
-                                      {open && <div style={S.grid}>{specialistItems.map(renderItem)}</div>}
-                                    </>
-                                  )
-                                })()}
-                              </>
-                            )}
-                          </div>
-                        )
-                      }
-                      if (grp.group === 5) {
-                        const mechItems = grp.items.filter(it => getMechElec(it.code) === 'mech')
-                        const elecItems = grp.items.filter(it => getMechElec(it.code) === 'elec')
-                        return (
-                          <div key={grp.group} style={S.grpBlock}>
-                            <GroupHead grp={grp} count={count} />
-                            {!collapsed && (
-                              <>
-                                {mechItems.length > 0 && (
-                                  <>
-                                    <div style={S.subGrpLabel}>Mechanical Services</div>
-                                    <div style={S.grid}>{mechItems.map(renderItem)}</div>
-                                  </>
-                                )}
-                                {elecItems.length > 0 && (
-                                  <>
-                                    <div style={S.subGrpLabel}>Electrical Services</div>
-                                    <div style={S.grid}>{elecItems.map(renderItem)}</div>
-                                  </>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        )
-                      }
-                      return (
-                        <div key={grp.group} style={S.grpBlock}>
-                          <GroupHead grp={grp} count={count} />
-                          {!collapsed && <div style={S.grid}>{grp.items.map(renderItem)}</div>}
-                        </div>
-                      )
-                    })}
-                    {/* Other / Specialist scope */}
-                    <div style={{ marginTop: 12 }}>
-                      <div style={{ ...S.groupHead, cursor: 'default', marginBottom: 10 }}>
-                        <span style={S.groupLabel}>Other / Specialist scope</span>
-                      </div>
-                      <Textarea value={answers.q2_2_additionalScope?.text}
-                        onChange={v => set('q2_2_additionalScope', { ...(answers.q2_2_additionalScope || {}), text: v })}
-                        placeholder="Any specialist scope not listed above — e.g. AV systems, heritage restoration, acoustic treatment, signage, modular pods" rows={2} />
-                      <div className="mt-2">
-                        <p className="text-sm mb-1" style={{ color: '#6B7280' }}>Approximate value of specialist scope (optional — leave blank for provisional exclusion)</p>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: '#555' }}>£</span>
-                          <input type="number" value={answers.q2_2_additionalScope?.approxValue || ''}
-                            onChange={e => set('q2_2_additionalScope', { ...(answers.q2_2_additionalScope || {}), approxValue: e.target.value })}
-                            placeholder="e.g. 50000" min={0}
-                            className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--navy)]"
-                            style={{ border: '1.5px solid var(--border)', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF' }} />
-                        </div>
-                      </div>
-                    </div>
+              <Label required>Q2.3 — Scope of works</Label>
+              <HelpText>Tick a group to include what it usually covers, then untick anything you don&apos;t need. Every ticked item is priced on an estimate; open &ldquo;I know this&rdquo; only where you know the real quantity. Use Other / Specialist below for anything not listed.</HelpText>
+              {!catalogue
+                ? <p style={{ color: 'var(--text-soft)', fontSize: 13, padding: '8px 0' }}>{scopeData === null ? 'Loading scope items…' : 'The scope list could not be loaded.'}</p>
+                : (
+                  <ScopePicker
+                    catalogue={catalogue}
+                    answers={answers}
+                    setAnswers={setAnswers}
+                    error={validationErrors.q2_2_scopeItems}
+                    suggestBar={
+                      <ScopeSuggestBar
+                        objective={answers.q2_1_objective}
+                        projectType={answers.q1_2_projectType}
+                        buildingUse={answers.q1_3_buildingUse}
+                        interventionLevel={answers.q2_3_interventionLevel}
+                        buildingAge={answers.q1_4_buildingAge}
+                        storeys={answers.q1_2_storeys}
+                        selectedCount={(answers.q2_2_scopeItems || []).length}
+                        onApply={applySuggestedScope}
+                      />
+                    }
+                  />
+                )}
+              <div style={{ marginTop: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: 'var(--tint-2)', border: '1px solid var(--border)', borderRadius: 9, marginBottom: 10 }}>
+                  <span style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 13, color: 'var(--ink)', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Other / Specialist scope</span>
+                </div>
+                <Textarea value={answers.q2_2_additionalScope?.text}
+                  onChange={v => set('q2_2_additionalScope', { ...(answers.q2_2_additionalScope || {}), text: v })}
+                  placeholder="Any specialist scope not listed above — e.g. heritage restoration, acoustic treatment, a crane or gantry" rows={2} />
+                <div className="mt-2">
+                  <p className="text-sm mb-1" style={{ color: 'var(--text-soft)' }}>Approximate value of specialist scope (optional — leave blank for provisional exclusion)</p>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium" style={{ color: 'var(--text-soft)' }}>£</span>
+                    <input type="number" value={answers.q2_2_additionalScope?.approxValue || ''}
+                      onChange={e => set('q2_2_additionalScope', { ...(answers.q2_2_additionalScope || {}), approxValue: e.target.value })}
+                      placeholder="e.g. 50000" min={0}
+                      aria-label="Approximate value of specialist scope in pounds"
+                      className="w-full rounded-lg pl-7 pr-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--navy)]"
+                      style={{ border: '1.5px solid var(--border)', minHeight: '48px', fontSize: '16px', color: 'var(--ink)', backgroundColor: 'var(--surface)' }} />
                   </div>
-                )
-              })()}
-              {validationErrors.q2_2_scopeItems && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q2_2_scopeItems}</p>}
+                </div>
+              </div>
             </div>
 
             {/* The NRM1 workbook has no "Basic" rate column for new build or
@@ -2124,7 +1685,7 @@ export default function QuestionnairePage() {
                   // The four below are the answers that most change the report,
                   // so the last thing seen before Generate shows them rather
                   // than only the identifying details.
-                  ['Scope', `${(answers.q2_2_scopeItems || []).length} items${answers.q2_3_interventionLevel ? ` · ${answers.q2_3_interventionLevel}` : ''}`],
+                  ['Scope', `${(answers.q2_2_scopeItems || []).length} items${isRefurb && answers.q2_3_interventionLevel ? ` · ${answers.q2_3_interventionLevel}` : ''}`],
                   ['Budget', answers.q4_3_budget ? `£${Number(answers.q4_3_budget).toLocaleString('en-GB')} (incl. fees & VAT)` : 'Not stated — no budget comparison'],
                   ['Start', answers.q4_0_startDate
                     ? new Date(answers.q4_0_startDate + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })

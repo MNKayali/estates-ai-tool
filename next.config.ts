@@ -7,6 +7,17 @@ const nextConfig: NextConfig = {
   // the bundler cannot eliminate that import, so it must be externalised too or
   // it gets traced into the production function.
   serverExternalPackages: ['xlsx', '@sparticuz/chromium', 'puppeteer-core', 'puppeteer'],
+  // lib/docx/fonts.js reads the IBM Plex TTFs at runtime to embed them in the
+  // Word report; files read with fs are not traced automatically. Keys are
+  // route globs (picomatch), so '*' covers the [id] segment.
+  outputFileTracingIncludes: {
+    '/api/reports/*/docx': ['./assets/fonts/**/*'],
+    '/api/generate-report': ['./assets/fonts/**/*'],
+    // @sparticuz/chromium finds its compressed browser (bin/*.br) through a path
+    // built at runtime, so the tracer never sees it; without this the PDF route
+    // fails on Vercel with "The input directory …/bin does not exist".
+    '/api/report-pdf/*': ['./node_modules/@sparticuz/chromium/bin/**/*'],
+  },
 }
 
 // Apply the Sentry build plugin (source-map upload) only when SENTRY_AUTH_TOKEN

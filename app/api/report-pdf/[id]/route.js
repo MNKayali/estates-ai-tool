@@ -3,8 +3,9 @@
  *
  * Renders a previously generated report to a print-ready PDF using headless
  * Chromium. Unlike browser "Print to PDF", this produces real "Page X of Y"
- * page numbers via Puppeteer's footerTemplate (CSS @page margin boxes are not
- * supported by any browser).
+ * pages identical to the screen: each A4 page (app/report/doc) carries its own
+ * margins, running header/footer and "Page N of M", so Puppeteer prints with
+ * zero margins and no header/footer template.
  *
  * Flow: launch Chromium → set the access cookie → navigate to the live
  * /report/[id]?pdf=1 page → wait for the React render → page.pdf().
@@ -41,6 +42,10 @@ function getOrigin(request) {
   // cookie below, so it must NOT be derived from client-supplied Host /
   // X-Forwarded-Host headers (which a caller can spoof to exfiltrate the cookie).
   if (process.env.REPORT_ORIGIN) return process.env.REPORT_ORIGIN
+  // A preview must print its own pages: the production URL runs different code
+  // (and may read a different KV store), so a preview PDF rendered from it
+  // failed while production still served the old report layout.
+  if (process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
   // Local dev only — no platform origin available.
@@ -52,12 +57,6 @@ function getOrigin(request) {
   return host ? `https://${host}` : 'http://localhost:3000'
 }
 
-const FOOTER_TEMPLATE = `
-  <div style="width:100%; font-size:8px; font-family:Arial, sans-serif; color:#666;
-              padding:0 16mm; display:flex; justify-content:space-between; align-items:center;">
-    <span>Estates AI Tool &middot; Indicative only</span>
-    <span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
-  </div>`
 
 export async function GET(request, { params }) {
   const { id } = await params
@@ -99,20 +98,22 @@ export async function GET(request, { params }) {
     }
 
     const page = await browser.newPage()
+    await page.setViewport({ width: 900, height: 1200 })
     await page.goto(`${origin}/report/${id}?pdf=1`, {
       waitUntil: 'networkidle0',
       timeout: 45000,
     })
-    // Ensure the React render has produced the report (not just the spinner).
-    await page.waitForSelector('.report-cover', { timeout: 20000 })
+    // Ensure the React render has produced the report (not just the spinner),
+    // and that IBM Plex has loaded before the pages are printed.
+    await page.waitForSelector('.r-cover', { timeout: 20000 })
+    await page.evaluate(() => document.fonts.ready)
 
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
-      displayHeaderFooter: true,
-      headerTemplate: '<span></span>',
-      footerTemplate: FOOTER_TEMPLATE,
-      margin: { top: '18mm', bottom: '16mm', left: '16mm', right: '16mm' },
+      preferCSSPageSize: true,
+      displayHeaderFooter: false,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 },
     })
 
     const safeName = String(data.projectName || 'Report').replace(/[^a-z0-9 _-]/gi, '_')
@@ -126,7 +127,9 @@ export async function GET(request, { params }) {
     })
   } catch (err) {
     console.error('[report-pdf] generation failed:', err)
-    return Response.json({ error: 'PDF generation failed.' }, { status: 500 })
+    // The reason is safe to show (behind the access gate, no secrets in it) and
+    // is the only clue a user can pass on without the Vercel logs.
+    return Response.json({ error: 'PDF generation failed.', detail: String(err?.message || err).slice(0, 300) }, { status: 500 })
   } finally {
     if (browser) await browser.close()
   }

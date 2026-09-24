@@ -25,7 +25,8 @@
  * Rule: the AI never calculates a number.
  */
 import * as Sentry from '@sentry/nextjs'
-import { calculateCost } from '@/lib/costCalculator'
+import { calculateCost, getScopeCatalogue } from '@/lib/costCalculator'
+import { projectTypeUsesLevel } from '@/lib/scopeEngine'
 import { calculateProgramme } from '@/lib/programmeCalculator'
 import { buildReport } from '@/lib/reportBuilder'
 import { createReport } from '@/lib/kv'
@@ -85,25 +86,28 @@ export async function POST(request) {
 
     // ── Fix 9: Validation guards ──────────────────────────────────────────────
 
-    // Guard 1 — Q2.3 must be recognised (refurb/fit-out/extension only)
-    const refurbTypes = ['Refurbishment', 'Fit-out', 'Extension']
-    const validInterventionLevels = [
-      'Fabric and finishes only',
-      'Finishes with minor services',
-      'Full systems replacement',
-      'Reconfiguration or full redesign',
-    ]
-    if (refurbTypes.includes(answers.q1_2_projectType) && !validInterventionLevels.includes(answers.q2_3_interventionLevel)) {
-      return Response.json({
-        error: 'Q2.3 — Level of works is required. Please select one of the four options.',
-        field: 'q2_3_interventionLevel',
-      }, { status: 400 })
+    // Guard 1 — level of intervention must be recognised where the project
+    // type asks it ('Uses level of intervention' on the NRM1 workbook's
+    // ▶ project_types: Refurbishment and Fit-out). Keyed q2_3_interventionLevel,
+    // displayed as Q2.2 — see the numbering note in app/questionnaire/page.jsx.
+    try {
+      const cat = await getScopeCatalogue()
+      if (projectTypeUsesLevel(cat, answers.q1_2_projectType) &&
+          !cat.settings.interventionLevels.some(l => l.name === answers.q2_3_interventionLevel)) {
+        return Response.json({
+          error: 'Q2.2 — Level of intervention is required. Please select one of the four options.',
+          field: 'q2_3_interventionLevel',
+        }, { status: 400 })
+      }
+    } catch (e) {
+      capturePipelineError(e, 'cost', answers)
+      return Response.json({ error: 'Cost calculation failed: ' + e.message }, { status: 500 })
     }
 
     // Guard 2 — scope must have at least one item
     if (!answers.q2_2_scopeItems || answers.q2_2_scopeItems.length === 0) {
       return Response.json({
-        error: 'At least one scope item must be selected in Q2.2.',
+        error: 'At least one scope item must be selected in Q2.3.',
         field: 'q2_2_scopeItems',
       }, { status: 400 })
     }
@@ -132,7 +136,7 @@ export async function POST(request) {
     console.log('[Step 2] Running programme calculator...')
     let programme
     try {
-      programme = await calculateProgramme(answers, cost.total.mid)
+      programme = await calculateProgramme(answers, cost.total.mid, { scope: cost.scopeSummary })
     } catch (e) {
       console.error('[Step 2 error]', e.message)
       capturePipelineError(e, 'programme', answers)
@@ -162,7 +166,7 @@ export async function POST(request) {
 
     // ── Step 2d: Final cost pass with the confidence-linked range ────────────
     // The estimate range widens with the deterministic confidence grade (Tab
-    // "9. Range Widths"), and the grade is only known now. Warnings and the
+    // ▶ range_widths on '3. Settings'), and the grade is only known now. Warnings and the
     // grade itself depend on works.mid, which the range does not touch, so
     // the sense check is not re-run — only the budget verdict, which compares
     // the stated budget against the (now wider or narrower) gross range.
@@ -275,6 +279,14 @@ export async function POST(request) {
 function serializeCost(cost) {
   return {
     lineItems: cost.lineItems,          // Fix 2: needed by scope section in HTML
+    // NRM1 v5.2: BCIS 12 lines printed below the construction total, works by
+    // BCIS element, the worked-out quantity inputs, the Group 2 construction
+    // method, and the 'When selected' risks/assumptions the scope raised.
+    belowLine: cost.belowLine,
+    bcisTotals: cost.bcisTotals,
+    inputs: cost.inputs,
+    constructionMethod: cost.constructionMethod,
+    scopeEffects: cost.scopeEffects,
     works: cost.works,
     construction: cost.construction,
     total: cost.total,
