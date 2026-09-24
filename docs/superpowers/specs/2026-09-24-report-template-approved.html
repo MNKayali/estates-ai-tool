@@ -1,0 +1,519 @@
+<title>Feasibility Report Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --navy:#1A2E4A; --navy-mid:#1C3354; --navy-deep:#10203A;
+    --amber-rule:#C4861A; --amber-dark:#D9A12E; --amber-text:#9D6B15;
+    --ink:#22262F; --grey:#555B69; --mute:#6D7182; --rule:#E2DED4;
+    --tint-head:#EAEFF5; --tint-band:#EEF2F7; --tint-group:#F6F3EC; --paper:#FFFFFF;
+    --rag-high:#B42318; --rag-med:#B54708; --rag-low:#2E7D32; --pass:#2E7D32;
+    --on-navy:#DCE3EC; --on-navy-mute:#B7C2D3;
+    --ground:#DCD8D0; --ground-text:#3C4150;
+    --sans:'IBM Plex Sans','Helvetica Neue',Arial,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;
+    --s:1;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ground:#16181D; --ground-text:#C9CED8; color-scheme:dark; } }
+  :root[data-theme="dark"] { --ground:#16181D; --ground-text:#C9CED8; color-scheme:dark; }
+
+  * { box-sizing:border-box; }
+  body { background:var(--ground); font-family:var(--sans); color:var(--ink); padding-inline:16px; padding-block:18px 40px; font-variant-numeric:lining-nums tabular-nums; }
+  .notice { max-width:794px; margin:0 auto 16px; color:var(--ground-text); font-size:13px; line-height:1.55; border-left:3px solid var(--amber-rule); padding:2px 0 2px 12px; }
+  .stack { display:flex; flex-direction:column; align-items:center; gap:18px; }
+
+  /* A4 sheet: 794 × 1123 CSS px, scaled to fit narrow screens */
+  .sheet { width:calc(794px * var(--s)); height:calc(1123px * var(--s)); flex-shrink:0; }
+  .page { width:794px; height:1123px; background:var(--paper); position:relative; overflow:hidden; transform:scale(var(--s)); transform-origin:top left;
+          box-shadow:0 1px 3px rgba(0,0,0,.14), 0 8px 26px rgba(0,0,0,.08); font-size:13.5px; line-height:1.48; }
+  .mono { font-family:var(--mono); }
+  .num { text-align:right; white-space:nowrap; }
+
+  /* running header + footer (pages 2+) */
+  .rh { position:absolute; left:56px; right:56px; top:30px; display:flex; justify-content:space-between; align-items:center; padding-bottom:9px; border-bottom:1px solid var(--navy); }
+  .rh .brand-s { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:var(--navy); }
+  .rh .brand-s i { font-style:normal; width:20px; height:20px; background:var(--amber-dark); color:#fff; font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center; border-radius:2px; }
+  .rh .brand-s span { color:var(--mute); font-weight:400; }
+  .rh .doc { font-size:11px; color:var(--mute); }
+  .rf { position:absolute; left:56px; right:56px; bottom:26px; display:flex; justify-content:space-between; gap:16px; padding-top:8px; border-top:1px solid var(--rule); font-size:10.5px; color:var(--mute); }
+  .rf b { color:var(--navy); font-weight:600; }
+  .body { position:absolute; left:56px; right:56px; top:86px; bottom:64px; }
+
+  /* section band: page-wide, light tint, amber underline */
+  .band { margin:0 -56px 20px; padding:13px 56px 12px; background:var(--tint-band); border-bottom:2px solid var(--amber-rule); display:flex; align-items:center; gap:14px; }
+  .band .no { font-family:var(--mono); font-weight:600; font-size:13px; color:#fff; background:var(--navy); padding:3px 8px; border-radius:2px; }
+  .band h2 { margin:0; font-size:21px; font-weight:600; color:var(--navy); letter-spacing:-.2px; }
+  .band small { margin-left:auto; font-size:11.5px; color:var(--mute); }
+  h3 { font-size:14.5px; font-weight:600; color:var(--navy); margin:20px 0 7px; }
+  p { margin:0 0 10px; }
+  ul, ol { margin:0 0 10px; padding-left:20px; }
+  li { margin:0 0 6px; padding-left:2px; }
+  li::marker { color:var(--amber-text); font-weight:600; }
+  .lead { color:var(--grey); }
+
+  /* ── Cover ── */
+  .cover { display:flex; flex-direction:column; }
+  .cv-top { background:linear-gradient(160deg,var(--navy-mid) 0%,#15294A 60%,var(--navy-deep) 100%); color:#fff; padding:46px 56px 44px; display:flex; flex-direction:column; height:470px; }
+  .brand { display:flex; align-items:center; gap:14px; }
+  .brand .mark { width:46px; height:46px; background:var(--amber-dark); color:#fff; font-weight:700; font-size:20px; display:flex; align-items:center; justify-content:center; border-radius:3px; }
+  .brand b { display:block; font-size:30px; font-weight:600; letter-spacing:-.4px; line-height:1; }
+  .brand small { display:block; font-size:9.5px; letter-spacing:.3em; color:var(--on-navy-mute); margin-top:8px; }
+  .eyebrow { margin-top:auto; font-size:13px; letter-spacing:.2em; }
+  .eyebrow .l1 { color:var(--amber-dark); font-weight:600; display:flex; align-items:center; gap:14px; }
+  .eyebrow .l1::before { content:''; width:38px; height:3px; background:var(--amber-dark); }
+  .eyebrow .l2 { color:var(--on-navy); margin:6px 0 0 52px; }
+  .cv-title { font-size:36px; font-weight:700; line-height:1.12; letter-spacing:-.6px; margin:20px 0 0; }
+  .cv-rule { width:62px; height:4px; background:var(--amber-dark); margin:20px 0 14px; }
+  .cv-sub { color:var(--on-navy); font-size:17px; }
+  .cv-figs { display:grid; grid-template-columns:1.45fr 1fr 1fr; gap:24px; padding:42px 56px 0; }
+  .cv-figs > div { border-top:3px solid var(--navy); padding-top:12px; }
+  .lbl { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#4A566B; font-weight:500; }
+  .cv-figs .v { font-size:28px; font-weight:700; color:#12233A; margin-top:7px; white-space:nowrap; line-height:1.1; }
+  .cv-figs .s { font-size:13px; color:var(--mute); margin-top:5px; }
+  .cv-facts { display:grid; grid-template-columns:1.1fr 1fr; gap:36px; padding:40px 56px 0; }
+  .facts { width:100%; border-collapse:collapse; border-top:1.5px solid var(--navy); font-size:14px; }
+  .facts td { padding:8px 0; border-bottom:1px solid var(--rule); vertical-align:top; }
+  .facts td:first-child { color:var(--mute); width:46%; padding-right:10px; }
+  .facts td:last-child { color:#12233A; font-weight:500; }
+  .cv-note { padding:26px 56px 0; font-size:12px; color:var(--mute); max-width:700px; }
+  .cv-foot { margin-top:auto; background:linear-gradient(90deg,#15294A,var(--navy-mid)); color:var(--on-navy); display:flex; justify-content:space-between; align-items:center; padding:20px 56px; font-size:11px; letter-spacing:.18em; }
+  .cv-foot em { letter-spacing:0; font-size:12.5px; }
+
+  /* stat strip + notes */
+  .strip { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:0 0 22px; }
+  .strip > div { background:var(--tint-group); border-top:3px solid var(--navy); padding:11px 13px 12px; }
+  .strip .v { font-size:18px; font-weight:600; color:var(--navy); margin-top:4px; line-height:1.2; }
+  .strip .s { font-size:11.5px; color:var(--grey); margin-top:3px; }
+  .callout { border:1px solid var(--rule); border-left:4px solid var(--pass); padding:10px 14px; margin-top:16px; font-size:13px; }
+  .callout b { color:var(--pass); }
+
+  /* tables */
+  table.t { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .t th { text-align:left; font-weight:600; color:var(--navy); background:var(--tint-head); border-bottom:1.5px solid var(--navy); padding:7px 8px; vertical-align:bottom; line-height:1.25; }
+  .t td { padding:5px 8px; border-bottom:1px solid var(--rule); vertical-align:top; }
+  .t .g td { color:var(--navy); font-weight:600; background:var(--tint-group); border-left:3px solid var(--amber-rule); font-size:11.5px; letter-spacing:.03em; text-transform:uppercase; padding-top:4px; padding-bottom:4px; }
+  .t .sub td { font-weight:600; color:var(--navy); border-top:1px solid var(--navy); }
+  .t .tot td { color:#fff; font-weight:700; background:var(--navy); border:0; }
+  .t .ref td { font-style:italic; color:var(--grey); }
+  .t .code { font-family:var(--mono); font-size:11px; color:#5A6E88; white-space:nowrap; }
+  .t .rate { color:var(--grey); white-space:nowrap; }
+  .foot-note { font-size:11px; color:var(--mute); margin:6px 0 0; }
+
+  /* scope */
+  .scope-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px 18px; margin:6px 0 4px; }
+  .scope-grid > div { border-top:2px solid var(--navy); padding-top:7px; }
+  .scope-grid h4 { margin:0 0 5px; font-size:11.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--navy); }
+  .scope-grid ul { margin:0; padding-left:16px; font-size:13px; }
+  .scope-grid li { margin-bottom:3px; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:0 30px; }
+
+  /* risk */
+  .rag-sum { display:flex; gap:8px; margin:0 0 12px; }
+  .rag-sum span { display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; border:1px solid var(--rule); padding:4px 10px 4px 5px; }
+  .rag-sum b { color:#fff; min-width:24px; text-align:center; padding:2px 6px; border-radius:2px; }
+  .pill { display:inline-block; color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; padding:4px 0; width:70px; text-align:center; border-radius:2px; }
+  .pill.high, .bg-high { background:var(--rag-high); } .pill.med, .bg-med { background:var(--rag-med); } .pill.low, .bg-low { background:var(--rag-low); }
+  .risk td { padding:7px 8px; }
+  .risk tr.high td:first-child { box-shadow:inset 5px 0 0 var(--rag-high); }
+  .risk tr.med td:first-child { box-shadow:inset 5px 0 0 var(--rag-med); }
+  .risk tr.high td { background:#FDF3F2; }
+  .risk td.r { font-family:var(--mono); font-size:11.5px; color:var(--navy); font-weight:600; padding-left:14px; white-space:nowrap; }
+
+  /* programme one-line bar */
+  .pbar { margin:30px 0 4px; position:relative; }
+  .pbar .segs { display:flex; height:40px; }
+  .pbar .segs > div { display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; font-size:10.5px; font-weight:600; line-height:1.15; text-align:center; overflow:hidden; border-right:1px solid #fff; }
+  .pbar .segs > div span { font-weight:400; opacity:.9; }
+  .s-des { background:#3E5C84; } .s-gov { background:#7B5113; } .s-ten { background:#5B7BA6; } .s-con { background:var(--navy); } .s-han { background:#4A5568; }
+  .s-flt { background:repeating-linear-gradient(135deg,#7D8798 0 3px,#B5BCC8 3px 6px); color:var(--ink) !important; }
+  .pbar .target { position:absolute; left:69%; top:-20px; bottom:-4px; border-left:2px dashed var(--rag-high); }
+  .pbar .target span { position:absolute; left:6px; top:-2px; font-size:10.5px; font-weight:600; color:var(--rag-high); white-space:nowrap; }
+  .ticks { position:relative; height:50px; margin-bottom:4px; }
+  .ticks div { position:absolute; top:0; padding-top:17px; transform:translateX(-50%); text-align:center; font-size:10.5px; line-height:1.3; white-space:nowrap; }
+  .ticks div.down { padding-top:32px; }
+  .ticks div::before { content:''; position:absolute; top:4px; left:50%; width:9px; height:9px; margin-left:-4.5px; background:var(--amber-rule); transform:rotate(45deg); }
+  .ticks div b { color:var(--amber-text); } .ticks div span { color:var(--mute); }
+  .ticks .first { transform:none; text-align:left; } .ticks .first::before { left:0; margin-left:0; }
+  .ticks .last { transform:translateX(-100%); text-align:right; } .ticks .last::before { left:auto; right:0; margin-left:0; }
+  .pkey { display:flex; flex-wrap:wrap; gap:4px 14px; font-size:11px; color:var(--grey); }
+  .pkey span { display:inline-flex; align-items:center; gap:5px; } .pkey i { width:10px; height:10px; display:inline-block; }
+  .prog td { padding:4px 8px; } .prog td:first-child { font-weight:600; color:var(--navy); white-space:nowrap; } .prog .tot td:first-child { color:#fff; }
+  .par { color:var(--mute); }
+  .ms-list { display:grid; grid-template-columns:1fr 1fr; gap:4px 28px; font-size:12.5px; }
+  .ms-list div { display:grid; grid-template-columns:30px 1fr auto; gap:6px; border-bottom:1px solid var(--rule); padding:4px 0; }
+  .ms-list b { color:var(--amber-text); } .ms-list span:last-child { color:var(--grey); white-space:nowrap; }
+  .late { color:var(--rag-high); font-weight:600; }
+  .tight li { margin-bottom:3px; font-size:13px; }
+
+  /* financial */
+  .figs3 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
+  .figs3 > div { border-top:3px solid var(--navy); padding-top:9px; }
+  .figs3 .v { font-size:20px; font-weight:700; color:var(--navy); margin-top:4px; }
+  .kv { width:100%; border-collapse:collapse; margin-bottom:16px; font-size:13px; }
+  .kv td { padding:7px 0; border-bottom:1px solid var(--rule); } .kv td:first-child { color:var(--mute); width:32%; } .kv td:last-child { font-weight:500; color:var(--navy); }
+  .disc { margin-top:24px; padding-top:14px; border-top:1px solid var(--rule); font-size:11.5px; color:var(--mute); }
+  .half { height:486px; overflow:hidden; } .half + .half { height:auto; }
+  .lastp { display:flex; flex-direction:column; }
+  .contact { margin-top:auto; display:grid; grid-template-columns:200px 1fr; gap:24px; background:var(--tint-band); border-top:3px solid var(--navy); padding:20px 22px; }
+  .c-brand { display:flex; align-items:flex-start; gap:10px; } .c-brand .mark { width:34px; height:34px; background:var(--amber-dark); color:#fff; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; border-radius:2px; flex-shrink:0; }
+  .c-brand b { display:block; font-size:17px; color:var(--navy); } .c-brand small { display:block; font-size:11px; color:var(--mute); margin-top:3px; }
+  .c-body h3 { margin-top:0; } .c-body p { font-size:13px; } .c-kv { margin:0; } .c-kv td:first-child { width:22%; }
+  .disc b { color:var(--navy); font-size:12.5px; display:block; margin-bottom:4px; }
+</style>
+
+<p class="notice"><b>Design preview, A4 pages.</b> Sample project (a fictional university building; illustrative figures). Sections 1–5 each start on their own page (Scope of Works is always page 3); Financial Case, Procurement and Constraints take a half page each where they fit; Next Steps with contact details is always the last page. On a phone, pinch to zoom as you would a PDF. "Estates AI" is a placeholder: the name appears in one setting, so a rename changes every page at once.</p>
+
+<div class="stack" id="stack">
+
+<!-- 1 COVER -->
+<div class="sheet"><div class="page cover">
+  <div class="cv-top">
+    <div class="brand"><span class="mark">AI</span><div><b>Estates AI</b><small>DATA · INSIGHTS · SMARTER DECISIONS</small></div></div>
+    <div class="eyebrow"><div class="l1">RIBA STAGE 0–1</div><div class="l2">FEASIBILITY REPORT</div></div>
+    <div class="cv-title">Refurbishment of Hargreaves Teaching Block, Example University</div>
+    <div class="cv-rule"></div>
+    <div class="cv-sub">Birmingham, B15 &nbsp;·&nbsp; Education &nbsp;·&nbsp; 1,200 m² GIFA</div>
+  </div>
+  <div class="cv-figs">
+    <div><div class="lbl">Total project cost</div><div class="v">£1.60m – £1.99m</div><div class="s">excl. VAT</div></div>
+    <div><div class="lbl">Programme</div><div class="v">124 weeks</div><div class="s">incl. 9 weeks float</div></div>
+    <div><div class="lbl">Confidence</div><div class="v">Grade A</div><div class="s">High · cost risk medium</div></div>
+  </div>
+  <div class="cv-facts">
+    <table class="facts"><tr><td>Project type</td><td>Refurbishment</td></tr><tr><td>Intervention</td><td>Full systems replacement</td></tr><tr><td>Specification</td><td>Standard</td></tr></table>
+    <table class="facts"><tr><td>Report date</td><td>23 September 2026</td></tr><tr><td>Reference</td><td class="mono">SAMPLE</td></tr><tr><td>Status</td><td>Indicative</td></tr></table>
+  </div>
+  <p class="cv-note">Order of cost estimate from benchmark rates, not measured quantities. Not for financial commitment without review by a Chartered Quantity Surveyor.</p>
+  <div class="cv-foot"><span>ESTATES AI &nbsp;|&nbsp; FEASIBILITY REPORT</span><em>Better insights. Smarter property decisions.</em></div>
+</div></div>
+
+<!-- 2 EXECUTIVE SUMMARY -->
+<div class="sheet"><div class="page">
+  <div class="rh"><div class="brand-s"><i>AI</i>Estates AI <span>· Hargreaves Teaching Block</span></div><div class="doc">Feasibility Report · Ref SAMPLE</div></div>
+  <div class="body">
+    <div class="strip">
+      <div><div class="lbl">Total project cost</div><div class="v">£1,600,000 – £1,994,000</div><div class="s">Excl. VAT · £360,000 VAT at 20% (mid-point, for reference)</div></div>
+      <div><div class="lbl">Programme</div><div class="v">124 weeks</div><div class="s">Incl. 9 weeks float · best case 115 weeks</div></div>
+      <div><div class="lbl">BCIS region</div><div class="v">West Midlands</div><div class="s">Location factor 0.94</div></div>
+    </div>
+    <div class="band"><span class="no">01</span><h2>Executive Summary</h2></div>
+    <p>This report assesses the feasibility of refurbishing Hargreaves Teaching Block, a three-storey 1960s teaching building at Example University in Birmingham (1,200 m² GIFA), to provide modern flexible teaching space with full systems replacement, upgraded fire safety and improved thermal performance. The estimated total project cost is £1,600,000 to £1,994,000 excluding VAT, graded A (High Confidence). The target completion date of 1 September 2028 is not achievable: the programme completes around 28 May 2029. The most material risk is confining works to vacation windows, which constrains the construction programme.</p>
+    <h3>Key findings</h3>
+    <ul>
+      <li>The estimated total project cost is £1,600,000 to £1,994,000 excluding VAT, driven mainly by full mechanical and electrical replacement and new windows across the 1,200 m² building.</li>
+      <li>The programme runs 124 weeks including 9 weeks of float, completing around 28 May 2029, about 38 weeks after the 1 September 2028 target.</li>
+      <li>Confining works to vacation windows is the most material risk and the main reason the programme spans several academic years.</li>
+      <li>The air source heat pump needs an electrical capacity and DNO check at Stage 2 before the heating design can be confirmed.</li>
+      <li>Conservation-area status means external alterations, including new windows, are likely to need full planning consent.</li>
+    </ul>
+    <div class="callout"><b>Budget check: sufficient.</b> The stated budget of £4,500,000 (incl. fees and VAT) covers the estimated gross range of £1,920,000 – £2,393,000, with about £2,107,000 of headroom.</div>
+  </div>
+  <div class="rf"><span><b>Estates AI</b> · Feasibility reporting for capital projects · estates-ai-tool.vercel.app · Indicative only</span><span>Page 2 of 10</span></div>
+</div></div>
+
+<!-- 3 SCOPE -->
+<div class="sheet"><div class="page">
+  <div class="rh"><div class="brand-s"><i>AI</i>Estates AI <span>· Hargreaves Teaching Block</span></div><div class="doc">Feasibility Report · Ref SAMPLE</div></div>
+  <div class="body">
+    <div class="band"><span class="no">02</span><h2>Scope of Works</h2></div>
+    <p>Full systems replacement and internal refurbishment of the three-storey building (1,200 m² GIFA), with new windows and upgraded fire safety.</p>
+    <h3>Included works</h3>
+    <div class="scope-grid">
+      <div><h4>Facilitating works</h4><ul><li>Asbestos removal</li><li>Strip-out</li></ul></div>
+      <div><h4>Superstructure</h4><ul><li>Windows and external doors</li><li>Internal doors</li><li>Fire stopping</li></ul></div>
+      <div><h4>Internal finishes</h4><ul><li>Wall finishes</li><li>Floor finishes</li><li>Ceiling finishes</li></ul></div>
+      <div><h4>Fittings</h4><ul><li>Toilets: 18 standard, 3 accessible</li><li>Fixed joinery</li></ul></div>
+      <div style="grid-column:span 2"><h4>Services</h4><ul style="columns:2;column-gap:18px"><li>Heating and hot water (air source heat pump)</li><li>Water and drainage</li><li>Ventilation</li><li>Power</li><li>Lighting and emergency lighting</li><li>Fire alarm</li><li>Data and IT</li><li>Builder's work in connection</li></ul></div>
+    </div>
+    <div class="two">
+      <div><h3>Scope assumptions</h3><ul>
+        <li>The whole building is in scope across all three storeys, with no change to its footprint.</li>
+        <li>The existing structure and roof are sound and reused; no structural alterations are priced.</li>
+        <li>The building stays partly occupied, with works phased into vacation windows.</li>
+        <li>Quantities marked "estimated" come from the floor area and are confirmed at Stage 2.</li></ul></div>
+      <div><h3>Not in scope</h3><ul>
+        <li>Roof replacement and structural repairs</li><li>External works and landscaping</li><li>Loose furniture and AV equipment</li><li>Decant accommodation and removals</li><li>Extension or change of use</li></ul></div>
+    </div>
+  </div>
+  <div class="rf"><span><b>Estates AI</b> · Feasibility reporting for capital projects · estates-ai-tool.vercel.app · Indicative only</span><span>Page 3 of 10</span></div>
+</div></div>
+
+<!-- 4 RISK -->
+<div class="sheet"><div class="page">
+  <div class="rh"><div class="brand-s"><i>AI</i>Estates AI <span>· Hargreaves Teaching Block</span></div><div class="doc">Feasibility Report · Ref SAMPLE</div></div>
+  <div class="body">
+    <div class="band"><span class="no">03</span><h2>Risk Register</h2><small>Ordered by rating · 10 risks at most</small></div>
+    <div class="rag-sum"><span><b class="bg-high">3</b>High</span><span><b class="bg-med">5</b>Medium</span><span><b class="bg-low">0</b>Low</span></div>
+    <table class="t risk">
+      <colgroup><col style="width:8%"><col style="width:13%"><col style="width:36%"><col style="width:11%"><col style="width:32%"></colgroup>
+      <thead><tr><th>Ref</th><th>Category</th><th>Description</th><th>Rating</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr class="high"><td class="r">R01</td><td>Programme</td><td>Works confined to vacation windows; the programme spans several academic terms and risks overrunning into term time.</td><td><span class="pill high">High</span></td><td>Phase works to vacation windows and agree blackout dates with the faculty.</td></tr>
+        <tr class="high"><td class="r">R02</td><td>Programme</td><td>The 1 September 2028 target is not achievable; completion is around 28 May 2029, about 38 weeks later.</td><td><span class="pill high">High</span></td><td>Confirm whether the target is firm and test acceleration options at Stage 2.</td></tr>
+        <tr class="high"><td class="r">R03</td><td>Cost</td><td>Asbestos is known or suspected; the extent of removal is uncertain until surveyed.</td><td><span class="pill high">High</span></td><td>Commission a refurbishment and demolition survey and price removal from its findings.</td></tr>
+        <tr class="med"><td class="r">R04</td><td>Programme</td><td>Restricted working hours extend construction and may attract premium rates.</td><td><span class="pill med">Medium</span></td><td>Confirm permitted hours and price out-of-hours work where programme-critical.</td></tr>
+        <tr class="med"><td class="r">R05</td><td>Regulatory</td><td>Conservation area: external alterations are likely to need full planning consent.</td><td><span class="pill med">Medium</span></td><td>Seek pre-application advice and assume full planning for external works.</td></tr>
+        <tr class="med"><td class="r">R06</td><td>Technical</td><td>The heat pump needs an electrical capacity and DNO check before the design is fixed.</td><td><span class="pill med">Medium</span></td><td>Confirm capacity and DNO requirements during Stage 2 design.</td></tr>
+        <tr class="med"><td class="r">R07</td><td>Technical</td><td>Original services may hide defects that widen the scope once opened up.</td><td><span class="pill med">Medium</span></td><td>Carry out intrusive M&amp;E surveys at Stage 2.</td></tr>
+        <tr class="med"><td class="r">R08</td><td>Procurement</td><td>Phase splits and re-mobilisation for later phases are not yet confirmed.</td><td><span class="pill med">Medium</span></td><td>Confirm phasing at Stage 2 and secure rates across phases in the contract.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="rf"><span><b>Estates AI</b> · Feasibility reporting for capital projects · estates-ai-tool.vercel.app · Indicative only</span><span>Page 4 of 10</span></div>
+</div></div>
+
+<!-- 5 PROGRAMME -->
+<div class="sheet"><div class="page">
+  <div class="rh"><div class="brand-s"><i>AI</i>Estates AI <span>· Hargreaves Teaching Block</span></div><div class="doc">Feasibility Report · Ref SAMPLE</div></div>
+  <div class="body">
+    <div class="band"><span class="no">04</span><h2>High-Level Programme</h2><small>124 weeks · best case 115 + 9 float</small></div>
+
+    <h3 style="margin-top:0">Key milestones</h3>
+    <div class="ms-list">
+      <div><b>M1</b><span>Project start (Stage 2)</span><span>11 Jan 2027 · wk 0</span></div>
+      <div><b>M4</b><span>Phase 1 practical completion</span><span>31 Jul 2028 · wk 81</span></div>
+      <div><b>M2</b><span>Design complete (Stage 4)</span><span>23 Aug 2027 · wk 32</span></div>
+      <div><b>M5</b><span>Final phase completion</span><span>26 Mar 2029 · wk 115</span></div>
+      <div><b>M3</b><span>Start on site</span><span>27 Dec 2027 · wk 50</span></div>
+      <div><b>M6</b><span>Programme complete</span><span class="late">28 May 2029 · wk 124</span></div>
+    </div>
+
+    <div class="pbar" role="img" aria-label="Programme bar from 11 January 2027 to 28 May 2029">
+      <div class="target"><span>Target 1 Sep 2028</span></div>
+      <div class="segs">
+        <div class="s-des" style="width:25.81%">Design &amp; approvals<span>32 wks</span></div>
+        <div class="s-gov" style="width:4.84%">6w</div>
+        <div class="s-ten" style="width:9.68%">Tender<span>12 wks</span></div>
+        <div class="s-con" style="width:20.97%">Construction 1<span>26 wks</span></div>
+        <div class="s-han" style="width:4.03%">5w</div>
+        <div class="s-con" style="width:27.42%">Construction 2+<span>34 wks</span></div>
+        <div class="s-flt" style="width:7.26%">Float<span>9 wks</span></div>
+      </div>
+    </div>
+    <div class="ticks">
+      <div class="first" style="left:0"><b>M1</b> <span>Jan 27</span></div>
+      <div style="left:25.81%"><b>M2</b> <span>Aug 27</span></div>
+      <div style="left:40.32%"><b>M3</b> <span>Dec 27</span></div>
+      <div style="left:65.32%"><b>M4</b> <span>Jul 28</span></div>
+      <div class="down" style="left:92.74%"><b>M5</b> <span>Mar 29</span></div>
+      <div class="last" style="left:100%"><b>M6</b> <span>May 29</span></div>
+    </div>
+    <div class="pkey"><span><i class="s-des"></i>Design &amp; approvals</span><span><i class="s-gov"></i>Governance 6 wks</span><span><i class="s-ten"></i>Tender</span><span><i class="s-con"></i>Construction</span><span><i class="s-han"></i>Handover 5 wks</span><span><i class="s-flt"></i>Float</span><span>Surveys 3 wks alongside design</span><span style="color:var(--rag-high)">┆ Client target</span></div>
+
+    <h3>Programme detail</h3>
+    <table class="t prog">
+      <colgroup><col style="width:21%"><col style="width:45%"><col style="width:13%"><col style="width:13%"><col style="width:8%"></colgroup>
+      <thead><tr><th>Stage</th><th>Activity</th><th>Start</th><th>End</th><th class="num">Wks</th></tr></thead>
+      <tbody>
+        <tr><td>Surveys ∥</td><td>Asbestos R&amp;D survey; condition survey</td><td>11 Jan 27</td><td>1 Feb 27</td><td class="num par">(3)</td></tr>
+        <tr><td>Stage 2</td><td>Concept design, incl. 2-wk client review</td><td>11 Jan 27</td><td>15 Mar 27</td><td class="num">9</td></tr>
+        <tr><td>Stage 3</td><td>Developed design, incl. 2-wk client review</td><td>15 Mar 27</td><td>31 May 27</td><td class="num">11</td></tr>
+        <tr><td>Stage 4</td><td>Technical design, incl. 2-wk client review</td><td>31 May 27</td><td>23 Aug 27</td><td class="num">12</td></tr>
+        <tr><td>Governance</td><td>Grant governance approval</td><td>23 Aug 27</td><td>4 Oct 27</td><td class="num">6</td></tr>
+        <tr><td>Tender</td><td>Traditional, single-stage tender</td><td>4 Oct 27</td><td>27 Dec 27</td><td class="num">12</td></tr>
+        <tr><td>Construction</td><td>RIBA Stage 5, phase 1</td><td>27 Dec 27</td><td>26 Jun 28</td><td class="num">26</td></tr>
+        <tr><td>Handover</td><td>Commissioning, snagging, practical completion</td><td>26 Jun 28</td><td>31 Jul 28</td><td class="num">5</td></tr>
+        <tr><td>Construction</td><td>Later phases, incl. re-mobilisation</td><td>31 Jul 28</td><td>26 Mar 29</td><td class="num">34</td></tr>
+        <tr><td>Float</td><td>Float across the critical path</td><td>26 Mar 29</td><td>28 May 29</td><td class="num">9</td></tr>
+        <tr class="tot"><td>Total</td><td></td><td>11 Jan 27</td><td>28 May 29</td><td class="num">124</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Programme narrative and assumptions</h3>
+    <ul class="tight">
+      <li>Starts 11 January 2027 at Stage 2; surveys run alongside concept design and are not on the critical path.</li>
+      <li>Three client gateways and a six-week grant governance approval sit on the critical path before tender.</li>
+      <li>A 12-week single-stage traditional tender, with the contractor appointed on 27 December 2027.</li>
+      <li>Construction phased around vacation windows: 26 weeks for phase 1, then 34 weeks for later phases.</li>
+      <li>Nine weeks of float (one week per 13 weeks of critical path); best case 115 weeks.</li>
+      <li>Planning consent for external works in the conservation area is assumed within the design stages.</li>
+    </ul>
+  </div>
+  <div class="rf"><span><b>Estates AI</b> · Feasibility reporting for capital projects · estates-ai-tool.vercel.app · Indicative only</span><span>Page 5 of 10</span></div>
+</div></div>
+
+<!-- 6 COST (A): works cost -->
+<div class="sheet"><div class="page">
+  <div class="rh"><div class="brand-s"><i>AI</i>Estates AI <span>· Hargreaves Teaching Block</span></div><div class="doc">Feasibility Report · Ref SAMPLE</div></div>
+  <div class="body">
+    <div class="band"><span class="no">05</span><h2>Order of Cost Estimate</h2><small>1 of 2 · Works cost</small></div>
+    <p class="lead">The works cost below prices each ticked scope item at the NRM1 benchmark rate for a standard-specification refurbishment, adjusted for the West Midlands. Quantities are estimated from the 1,200 m² floor area unless the client gave a figure. Services replacement and new windows account for over half the works cost. The next page adds preliminaries, fees and allowances to reach the total project cost.</p>
+    <table class="t">
+      <colgroup><col style="width:9%"><col style="width:43%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"></colgroup>
+      <thead><tr><th>Code</th><th>Element</th><th class="num">Qty</th><th>Basis</th><th class="num">Low £</th><th class="num">High £</th></tr></thead>
+      <tbody>
+        <tr class="g"><td colspan="6">0 · Facilitating works</td></tr>
+        <tr><td class="code">S-0001</td><td>Asbestos removal</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">40,000</td><td class="num">50,000</td></tr>
+        <tr><td class="code">S-0003</td><td>Strip-out</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">25,000</td><td class="num">31,000</td></tr>
+        <tr class="g"><td colspan="6">2 · Superstructure</td></tr>
+        <tr><td class="code">S-0017</td><td>Windows and external doors</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">151,000</td><td class="num">188,000</td></tr>
+        <tr><td class="code">S-0019</td><td>Internal doors</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">35,000</td><td class="num">44,000</td></tr>
+        <tr><td class="code">S-0020</td><td>Fire stopping †</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">30,000</td><td class="num">38,000</td></tr>
+        <tr class="g"><td colspan="6">3 · Internal finishes</td></tr>
+        <tr><td class="code">S-0021</td><td>Wall finishes</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">55,000</td><td class="num">69,000</td></tr>
+        <tr><td class="code">S-0022</td><td>Floor finishes</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">75,000</td><td class="num">94,000</td></tr>
+        <tr><td class="code">S-0023</td><td>Ceiling finishes</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">50,000</td><td class="num">63,000</td></tr>
+        <tr class="g"><td colspan="6">4 · Fittings, furnishings and equipment</td></tr>
+        <tr><td class="code">S-0024</td><td>Toilets, standard</td><td class="num">18 nr</td><td class="rate">client figure</td><td class="num">75,000</td><td class="num">93,000</td></tr>
+        <tr><td class="code">S-0024</td><td>Toilets, accessible †</td><td class="num">3 nr</td><td class="rate">client figure</td><td class="num">14,000</td><td class="num">17,000</td></tr>
+        <tr><td class="code">S-0028</td><td>Fixed joinery</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">45,000</td><td class="num">56,000</td></tr>
+        <tr class="g"><td colspan="6">5 · Services</td></tr>
+        <tr><td class="code">S-0039</td><td>Heating and hot water, air source heat pump †</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">78,000</td><td class="num">98,000</td></tr>
+        <tr><td class="code">S-0040</td><td>Water and drainage</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">65,000</td><td class="num">81,000</td></tr>
+        <tr><td class="code">S-0041</td><td>Ventilation</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">45,000</td><td class="num">56,000</td></tr>
+        <tr><td class="code">S-0045</td><td>Power</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">126,000</td><td class="num">158,000</td></tr>
+        <tr><td class="code">S-0046</td><td>Lighting</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">33,000</td><td class="num">41,000</td></tr>
+        <tr><td class="code">S-0047</td><td>Emergency lighting</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">10,000</td><td class="num">13,000</td></tr>
+        <tr><td class="code">S-0049</td><td>Fire alarm</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">18,000</td><td class="num">23,000</td></tr>
+        <tr><td class="code">S-0052</td><td>Data and IT</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">18,000</td><td class="num">23,000</td></tr>
+        <tr><td class="code">S-0083</td><td>Builder's work in connection</td><td class="num">1,200 m²</td><td class="rate">estimated</td><td class="num">18,000</td><td class="num">23,000</td></tr>
+        <tr class="tot"><td></td><td>Works cost total</td><td></td><td></td><td class="num">1,008,000</td><td class="num">1,257,000</td></tr>
+      </tbody>
+    </table>
+    <p class="foot-note">† Rate marked for verification in the rates workbook. Low and high reflect the estimate range for a Grade A estimate.</p>
+  </div>
+  <div class="rf"><span><b>Estates AI</b> · Feasibility reporting for capital projects · estates-ai-tool.vercel.app · Indicative only</span><span>Page 6 of 10</span></div>
+</div></div>
+
+<!-- 7 COST (B): summary -->
+<div class="sheet"><div class="page">
+  <div class="rh"><div class="brand-s"><i>AI</i>Estates AI <span>· Hargreaves Teaching Block</span></div><div class="doc">Feasibility Report · Ref SAMPLE</div></div>
+  <div class="body">
+    <div class="band"><span class="no">05</span><h2>Order of Cost Estimate</h2><small>2 of 2 · Project cost</small></div>
+    <table class="t">
+      <colgroup><col style="width:46%"><col style="width:24%"><col style="width:15%"><col style="width:15%"></colgroup>
+      <thead><tr><th>Item</th><th>Rate</th><th class="num">Low £</th><th class="num">High £</th></tr></thead>
+      <tbody>
+        <tr><td>Works cost</td><td class="rate">from page 6</td><td class="num">1,008,000</td><td class="num">1,257,000</td></tr>
+        <tr><td>Contractor's preliminaries (A)</td><td class="rate">10% of works</td><td class="num">101,000</td><td class="num">125,000</td></tr>
+        <tr><td>Overheads and profit (B)</td><td class="rate">9.5% of works</td><td class="num">96,000</td><td class="num">120,000</td></tr>
+        <tr class="sub"><td>Construction cost</td><td></td><td class="num">1,205,000</td><td class="num">1,502,000</td></tr>
+        <tr><td>Professional fees (C)</td><td class="rate">16% of construction</td><td class="num">193,000</td><td class="num">241,000</td></tr>
+        <tr><td>Risk allowance (E)</td><td class="rate">8% of works</td><td class="num">81,000</td><td class="num">101,000</td></tr>
+        <tr><td>Client contingency (H)</td><td class="rate">5% of works</td><td class="num">51,000</td><td class="num">63,000</td></tr>
+        <tr><td>Inflation allowance (F)</td><td class="rate">7% of works</td><td class="num">70,000</td><td class="num">88,000</td></tr>
+        <tr class="tot"><td>Total project cost (excl. VAT)</td><td></td><td class="num">1,600,000</td><td class="num">1,994,000</td></tr>
+        <tr class="ref"><td>VAT at 20%, for reference (recoverability to be confirmed)</td><td class="rate">20%</td><td class="num">320,000</td><td class="num">399,000</td></tr>
+      </tbody>
+    </table>
+
+    <h3>How the percentages were set</h3>
+    <ul class="tight">
+      <li><b>Preliminaries 10%:</b> 8% base, plus 1% for partial occupation, 0.5% for restricted hours and 0.5% for a programme over 18 months.</li>
+      <li><b>Overheads and profit 9.5%:</b> the standard band for works between £1m and £5m.</li>
+      <li><b>Professional fees 16%:</b> 13.5% for a project at Stage 0–1, plus 1.5% for M&amp;E-heavy scope and 1% for BREEAM.</li>
+      <li><b>Risk 8%:</b> 5% baseline, plus 1.5% for asbestos, 0.5% for ageing services and 1% for a fixed completion date.</li>
+      <li><b>Contingency 5%:</b> fixed for every report; survey uncertainty sits in the risk allowance.</li>
+      <li><b>Inflation 7%:</b> 6% for 96 weeks to tender and 1% for a 26-week construction period.</li>
+    </ul>
+
+    <div class="two">
+      <div><h3>Cost assumptions</h3><ul class="tight">
+        <li>National benchmark rates adjusted by the West Midlands location factor; not measured quantities.</li>
+        <li>Estimated quantities are derived from the 1,200 m² floor area and confirmed at Stage 2.</li>
+        <li>Toilet numbers (18 standard, 3 accessible) are the client's figures.</li>
+        <li>Rates are for a standard specification and full systems replacement.</li>
+        <li>Low and high show the estimate range for a Grade A estimate.</li>
+        <li>Lines marked † use rates still to be verified against project examples.</li></ul></div>
+      <div><h3>Cost exclusions</h3><ul class="tight">
+        <li>VAT (recoverability to be confirmed by the client)</li>
+        <li>Loose furniture, fittings and AV equipment</li>
+        <li>Decant, removals and temporary accommodation</li>
+        <li>Land, legal fees and statutory charges beyond planning</li>
+        <li>Asbestos removal beyond the risk allowance</li>
+        <li>Unforeseen ground or structural conditions</li></ul></div>
+    </div>
+  </div>
+  <div class="rf"><span><b>Estates AI</b> · Feasibility reporting for capital projects · estates-ai-tool.vercel.app · Indicative only</span><span>Page 7 of 10</span></div>
+</div></div>
+
+<!-- 8 FINANCIAL CASE + PROCUREMENT (half page each) -->
+<div class="sheet"><div class="page">
+  <div class="rh"><div class="brand-s"><i>AI</i>Estates AI <span>· Hargreaves Teaching Block</span></div><div class="doc">Feasibility Report · Ref SAMPLE</div></div>
+  <div class="body">
+    <section class="half">
+    <div class="band"><span class="no">06</span><h2>Financial Case</h2></div>
+    <div class="figs3">
+      <div><div class="lbl">Project cost (mid)</div><div class="v">£1,798,000</div></div>
+      <div><div class="lbl">Annual benefit</div><div class="v">£95,000</div></div>
+      <div><div class="lbl">Simple payback</div><div class="v">18.9 years</div></div>
+      <div><div class="lbl">Budget</div><div class="v">£4,500,000</div></div>
+    </div>
+    <p>The project cost mid-point is £1,798,000, with an estimated annual operational benefit of £95,000, giving a simple payback of 18.9 years. The main financial risk is the long payback: if annual benefits fall short of the forecast or the cost rises above the mid-point, the return is delayed further.</p>
+    </section>
+    <section class="half">
+    <div class="band"><span class="no">07</span><h2>Procurement Recommendation</h2></div>
+    <table class="kv">
+      <tr><td>Route</td><td>Traditional, single-stage tender</td></tr>
+      <tr><td>Contract</td><td>JCT Standard Building Contract 2024</td></tr>
+      <tr><td>Tender type · design</td><td>Single stage · client design team</td></tr>
+    </table>
+    <p>A traditional single-stage tender suits this refurbishment: the scope is clear, the budget is defined and public funding rules require formal competition. Fixing the contractor's price at tender gives the cost certainty the client prioritises.</p>
+    <h3>Commercial considerations</h3>
+    <ul class="tight">
+      <li>Confirm phasing and re-mobilisation costs at Stage 2; consider a framework agreement to hold rates across phases.</li>
+      <li>Explore early procurement of major plant (switchgear, air handling, heat pump) to shorten the critical path.</li>
+      <li>Price restricted hours and vacation-window working explicitly in the tender.</li>
+    </ul>
+    </section>
+  </div>
+  <div class="rf"><span><b>Estates AI</b> · Feasibility reporting for capital projects · estates-ai-tool.vercel.app · Indicative only</span><span>Page 8 of 10</span></div>
+</div></div>
+
+<!-- 9 CONSTRAINTS (half page; rest left clear) -->
+<div class="sheet"><div class="page">
+  <div class="rh"><div class="brand-s"><i>AI</i>Estates AI <span>· Hargreaves Teaching Block</span></div><div class="doc">Feasibility Report · Ref SAMPLE</div></div>
+  <div class="body">
+    <div class="band"><span class="no">08</span><h2>Constraints Summary</h2></div>
+    <table class="t">
+      <colgroup><col style="width:15%"><col style="width:27%"><col style="width:58%"></colgroup>
+      <thead><tr><th>Category</th><th>Constraint</th><th>Impact</th></tr></thead>
+      <tbody>
+        <tr><td>Programme</td><td><b>Term-time restriction</b></td><td>Works confined to vacation windows constrain the programme and risk overrun into term time if a phase slips.</td></tr>
+        <tr><td>Access</td><td><b>Restricted working hours</b></td><td>A partly occupied building in the middle of campus extends construction and may attract out-of-hours rates.</td></tr>
+        <tr><td>Regulatory</td><td><b>Conservation area</b></td><td>External alterations are likely to need full planning consent, with enhanced materials and detailing.</td></tr>
+        <tr><td>Technical</td><td><b>Heat pump electrical capacity</b></td><td>Available capacity and DNO approval must be confirmed at Stage 2 to avoid cost and programme impact.</td></tr>
+        <tr><td>Programme</td><td><b>Multi-phase delivery</b></td><td>Later phases add 34 weeks, including re-mobilisation, to the overall delivery timeline.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="rf"><span><b>Estates AI</b> · Feasibility reporting for capital projects · estates-ai-tool.vercel.app · Indicative only</span><span>Page 9 of 10</span></div>
+</div></div>
+
+<!-- 10 NEXT STEPS + CONTACT (always the last page) -->
+<div class="sheet"><div class="page">
+  <div class="rh"><div class="brand-s"><i>AI</i>Estates AI <span>· Hargreaves Teaching Block</span></div><div class="doc">Feasibility Report · Ref SAMPLE</div></div>
+  <div class="body lastp">
+    <div class="band"><span class="no">09</span><h2>Recommendations and Next Steps</h2></div>
+    <ol>
+      <li>Confirm the asbestos survey is a current refurbishment and demolition survey; if it is, reuse it to shorten the survey period and reduce the risk allowance.</li>
+      <li>Agree examination blackout dates and available vacation windows for each construction phase with the estates and academic teams.</li>
+      <li>Commission a Stage 2 electrical study to confirm available capacity and obtain DNO approval for the air source heat pump.</li>
+      <li>Seek pre-application advice on external works (windows, doors, plant) to confirm the planning route and expected standards.</li>
+      <li>Develop a phasing strategy at Stage 2 and present options for meeting the target date or agreeing an achievable one.</li>
+    </ol>
+    <div class="disc"><b>Disclaimer</b>This report was produced at RIBA Stage 0–1 from benchmark cost and programme data. All figures are indicative and will change as surveys, design and procurement progress. It is not a formal cost plan and must not be used for a financial commitment without review by a Chartered Quantity Surveyor. Programme durations assume standard productivity and client decisions within the gateway periods shown.
+  </div>
+  <div class="contact">
+      <div class="c-brand"><span class="mark">AI</span><div><b>Estates AI</b><small>Feasibility reporting for capital projects</small></div></div>
+      <div class="c-body"><h3>Further information</h3><p>For questions about this report, or to take the project on to a full cost plan and Stage 2 brief, contact our team and quote reference <b class="mono">SAMPLE</b>.</p>
+        <table class="kv c-kv"><tr><td>Email</td><td>enquiries@estates-ai.example</td></tr><tr><td>Telephone</td><td>0121 000 0000</td></tr><tr><td>Web</td><td>estates-ai-tool.vercel.app</td></tr></table></div>
+    </div>
+  </div>
+  <div class="rf"><span><b>Estates AI</b> · Feasibility reporting for capital projects · estates-ai-tool.vercel.app · Indicative only</span><span>Page 10 of 10</span></div>
+</div></div>
+
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    function fit() {
+      var avail = document.getElementById('stack').clientWidth;
+      root.style.setProperty('--s', Math.min(1, avail / 794).toFixed(4));
+    }
+    fit();
+    window.addEventListener('resize', fit);
+  })();
+</script>
