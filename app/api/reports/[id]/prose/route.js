@@ -107,7 +107,10 @@ export async function POST(request, { params }) {
     try {
       const remaining = deadline - Date.now()
       if (remaining < PROSE_HALVES[half].minAttemptMs) break // out of runway this call — next call gets a fresh 60s
-      const out = await requestProseHalf(half, prompts[half], deadline)
+      const out = await requestProseHalf(half, prompts[half], deadline, {
+        // Kept and trimmed, never failed — but worth knowing how often the model misses the shape.
+        onShapeMiss: (h, message) => Sentry.captureMessage(`[prose] shape miss (${h}): ${message}`, 'warning'),
+      })
       await saveProseHalf(id, half, out)
       madeProgress = true
     } catch (e) {
