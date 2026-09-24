@@ -11,6 +11,7 @@ import {
   isOffered, isItemAvailable, projectTypeUsesLevel,
 } from '../../lib/scopeEngine.js'
 import ScopePicker from './ScopePicker.jsx'
+import { titleLooksThin } from '../../lib/reportContent.js'
 import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
   showsHeightQuestion, KNOWN_ISSUE_NONE, SURVEY_NONE,
@@ -1111,6 +1112,18 @@ export default function QuestionnairePage() {
               <HelpText>This becomes the heading of your report. Include the work type, building type, and location — e.g. "Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" or "New Sports Hall, University of Birmingham, Edgbaston".</HelpText>
               <TextInput value={answers.q1_0_projectName} onChange={v => set('q1_0_projectName', v)} placeholder="e.g. Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" />
               {validationErrors.q1_0_projectName && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_0_projectName}</p>}
+              {/* The title is the largest text on the report cover — show it,
+                  and nudge (never block) when it is too thin to identify the project. */}
+              {answers.q1_0_projectName?.trim() && (
+                <p className="mt-2 text-sm" style={{ color: 'var(--text-soft)' }}>
+                  Cover title: <strong style={{ color: 'var(--ink)' }}>{answers.q1_0_projectName.trim()}</strong>
+                  {titleLooksThin(answers.q1_0_projectName, answers.q1_1_postcode) && (
+                    <span role="status" style={{ display: 'block', color: 'var(--amber-deep)', marginTop: 4 }}>
+                      Add the work and the building, e.g. &ldquo;Refurbishment of Block C, first floor&rdquo;.
+                    </span>
+                  )}
+                </p>
+              )}
             </QCard>
 
             <QCard qkey="q1_1_postcode">
