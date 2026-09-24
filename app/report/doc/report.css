@@ -89,9 +89,9 @@
 .r-cv-foot em { letter-spacing: 0; font-size: var(--r-cv-note); }
 
 /* stat strip + callouts */
-.r-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0 0 22px; }
+.r-strip { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 12px; margin: 0 0 22px; }
 .r-strip > div { background: var(--r-tint-group); border-top: 3px solid var(--r-navy); padding: 11px 13px 12px; }
-.r-strip .v { font-size: var(--r-fs-stat-figure); font-weight: 600; color: var(--r-navy); margin-top: 4px; line-height: 1.2; }
+.r-strip .v { font-size: var(--r-fs-stat-figure); font-weight: 600; color: var(--r-navy); margin-top: 4px; line-height: 1.2; white-space: nowrap; }
 .r-strip .s { font-size: var(--r-fs-small); color: var(--r-grey); margin-top: 3px; }
 .r-callout { border: 1px solid var(--r-rule); border-left: 4px solid var(--r-pass); padding: 10px 14px; margin-top: 16px; font-size: var(--r-fs-table); }
 .r-callout-ok { border-left-color: var(--r-pass); } .r-callout-ok b { color: var(--r-pass); }
