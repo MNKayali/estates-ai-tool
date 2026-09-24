@@ -42,6 +42,10 @@ function getOrigin(request) {
   // cookie below, so it must NOT be derived from client-supplied Host /
   // X-Forwarded-Host headers (which a caller can spoof to exfiltrate the cookie).
   if (process.env.REPORT_ORIGIN) return process.env.REPORT_ORIGIN
+  // A preview must print its own pages: the production URL runs different code
+  // (and may read a different KV store), so a preview PDF rendered from it
+  // failed while production still served the old report layout.
+  if (process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
   // Local dev only — no platform origin available.
