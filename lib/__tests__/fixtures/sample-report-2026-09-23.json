@@ -21,11 +21,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 37.6,
-        "rateLow": 33.84,
-        "rateHigh": 41.36,
+        "rateLow": 33.46,
+        "rateHigh": 41.74,
         "lineMid": 45120,
-        "lineLow": 40608,
-        "lineHigh": 49632,
+        "lineLow": 40157,
+        "lineHigh": 50083,
         "bcis": [
           {
             "element": "0.1",
@@ -50,11 +50,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 23.5,
-        "rateLow": 21.15,
-        "rateHigh": 25.85,
+        "rateLow": 20.92,
+        "rateHigh": 26.09,
         "lineMid": 28200,
-        "lineLow": 25380,
-        "lineHigh": 31020,
+        "lineLow": 25098,
+        "lineHigh": 31302,
         "bcis": [
           {
             "element": "0.2",
@@ -79,11 +79,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 141,
-        "rateLow": 126.9,
-        "rateHigh": 155.1,
+        "rateLow": 125.49,
+        "rateHigh": 156.51,
         "lineMid": 169200,
-        "lineLow": 152280,
-        "lineHigh": 186120,
+        "lineLow": 150588,
+        "lineHigh": 187812,
         "bcis": [
           {
             "element": "2.6",
@@ -108,11 +108,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 32.9,
-        "rateLow": 29.61,
-        "rateHigh": 36.19,
+        "rateLow": 29.28,
+        "rateHigh": 36.52,
         "lineMid": 39480,
-        "lineLow": 35532,
-        "lineHigh": 43428,
+        "lineLow": 35137,
+        "lineHigh": 43823,
         "bcis": [
           {
             "element": "2.8",
@@ -137,11 +137,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 28.2,
-        "rateLow": 25.38,
-        "rateHigh": 31.02,
+        "rateLow": 25.1,
+        "rateHigh": 31.3,
         "lineMid": 33840,
-        "lineLow": 30456,
-        "lineHigh": 37224,
+        "lineLow": 30118,
+        "lineHigh": 37562,
         "bcis": [
           {
             "element": "2.7",
@@ -166,11 +166,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 51.7,
-        "rateLow": 46.53,
-        "rateHigh": 56.87,
+        "rateLow": 46.01,
+        "rateHigh": 57.39,
         "lineMid": 62040,
-        "lineLow": 55836,
-        "lineHigh": 68244,
+        "lineLow": 55216,
+        "lineHigh": 68864,
         "bcis": [
           {
             "element": "3.1",
@@ -195,11 +195,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 70.5,
-        "rateLow": 63.45,
-        "rateHigh": 77.55,
+        "rateLow": 62.75,
+        "rateHigh": 78.26,
         "lineMid": 84600,
-        "lineLow": 76140,
-        "lineHigh": 93060,
+        "lineLow": 75294,
+        "lineHigh": 93906,
         "bcis": [
           {
             "element": "3.2",
@@ -224,11 +224,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 47,
-        "rateLow": 42.3,
-        "rateHigh": 51.7,
+        "rateLow": 41.83,
+        "rateHigh": 52.17,
         "lineMid": 56400,
-        "lineLow": 50760,
-        "lineHigh": 62040,
+        "lineLow": 50196,
+        "lineHigh": 62604,
         "bcis": [
           {
             "element": "3.3",
@@ -253,11 +253,11 @@
         "ratioEstimate": false,
         "estimate": 12,
         "rate": 4653,
-        "rateLow": 4187.7,
-        "rateHigh": 5118.3,
+        "rateLow": 4141.17,
+        "rateHigh": 5164.83,
         "lineMid": 83754,
-        "lineLow": 75379,
-        "lineHigh": 92129,
+        "lineLow": 74541,
+        "lineHigh": 92967,
         "bcis": [
           {
             "element": "5.1",
@@ -286,11 +286,11 @@
         "ratioEstimate": false,
         "estimate": 3,
         "rate": 5170,
-        "rateLow": 4653,
-        "rateHigh": 5687,
+        "rateLow": 4601.3,
+        "rateHigh": 5738.7,
         "lineMid": 15510,
-        "lineLow": 13959,
-        "lineHigh": 17061,
+        "lineLow": 13804,
+        "lineHigh": 17216,
         "bcis": [
           {
             "element": "5.1",
@@ -319,11 +319,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 42.3,
-        "rateLow": 38.07,
-        "rateHigh": 46.53,
+        "rateLow": 37.65,
+        "rateHigh": 46.95,
         "lineMid": 50760,
-        "lineLow": 45684,
-        "lineHigh": 55836,
+        "lineLow": 45176,
+        "lineHigh": 56344,
         "bcis": [
           {
             "element": "4.1",
@@ -348,11 +348,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 73.32,
-        "rateLow": 65.99,
-        "rateHigh": 80.65,
+        "rateLow": 65.25,
+        "rateHigh": 81.39,
         "lineMid": 87984,
-        "lineLow": 79186,
-        "lineHigh": 96782,
+        "lineLow": 78306,
+        "lineHigh": 97662,
         "bcis": [
           {
             "element": "5.5",
@@ -381,11 +381,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 61.1,
-        "rateLow": 54.99,
-        "rateHigh": 67.21,
+        "rateLow": 54.38,
+        "rateHigh": 67.82,
         "lineMid": 73320,
-        "lineLow": 65988,
-        "lineHigh": 80652,
+        "lineLow": 65255,
+        "lineHigh": 81385,
         "bcis": [
           {
             "element": "5.3",
@@ -414,11 +414,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 42.3,
-        "rateLow": 38.07,
-        "rateHigh": 46.53,
+        "rateLow": 37.65,
+        "rateHigh": 46.95,
         "lineMid": 50760,
-        "lineLow": 45684,
-        "lineHigh": 55836,
+        "lineLow": 45176,
+        "lineHigh": 56344,
         "bcis": [
           {
             "element": "5.7",
@@ -443,11 +443,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 118.44,
-        "rateLow": 106.6,
-        "rateHigh": 130.28,
+        "rateLow": 105.41,
+        "rateHigh": 131.47,
         "lineMid": 142128,
-        "lineLow": 127915,
-        "lineHigh": 156341,
+        "lineLow": 126494,
+        "lineHigh": 157762,
         "bcis": [
           {
             "element": "5.8",
@@ -472,11 +472,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 31.02,
-        "rateLow": 27.92,
-        "rateHigh": 34.12,
+        "rateLow": 27.61,
+        "rateHigh": 34.43,
         "lineMid": 37224,
-        "lineLow": 33502,
-        "lineHigh": 40946,
+        "lineLow": 33129,
+        "lineHigh": 41319,
         "bcis": [
           {
             "element": "5.8",
@@ -501,11 +501,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 9.4,
-        "rateLow": 8.46,
-        "rateHigh": 10.34,
+        "rateLow": 8.37,
+        "rateHigh": 10.43,
         "lineMid": 11280,
-        "lineLow": 10152,
-        "lineHigh": 12408,
+        "lineLow": 10039,
+        "lineHigh": 12521,
         "bcis": [
           {
             "element": "5.8",
@@ -530,11 +530,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 16.92,
-        "rateLow": 15.23,
-        "rateHigh": 18.61,
+        "rateLow": 15.06,
+        "rateHigh": 18.78,
         "lineMid": 20304,
-        "lineLow": 18274,
-        "lineHigh": 22334,
+        "lineLow": 18071,
+        "lineHigh": 22537,
         "bcis": [
           {
             "element": "5.12",
@@ -559,11 +559,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 16.92,
-        "rateLow": 15.23,
-        "rateHigh": 18.61,
+        "rateLow": 15.06,
+        "rateHigh": 18.78,
         "lineMid": 20304,
-        "lineLow": 18274,
-        "lineHigh": 22334,
+        "lineLow": 18071,
+        "lineHigh": 22537,
         "bcis": [
           {
             "element": "5.12",
@@ -588,11 +588,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 16.92,
-        "rateLow": 15.23,
-        "rateHigh": 18.61,
+        "rateLow": 15.06,
+        "rateHigh": 18.78,
         "lineMid": 20304,
-        "lineLow": 18274,
-        "lineHigh": 22334,
+        "lineLow": 18071,
+        "lineHigh": 22537,
         "bcis": [
           {
             "element": "5.14",
@@ -728,18 +728,18 @@
     },
     "works": {
       "mid": 1133000,
-      "low": 1019000,
-      "high": 1246000
+      "low": 1008000,
+      "high": 1257000
     },
     "construction": {
       "mid": 1354000,
-      "low": 1218000,
-      "high": 1489000
+      "low": 1205000,
+      "high": 1502000
     },
     "total": {
       "mid": 1798000,
-      "low": 1617000,
-      "high": 1976000
+      "low": 1600000,
+      "high": 1994000
     },
     "vat": 360000,
     "bcisFactor": 0.94,
@@ -771,13 +771,13 @@
     },
     "excludedNoQuantity": [],
     "additionalScopeNote": null,
-    "workbookVersion": "NRM1 v5.3 (2026-09-23)",
+    "workbookVersion": "NRM1 v5.2 (2026-09-23)",
     "baseDate": null,
     "rangeApplied": {
       "grade": "A",
-      "low": 0.9,
-      "high": 1.1,
-      "fromWorkbook": true
+      "low": 0.89,
+      "high": 1.11,
+      "fromWorkbook": false
     },
     "vatPct": 20,
     "trace": {
@@ -818,7 +818,7 @@
         },
         {
           "code": "C",
-          "label": "Q2.3 has ≥4 M&E items (M&E-heavy)",
+          "label": "Q2.2 has ≥4 M&E items (M&E-heavy)",
           "pct": 1.5
         },
         {
@@ -1118,138 +1118,159 @@
   "budget": {
     "status": "sufficient",
     "budget": 4500000,
-    "grossLow": 1940000,
-    "grossHigh": 2371000,
-    "margin": 2129000,
+    "grossLow": 1920000,
+    "grossHigh": 2393000,
+    "margin": 2107000,
     "grossFactor": 1.2,
-    "note": "The stated budget of £4,500,000 (incl. fees and VAT) is sufficient against the estimated gross range of £1,940,000 – £2,371,000, with headroom of approximately £2,129,000 above the top of the range."
+    "note": "The stated budget of £4,500,000 (incl. fees and VAT) is sufficient against the estimated gross range of £1,920,000 – £2,393,000, with headroom of approximately £2,107,000 above the top of the range."
   },
   "aiProse": {
-    "executiveSummary": "This feasibility study examines the refurbishment of Hargreaves Teaching Block, a three-storey 1960s education building at Example University, Birmingham (1200 m² GIFA). The project will replace life-expired services, upgrade fire safety, and improve thermal performance to support net-zero objectives. Estimated project cost is £1,617,000 to £1,976,000 excluding VAT, with Grade A (High Confidence). The target date of 1 September 2028 is not achievable; the 124-week programme completes around 28 May 2029. Term-time working restrictions present the single most material risk to programme delivery.",
+    "executiveSummary": "This report assesses the feasibility of refurbishing Hargreaves Teaching Block, a three-storey 1960s teaching building at Example University in Birmingham (1200 m² GIFA), to provide modern flexible teaching and seminar space with full systems replacement, upgraded fire safety, and improved thermal performance to support the university's net-zero plan. The estimated total project cost is £1,600,000 to £1,994,000 (excluding VAT), with a confidence grade of Grade A (High Confidence). The target completion date of 1 September 2028 is not achievable; the programme extends to approximately 28 May 2029, some 38 weeks beyond the target. The most material risk is the requirement to confine all works to vacation and holiday windows only, which significantly constrains the construction programme and creates a high risk of overrun into term time.",
     "keyFindings": [
-      "The works cost mid-point is £1,133,000 (range £1,019,000–£1,246,000), driven by full systems replacement across mechanical, electrical, and fabric elements across 1200 m².",
-      "The target date of 1 September 2028 is not achievable; the 124-week programme completes approximately 38 weeks later, around 28 May 2029.",
-      "The stated budget of £4,500,000 including fees and VAT is sufficient, with headroom of approximately £2,129,000 above the top of the estimated range.",
-      "The most significant risk is term-time working confinement: works must fit within vacation windows, spanning multiple academic terms and risking overrun into occupied periods.",
-      "Traditional Single Stage Tender is recommended; formal competitive procurement is required for public funding, and this route suits the defined scope and fixed-price certainty the client prioritises."
+      " The project is cost-driven by full systems replacement across heating, ventilation, electrical, water and drainage, and data infrastructure, combined with asbestos removal and comprehensive strip-out and refurbishment of all finishes across 1200 m². The target date of 1 September 2028 is not achievable; the 124-week programme (including design, tender, and construction phases) completes around 28 May 2029, approximately 38 weeks beyond the target. The stated budget of £4,500,000 (including fees and VAT) is sufficient against the estimated gross range of £1,920,000 to £2,393,000, providing headroom of approximately £2,107,000 above the top of the range. The most significant survey gap is confirmation of electrical capacity and DNO requirements for the proposed air source heat pump system, which must be investigated during Stage 2 design. Traditional Single Stage Tender procurement is recommended because it suits public funding requirements, allows formal competitive procurement, and provides cost certainty through a fixed-price contract before works commence."
     ],
     "scopeAssumptions": [
-      "External plant space for the air source heat pump is included within the heating and hot water scope.",
-      "The roof was recovered in 2011 and windows on the south elevation were replaced in 2016; north elevation windows are original and included in the replacement scope.",
-      "No mechanical, electrical, or plumbing services have been replaced since original construction in the 1960s, justifying full systems replacement."
+      "The scope includes full replacement of heating and hot water systems via an air source heat pump serving the entire 1200 m² building, with external plant space included in the cost estimate.",
+      "The scope includes asbestos removal across the estimated 1200 m² of the building, strip-out of all existing systems and finishes, and installation of 18 standard and 3 accessible toilet facilities as specified by the client.",
+      "The scope assumes that the roof, recovered in 2011, and the south elevation windows, replaced in 2016, do not require further intervention; all other building elements are included in the refurbishment."
     ],
-    "costNarrative": "The works cost reflects full replacement of mechanical, electrical, plumbing, and fire safety systems across the entire 1200 m² building, together with asbestos removal, strip-out, and comprehensive refurbishment of fabric finishes. Preliminaries are elevated by partial occupation, restricted working hours, and extended programme duration. Professional fees reflect the M&E-heavy scope and BREEAM compliance requirement.",
-    "roiNarrative": "Simple payback on the project cost mid-point of £1,797,000 against annual energy and operational savings of £95,000 is 18.9 years. The key financial risk is that actual operational savings may fall short of projections if building use patterns or energy pricing assumptions change materially during the payback period.",
+    "costNarrative": "The main cost drivers are the full replacement of life-expired mechanical, electrical, and plumbing systems across the entire building, the removal of asbestos from an estimated 1200 m², and comprehensive refurbishment of all internal and external finishes, wall, floor, and ceiling surfaces. The specification of an air source heat pump system, combined with the need for enhanced fire safety measures, modern ventilation, and full data and IT infrastructure, reflects the university's net-zero objectives and the building's age and condition.",
+    "roiNarrative": "The project cost mid-point is £1,797,000, with an estimated annual operational benefit of £95,000, yielding a simple payback period of 18.9 years. The key financial risk is that the payback period is lengthy; if annual benefits are lower than forecast or if the project cost increases beyond the mid-point estimate, the return on investment will be further delayed.",
     "constraints": [
       {
         "category": "Programme",
-        "title": "Term-time working confinement",
-        "text": "Works must fit within vacation windows only, spanning multiple academic terms and risking overrun into occupied periods if not carefully phased."
+        "title": "Term-time working restriction",
+        "text": "All works must be confined to vacation and holiday windows only, which severely constrains the construction programme and creates a high risk of overrun into term time if any phase slips."
       },
       {
         "category": "Access",
         "title": "Restricted working hours",
-        "text": "Confined hours extend construction duration and may attract premium rates, increasing both cost and programme risk."
+        "text": "The building is partially occupied during works and sits in the middle of campus; restricted working hours will extend the construction duration and may attract premium or out-of-hours rates."
       },
       {
         "category": "Regulatory",
         "title": "Conservation area constraints",
-        "text": "Site is in a conservation area; external alterations require full planning consent and enhanced material specification from the local authority."
+        "text": "The site is in a conservation area or subject to an Article 4 direction; external alterations are likely to require full planning consent and the local authority may require enhanced materials and detailing."
       },
       {
         "category": "Technical",
-        "title": "Electrical capacity check",
-        "text": "Air source heat pump installation requires confirmation of electrical capacity and DNO approval before detailed design can proceed."
+        "title": "Electrical capacity for heat pump",
+        "text": "The proposed air source heat pump system requires confirmation of available electrical capacity and DNO approval; this must be investigated during Stage 2 design to avoid cost and programme impact."
+      },
+      {
+        "category": "Programme",
+        "title": "Multi-phase delivery",
+        "text": "The project is planned as multiple phases; the construction programme of 26 weeks shown is per phase, with an additional 34 weeks required for subsequent phases including re-mobilisation, extending the overall delivery timeline."
       }
     ],
     "nextSteps": [
-      "Confirm with the university estates team the exact vacation windows available for each phase and any blackout dates around examinations (January and May–June) to refine the phasing strategy.",
-      "Engage the conservation officer at the local authority to establish expectations for external materials, detailing, and the planning consent pathway for windows and doors.",
-      "Commission or review the asbestos management survey to confirm scope and inform the detailed strip-out and disposal strategy at Stage 2 design.",
-      "Investigate electrical capacity and submit a DNO enquiry for the air source heat pump installation to confirm feasibility and any infrastructure upgrades required.",
-      "Develop a detailed phasing plan at Stage 2 that sequences works to minimise disruption, allocates the 34-week re-mobilisation allowance between phases, and builds in programme float to protect against term-time overrun."
+      "Confirm the asbestos management survey is current and scope-relevant; if so, it may be reused to reduce the survey programme and risk allowance. Obtain the asbestos register and verify it is a valid Refurbishment and Demolition survey.",
+      "Engage with the university estates and academic teams to agree detailed blackout dates for examination periods (January and May–June) and to confirm which vacation windows are available for each phase of construction.",
+      "Commission a Stage 2 electrical feasibility study to confirm the building's available electrical capacity and to obtain DNO approval for the air source heat pump system; allow sufficient time for DNO response in the design programme.",
+      "Seek pre-application advice from the local planning authority and conservation officer on the scope of external works (windows, doors, plant, and any façade alterations) to confirm whether full planning consent is required and what material and detailing standards will be expected.",
+      "Develop a detailed phasing strategy at Stage 2, confirming the split of works between phases, the re-mobilisation and interim closure periods, and the impact on the overall delivery date and cost; present options to the client for achieving the target date or securing a revised target that is achievable within the constraints."
     ],
     "riskRegister": [
       {
         "ref": "ACC-B",
         "category": "Programme",
-        "description": "Works confined to vacation windows; programme spans multiple academic terms; risk of overrun into term time.",
+        "description": "Works are confined to vacation windows only; the 124-week programme spans multiple academic terms and risks overrun into term time when the building remains partially occupied.",
         "likelihood": "High",
         "impact": "High",
         "rating": "High",
-        "mitigation": "Phase works to vacation windows; agree blackout dates with faculty; build programme float; consider out-of-hours working.",
+        "mitigation": "Phase works to align with vacation windows; agree blackout dates with faculty; build programme float; consider out-of-hours working where programme-critical.",
         "seedRef": "ACC-B"
       },
       {
         "ref": "ACC-D",
         "category": "Programme",
-        "description": "Restricted working hours extend construction duration and may attract premium or out-of-hours rates.",
+        "description": "Restricted working hours (Q3.5) extend construction duration and may attract premium or out-of-hours rates, increasing cost and schedule risk.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Confirm permitted hours with the client; price out-of-hours working where programme-critical; reflect in Prelims.",
+        "mitigation": "Confirm permitted hours with the client; price out-of-hours working where programme-critical; reflect in Preliminaries.",
         "seedRef": "ACC-D"
       },
       {
         "ref": "CTX-CONSERVATION",
         "category": "Regulatory",
-        "description": "Site in conservation area or subject to Article 4 direction; external alterations likely need full planning consent; enhanced materials required.",
+        "description": "The site is in a conservation area or subject to an Article 4 direction; permitted development rights are curtailed and external alterations are likely to require full planning consent.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Seek pre-application advice on conservation officer's expectations; assume full planning for external works; allow enhanced material specification.",
+        "mitigation": "Seek pre-application advice on the conservation officer's expectations; assume full planning for external works when programming; allow for enhanced material specification in the cost plan at Stage 2.",
         "seedRef": "CTX-CONSERVATION"
       },
       {
         "ref": "SCOPE-S-0039-1",
         "category": "Technical",
-        "description": "Air source heat pump selected; electrical capacity and DNO check required before commitment.",
+        "description": "Heating and hot water system uses an air source heat pump for full system replacement; electrical capacity and DNO check are required to confirm the site can support the demand.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Investigate and confirm electrical capacity and DNO requirements during Stage 2 design; carry outcome into cost plan.",
+        "mitigation": "Investigate and confirm electrical capacity and DNO requirements during Stage 2 design; carry the outcome into the cost plan.",
         "seedRef": "NONE"
       },
       {
         "ref": "R05",
         "category": "Cost",
-        "description": "Asbestos known or suspected in 1960s building; removal cost and programme impact uncertain until survey complete.",
-        "likelihood": "High",
-        "impact": "Medium",
-        "rating": "Medium",
-        "mitigation": "Complete asbestos management survey immediately; obtain specialist removal quotations; build contingency for unforeseen contamination.",
+        "description": "Asbestos is known or suspected in a 1960s building; the estimated removal quantity of 1200 m² is based on survey data and carries inherent uncertainty in extent and condition.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Obtain a detailed asbestos management survey; establish a contingency protocol for unexpected findings; price removal at Stage 2 based on confirmed survey.",
         "seedRef": "NONE"
       },
       {
         "ref": "R06",
-        "category": "Programme",
-        "description": "Multiple phases with 34 additional weeks for re-mobilisation and subsequent phases; total programme extends to May 2029, 38 weeks beyond target.",
-        "likelihood": "High",
-        "impact": "High",
-        "rating": "High",
-        "mitigation": "Confirm phase split and boundaries at Stage 2; explore acceleration options such as long-lead procurement; review phasing strategy with client.",
+        "category": "Technical",
+        "description": "No services have been replaced since original construction; the building has ageing or inadequate M&E infrastructure that may harbour hidden defects or require scope expansion once opened up.",
+        "likelihood": "Medium",
+        "impact": "Medium",
+        "rating": "Medium",
+        "mitigation": "Carry out intrusive M&E surveys at Stage 2; allow contingency for unforeseen remedial work; phase strip-out to reveal and assess hidden conditions progressively.",
         "seedRef": "NONE"
       },
       {
         "ref": "R07",
-        "category": "Cost",
-        "description": "Partial occupation during works increases site management complexity, welfare provision, and coordination overhead.",
+        "category": "Programme",
+        "description": "The target date of 1 September 2028 is not achievable; the 124-week programme completes around 28 May 2029, approximately 38 weeks beyond the target, creating a hard deadline risk.",
+        "likelihood": "High",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Confirm with the client whether the target date is firm or negotiable; explore programme acceleration options (long-lead procurement, phasing strategy) at Stage 2; establish a formal change control process.",
+        "seedRef": "NONE"
+      },
+      {
+        "ref": "R08",
+        "category": "Procurement",
+        "description": "Multiple phases are planned; re-mobilisation and phasing strategy are not yet confirmed, creating uncertainty in cost and programme for subsequent phases.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Establish clear occupation zones; agree access and working protocols with occupants; price additional site management and welfare provision.",
+        "mitigation": "Confirm phase split, re-mobilisation costs and programme at Stage 2; establish a framework contract or standing agreement with the main contractor to lock in rates and resource continuity.",
         "seedRef": "NONE"
+      },
+      {
+        "ref": "R09",
+        "category": "Technical",
+        "description": "Heating and hot water: Electrical capacity and DNO check — raised by the selected scope.",
+        "likelihood": "Medium",
+        "impact": "Medium",
+        "rating": "Medium",
+        "mitigation": "Investigate and confirm during Stage 2 design, and carry the outcome into the cost plan.",
+        "seedRef": "SCOPE-S-0039-1"
       }
     ],
     "procurementRoute": "Traditional — Single Stage Tender",
     "procurementContractForm": "JCT Standard Building Contract 2024",
     "procurementDesignResp": "Client design team",
     "procurementTenderType": "Single stage",
-    "procurementNarrative": "Traditional single-stage tender is appropriate for a refurbishment of this scale and complexity, with a fixed scope and full design at tender stage. This route delivers the certainty of a fixed price and defined programme that the client prioritises, whilst formal competitive procurement is mandated by the grant funding source regardless of contract value.",
+    "procurementNarrative": "A Traditional Single Stage Tender route is appropriate for this refurbishment project, which has a clear scope, a defined budget of £4,500,000 and formal competitive procurement requirements under public funding rules. This route delivers the client's priorities of minimising disruption and achieving a fixed, certain final cost by locking the contractor's price at tender stage before construction begins.",
     "procurementConsiderations": [
-      "Long-lead items such as air source heat pump, switchgear and ventilation plant should be identified and ordered during design to reduce on-site construction duration and mitigate programme risk.",
-      "Restricted working hours and vacation-only access will increase preliminaries and may require out-of-hours working premiums; confirm permitted hours and pricing with the client before tender.",
-      "Phasing strategy must be confirmed at Stage 2 to establish clear boundaries, re-mobilisation costs and programme sequencing; include phasing requirements in the tender brief."
+      "Confirm the phasing strategy and re-mobilisation costs at Stage 2; consider a framework or standing agreement with the main contractor to maintain resource continuity and cost certainty across multiple phases.",
+      "Long-lead procurement of major plant (switchgear, AHUs, heat pump) should be explored during design to reduce the critical path by 8–30 weeks; this requires early specification freeze and client commitment to advance payment.",
+      "Restricted working hours and vacation-window constraints will increase Preliminaries and may attract out-of-hours premiums; price these explicitly in the tender and confirm permitted hours with the client before design finalisation."
     ],
     "procurementConflicts": [],
     "confidenceScore": "A",
@@ -1336,7 +1357,7 @@
     "q5_2_annualBenefit": "95000",
     "q6_2_instructions": "Write for an estates committee that includes non-technical members."
   },
-  "generatedAt": "2026-09-24T13:36:00.976Z",
+  "generatedAt": "2026-09-23T13:58:37.000Z",
   "reportId": null,
   "sample": true
 }
