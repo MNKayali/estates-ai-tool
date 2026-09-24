@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/api/reports/*/docx': ['./assets/fonts/**/*'],
     '/api/generate-report': ['./assets/fonts/**/*'],
+    // @sparticuz/chromium finds its compressed browser (bin/*.br) through a path
+    // built at runtime, so the tracer never sees it; without this the PDF route
+    // fails on Vercel with "The input directory …/bin does not exist".
+    '/api/report-pdf/*': ['./node_modules/@sparticuz/chromium/bin/**/*'],
   },
 }
 

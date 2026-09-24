@@ -127,7 +127,9 @@ export async function GET(request, { params }) {
     })
   } catch (err) {
     console.error('[report-pdf] generation failed:', err)
-    return Response.json({ error: 'PDF generation failed.' }, { status: 500 })
+    // The reason is safe to show (behind the access gate, no secrets in it) and
+    // is the only clue a user can pass on without the Vercel logs.
+    return Response.json({ error: 'PDF generation failed.', detail: String(err?.message || err).slice(0, 300) }, { status: 500 })
   } finally {
     if (browser) await browser.close()
   }
