@@ -20,7 +20,6 @@
  * no progress at all, so it knows to back off and poll /status instead.
  */
 import * as Sentry from '@sentry/nextjs'
-import { buildReport } from '@/lib/reportBuilder'
 import {
   getReport, getProseHalf, saveProseHalf,
   claimLock, releaseLock, finaliseReport,
@@ -34,9 +33,9 @@ import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 export const maxDuration = 60
 
 // Reserved off the end of the 60s ceiling for the finalise step (merging the
-// two halves, building the .docx, and writing the ~90-day final KV record) —
-// none of which touches the network, but a large .docx with many tables and a
-// multi-MB KV write are not instant either.
+// two halves and writing the ~90-day final KV record). The .docx used to be
+// built here too; it is now built on download (/api/reports/[id]/docx). The
+// reserve is kept as it was — generous, and cheap to leave.
 const FINALISE_RESERVE_MS = 8_000
 
 function capturePipelineError(e, step, answers) {
@@ -132,18 +131,8 @@ export async function POST(request, { params }) {
   if (narrative && risk) {
     const aiProse = finaliseProse({ narrative, risk }, isROI, record.confidence, record.answers, record.cost, senseCheck)
 
-    let docxBuffer, templateError
-    try {
-      docxBuffer = await buildReport({
-        answers: record.answers, cost: record.cost, programme: record.programme,
-        aiProse, budget: record.budget,
-      })
-    } catch (e) {
-      console.error('[prose route] reportBuilder failed:', e.message)
-      capturePipelineError(e, 'reportBuilder', record.answers)
-      templateError = e.message
-    }
-
+    // The .docx is no longer built here: GET /api/reports/[id]/docx builds it
+    // on download (embedded fonts made it too large to keep in the KV record).
     const finalRecord = {
       reportId: id,
       projectName: record.projectName,
@@ -153,8 +142,6 @@ export async function POST(request, { params }) {
       aiProse,
       answers: record.answers,
       generatedAt: record.generatedAt,
-      ...(docxBuffer && { docx: docxBuffer.toString('base64') }),
-      ...(templateError && { templateError }),
     }
     await finaliseReport(id, finalRecord)
     return Response.json({ success: true, status: 'complete', ...finalRecord })

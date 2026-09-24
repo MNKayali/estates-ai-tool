@@ -2,12 +2,11 @@ import { TABLES } from '@/lib/reportStyle'
 import { fmtDate, programmeHeadline } from '@/lib/reportShared'
 import {
   selectMilestones, overviewSegments, programmeDetailRows, programmeNarrativeLines, targetPct,
-  milestoneTickClass, fmtMonthYear, SEGMENT_KEY_LABELS,
+  milestoneTickClass, fmtMonthYear, fmtShortDate, SEGMENT_KEY_LABELS,
 } from '@/lib/reportContent'
 import { BodyPage, Band, Cols } from './parts'
 
-// "11 Jan 2027" → "11 Jan 27" for the dense detail table.
-const short = iso => fmtDate(iso).replace(/ \d{2}(\d{2})$/, ' $1')
+const short = fmtShortDate
 
 export default function ProgrammePage({ data, ctx, n }) {
   const p = data.programme || {}

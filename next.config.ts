@@ -7,6 +7,13 @@ const nextConfig: NextConfig = {
   // the bundler cannot eliminate that import, so it must be externalised too or
   // it gets traced into the production function.
   serverExternalPackages: ['xlsx', '@sparticuz/chromium', 'puppeteer-core', 'puppeteer'],
+  // lib/docx/fonts.js reads the IBM Plex TTFs at runtime to embed them in the
+  // Word report; files read with fs are not traced automatically. Keys are
+  // route globs (picomatch), so '*' covers the [id] segment.
+  outputFileTracingIncludes: {
+    '/api/reports/*/docx': ['./assets/fonts/**/*'],
+    '/api/generate-report': ['./assets/fonts/**/*'],
+  },
 }
 
 // Apply the Sentry build plugin (source-map upload) only when SENTRY_AUTH_TOKEN

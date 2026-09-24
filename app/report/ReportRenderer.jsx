@@ -72,25 +72,33 @@ export default function ReportRenderer({ data, reportId, sample = false }) {
     }
   }
 
-  function downloadDocx() {
-    if (!data?.docx) {
-      setDownloadError('Word document unavailable. Please regenerate the report.')
-      return
-    }
+  // Saved reports: the server builds the Word file on download
+  // (/api/reports/[id]/docx), so it always carries the current design.
+  // Unsaved reports (no KV, local only) still carry it inline as data.docx.
+  async function downloadDocx() {
     setDownloading(true)
     setDownloadError('')
     try {
-      const bytes = Uint8Array.from(atob(data.docx), c => c.charCodeAt(0))
-      const blob  = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-      const url   = URL.createObjectURL(blob)
-      const a     = document.createElement('a')
-      a.href      = url
-      a.download  = `${(data.projectName || 'Report').replace(/[^a-z0-9 _-]/gi, '_')}_Stage1_Report.docx`
+      let blob
+      if (reportId) {
+        const res = await fetch(`/api/reports/${reportId}/docx`)
+        if (!res.ok) throw new Error('docx service unavailable')
+        blob = await res.blob()
+      } else if (data?.docx) {
+        const bytes = Uint8Array.from(atob(data.docx), c => c.charCodeAt(0))
+        blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+      } else {
+        throw new Error('no Word file')
+      }
+      const url = URL.createObjectURL(blob)
+      const a   = document.createElement('a')
+      a.href     = url
+      a.download = `${(data.projectName || 'Report').replace(/[^a-z0-9 _-]/gi, '_')}_Stage1_Report.docx`
       a.click()
       URL.revokeObjectURL(url)
       track('docx_downloaded', { reportId: reportId || 'unsaved' })
-    } catch (e) {
-      setDownloadError('Download failed: ' + e.message)
+    } catch {
+      setDownloadError('The Word file could not be created. Please try again in a moment.')
     }
     setDownloading(false)
   }
