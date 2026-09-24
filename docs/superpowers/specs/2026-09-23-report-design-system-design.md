@@ -1,5 +1,7 @@
 # Report design system — design
 
+*Status: implemented on `feat/report-design-system` (plan: `docs/superpowers/plans/2026-09-24-report-design-system.md`); both example gates approved by the user on 24 September 2026.*
+
 *23–24 September 2026. Agreed in a brainstorming session with visual mockups. **The approved template is [`2026-09-24-report-template-approved.html`](2026-09-24-report-template-approved.html)** (also published as a private preview, https://claude.ai/artifact/VyMCNPN5gj4bn22Y6TbL6Z, version 4). Where this text and that file differ on a visual detail, the file wins.*
 
 ## Goal
