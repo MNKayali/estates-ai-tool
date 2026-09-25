@@ -1,6 +1,6 @@
 // Always the last page: next steps, disclaimer and the contact block.
 import { BRAND } from '@/lib/reportStyle'
-import { LOGOS, logoWidth } from '@/lib/brand'
+import { LOGOS, logoWidth, contactRows, contactLead } from '@/lib/brand'
 import { cleanReportText, DISCLAIMER, dataSourcesSentence } from '@/lib/reportContent'
 import { BodyPage, Band, Pending } from './parts'
 
@@ -25,11 +25,12 @@ export default function LastPage({ data, ctx, n, page }) {
         </div>
         <div className="r-c-body">
           <h3>Further information</h3>
-          <p>For questions about this report, or to take the project on to a full cost plan and Stage 2 brief, contact our team and quote reference <b className="r-mono">{ctx.reference}</b>.</p>
-          <table className="r-kv r-c-kv"><tbody>
-            {[['Email', BRAND.email], ['Telephone', BRAND.phone], ['Web', BRAND.siteUrl]].filter(([, v]) => v)
-              .map(([k, v]) => <tr key={k}><td>{k}</td><td>{v}</td></tr>)}
-          </tbody></table>
+          <p>{contactLead()}<b className="r-mono">{ctx.reference}</b>.</p>
+          {contactRows().length > 0 && (
+            <table className="r-kv r-c-kv"><tbody>
+              {contactRows().map(([k, v]) => <tr key={k}><td>{k}</td><td>{v}</td></tr>)}
+            </tbody></table>
+          )}
         </div>
       </div>
     </BodyPage>
