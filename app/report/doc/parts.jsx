@@ -2,6 +2,7 @@
 // report.css (all var()s from lib/reportStyle.js), content from
 // lib/reportContent.js — nothing here decides a colour, size or wording.
 import { BRAND } from '@/lib/reportStyle'
+import { LOGOS, logoWidth } from '@/lib/brand'
 
 export function Sheet({ className = '', children }) {
   return <div className="r-sheet"><div className={`r-page ${className}`}>{children}</div></div>
@@ -10,7 +11,11 @@ export function Sheet({ className = '', children }) {
 export function RunningHeader({ ctx }) {
   return (
     <div className="r-rh">
-      <div className="r-rh-brand"><i>{BRAND.mark}</i>{BRAND.name} <span>· {ctx.short}</span></div>
+      <div className="r-rh-brand">
+        {/* eslint-disable-next-line @next/next/no-img-element -- static SVG logo, see CoverPage */}
+        <img src={LOGOS.lockup.src} alt={BRAND.name} width={logoWidth(LOGOS.lockup, 20)} height={20} />
+        <span>· {ctx.short}</span>
+      </div>
       <div className="r-rh-doc">Feasibility Report · Ref {ctx.reference}</div>
     </div>
   )
@@ -19,7 +24,7 @@ export function RunningHeader({ ctx }) {
 export function RunningFooter({ page, ctx }) {
   return (
     <div className="r-rf">
-      <span><b>{BRAND.name}</b> · {BRAND.strapline} · {BRAND.web} · Indicative only</span>
+      <span><b>{BRAND.name}</b> · {BRAND.descriptor}{BRAND.siteUrl ? ` · ${BRAND.siteUrl}` : ''} · Indicative only</span>
       <span>Page {page} of {ctx.totalPages}</span>
     </div>
   )
