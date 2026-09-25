@@ -1,19 +1,20 @@
 /**
- * scripts/dev-open.mjs — `next dev` with the local access gates OPEN.
+ * scripts/dev-open.mjs — `next dev` with the local sign-in and admin gates OPEN.
  *
- * Both gates in proxy.ts fail open in development only when their code env
- * var is unset. .env.local normally sets ACCESS_CODE, so a plain `npm run dev`
- * is gated exactly like production. For local verification (and for
- * scripts/make-sample.mjs) it is useful to run without the gate; Next never
- * overwrites a variable that is already defined in the environment, so
- * defining both codes as empty here is enough to open them.
+ * A plain `npm run dev` requires a real account (and so a KV store), exactly
+ * like production. For local verification (and for scripts/make-sample.mjs) it
+ * is useful to run without it: AUTH_OPEN=1 treats every request as a local
+ * developer account (lib/auth.js — ignored in production), and an empty
+ * ADMIN_CODE opens the admin gate in development. Next never overwrites a
+ * variable that is already defined in the environment, so setting them here is
+ * enough.
  *
  * Never used in production — it is only referenced from .claude/launch.json.
  * Extra arguments (e.g. --port) are passed straight through to `next dev`.
  */
 import { spawn } from 'node:child_process'
 
-process.env.ACCESS_CODE = ''
+process.env.AUTH_OPEN = '1'
 process.env.ADMIN_CODE = ''
 // NRM1 v5.2: verify against the workbook in the repository (the loader reads a
 // non-URL value as a local path). Set RATES_FILE_URL yourself to override.

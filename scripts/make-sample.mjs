@@ -6,7 +6,7 @@
  * the public sample the /sample page renders. Run it whenever the report
  * structure changes so the sample keeps showing the current output.
  *
- * Needs the dev server running with the access gate open (no ACCESS_CODE) and
+ * Needs the dev server running with sign-in open (scripts/dev-open.mjs sets AUTH_OPEN=1) and
  * no KV configured, so generate-report runs the whole pipeline inline and
  * returns the complete record in one response:
  *
