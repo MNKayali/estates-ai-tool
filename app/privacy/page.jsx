@@ -1,7 +1,7 @@
 /**
  * /privacy — Privacy Notice (UK GDPR / Data Protection Act 2018)
  * Operator: Projento
- * Last reviewed: 29 May 2026
+ * Last reviewed: 25 September 2026
  *
  * TODO: Add a contact email address to the "Your rights" section below.
  *       Search for "ADD-YOUR-EMAIL" and replace with your real address.
@@ -71,13 +71,13 @@ export default function PrivacyPage() {
           Privacy Notice
         </h1>
         <p style={{ ...body, color: '#666', marginBottom: '32px' }}>
-          Last reviewed: 29 May 2026 &nbsp;|&nbsp; This notice applies to all authorised users of {BRAND.name}.
+          Last reviewed: 25 September 2026 &nbsp;|&nbsp; This notice applies to all authorised users of {BRAND.name}.
         </p>
 
         <Section title="1. Who processes your data">
           <p style={body}>
             {BRAND.name} is an internal planning tool. The <strong>data controller</strong> is the
-            organisation or individual who operates this instance of the tool and controls the access code.
+            organisation or individual who operates this instance of the tool and issues user accounts.
             If you are an authorised user within an organisation, your data controller is that organisation.
           </p>
           <p style={body}>
@@ -98,13 +98,18 @@ export default function PrivacyPage() {
               'Legitimate interests: supporting internal estates planning and capital investment appraisal',
             ],
             [
-              'Generated report content — cost estimate, programme table, risk register, written sections, report ID',
-              'Stored for up to 90 days to allow the shareable report link to work. Without this, links would break immediately.',
+              'Account details — your name, email address, a one-way hash of your password (never the password itself), account status, and the dates you were invited and last signed in',
+              'Signing you in, sending your invitation and password-reset emails, and showing you your own reports.',
+              'Legitimate interests: security and access control',
+            ],
+            [
+              'Generated report content — cost estimate, programme table, risk register, written sections, report ID, linked to your account',
+              'Kept so you can reopen and download your reports from “My reports”. Only you (and the tool administrator) can open them.',
               'Legitimate interests',
             ],
             [
-              'Session cookie (estate_access) — a value confirming you have entered a valid access code',
-              'Controlling who can access the tool. No personal information is stored in this cookie.',
+              'Session cookie (projento_session) — a signed value identifying your account',
+              'Keeping you signed in. It contains an account reference, not your name, email or password.',
               'Legitimate interests: security and access control',
             ],
             [
@@ -128,7 +133,7 @@ export default function PrivacyPage() {
 
         <Section title="3. Third-party services that process your data">
           <p style={body}>
-            Running this tool requires three external services. Each processes a defined subset of your data:
+            Running this tool requires the external services below. Each processes a defined subset of your data:
           </p>
           <DataTable rows={[
             ['Service', 'What data is sent', 'Where data is held', 'Transfer mechanism'],
@@ -146,9 +151,15 @@ export default function PrivacyPage() {
             ],
             [
               'Upstash Inc. (via Vercel KV) — report storage',
-              'The full generated report payload (cost figures, programme, questionnaire answers) is stored in an Upstash Redis database. This data is what makes the 90-day shareable report link work.',
+              'Your account details and your generated reports (cost figures, programme, questionnaire answers) are stored in an Upstash Redis database.',
               'EU-West, London (lhr1) — data does not leave the UK/EU',
               'No international transfer — data held in UK/EU region.',
+            ],
+            [
+              'Resend Inc. — account emails (only when enabled)',
+              'Your name, your email address, and the text of the invitation or password-reset email sent to you.',
+              'United States',
+              'UK IDTA / Standard Contractual Clauses. Resend\'s DPA applies.',
             ],
             [
               'Sentry Inc. — error monitoring',
@@ -161,8 +172,10 @@ export default function PrivacyPage() {
 
         <Section title="4. How long we keep your data">
           <ul style={{ paddingLeft: '20px', margin: '0 0 10px' }}>
-            <li style={li}><strong>Generated reports</strong> — automatically and permanently deleted from the database after <strong>90 days</strong>. After this point the shareable link will no longer work.</li>
-            <li style={li}><strong>Session cookie</strong> — deleted when you close your browser, or automatically after 24 hours.</li>
+            <li style={li}><strong>Generated reports</strong> — kept until you delete them from “My reports”, or until your account is closed. Deletion is immediate and permanent. Reports created before accounts were introduced are deleted automatically 90 days after they were generated.</li>
+            <li style={li}><strong>Account details</strong> — kept while your account exists. Ask the administrator to close your account and delete them.</li>
+            <li style={li}><strong>Invitation and reset links</strong> — expire after 7 days and 1 hour respectively, and work only once.</li>
+            <li style={li}><strong>Session cookie</strong> — expires 30 days after you sign in, or when you sign out.</li>
             <li style={li}><strong>Error logs (Sentry)</strong> — retained by Sentry for up to 90 days on our current plan, then deleted.</li>
             <li style={li}><strong>Analytics events (Vercel)</strong> — aggregated counts only; no individual event records are retained.</li>
           </ul>
@@ -170,10 +183,11 @@ export default function PrivacyPage() {
 
         <Section title="5. Cookies">
           <p style={body}>
-            This tool uses <strong>one cookie</strong>: <code style={{ background: '#F0F2F4', padding: '1px 5px', borderRadius: '3px' }}>estate_access</code>.
-            This is a session cookie. It stores confirmation that you have entered a valid access code.
-            It contains no personal information, expires when you close your browser, and is never
-            used for advertising or cross-site tracking.
+            This tool uses <strong>one cookie</strong> for signed-in users: <code style={{ background: '#F0F2F4', padding: '1px 5px', borderRadius: '3px' }}>projento_session</code>.
+            It keeps you signed in, contains a signed account reference (not your name, email or
+            password), expires after 30 days or when you sign out, and is never used for advertising or
+            cross-site tracking. It is strictly necessary for the service, so no consent is required.
+            The administrator&apos;s area uses a second cookie of the same kind, <code style={{ background: '#F0F2F4', padding: '1px 5px', borderRadius: '3px' }}>estate_admin</code>.
           </p>
           <p style={body}>
             Vercel Analytics does <strong>not</strong> set any cookies. No consent banner is required
@@ -186,17 +200,16 @@ export default function PrivacyPage() {
           <p style={body}>You have the right to:</p>
           <ul style={{ paddingLeft: '20px', margin: '0 0 10px' }}>
             <li style={li}><strong>Access</strong> — ask for a copy of personal data we hold about you.</li>
-            <li style={li}><strong>Erasure</strong> — ask us to delete your data. For report data this happens automatically at 90 days, but we can delete earlier on request.</li>
+            <li style={li}><strong>Erasure</strong> — delete any of your reports yourself from “My reports”, or ask us to close your account and delete everything linked to it.</li>
             <li style={li}><strong>Rectification</strong> — ask us to correct inaccurate data.</li>
             <li style={li}><strong>Restriction</strong> — ask us to pause processing while a query is resolved.</li>
             <li style={li}><strong>Object</strong> — object to processing based on legitimate interests.</li>
           </ul>
           <p style={body}>
-            To exercise any right, or to request deletion of a specific report before its 90-day expiry,
-            contact us. {/* TODO: replace the line below with your real email address */}
+            To exercise any right, contact us. {/* TODO: replace the line below with your real email address */}
           </p>
           <p style={{ ...body, background: '#F8F1E2', border: `1px solid ${BLUE}`, borderRadius: '4px', padding: '12px 14px' }}>
-            <strong>Contact:</strong> Reach the tool operator via the access code holder for your organisation,
+            <strong>Contact:</strong> Reach the tool operator through the person who invited you,
             or email{' '}
             <span style={{ fontFamily: 'monospace', background: '#DBEAFE', padding: '1px 6px', borderRadius: '3px' }}>
               [ADD-YOUR-EMAIL@HERE.COM]
@@ -227,8 +240,8 @@ export default function PrivacyPage() {
           {BRAND.name} &nbsp;·&nbsp;
           <a href="/terms" style={{ color: BLUE }}>Terms of Use</a>
           &nbsp;·&nbsp;
-          <a href="/access" style={{ color: BLUE }}>Return to tool</a>
-          &nbsp;·&nbsp; Last reviewed 29 May 2026
+          <a href="/reports" style={{ color: BLUE }}>Return to tool</a>
+          &nbsp;·&nbsp; Last reviewed 25 September 2026
         </p>
       </footer>
 

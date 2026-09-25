@@ -166,6 +166,9 @@ export default function ReportRenderer({ data, reportId, sample = false }) {
             </div>
           ) : (
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button onClick={() => router.push('/reports')} style={btnStyle('outline')}>
+              My reports
+            </button>
             <button onClick={() => {
               // Without this, "New Report" landed on a form silently
               // pre-filled with this project's answers — there was no
@@ -182,6 +185,7 @@ export default function ReportRenderer({ data, reportId, sample = false }) {
             </button>
             {reportId && (
               <button onClick={copyLink}
+                title="Opens this report on any device where you are signed in"
                 style={btnStyle(copied ? 'copied' : 'link')}>
                 {copied ? '✓ Copied!' : '🔗 Copy Link'}
               </button>

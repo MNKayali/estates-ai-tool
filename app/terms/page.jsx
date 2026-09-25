@@ -1,7 +1,7 @@
 /**
  * /terms — Terms of Use
  * Operator: Projento
- * Last reviewed: 29 May 2026
+ * Last reviewed: 25 September 2026
  * Governing law: England and Wales
  */
 import Logo from '../components/Logo'
@@ -44,7 +44,7 @@ export default function TermsPage() {
           Terms of Use
         </h1>
         <p style={{ ...body, color: '#666', marginBottom: '32px' }}>
-          Last reviewed: 29 May 2026 &nbsp;|&nbsp; Governing law: England and Wales
+          Last reviewed: 25 September 2026 &nbsp;|&nbsp; Governing law: England and Wales
         </p>
 
         <Section title="1. About this tool">
@@ -54,7 +54,7 @@ export default function TermsPage() {
             engaged in early-stage estates planning and capital investment appraisal.
           </p>
           <p style={body}>
-            Access is restricted to authorised users only. By entering your access code and using this tool
+            Access is restricted to invited users with their own account. By signing in and using this tool
             you agree to these terms.
           </p>
         </Section>
@@ -99,7 +99,7 @@ export default function TermsPage() {
         <Section title="4. Authorised use">
           <p style={body}>You agree to use this tool solely for internal pre-design planning purposes and to:</p>
           <ul style={{ paddingLeft: '20px', margin: '0 0 10px' }}>
-            <li style={li}>keep your access code confidential and not share it with unauthorised persons;</li>
+            <li style={li}>keep your password confidential, not share your account, and tell us straight away if you think someone else has used it;</li>
             <li style={li}>treat all outputs as indicative and subject to professional review;</li>
             <li style={li}>not enter personal data about individuals into the questionnaire fields
               (the tool is designed for project-level data — building type, size, location — not personal records);</li>
@@ -166,8 +166,8 @@ export default function TermsPage() {
           {BRAND.name} &nbsp;·&nbsp;
           <a href="/privacy" style={{ color: BLUE }}>Privacy Notice</a>
           &nbsp;·&nbsp;
-          <a href="/access" style={{ color: BLUE }}>Return to tool</a>
-          &nbsp;·&nbsp; Last reviewed 29 May 2026
+          <a href="/reports" style={{ color: BLUE }}>Return to tool</a>
+          &nbsp;·&nbsp; Last reviewed 25 September 2026
         </p>
       </footer>
 

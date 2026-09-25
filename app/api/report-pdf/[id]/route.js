@@ -7,16 +7,18 @@
  * margins, running header/footer and "Page N of M", so Puppeteer prints with
  * zero margins and no header/footer template.
  *
- * Flow: launch Chromium → set the access cookie → navigate to the live
+ * Flow: launch Chromium → hand it the caller's own cookies → navigate to the live
  * /report/[id]?pdf=1 page → wait for the React render → page.pdf().
  *
- * Protected by proxy.ts (estate_access cookie). The route reads KV directly to
- * confirm the report exists and to name the download.
+ * Protected by proxy.ts (signed-in users) and limited to the report's owner or
+ * the admin. The route reads KV directly to confirm the report exists and to
+ * name the download.
  *
  * SECURITY: never reference AI_API_KEY here.
  */
 import { getReport } from '@/lib/kv'
-import { signAccessCode } from '@/lib/cookieAuth'
+import { authoriseReport } from '@/lib/auth'
+import { SESSION_COOKIE } from '@/lib/session'
 import { reportFileName } from '@/lib/brand'
 import { reportReference } from '@/lib/reportContent'
 
@@ -40,8 +42,8 @@ async function launchBrowser() {
 }
 
 function getOrigin(request) {
-  // Prefer a server-controlled origin. This origin is handed the access-code
-  // cookie below, so it must NOT be derived from client-supplied Host /
+  // Prefer a server-controlled origin. This origin is handed the caller's
+  // session cookie below, so it must NOT be derived from client-supplied Host /
   // X-Forwarded-Host headers (which a caller can spoof to exfiltrate the cookie).
   if (process.env.REPORT_ORIGIN) return process.env.REPORT_ORIGIN
   // A preview must print its own pages: the production URL runs different code
@@ -74,6 +76,8 @@ export async function GET(request, { params }) {
       { status: 404 }
     )
   }
+  const auth = await authoriseReport(request, data)
+  if (auth.response) return auth.response
 
   // A record freshly created by generate-report has no docx yet — the AI
   // prose (Phase 2) hasn't finished. Rendering a PDF now would just capture
@@ -90,13 +94,13 @@ export async function GET(request, { params }) {
   try {
     browser = await launchBrowser()
 
-    // Present the access cookie so the protected /report and /api/reports load.
-    if (process.env.ACCESS_CODE) {
-      await browser.setCookie({
-        name: 'estate_access',
-        value: await signAccessCode(process.env.ACCESS_CODE),
-        url: origin,
-      })
+    // Present the caller's own cookies — the ones that were just authorised to
+    // see this report — so the protected /report and /api/reports load for the
+    // headless browser exactly as they did for the caller. Only ever sent to
+    // the server-controlled origin above.
+    for (const name of [SESSION_COOKIE, 'estate_admin']) {
+      const value = request.cookies.get(name)?.value
+      if (value) await browser.setCookie({ name, value, url: origin })
     }
 
     const page = await browser.newPage()

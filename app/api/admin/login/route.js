@@ -3,16 +3,15 @@
  *
  * Validates the admin code and sets a 30-day httpOnly `estate_admin` cookie.
  * This route is intentionally public (it is how you authenticate as admin) and
- * is excluded from the admin gate in proxy.ts. Mirrors /api/check-access but
- * against ADMIN_CODE and a separate cookie, so admin access is distinct from the
- * colleague ACCESS_CODE.
+ * is excluded from the admin gate in proxy.ts. A single shared admin code with its
+ * own cookie, separate from the user accounts (lib/users.js).
  */
 import { NextResponse } from 'next/server'
 import { signAccessCode } from '@/lib/cookieAuth'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 
 export async function POST(request) {
-  // Tighter than /api/check-access: the admin code is a higher-value target
+  // Tighter than user sign-in: the admin code is a higher-value target
   // (every report's id/metadata, all free-text feedback, and a config oracle
   // naming which secrets are unset).
   const rl = await checkRateLimit('admin-login', request, { requests: 5, window: '10 m' })

@@ -21,7 +21,10 @@ export default function LandingPage() {
         <div style={wrap(1120)}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0' }}>
             <Brand />
-            <Link href="/questionnaire" className="btn btn-primary">Launch tool ▸</Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Link href="/reports" className="btn btn-ghost">My reports</Link>
+              <Link href="/questionnaire" className="btn btn-primary">Launch tool ▸</Link>
+            </div>
           </div>
         </div>
       </header>
@@ -60,7 +63,7 @@ export default function LandingPage() {
           <Stat value="NRM1" label="Cost methodology" />
           <Stat value="S1–S6" label="Programme size bands" />
           <Stat value="100%" label="Figures traced to benchmark data" />
-          <Stat value="90 days" label="Shareable report links" />
+          <Stat value="Saved" label="Reports kept in your account" />
         </Card>
       </section>
 

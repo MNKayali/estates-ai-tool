@@ -33,6 +33,7 @@ import { createReport } from '@/lib/kv'
 import { runSenseCheck, refreshBudget } from '@/lib/senseCheck'
 import { computeConfidence, runProseSequential, scrubAnswers } from '@/lib/prose'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
+import { getSessionUser, unauthorisedResponse } from '@/lib/auth'
 
 // Report a caught pipeline failure to Sentry with a scrubbed projection of the
 // answers that triggered it, so a crash a colleague never reports still arrives
@@ -54,11 +55,16 @@ function capturePipelineError(e, step, answers) {
 export const maxDuration = 60
 
 export async function POST(request) {
-  // Generous relative to /api/check-access — this route is now cheap
+  // Generous relative to sign-in — this route is now cheap
   // CPU-only work in production, but still creates a KV record and (with no
   // KV configured) makes a real AI call, so it isn't unbounded.
   const rl = await checkRateLimit('generate-report', request, { requests: 30, window: '10 m' })
   if (!rl.allowed) return rateLimitedResponse(rl.retryAfterSeconds)
+
+  // proxy.ts already requires a session; the user is read again here because
+  // the report is stamped with its owner.
+  const user = await getSessionUser(request)
+  if (!user) return unauthorisedResponse()
 
   // Request-level clock. Only exercised by the KV-unavailable fallback below —
   // the normal path never gets close to it.
@@ -199,6 +205,7 @@ export async function POST(request) {
       confidence,
       answers,
       generatedAt,
+      ownerId:     user.uid,
     }
 
     const kvOk = await createReport(reportId, record)

@@ -564,8 +564,8 @@ export default function QuestionnairePage() {
   const [loading, setLoading] = useState(false)
   const [loadingMsg, setLoadingMsg] = useState(0)
   const [error, setError] = useState('')
-  // Set alongside `error` only for a 401 from the access gate (a stale/expired
-  // cookie) — the error banner offers a real link to re-authenticate rather
+  // Set alongside `error` only for a 401 from the sign-in gate (an expired
+  // session) — the error banner offers a real link to re-authenticate rather
   // than leaving the user stuck reading the proxy's raw message.
   const [authError, setAuthError] = useState(false)
   const [validationErrors, setValidationErrors] = useState({})
@@ -906,11 +906,10 @@ export default function QuestionnairePage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // The 30-day access cookie previously had no way to revoke short of clearing
-  // browser data by hand — relevant on a shared machine.
+  // Signing out matters on a shared machine: the session cookie lasts 30 days.
   async function logout() {
     try { await fetch('/api/logout', { method: 'POST' }) } catch {}
-    router.push('/access')
+    router.push('/login')
   }
 
   async function submit() {
@@ -1016,12 +1015,16 @@ export default function QuestionnairePage() {
             <Logo variant="white" height={24} compactBelow360 />
           </a>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <span className="mono" style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase' }}>
+            <span className="mono hide-sm" style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase' }}>
               Stage 0–1 Questionnaire
             </span>
+            <Link href="/reports"
+              style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', textDecoration: 'none', fontFamily: 'var(--font-body)' }}>
+              My reports
+            </Link>
             <button onClick={logout}
-              style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.55)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
-              Log out
+              style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.75)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+              Sign out
             </button>
           </div>
         </div>
@@ -1098,7 +1101,7 @@ export default function QuestionnairePage() {
             {authError && (
               <>
                 {' '}
-                <Link href="/access" style={{ color: 'var(--danger)', textDecoration: 'underline', fontWeight: 600 }}>
+                <Link href="/login?from=/questionnaire" style={{ color: 'var(--danger)', textDecoration: 'underline', fontWeight: 600 }}>
                   Sign in again →
                 </Link>
               </>
