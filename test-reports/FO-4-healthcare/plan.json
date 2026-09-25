@@ -1,0 +1,150 @@
+{
+ "id": "FO-4-healthcare",
+ "projectType": "Fit-out",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Clinic services renewal, Grove Street Health Centre"
+   },
+   {
+    "q": "Q1.1",
+    "value": "L7"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Fit-out"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Healthcare"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1900–1979"
+   },
+   {
+    "q": "Q1.5",
+    "value": "620"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Renew the clinic's heating, power, lighting and fire systems to pass the next CQC estates inspection, and add a treatment cleanroom, clinical room and medical gas outlets. Deliver in phases so the clinic can keep seeing patients in unaffected wings throughout."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Full systems replacement"
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "NHS design guide"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Ageing or inadequate M&E",
+     "Fire safety deficiencies"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Services last touched in a partial 1998 refit; no M&E renewal since."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos management survey",
+     "Fire risk assessment"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "No consent required"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Restricted working hours"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Clinic remains open for patients in the unaffected wings throughout; infection control protocols apply to any works adjoining clinical areas."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-03-31"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-16"
+   },
+   {
+    "q": "Q4.3",
+    "value": "950000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Funder / compliance requirement",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Avoidance of compliance cost or penalty"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0024",
+   "S-0034",
+   "S-0061",
+   "S-0062",
+   "S-0043",
+   "S-0053"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [],
+  "method": null
+ }
+}

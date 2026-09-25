@@ -20,8 +20,8 @@ function LinesTable({ rows, total, m }) {
               <td>{r.item.description}{r.item.aiEstimate ? ` ${UNVERIFIED_MARK}` : ''}</td>
               <td className="r-num">{lineQty(r.item)}</td>
               <td className="r-rate">{lineBasisWord(r.item)}</td>
-              <td className="r-num">{m(r.item.lineLow, true)}</td>
-              <td className="r-num">{m(r.item.lineHigh, true)}</td>
+              <td className="r-num">{m(r.low ?? r.item.lineLow, true)}</td>
+              <td className="r-num">{m(r.high ?? r.item.lineHigh, true)}</td>
             </tr>
           )))}
         {total && <tr className="r-tot"><td></td><td>Works cost total</td><td></td><td></td><td className="r-num">{m(total.low, true)}</td><td className="r-num">{m(total.high, true)}</td></tr>}

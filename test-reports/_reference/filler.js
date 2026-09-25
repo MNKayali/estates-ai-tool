@@ -32,6 +32,10 @@ window.__fill = async (plan, section) => {
         if (!b) misses.push(`${q}: no option "${v}"`)
         else if (b.getAttribute('aria-checked') !== 'true') { b.click(); await sleep(80) }
       }
+      if (step.other) {   // e.g. Q2.5 "Other" → its describe box appears in the same card
+        const t = await waitFor(() => card(q)?.querySelector('textarea, input[type=text]'))
+        t ? setValue(t, step.other) : misses.push(`${q}: no box for "${step.other}"`)
+      }
       return
     }
     if (q === 'Q4.1') {

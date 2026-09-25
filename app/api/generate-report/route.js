@@ -345,6 +345,8 @@ function serializeProgramme(programme) {
     constructionWeeks:   programme.constructionWeeks,
     handoverWeeks:       programme.handoverWeeks,
     planningWeeks:       programme.planningWeeks,
+    planningStatus:      programme.planningStatus,
+    planningAlongside:   programme.planningAlongside,
     bcWeeks:             programme.bcWeeks,
     targetStatus:        programme.targetStatus,
     targetNote:          programme.targetNote,

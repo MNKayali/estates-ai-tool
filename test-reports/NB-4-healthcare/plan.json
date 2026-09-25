@@ -1,0 +1,198 @@
+{
+ "id": "NB-4-healthcare",
+ "projectType": "New Build",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Bristol Harbourside health and diagnostics hub"
+   },
+   {
+    "q": "Q1.1",
+    "value": "BS1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "New Build"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "2"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Healthcare"
+   },
+   {
+    "q": "Q1.5",
+    "value": "950"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Build a new two-storey health and diagnostics hub on the edge of the hospital campus, consolidating outpatient services currently in leased space nearby. Tie into the campus district heating network and provide clinical, medical gas and nurse call infrastructure throughout."
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "NHS design guide",
+     "Acoustic"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "High water table",
+     "Underground services or obstructions"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Topographic",
+     "Ground investigation",
+     "Utilities / statutory services search",
+     "Flood risk assessment"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Site sits at the edge of a live hospital campus that remains fully operational throughout; deliveries and noisy works must be sequenced to avoid disrupting adjoining clinical services."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Conservation area or Article 4 direction"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2028-03-31"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-04-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "7000000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Design quality",
+     "Funder / compliance requirement"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Energy or operational cost savings"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "45000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0034",
+   "S-0061",
+   "S-0062",
+   "S-0026",
+   "S-0054",
+   "S-0074",
+   "S-0057"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0039",
+    "name": "Heating and hot water",
+    "pick": "One",
+    "key": "S-0039-04",
+    "label": "System: District heating · Scope: Full system",
+    "dims": [
+     {
+      "dim": "System",
+      "value": "District heating"
+     },
+     {
+      "dim": "Scope",
+      "value": "Full system"
+     }
+    ]
+   },
+   {
+    "id": "S-0027",
+    "name": "Kitchens",
+    "pick": "One",
+    "key": "S-0027-02",
+    "label": "Type: Tea point",
+    "dims": [
+     {
+      "dim": "Type",
+      "value": "Tea point"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0026",
+    "name": "Showers",
+    "pick": "One",
+    "key": "S-0026-01",
+    "label": "Standard",
+    "qty": "2"
+   },
+   {
+    "id": "S-0074",
+    "name": "Car parking",
+    "pick": "One",
+    "key": "S-0074-01",
+    "label": "Standard",
+    "qty": "45"
+   }
+  ],
+  "method": "Traditional"
+ }
+}

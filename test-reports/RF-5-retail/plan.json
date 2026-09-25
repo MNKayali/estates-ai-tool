@@ -1,0 +1,157 @@
+{
+ "id": "RF-5-retail",
+ "projectType": "Refurbishment",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Former bank branch retail conversion"
+   },
+   {
+    "q": "Q1.1",
+    "value": "L1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Refurbishment"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "2"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Retail"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1900–1979"
+   },
+   {
+    "q": "Q1.5",
+    "value": "340"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Strip out the former bank's strongroom, security screens and cellular back-office layout and replace with an open sales floor, stockroom and updated services, ready for the retailer's fit-out period to begin."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Full systems replacement"
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "None"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Ageing or inadequate M&E",
+     "Drainage issues"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "No works since bank closure in 2024; strongroom and screens still in place."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Condition",
+     "Structural"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Change of use"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Restricted working hours"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Landlord requires the strongroom door and vault removed before the retailer's own contractor takes possession."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-01-18"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Speed",
+     "Lowest cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Increased asset value"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0035",
+   "S-0053"
+  ],
+  "remove": [
+   "S-0039"
+  ],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0035",
+    "name": "Retail",
+    "pick": "One",
+    "key": "S-0035-01",
+    "label": "Standard",
+    "qty": "220"
+   }
+  ],
+  "method": null
+ }
+}
