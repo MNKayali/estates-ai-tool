@@ -1,11 +1,12 @@
 /**
  * /privacy — Privacy Notice (UK GDPR / Data Protection Act 2018)
- * Operator: Estates AI Tool
+ * Operator: Projento
  * Last reviewed: 25 September 2026
  *
  * TODO: Add a contact email address to the "Your rights" section below.
  *       Search for "ADD-YOUR-EMAIL" and replace with your real address.
  */
+import { BRAND } from '@/lib/reportStyle'
 
 const NAVY = '#1A2E4A'
 const BLUE = '#A86F12'   // brand accent (deep amber) — name kept to avoid churn
@@ -57,8 +58,8 @@ export default function PrivacyPage() {
       <header style={{ background: NAVY, padding: '12px 24px' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-            <div style={{ width: '32px', height: '32px', background: BLUE, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '13px' }}>AI</div>
-            <span style={{ color: '#fff', fontWeight: 600, fontSize: '16px' }}>Estates AI Tool</span>
+            <div style={{ width: '32px', height: '32px', background: BLUE, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '13px' }}>{BRAND.mark}</div>
+            <span style={{ color: '#fff', fontWeight: 600, fontSize: '16px' }}>{BRAND.name}</span>
           </a>
         </div>
       </header>
@@ -70,12 +71,12 @@ export default function PrivacyPage() {
           Privacy Notice
         </h1>
         <p style={{ ...body, color: '#666', marginBottom: '32px' }}>
-          Last reviewed: 25 September 2026 &nbsp;|&nbsp; This notice applies to all authorised users of Estates AI Tool.
+          Last reviewed: 25 September 2026 &nbsp;|&nbsp; This notice applies to all authorised users of {BRAND.name}.
         </p>
 
         <Section title="1. Who processes your data">
           <p style={body}>
-            Estates AI Tool is an internal planning tool. The <strong>data controller</strong> is the
+            {BRAND.name} is an internal planning tool. The <strong>data controller</strong> is the
             organisation or individual who operates this instance of the tool and issues user accounts.
             If you are an authorised user within an organisation, your data controller is that organisation.
           </p>
@@ -236,7 +237,7 @@ export default function PrivacyPage() {
 
       <footer style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center' }}>
         <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>
-          Estates AI Tool &nbsp;·&nbsp;
+          {BRAND.name} &nbsp;·&nbsp;
           <a href="/terms" style={{ color: BLUE }}>Terms of Use</a>
           &nbsp;·&nbsp;
           <a href="/reports" style={{ color: BLUE }}>Return to tool</a>

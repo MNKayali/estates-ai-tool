@@ -12,6 +12,7 @@ import {
   isOffered, isItemAvailable, projectTypeUsesLevel,
 } from '../../lib/scopeEngine.js'
 import ScopePicker from './ScopePicker.jsx'
+import { BRAND } from '../../lib/reportStyle.js'
 import { titleLooksThin } from '../../lib/reportContent.js'
 import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
@@ -1010,8 +1011,8 @@ export default function QuestionnairePage() {
       <header className="sticky top-0 z-10 px-4" style={{ backgroundColor: 'var(--navy)', height: 56, display: 'flex', alignItems: 'center', boxShadow: '0 2px 10px rgba(14,27,46,.25)' }}>
         <div className="max-w-2xl mx-auto w-full flex items-center justify-between">
           <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-            <div style={{ width: 28, height: 28, background: 'var(--amber)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'var(--font-mono)', fontWeight: 500, fontSize: 11, letterSpacing: '0.4px', flexShrink: 0 }}>AI</div>
-            <span style={{ color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 17, letterSpacing: '0.2px' }}>Estates AI</span>
+            <div style={{ width: 28, height: 28, background: 'var(--amber)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'var(--font-mono)', fontWeight: 500, fontSize: 11, letterSpacing: '0.4px', flexShrink: 0 }}>{BRAND.mark}</div>
+            <span style={{ color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 17, letterSpacing: '0.2px' }}>{BRAND.name}</span>
           </a>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span className="mono hide-sm" style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase' }}>

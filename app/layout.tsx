@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, DM_Sans, DM_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
+import { BRAND } from "@/lib/reportStyle";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -25,7 +26,7 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Estates AI — RIBA Stage 0–1 Feasibility Reports",
+  title: `${BRAND.name} — RIBA Stage 0–1 Feasibility Reports`,
   description:
     "Generate professional RIBA Stage 0–1 feasibility reports in minutes. NRM1 cost estimate, programme, and risk register — deterministic benchmark data, AI narrative.",
 };

@@ -78,7 +78,7 @@ export default function MyReportsPage() {
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
             <div style={{ width: 32, height: 32, borderRadius: 7, display: 'grid', placeItems: 'center',
               background: 'linear-gradient(150deg, var(--navy), var(--ink-deep))', color: '#fff', fontWeight: 700,
-              fontFamily: 'var(--font-mono)', fontSize: 13 }}>AI</div>
+              fontFamily: 'var(--font-mono)', fontSize: 13 }}>{BRAND.mark}</div>
             <span className="display" style={{ fontWeight: 700, fontSize: 17, color: 'var(--ink)' }}>{BRAND.name}</span>
           </Link>
           <span style={{ marginLeft: 'auto', fontSize: 13, color: 'var(--text-soft)' }}>{user?.name || user?.email || ''}</span>
