@@ -997,7 +997,7 @@ export default function QuestionnairePage() {
             })}
           </div>
           <p style={{ margin: '26px 0 0', paddingTop: 18, borderTop: '1px solid var(--border)', fontSize: 12.5, lineHeight: 1.6, color: 'var(--text-mute)' }}>
-            Costs are calculated deterministically from NRM1 benchmark data — the AI never invents a figure. This usually takes 20–40 seconds.
+            Costs are calculated deterministically from NRM1 benchmark data, and every figure in the report traces back to it. This usually takes 20–40 seconds.
           </p>
         </div>
       </div>
@@ -1670,7 +1670,7 @@ export default function QuestionnairePage() {
             {showReportInstructions && (
               <QCard>
                 <Label>Q6.1 — Additional report instructions</Label>
-                <HelpText>Any specific tone, emphasis, or content requirements for the AI narrative.</HelpText>
+                <HelpText>Any specific tone, emphasis, or content requirements for the report's written sections.</HelpText>
                 <Textarea value={answers.q6_2_instructions} onChange={v => set('q6_2_instructions', v)} placeholder="e.g. Emphasise the compliance risk. Write for a non-technical audience. Focus on the programme risk." rows={3} />
               </QCard>
             )}
@@ -1710,7 +1710,7 @@ export default function QuestionnairePage() {
               </div>
               <div>
                 <p style={{ fontFamily: 'var(--font-body)', fontWeight: 700, color: '#fff', fontSize: '15px', marginBottom: 6 }}>Ready to generate</p>
-                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13.5px', lineHeight: 1.6 }}>Costs are calculated deterministically from NRM1 Excel benchmark data. The AI writes prose only — it never invents a number.</p>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13.5px', lineHeight: 1.6 }}>Costs are calculated deterministically from NRM1 Excel benchmark data. Every number in the report comes from that calculation.</p>
               </div>
             </div>
           </div>

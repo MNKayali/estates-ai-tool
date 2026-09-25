@@ -38,7 +38,7 @@ export async function POST(request) {
     q1_4_buildingAge: body?.buildingAge, q1_2_storeys: body?.storeys,
   })
   if (!ctx.PT) return Response.json({ error: 'Select a project type first.' }, { status: 400 })
-  if (!getAnthropicKey()) return Response.json({ error: 'AI is not configured on this deployment.' }, { status: 503 })
+  if (!getAnthropicKey()) return Response.json({ error: 'Scope suggestions are not configured on this deployment.' }, { status: 503 })
 
   const offered = cat.items.filter(it => isOffered(it, ctx) && isItemAvailable(it, ctx))
   // Tagged for this building use first, the rest after — the model sees the
@@ -121,7 +121,7 @@ ${catalogue}`
     })
     if (!res.ok) {
       const err = await res.json().catch(() => ({}))
-      return Response.json({ error: `AI request failed (${res.status}).`, detail: err?.error?.message }, { status: 502 })
+      return Response.json({ error: `Scope suggestion request failed (${res.status}).`, detail: err?.error?.message }, { status: 502 })
     }
     const msg = await res.json()
     const block = (msg.content || []).find(b => b.type === 'tool_use' && b.name === 'suggest_scope')
