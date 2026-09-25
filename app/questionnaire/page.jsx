@@ -1670,7 +1670,7 @@ export default function QuestionnairePage() {
             {showReportInstructions && (
               <QCard>
                 <Label>Q6.1 — Additional report instructions</Label>
-                <HelpText>Any specific tone, emphasis, or content requirements for the report's written sections.</HelpText>
+                <HelpText>Any specific tone, emphasis, or content requirements for the report&apos;s written sections.</HelpText>
                 <Textarea value={answers.q6_2_instructions} onChange={v => set('q6_2_instructions', v)} placeholder="e.g. Emphasise the compliance risk. Write for a non-technical audience. Focus on the programme risk." rows={3} />
               </QCard>
             )}
