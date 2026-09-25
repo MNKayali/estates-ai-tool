@@ -17,6 +17,8 @@
  */
 import { getReport } from '@/lib/kv'
 import { signAccessCode } from '@/lib/cookieAuth'
+import { reportFileName } from '@/lib/brand'
+import { reportReference } from '@/lib/reportContent'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -107,6 +109,14 @@ export async function GET(request, { params }) {
     // and that IBM Plex has loaded before the pages are printed.
     await page.waitForSelector('.r-cover', { timeout: 20000 })
     await page.evaluate(() => document.fonts.ready)
+    // The logos are <img> SVGs: wait until each has decoded, and refuse to
+    // print a report with a missing logo rather than ship a broken cover.
+    const missing = await page.evaluate(async () => {
+      const imgs = [...document.querySelectorAll('.r-page img')]
+      await Promise.all(imgs.map(i => i.decode().catch(() => {})))
+      return imgs.filter(i => !i.naturalWidth).map(i => i.getAttribute('src'))
+    })
+    if (missing.length) throw new Error(`logo image failed to load: ${[...new Set(missing)].join(', ')}`)
 
     const pdf = await page.pdf({
       format: 'A4',
@@ -116,12 +126,12 @@ export async function GET(request, { params }) {
       margin: { top: 0, right: 0, bottom: 0, left: 0 },
     })
 
-    const safeName = String(data.projectName || 'Report').replace(/[^a-z0-9 _-]/gi, '_')
+    const fileName = reportFileName(reportReference(id, data), 'pdf')
     return new Response(Buffer.from(pdf), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${safeName}_Stage1_Report.pdf"`,
+        'Content-Disposition': `attachment; filename="${fileName}"`,
         'Cache-Control': 'no-store',
       },
     })
