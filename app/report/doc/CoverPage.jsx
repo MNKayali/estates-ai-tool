@@ -1,5 +1,5 @@
 import { BRAND } from '@/lib/reportStyle'
-import { coverTitle, coverTitleSize, coverSubtitle, coverCostRange, confidenceWord, deriveCostRiskLevel } from '@/lib/reportContent'
+import { coverTitle, coverTitleSize, coverSubtitle, coverCostRange, confidenceWord, deriveCostRiskLevel, coverFactRows } from '@/lib/reportContent'
 import { Sheet } from './parts'
 
 export default function CoverPage({ data, ctx }) {
@@ -23,9 +23,7 @@ export default function CoverPage({ data, ctx }) {
       </div>
       <div className="r-cv-facts">
         <table className="r-facts"><tbody>
-          <tr><td>Project type</td><td>{cost?.projectType || answers?.q1_2_projectType}</td></tr>
-          {cost?.interventionLevel && <tr><td>Intervention</td><td>{cost.interventionLevel}</td></tr>}
-          <tr><td>Specification</td><td>{cost?.specLevel}</td></tr>
+          {coverFactRows(answers, cost).map(([k, v]) => <tr key={k}><td>{k}</td><td>{v}</td></tr>)}
         </tbody></table>
         <table className="r-facts"><tbody>
           <tr><td>Report date</td><td>{ctx.dateLong}</td></tr>

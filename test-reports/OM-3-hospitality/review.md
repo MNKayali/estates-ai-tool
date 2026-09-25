@@ -1,0 +1,25 @@
+# Review — OM-3-hospitality
+
+Verdict: Two clear defects — the Financial Case section is missing entirely despite Q5.1 giving a financial benefit, and the programme wrongly claims no planning application is needed and drops the planning stage despite Q3.4 = Full planning (which the cost build-up correctly applies); scope, risk register, target-date check and budget handling are otherwise all correct.
+
+## Issues
+| # | Severity | Category | Page | Report says | Expected (scenario) | Issue |
+|---|---|---|---|---|---|---|
+| 1 | High | Financial case | — | No "Financial Case" section anywhere; the report goes straight from "05 Order of Cost Estimate" (p.6–7) to "06 Procurement Recommendation" (p.8) | "Financial case shown as increased asset value with no annual figure given" (Q5.1 = Increased asset value, Q5.2 blank) | The Financial Case section is missing entirely — the phrase "asset value" doesn't appear anywhere in the report. Per the app's own rule (Financial Case shows whenever Q5.1 gives a benefit, and only uses Q5.2 for the annual-figure/payback line when one is given), this should have rendered with the benefit type shown and no payback figure — not been suppressed outright. This looks like a bug where a blank Q5.2 drops the whole section instead of just the annual-figure line. |
+| 2 | High | Programme | 5, 7 | P.5 narrative: "No planning application is assumed; building control approval runs alongside technical design." The Programme detail table has no Planning / planning-consent-determination stage at all. | Q3.4 Planning consent: Full planning | Directly contradicts the stated answer. The cost build-up on p.7 correctly applies "Developer and project costs 3.5%: the standard rate for full planning (3–4%, use 3.5%)" — so the engine does know full planning is required — but the programme calculator has dropped the planning stage and states the opposite. The 139-week programme therefore doesn't include any time for planning determination, understating both the true duration and the associated risk. |
+| 3 | Low | Prose | 5 | "One client review gateway sit on the critical path before tender." | Grammatically correct sentence | "gateway sit" should be "gateway sits" — typo. |
+| 4 | Low | Prose | 3 | "Lifts -- Passenger: not priced (quantity computes to zero for this building (e.g. no upper floors on a single-storey building))." | Other or mixed doesn't ask storeys, so the report shouldn't assert or imply a specific storey count that isn't from the answers | The "e.g. … single-storey building" aside isn't grounded in any answer (storeys/height are never asked for this project type) and reads as inconsistent with the story — a seafront hotel with a spa, gym, restaurant wing and a roof terrace bar extension is not obviously single-storey. A hedged illustrative example, but still an unsupported specific detail about the building that a reader could take as fact. |
+
+## Expectations
+| Expectation | Result | Note |
+|---|---|---|
+| Cover/summary: [TEST] Cliffside Hotel & Leisure Club Refresh, Other or mixed, Hospitality / leisure, 1,800 m², BN1 | Pass | All fields correct; "South East" is right for BN1 (Brighton). |
+| Scope page lists ticked items incl. user quantities and options (Showers 24, Sports 450 m², Car parking 60, Roof terrace 150 m², Cycle storage 10, Pods, Ground source heat pump, Large electricity upgrade) plus full services/fire-safety/finishes list | Pass | All present and correct, including the explicit "Selected but not priced" disclosure for the Lifts item (quantity computes to zero) rather than silently dropping it. |
+| No level-of-intervention content anywhere | Pass | None found. |
+| No storeys or building-height content | Partly | No dedicated storeys/height field or section, but see Issue #4 — an unsupported aside implies a specific storey count. |
+| Risk register includes an inadequate-M&E risk and a fire-safety-deficiencies risk (Q3.1), and an ecological-features context risk (Q3.8) | Pass | R04 combines ageing M&E and fire-safety deficiencies; R02 covers ecological features/bat surveys. |
+| Programme shows Full planning and should flag whether the 2027-05-01 target date can be met, or say it can't | Fail | The target-date check itself is present and correct ("not achievable… approximately 113 weeks beyond the target"), but the programme explicitly states no planning application is assumed and has no planning stage — see Issue #2. |
+| Budget verdict: no comparison shown — Q4.3 was left blank | Pass | No budget/shortfall text appears anywhere, correctly. |
+| Financial case shown as increased asset value with no annual figure given | Fail | Section is missing entirely — see Issue #1. |
+| Occupation shown as fully occupied, driving a "minimise disruption" and phased-delivery narrative | Pass | R05 risk on full occupation/phased works; preliminaries and risk build-up both add loadings for "fully occupied throughout"; Procurement Recommendation text cites "priorities of speed and minimal disruption through phased sequencing". |
+| No "higher-risk building" content | Pass | None found. |

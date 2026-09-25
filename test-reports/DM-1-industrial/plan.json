@@ -1,0 +1,155 @@
+{
+ "id": "DM-1-industrial",
+ "projectType": "Demolition only",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Demolition of Vacant Warehouse, Unit 7 Wheatley Park"
+   },
+   {
+    "q": "Q1.1",
+    "value": "DN4"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Demolition only"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Industrial / warehouse"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1980–1999"
+   },
+   {
+    "q": "Q1.5",
+    "value": "4200"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Clear the vacant warehouse to deliver a serviced, vacant site ahead of a conditional sale for redevelopment. Ground contamination from historic transformer oil storage must be addressed before completion, and the shared estate electricity feed needs diverting around the plot boundary."
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "DNO"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Structural concerns",
+     "Contaminated land"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Partial asbestos survey commissioned in 2019 covering the roof only; never completed or acted on."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos refurbishment & demolition survey",
+     "Structural"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Prior approval"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-06-30"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-12-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "850000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Speed",
+     "Lowest cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0001",
+   "S-0004",
+   "S-0006",
+   "S-0007",
+   "S-0067"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0007",
+    "name": "Service diversions",
+    "pick": "One",
+    "key": "S-0007-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0006",
+    "name": "Tree removal",
+    "pick": "One",
+    "key": "S-0006-01",
+    "label": "Standard",
+    "qty": "8"
+   }
+  ],
+  "method": null
+ }
+}

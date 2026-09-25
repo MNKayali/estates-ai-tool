@@ -22,3 +22,6 @@ if (fs.existsSync(envPath)) {
 // the cost side, and pinned to exactly the workbook the code was written
 // against. Point RATES_FILE_URL_TEST elsewhere to test a different issue.
 process.env.RATES_FILE_URL = process.env.RATES_FILE_URL_TEST || 'NRM1_Cost_Estimate_Tool_v5_2.xlsx'
+// The programme workbook the same way (September 2026): tests follow the copy
+// on this branch, not whatever `main` serves. PROGRAMME_FILE_URL_TEST overrides.
+process.env.PROGRAMME_FILE_URL = process.env.PROGRAMME_FILE_URL_TEST || 'Estates_AI_Programme_v4_3.xlsx'

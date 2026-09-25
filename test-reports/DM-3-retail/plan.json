@@ -1,0 +1,129 @@
+{
+ "id": "DM-3-retail",
+ "projectType": "Demolition only",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Demolition of Former Department Store Unit"
+   },
+   {
+    "q": "Q1.1",
+    "value": "BN1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Demolition only"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Retail"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1900–1979"
+   },
+   {
+    "q": "Q1.5",
+    "value": "650"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Demolish the vacant department store unit to provide a cleared, serviced plot for a future speculative retail letting, while keeping the trading neighbours either side open and protecting the shared party walls throughout."
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "None"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Structural concerns"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Interior strip-out completed in 2025 by the outgoing tenant; shopfront and structure untouched."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos refurbishment & demolition survey"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Both neighbouring units trade throughout Saturdays and require step-free access maintained on the pavement at all times."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Conservation area or Article 4 direction"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-01-15"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Minimise disruption",
+     "Funder / compliance requirement"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0001",
+   "S-0007",
+   "S-0067",
+   "S-0079"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [],
+  "method": null
+ }
+}

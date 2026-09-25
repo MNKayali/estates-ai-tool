@@ -1,0 +1,160 @@
+{
+ "id": "FO-3-hospitality",
+ "projectType": "Fit-out",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Leisure wing reconfiguration, Harbourside Quarter"
+   },
+   {
+    "q": "Q1.1",
+    "value": "BS1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Fit-out"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Hospitality / leisure"
+   },
+   {
+    "q": "Q1.4",
+    "value": "Post-2000"
+   },
+   {
+    "q": "Q1.5",
+    "value": "2200"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Reconfigure a vacant former retail unit into a boutique hotel leisure wing — spa, gym and restaurant/bar — with a full new internal layout and complete M&E to suit. Deliver in phases so early-opening areas can start trading while later phases complete."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Reconfiguration or full redesign"
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "Net zero",
+     "Acoustic"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Structural concerns",
+     "Fire safety deficiencies"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Shell was last fitted out as retail space around 2005; no structural alterations since."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Condition",
+     "Fire risk assessment"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Change of use"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Scaffold licence or highway encroachment required"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Waterfront site with a shared public realm frontage; deliveries and any street works need harbourside authority sign-off."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Ecological features — roof voids, mature trees, water bodies, bat roost potential"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Design quality",
+     "Flexibility"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0024",
+   "S-0032",
+   "S-0037",
+   "S-0026",
+   "S-0044",
+   "S-0054"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0037",
+    "name": "Sports",
+    "pick": "One",
+    "key": "S-0037-01",
+    "label": "Standard",
+    "qty": "350"
+   },
+   {
+    "id": "S-0026",
+    "name": "Showers",
+    "pick": "One",
+    "key": "S-0026-01",
+    "label": "Standard",
+    "qty": "20"
+   }
+  ],
+  "method": null
+ }
+}

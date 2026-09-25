@@ -1,0 +1,23 @@
+{
+  "FO-1-offices": "7c82ae317fdd48eb",
+  "FO-2-retail": "704b2fe3e2d1457d",
+  "FO-3-hospitality": "eb52a701ff4c4ccf",
+  "DM-1-industrial": "9be4bdad2d23444c",
+  "DM-2-other": "70c640d8918c4625",
+  "DM-3-retail": "4703cafb157b4fa4",
+  "EW-1-education": "a34687713fd94ba7",
+  "EW-2-industrial": "1365b62db5f2432b",
+  "EW-3-mixed": "e78b80b676d945bb",
+  "EX-1-student": "c3e2ab4775d745b5",
+  "EX-2-healthcare": "8a07460543c44042",
+  "EX-3-residential": "c6935a82caa24234",
+  "NB-1-residential": "5e48a20ca2fb4710",
+  "NB-2-education": "e867988b232341db",
+  "NB-3-industrial": "9ce683329d554b8d",
+  "OM-1-mixed": "2ffa5c2844fe4d2d",
+  "OM-2-other": "5d4ce0dc25ce426b",
+  "OM-3-hospitality": "53a66e013a69442b",
+  "RF-1-offices": "521e22b730c448ab",
+  "RF-2-student": "52ed20f8ed014682",
+  "RF-3-healthcare": "e9f0cb59f3fe4996"
+}

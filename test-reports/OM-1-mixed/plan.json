@@ -1,0 +1,191 @@
+{
+ "id": "OM-1-mixed",
+ "projectType": "Other or mixed",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Broad Street Mixed-Use Refurbishment"
+   },
+   {
+    "q": "Q1.1",
+    "value": "NG1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Other or mixed"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Mixed use"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1900–1979"
+   },
+   {
+    "q": "Q1.5",
+    "value": "850"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Refurbish a vacant ground-floor retail unit and two floors of ageing office space above into a cohesive mixed-use scheme, bringing services and finishes up to a lettable standard while the upper-floor tenant remains partially in occupation. Fix damp in the rear return and give the building a marketable identity for both new retail and workspace tenants."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "Net zero"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Ageing or inadequate M&E",
+     "Damp or water ingress",
+     "Drainage issues"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Ground floor was last fitted as a card shop in the early 2000s; upper floors haven't been touched since a 1990s office fit-out."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos management survey",
+     "Condition",
+     "Structural",
+     "Utilities / statutory services search"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Change of use"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Upper-floor tenant needs at least one working WC and power throughout the works; the retail unit is fully vacant."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Attached to or within 3 m of a neighbouring building (party wall)"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-02-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "2800000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Design quality",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "185000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0003",
+   "S-0064",
+   "S-0065",
+   "S-0066",
+   "S-0018",
+   "S-0019",
+   "S-0020",
+   "S-0021",
+   "S-0022",
+   "S-0023",
+   "S-0024",
+   "S-0035",
+   "S-0028",
+   "S-0029",
+   "S-0039",
+   "S-0040",
+   "S-0041",
+   "S-0043",
+   "S-0044",
+   "S-0045",
+   "S-0046",
+   "S-0047",
+   "S-0049",
+   "S-0052",
+   "S-0053",
+   "S-0055",
+   "S-0081"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0035",
+    "name": "Retail",
+    "pick": "One",
+    "key": "S-0035-01",
+    "label": "Standard",
+    "qty": "120"
+   },
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "12"
+   }
+  ],
+  "method": null
+ }
+}

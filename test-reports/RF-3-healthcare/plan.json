@@ -1,0 +1,159 @@
+{
+ "id": "RF-3-healthcare",
+ "projectType": "Refurbishment",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Consulting room reconfiguration, Riverside Health Centre"
+   },
+   {
+    "q": "Q1.1",
+    "value": "CF14"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Refurbishment"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "1"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Healthcare"
+   },
+   {
+    "q": "Q1.4",
+    "value": "Post-2000"
+   },
+   {
+    "q": "Q1.5",
+    "value": "210"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Reconfigure the internal layout to convert an oversized waiting area into additional consulting and treatment rooms, upgrading clinical fittings, nurse call and medical gas provision to current standard. All work must be phased around continued patient sessions."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Reconfiguration or full redesign"
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "NHS design guide",
+     "Net zero"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Ageing or inadequate M&E",
+     "Fire safety deficiencies"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "No significant works since original 2003 fit-out beyond routine maintenance."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Condition",
+     "Fire risk assessment"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "No consent required"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Restricted working hours"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Building must remain open for patient appointments throughout; noisy or disruptive works restricted to outside clinic hours."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Conservation area or Article 4 direction"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-03-31"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-16"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Funder / compliance requirement",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Avoidance of compliance cost or penalty"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0024",
+   "S-0026",
+   "S-0034",
+   "S-0061",
+   "S-0062"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0026",
+    "name": "Showers",
+    "pick": "One",
+    "key": "S-0026-01",
+    "label": "Standard",
+    "qty": "2"
+   }
+  ],
+  "method": null
+ }
+}

@@ -1,0 +1,144 @@
+{
+ "id": "FO-2-retail",
+ "projectType": "Fit-out",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] New shop fit-out, 14 Kirkgate"
+   },
+   {
+    "q": "Q1.1",
+    "value": "LS2"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Fit-out"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Retail"
+   },
+   {
+    "q": "Q1.4",
+    "value": "Pre-1900"
+   },
+   {
+    "q": "Q1.5",
+    "value": "140"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Fit out a vacant high street unit for an independent homeware shop in time for Christmas trading, on a lean budget. Fabric and finishes only — new shopfront signage and a simple retail fit-out, nothing to the building's services."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Fabric and finishes only"
+   },
+   {
+    "q": "Q2.4",
+    "value": "Basic"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "None"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Damp or water ingress"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "None"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "No consent required"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Restricted working hours"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Unit has been empty for over a year; landlord has no recent condition records."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Conservation area or Article 4 direction"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2026-12-15"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-02"
+   },
+   {
+    "q": "Q4.3",
+    "value": "45000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Lowest cost",
+     "Speed"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Not yet confirmed"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0035",
+   "S-0029"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0035",
+    "name": "Retail",
+    "pick": "One",
+    "key": "S-0035-01",
+    "label": "Standard",
+    "qty": "110"
+   }
+  ],
+  "method": null
+ }
+}

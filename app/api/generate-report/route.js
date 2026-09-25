@@ -30,7 +30,7 @@ import { projectTypeUsesLevel } from '@/lib/scopeEngine'
 import { calculateProgramme } from '@/lib/programmeCalculator'
 import { buildReport } from '@/lib/reportBuilder'
 import { createReport } from '@/lib/kv'
-import { runSenseCheck, budgetVerdict } from '@/lib/senseCheck'
+import { runSenseCheck, refreshBudget } from '@/lib/senseCheck'
 import { computeConfidence, runProseSequential, scrubAnswers } from '@/lib/prose'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 
@@ -169,9 +169,11 @@ export async function POST(request) {
     // ▶ range_widths on '3. Settings'), and the grade is only known now. Warnings and the
     // grade itself depend on works.mid, which the range does not touch, so
     // the sense check is not re-run — only the budget verdict, which compares
-    // the stated budget against the (now wider or narrower) gross range.
+    // the stated budget against the (now wider or narrower) gross range, and
+    // the BUDGET_SHORTFALL warning with it (refreshBudget): the AI and the risk
+    // register must quote the same range the budget box prints.
     cost = await calculateCost(answers, programme.totalWeeks, programme.constructionWeeks, { rangeGrade: confidence.score })
-    senseCheck.budget = budgetVerdict(answers, cost)
+    refreshBudget(senseCheck, answers, cost)
 
     // ── Step 3: Save the deterministic record and return fast ────────────────
     const reportId    = crypto.randomUUID().replace(/-/g, '').slice(0, 16)

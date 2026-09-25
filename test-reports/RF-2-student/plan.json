@@ -1,0 +1,174 @@
+{
+ "id": "RF-2-student",
+ "projectType": "Refurbishment",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Summer M&E refurbishment, Ashworth Court halls"
+   },
+   {
+    "q": "Q1.1",
+    "value": "M14"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Refurbishment"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "3"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Student accommodation (PBSA / halls)"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1980–1999"
+   },
+   {
+    "q": "Q1.5",
+    "value": "620"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Replace ageing heating, water/drainage, ventilation and fire alarm systems and refit failing en-suite bathrooms with pods, entirely within the summer vacation. Deliver the essentials to a sound standard within a constrained budget rather than a premium fit-out."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Full systems replacement"
+   },
+   {
+    "q": "Q2.4",
+    "value": "Basic"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "University design guide"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Ageing or inadequate M&E",
+     "Damp or water ingress",
+     "Fire safety deficiencies"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Communal kitchen refreshed in 2019; bedrooms and en-suites are original to the 1980s build."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Condition",
+     "Fire risk assessment"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "No consent required"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Term-time only working"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Block must be fully handed back and ready for student check-in in the second week of September; no slippage into term time is possible."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Ecological features — roof voids, mature trees, water bodies, bat roost potential"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-08-16"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-06-14"
+   },
+   {
+    "q": "Q4.3",
+    "value": "650000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Lowest cost",
+     "Speed"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Not yet confirmed"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "45000"
+   },
+   {
+    "q": "Q6.1",
+    "value": "Focus on completing before the September check-in date — flag clearly if the programme risks slipping into term time."
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0025",
+   "S-0032",
+   "S-0051"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0025",
+    "name": "Bathrooms and en-suites",
+    "pick": "One",
+    "key": "S-0025-03",
+    "label": "Pods",
+    "dims": [
+     {
+      "dim": "Option",
+      "value": "Pods"
+     }
+    ]
+   }
+  ],
+  "quantities": [],
+  "method": null
+ }
+}

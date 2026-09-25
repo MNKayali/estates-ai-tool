@@ -1,0 +1,23 @@
+# Review — FO-2-retail
+
+Verdict: Scope, risks and programme are carried through correctly and the report reads well, but there is a genuine internal contradiction over the budget: the AI-written narrative repeatedly claims a "£2,000 shortfall" that directly contradicts the report's own deterministic "Budget check" box, and two different "gross range" figures for the same project appear in the same document — this should be fixed before the design ships.
+
+## Issues
+| # | Severity | Category | Page | Report says | Expected (scenario) | Issue |
+|---|---|---|---|---|---|---|
+| 1 | High | Budget | 2, 8 | Key findings: "a budget shortfall of approximately £2,000..."; Executive summary: "falls short of the estimated gross range by approximately £2,000, making delivery achievable only if costs price toward the lower end"; Constraints Summary repeats "approximately £2,000 below the estimated range"; Recommendation 4: "a £2,000 shortfall ... must be resolved" | Deterministic "Budget check" box, same page: "The stated budget of £45,000 ... falls **within** the estimated gross range of £40,000 - £66,000 ... achievable only if the project prices toward the lower end" | The AI-written narrative asserts a £2,000 shortfall (budget below the range) in four places, directly contradicting the deterministic Budget check box in the same Executive Summary, which says the budget sits within the range. £45,000 is £5,000 above the range's £40,000 low end, so there is no shortfall on the numbers actually shown — this looks like a fabricated/miscalculated figure the AI should never be producing. |
+| 2 | High | Cost/Budget | 4 | Risk register: "Stated budget of £45,000 (incl. fees and VAT) is below the estimated gross range of £47,000-£58,000." | Budget check box and cost pages: gross range £40,000-£66,000 | A second, different "gross range" appears in the risk register than the one used everywhere else in the report (Budget check box, Financial narrative). Only £40,000-£66,000 is consistent with the works-cost table (£22,000-£35,000 excl. VAT → £33,000-£55,000 excl. VAT project total → ~£40,000-£66,000 incl. VAT). The stale £47,000-£58,000 figure appears to be the source of the false "shortfall" claims in Issue 1. |
+| 3 | Medium | Risk | 4 | Risk register has a general "No condition, structural, or other surveys have yet been commissioned" risk (HIGH), but no risk named for asbestos specifically | "Risk register includes an asbestos risk (Q3.1, sharpened by 'None' at Q3.3 — no survey in hand)" | Asbestos is an explicit Q3.1 known issue and gets a 1.5% cost-risk-allowance line in the fee build-up, but no risk-register row names it — only a generic no-surveys entry, which only partly reflects the expectation. |
+| 4 | Low | Prose | 2 | "Grade C (Limited Confidence) due to the absence of condition surveys and automated cost warnings." | — | "automated cost warnings" is vague phrasing that reads as if referencing a specific automated finding without naming which one; it's likely a loose reference to the low-£/m² sense-check flag, but as written it's unclear. |
+
+## Expectations
+| Expectation | Result | Note |
+|---|---|---|
+| Cover/summary: title, Fit-out, Retail, 140 m², LS2 | Pass | LS2 correctly maps to Yorkshire & Humberside. |
+| Scope lists Strip-out, Wall/Floor/Ceiling finishes, Retail fit-out at 110 m² sales area (your figure), Signage | Pass | All present; Retail is correctly costed on the client's 110 m² figure (labelled "client figure"). Asbestos removal is also priced, which is correct app behaviour here since Q3.1 lists it as a known issue with no survey to rule it out (unlike FO-1). |
+| Risk register: asbestos risk (sharpened by no survey) and conservation-area context risk | Partly | Conservation-area risk is present and correct; asbestos is not given its own named risk row — see Issue 3. |
+| Confidence grade carries a deficiency for missing surveys (Q3.3 "None") | Pass | Grade C, explicitly attributed to no surveys commissioned. |
+| Programme tight against 15 Dec 2026 target, flagged if unmet | Pass | Correctly reports the 21-week programme completing ~29 Mar 2027, ~15 weeks after target, and flags it prominently. |
+| Budget verdict: expect "shortfall" | Fail | The deterministic verdict actually computed is "tight ... within range," not a genuine shortfall (budget £45,000 > range low end £40,000); the AI-written "£2,000 shortfall" claims are themselves inconsistent with the report's own figures — see Issues 1 & 2. |
+| No higher-risk-building content | Pass | None present, correctly, for a Fit-out. |
+| Estimate Basis: Basic spec level, no standards selected | Pass | Basic spec shown clearly; no standards are mentioned anywhere, consistent with none being selected. |

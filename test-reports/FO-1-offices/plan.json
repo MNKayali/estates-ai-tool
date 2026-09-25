@@ -1,0 +1,180 @@
+{
+ "id": "FO-1-offices",
+ "projectType": "Fit-out",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Floor 4 re-let fit-out, Portland House"
+   },
+   {
+    "q": "Q1.1",
+    "value": "M13"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Fit-out"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Commercial offices"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1980–1999"
+   },
+   {
+    "q": "Q1.5",
+    "value": "850"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Refresh Floor 4's finishes and bring its heating, power and lighting up to a lettable, BREEAM-minded standard so the floor can be re-let quickly. Avoid a full services strip-out that would extend the void period. Minimise disruption to the occupied floors below."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Finishes with minor services"
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "BREEAM"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Ageing or inadequate M&E",
+     "Damp or water ingress"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Floor last refitted in 2003 when the previous tenant took occupation; no works since."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos management survey",
+     "Condition"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "No consent required"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Building remains fully let and operational on the floors below and above; goods lift and loading bay are shared with other tenants."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Attached to or within 3 m of a neighbouring building (party wall)"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-06-30"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-12-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "650000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Design quality",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "120000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0024",
+   "S-0027",
+   "S-0028",
+   "S-0029",
+   "S-0052"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0022",
+    "name": "Floor finishes",
+    "pick": "One",
+    "key": "S-0022-02",
+    "label": "Raised access floor: Yes",
+    "dims": [
+     {
+      "dim": "Raised access floor",
+      "value": "Yes"
+     }
+    ]
+   },
+   {
+    "id": "S-0027",
+    "name": "Kitchens",
+    "pick": "One",
+    "key": "S-0027-02",
+    "label": "Type: Tea point",
+    "dims": [
+     {
+      "dim": "Type",
+      "value": "Tea point"
+     }
+    ]
+   }
+  ],
+  "quantities": [],
+  "method": null
+ }
+}

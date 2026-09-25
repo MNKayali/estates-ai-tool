@@ -1,0 +1,206 @@
+{
+ "id": "EX-1-student",
+ "projectType": "Extension",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Halls of Residence Extension — New Wing"
+   },
+   {
+    "q": "Q1.1",
+    "value": "LS2"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Extension"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "4"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Student accommodation (PBSA / halls)"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1980–1999"
+   },
+   {
+    "q": "Q1.5",
+    "value": "850"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Add a new four-storey wing to the existing halls of residence to provide additional bed spaces and shared kitchen/social space on each floor, ahead of a growing intake. The existing block remains occupied throughout."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "University design guide",
+     "Net zero"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Ageing or inadequate M&E",
+     "Fire safety deficiencies"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Boiler plant in the existing block replaced in 2019; no other recent capital works."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos management survey",
+     "Structural",
+     "Utilities / statutory services search"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Term-time only working"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "New wing must be handed over and furnished before the new academic year starts; the connecting corridor to the existing block needs to stay open for fire escape throughout."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Ecological features — roof voids, mature trees, water bodies, bat roost potential"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-08-15"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "1650000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Fixed / certain final cost",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "180000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0006",
+   "S-0008",
+   "S-0009",
+   "S-0011",
+   "S-0012",
+   "S-0013",
+   "S-0015",
+   "S-0016",
+   "S-0017",
+   "S-0018",
+   "S-0019",
+   "S-0020",
+   "S-0021",
+   "S-0022",
+   "S-0023",
+   "S-0025",
+   "S-0027",
+   "S-0028",
+   "S-0029",
+   "S-0031",
+   "S-0039",
+   "S-0040",
+   "S-0041",
+   "S-0043",
+   "S-0044",
+   "S-0045",
+   "S-0046",
+   "S-0047",
+   "S-0049",
+   "S-0051",
+   "S-0052",
+   "S-0053",
+   "S-0054",
+   "S-0065",
+   "S-0067",
+   "S-0073",
+   "S-0076",
+   "S-0080",
+   "S-0081"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0006",
+    "name": "Tree removal",
+    "pick": "One",
+    "key": "S-0006-01",
+    "label": "Standard",
+    "qty": "3"
+   },
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "40"
+   }
+  ],
+  "method": null
+ }
+}
