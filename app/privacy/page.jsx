@@ -1,11 +1,13 @@
 /**
  * /privacy — Privacy Notice (UK GDPR / Data Protection Act 2018)
- * Operator: Estates AI Tool
+ * Operator: Projento
  * Last reviewed: 29 May 2026
  *
  * TODO: Add a contact email address to the "Your rights" section below.
  *       Search for "ADD-YOUR-EMAIL" and replace with your real address.
  */
+import Logo from '../components/Logo'
+import { BRAND } from '@/lib/brand'
 
 const NAVY = '#1A2E4A'
 const BLUE = '#A86F12'   // brand accent (deep amber) — name kept to avoid churn
@@ -56,9 +58,8 @@ export default function PrivacyPage() {
       {/* Header */}
       <header style={{ background: NAVY, padding: '12px 24px' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-            <div style={{ width: '32px', height: '32px', background: BLUE, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '13px' }}>AI</div>
-            <span style={{ color: '#fff', fontWeight: 600, fontSize: '16px' }}>Estates AI Tool</span>
+          <a href="/" aria-label={`${BRAND.name} home`} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <Logo variant="white" height={24} />
           </a>
         </div>
       </header>
@@ -70,12 +71,12 @@ export default function PrivacyPage() {
           Privacy Notice
         </h1>
         <p style={{ ...body, color: '#666', marginBottom: '32px' }}>
-          Last reviewed: 29 May 2026 &nbsp;|&nbsp; This notice applies to all authorised users of Estates AI Tool.
+          Last reviewed: 29 May 2026 &nbsp;|&nbsp; This notice applies to all authorised users of {BRAND.name}.
         </p>
 
         <Section title="1. Who processes your data">
           <p style={body}>
-            Estates AI Tool is an internal planning tool. The <strong>data controller</strong> is the
+            {BRAND.name} is an internal planning tool. The <strong>data controller</strong> is the
             organisation or individual who operates this instance of the tool and controls the access code.
             If you are an authorised user within an organisation, your data controller is that organisation.
           </p>
@@ -93,11 +94,11 @@ export default function PrivacyPage() {
             ['Data collected', 'Why', 'Legal basis under UK GDPR'],
             [
               'Project questionnaire answers — project name, location, building type, size, budget range, programme constraints, scope description',
-              'These drive the cost and programme calculations, and are passed to the AI model to generate the report narrative. Without them the tool cannot function.',
+              'These drive the cost and programme calculations, and are passed to our text-drafting service provider (see §3) to draft the written sections of the report. Without them the tool cannot function.',
               'Legitimate interests: supporting internal estates planning and capital investment appraisal',
             ],
             [
-              'Generated report content — cost estimate, programme table, risk register, AI narrative, report ID',
+              'Generated report content — cost estimate, programme table, risk register, written sections, report ID',
               'Stored for up to 90 days to allow the shareable report link to work. Without this, links would break immediately.',
               'Legitimate interests',
             ],
@@ -132,7 +133,7 @@ export default function PrivacyPage() {
           <DataTable rows={[
             ['Service', 'What data is sent', 'Where data is held', 'Transfer mechanism'],
             [
-              'Anthropic PBC — AI narrative generation',
+              'Anthropic PBC — drafting of the report\'s written sections',
               'Your project questionnaire answers are sent to Anthropic\'s API to generate the text sections of the report (executive summary, risk commentary, procurement recommendation). No personal data should be included — see §2.',
               'United States',
               'UK International Data Transfer Agreement (IDTA) / Standard Contractual Clauses. Anthropic\'s data processing terms apply.',
@@ -223,7 +224,7 @@ export default function PrivacyPage() {
 
       <footer style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center' }}>
         <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>
-          Estates AI Tool &nbsp;·&nbsp;
+          {BRAND.name} &nbsp;·&nbsp;
           <a href="/terms" style={{ color: BLUE }}>Terms of Use</a>
           &nbsp;·&nbsp;
           <a href="/access" style={{ color: BLUE }}>Return to tool</a>
