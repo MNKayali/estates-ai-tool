@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { track } from '@vercel/analytics'
 import ReportDocument from './doc/ReportDocument'
+import { BRAND } from '@/lib/reportStyle'
 
 // ─── Screen chrome only ───────────────────────────────────────────────────────
 // The report itself (every page, colour and size) lives in app/report/doc and
@@ -154,7 +155,7 @@ export default function ReportRenderer({ data, reportId, sample = false }) {
       <div className="no-print" style={{ position: 'sticky', top: 0, zIndex: 20, background: 'linear-gradient(135deg, #1A2E4A 0%, #12233A 100%)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '10px 16px' }}>
         <div style={{ maxWidth: '880px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
           <span style={{ color: '#fff', fontWeight: 600, fontSize: '15px', fontFamily: FONT_HEAD, letterSpacing: '0.2px' }}>
-            {sample ? 'Estates AI — Sample Report' : 'Estates AI — Report Preview'}
+            {sample ? `${BRAND.name} — Sample Report` : `${BRAND.name} — Report Preview`}
           </span>
           {sample ? (
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>

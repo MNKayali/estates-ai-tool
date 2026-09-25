@@ -16,7 +16,7 @@ export function AuthShell({ eyebrow, title, intro, children, footer }) {
           <div style={{ width: 34, height: 34, borderRadius: 7, display: 'grid', placeItems: 'center',
             background: 'linear-gradient(150deg, var(--navy), var(--ink-deep))', color: '#fff', fontWeight: 700,
             fontFamily: 'var(--font-mono)', fontSize: 14, border: '1px solid var(--navy-light)',
-            boxShadow: '0 4px 12px rgba(26,46,74,.3)' }}>AI</div>
+            boxShadow: '0 4px 12px rgba(26,46,74,.3)' }}>{BRAND.mark}</div>
           <span className="display" style={{ fontWeight: 700, fontSize: 18, color: 'var(--ink)' }}>{BRAND.name}</span>
         </Link>
         {eyebrow && <div className="eyebrow">{eyebrow}</div>}

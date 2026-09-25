@@ -1,4 +1,4 @@
-# Estates AI Tool
+# Projento
 
 A gated web app that produces **UK RIBA Stage 0–1 feasibility reports** for construction and refurbishment projects. A user completes a structured questionnaire about their project; the app returns a fully costed, programmed feasibility report — viewable on screen and downloadable as a Word document.
 

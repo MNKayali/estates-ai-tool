@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Badge, Card, Stat } from './components/ui'
+import { BRAND } from '@/lib/reportStyle'
 
 const INCLUDED = [
   { k: '01', t: 'NRM1 Cost Estimate', d: 'Order-of-cost with low, mid and high ranges, built deterministically from NRM1 benchmark rates, BCIS location factor, prelims, fees, risk and inflation. No figure is ever invented.' },
@@ -103,8 +104,8 @@ function Brand() {
       <div style={{ width: 30, height: 30, borderRadius: 6, display: 'grid', placeItems: 'center',
         background: 'linear-gradient(150deg, var(--navy), var(--ink-deep))', color: '#fff', fontWeight: 700,
         fontFamily: 'var(--font-mono)', fontSize: 13, border: '1px solid var(--navy-light)',
-        boxShadow: '0 4px 12px rgba(26,46,74,.3)' }}>AI</div>
-      <span className="display" style={{ fontWeight: 700, fontSize: 18, color: 'var(--ink)' }}>Estates AI</span>
+        boxShadow: '0 4px 12px rgba(26,46,74,.3)' }}>{BRAND.mark}</div>
+      <span className="display" style={{ fontWeight: 700, fontSize: 18, color: 'var(--ink)' }}>{BRAND.name}</span>
     </div>
   )
 }

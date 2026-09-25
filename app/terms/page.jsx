@@ -1,9 +1,10 @@
 /**
  * /terms — Terms of Use
- * Operator: Estates AI Tool
+ * Operator: Projento
  * Last reviewed: 25 September 2026
  * Governing law: England and Wales
  */
+import { BRAND } from '@/lib/reportStyle'
 
 const NAVY = '#1A2E4A'
 const BLUE = '#A86F12'   // brand accent (deep amber) — name kept to avoid churn
@@ -30,8 +31,8 @@ export default function TermsPage() {
       <header style={{ background: NAVY, padding: '12px 24px' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-            <div style={{ width: '32px', height: '32px', background: BLUE, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '13px' }}>AI</div>
-            <span style={{ color: '#fff', fontWeight: 600, fontSize: '16px' }}>Estates AI Tool</span>
+            <div style={{ width: '32px', height: '32px', background: BLUE, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '13px' }}>{BRAND.mark}</div>
+            <span style={{ color: '#fff', fontWeight: 600, fontSize: '16px' }}>{BRAND.name}</span>
           </a>
         </div>
       </header>
@@ -48,7 +49,7 @@ export default function TermsPage() {
 
         <Section title="1. About this tool">
           <p style={body}>
-            Estates AI Tool is an internal planning tool that generates indicative feasibility reports at{' '}
+            {BRAND.name} is an internal planning tool that generates indicative feasibility reports at{' '}
             <strong>RIBA Stage 0–1</strong> accuracy. It is operated for the benefit of authorised personnel
             engaged in early-stage estates planning and capital investment appraisal.
           </p>
@@ -162,7 +163,7 @@ export default function TermsPage() {
 
       <footer style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center' }}>
         <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>
-          Estates AI Tool &nbsp;·&nbsp;
+          {BRAND.name} &nbsp;·&nbsp;
           <a href="/privacy" style={{ color: BLUE }}>Privacy Notice</a>
           &nbsp;·&nbsp;
           <a href="/reports" style={{ color: BLUE }}>Return to tool</a>
