@@ -326,3 +326,7 @@ table.tbl tr:nth-child(even) td { background: var(--tint); }
   .stat-value { font-size: 26px; }
   .btn { padding: 11px 16px; font-size: 14px; }
 }
+
+/* Projento logo: the monogram replaces the wordmark on very narrow phones (docs/brand/BRAND.md). */
+.brand-compact { display: none; }
+@media (max-width: 359px) { .brand-full { display: none !important; } .brand-compact { display: block; } }

@@ -13,6 +13,8 @@
 import { getReport } from '@/lib/kv'
 import { buildReport } from '@/lib/reportBuilder'
 import { authoriseReport } from '@/lib/auth'
+import { reportFileName } from '@/lib/brand'
+import { reportReference } from '@/lib/reportContent'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -33,12 +35,12 @@ export async function GET(request, { params }) {
   }
   try {
     const buf = await buildReport({ ...data, reportId: id })
-    const safeName = String(data.projectName || 'Report').replace(/[^a-z0-9 _-]/gi, '_')
+    const fileName = reportFileName(reportReference(id, data), 'docx')
     return new Response(buf, {
       status: 200,
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'Content-Disposition': `attachment; filename="${safeName}_Stage1_Report.docx"`,
+        'Content-Disposition': `attachment; filename="${fileName}"`,
         'Cache-Control': 'no-store',
       },
     })

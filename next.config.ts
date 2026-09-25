@@ -7,12 +7,14 @@ const nextConfig: NextConfig = {
   // the bundler cannot eliminate that import, so it must be externalised too or
   // it gets traced into the production function.
   serverExternalPackages: ['xlsx', '@sparticuz/chromium', 'puppeteer-core', 'puppeteer'],
-  // lib/docx/fonts.js reads the IBM Plex TTFs at runtime to embed them in the
-  // Word report; files read with fs are not traced automatically. Keys are
-  // route globs (picomatch), so '*' covers the [id] segment.
+  // lib/docx/fonts.js reads the IBM Plex TTFs, and lib/docx/brandImages.js the
+  // Projento logo PNGs, at runtime to embed them in the Word report; files read
+  // with fs are not traced automatically (and public/ is not guaranteed to be
+  // on a function's filesystem). Keys are route globs (picomatch), so '*'
+  // covers the [id] segment.
   outputFileTracingIncludes: {
-    '/api/reports/*/docx': ['./assets/fonts/**/*'],
-    '/api/generate-report': ['./assets/fonts/**/*'],
+    '/api/reports/*/docx': ['./assets/fonts/**/*', './assets/brand/**/*'],
+    '/api/generate-report': ['./assets/fonts/**/*', './assets/brand/**/*'],
     // @sparticuz/chromium finds its compressed browser (bin/*.br) through a path
     // built at runtime, so the tracer never sees it; without this the PDF route
     // fails on Vercel with "The input directory …/bin does not exist".

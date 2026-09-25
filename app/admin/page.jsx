@@ -12,6 +12,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Card, Stat, Badge, SectionHeader } from '../components/ui'
+import Logo from '../components/Logo'
 
 const f1k = n => (n == null ? '—' : `£${(Math.round(n / 1000) * 1000).toLocaleString('en-GB')}`)
 
@@ -90,10 +91,7 @@ function Header() {
   return (
     <header style={{ position: 'sticky', top: 0, zIndex: 10, background: 'rgba(250,248,243,.82)', backdropFilter: 'blur(10px)', borderBottom: '1px solid var(--border)' }}>
       <div style={{ maxWidth: 1040, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ width: 32, height: 32, borderRadius: 7, display: 'grid', placeItems: 'center',
-          background: 'linear-gradient(150deg, var(--navy), var(--ink-deep))', color: '#fff', fontWeight: 700,
-          fontFamily: 'var(--font-mono)', fontSize: 13 }}>AI</div>
-        <span className="display" style={{ fontWeight: 700, fontSize: 17, color: 'var(--ink)' }}>Estates AI</span>
+        <Logo variant="navy" height={24} />
         <Badge>Admin</Badge>
         <button onClick={logout} className="btn btn-ghost" style={{ marginLeft: 'auto', padding: '6px 14px', fontSize: 13 }}>
           Log out

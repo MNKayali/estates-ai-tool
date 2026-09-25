@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Projento — report interior page (reference mockup)</title>
+<!-- FONTS -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap">
+<!-- /FONTS -->
+<style>
+  /* Reference only: A4 at 96 dpi. Only the running header and footer change; section band, tiles and body are as the current report. */
+  :root { --navy: #1A2E4A; --amber: #D9A12E; --slate: #646975; --rule: #D9DDE3; --ink: #26324A; }
+  body { margin: 0; background: #E9ECF1; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: var(--navy); }
+  .page { width: 794px; height: 1123px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; }
+  .hdr { margin: 30px 56px 0; padding-bottom: 12px; border-bottom: 1px solid var(--navy); display: flex; justify-content: space-between; align-items: center; }
+  .hdr .l { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--slate); }
+  .hdr img { display: block; height: 20px; width: auto; }             /* projento-header-lockup.svg */
+  .hdr .r { font-size: 11.5px; color: var(--slate); }
+  .tiles { margin: 28px 56px 0; display: grid; grid-template-columns: 1.4fr 1fr .95fr; gap: 12px; }
+  .tile { background: #F6F3EC; border-top: 3px solid var(--navy); padding: 14px 14px 16px; }
+  .lbl { font-size: 10px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: #3D4D65; }
+  .val { margin-top: 6px; font-size: 18px; font-weight: 700; }
+  .note { margin-top: 4px; font-size: 11px; line-height: 1.45; color: var(--slate); }
+  .band { margin-top: 24px; background: #EEF2F7; border-bottom: 2px solid var(--amber); padding: 14px 56px; display: flex; align-items: center; gap: 14px; }
+  .num { width: 32px; height: 26px; background: var(--navy); border-radius: 2px; color: #fff; font: 500 13px 'IBM Plex Mono', monospace; display: flex; align-items: center; justify-content: center; }
+  h2 { margin: 0; font-size: 21px; }
+  .body { padding: 22px 56px 0; font-size: 13.5px; line-height: 1.55; color: var(--ink); }
+  .body p { margin: 0; }
+  h3 { margin: 22px 0 10px; font-size: 15px; color: var(--navy); }
+  ul { margin: 0; padding: 0 0 0 20px; }
+  li { margin-bottom: 9px; line-height: 1.5; } li::marker { color: var(--amber); }
+  .call { margin-top: 22px; border: 1px solid #E3E6EB; border-left: 4px solid #B42318; padding: 14px 18px; font-size: 13px; }
+  .call b { color: #B42318; }
+  .foot { margin: auto 56px 28px; padding-top: 10px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; font-size: 11px; color: var(--slate); }
+  .foot b { color: var(--navy); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hdr">
+    <div class="l"><img src="../../../public/brand/projento-header-lockup.svg" alt="Projento"><span>· Clerkenwell speculative office…</span></div>
+    <div class="r">Feasibility Report · Ref B6AABAF9</div>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="lbl">Total project cost</div><div class="val">£24,301,000 – £37,968,000</div><div class="note">Excl. VAT · £6,075,000 VAT at 20% (mid-point, for reference)</div></div>
+    <div class="tile"><div class="lbl">Programme</div><div class="val">128 weeks</div><div class="note">Incl. 10 weeks float · best case 118 weeks</div></div>
+    <div class="tile"><div class="lbl">BCIS region</div><div class="val">Inner London</div><div class="note">Location factor 1.25</div></div>
+  </div>
+  <div class="band"><div class="num">01</div><h2>Executive Summary</h2></div>
+  <div class="body">
+    <p>This feasibility study examines a new six-storey speculative office development of 4200 m² GIFA on a cleared City-fringe site in Clerkenwell, targeting BREEAM Excellent and WELL Building Standard v2 certification. The estimated total project cost is £24,301,000 to £37,968,000 (excluding VAT), significantly exceeding the stated budget of £18,000,000. The assessment is Grade C (Limited Confidence) due to automated sense-check warnings and estimated quantities. The most material risk is the substantial budget shortfall, which requires scope, specification, or budget revision before proceeding to Stage 2.</p>
+    <h3>Key findings</h3>
+    <ul>
+      <li>The estimated total project cost of £24,301,000 to £37,968,000 (excluding VAT) is driven by high specification, dual sustainability certifications, and Inner London location factors.</li>
+      <li>No target completion date has been specified; the 128-week programme is achievable if design, planning and procurement proceed without delay.</li>
+      <li>The stated budget of £18,000,000 (incl. fees and VAT) is insufficient, falling approximately £11,161,000 short of the estimated lower range; scope, specification or budget must be revisited.</li>
+      <li>Contaminated land remediation is a known issue requiring Phase 1 and Phase 2 surveys before Stage 2 to quantify cost and programme impact.</li>
+      <li>Traditional Single Stage Tender is recommended for its compatibility with a fixed design, clear specification, and competitive cost certainty in a stable Inner London market.</li>
+    </ul>
+    <div class="call"><b>Budget check: shortfall.</b> The stated budget of £18,000,000 (incl. fees and VAT) is below the estimated gross range of £29,161,000 – £45,562,000, a shortfall of approximately £11,161,000 against even the lower end. Scope, specification or budget will need to be revisited.</div>
+  </div>
+  <div class="foot"><span><b>Projento</b> · Feasibility reporting for capital projects · Indicative only</span><span>Page 2 of 12</span></div>
+</div>
+</body>
+</html>

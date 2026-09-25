@@ -242,7 +242,7 @@ export async function POST(request) {
     } catch (e) {
       console.error('[Step 3 error]', e.message)
       capturePipelineError(e, 'prose', answers)
-      return Response.json({ error: 'AI prose generation failed: ' + e.message }, { status: 500 })
+      return Response.json({ error: 'Report text generation failed: ' + e.message }, { status: 500 })
     }
 
     let docxBuffer, templateError

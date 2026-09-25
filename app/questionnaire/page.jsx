@@ -12,6 +12,8 @@ import {
   isOffered, isItemAvailable, projectTypeUsesLevel,
 } from '../../lib/scopeEngine.js'
 import ScopePicker from './ScopePicker.jsx'
+import Logo from '../components/Logo'
+import { BRAND } from '../../lib/brand.js'
 import { titleLooksThin } from '../../lib/reportContent.js'
 import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
@@ -994,7 +996,7 @@ export default function QuestionnairePage() {
             })}
           </div>
           <p style={{ margin: '26px 0 0', paddingTop: 18, borderTop: '1px solid var(--border)', fontSize: 12.5, lineHeight: 1.6, color: 'var(--text-mute)' }}>
-            Costs are calculated deterministically from NRM1 benchmark data — the AI never invents a figure. This usually takes 20–40 seconds.
+            Costs are calculated deterministically from NRM1 benchmark data, and every figure in the report traces back to it. This usually takes 20–40 seconds.
           </p>
         </div>
       </div>
@@ -1009,9 +1011,8 @@ export default function QuestionnairePage() {
       {/* Header */}
       <header className="sticky top-0 z-10 px-4" style={{ backgroundColor: 'var(--navy)', height: 56, display: 'flex', alignItems: 'center', boxShadow: '0 2px 10px rgba(14,27,46,.25)' }}>
         <div className="max-w-2xl mx-auto w-full flex items-center justify-between">
-          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-            <div style={{ width: 28, height: 28, background: 'var(--amber)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'var(--font-mono)', fontWeight: 500, fontSize: 11, letterSpacing: '0.4px', flexShrink: 0 }}>AI</div>
-            <span style={{ color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 17, letterSpacing: '0.2px' }}>Estates AI</span>
+          <a href="/" aria-label={`${BRAND.name} home`} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <Logo variant="white" height={24} compactBelow360 />
           </a>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span className="mono hide-sm" style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase' }}>
@@ -1672,7 +1673,7 @@ export default function QuestionnairePage() {
             {showReportInstructions && (
               <QCard>
                 <Label>Q6.1 — Additional report instructions</Label>
-                <HelpText>Any specific tone, emphasis, or content requirements for the AI narrative.</HelpText>
+                <HelpText>Any specific tone, emphasis, or content requirements for the report&apos;s written sections.</HelpText>
                 <Textarea value={answers.q6_2_instructions} onChange={v => set('q6_2_instructions', v)} placeholder="e.g. Emphasise the compliance risk. Write for a non-technical audience. Focus on the programme risk." rows={3} />
               </QCard>
             )}
@@ -1712,7 +1713,7 @@ export default function QuestionnairePage() {
               </div>
               <div>
                 <p style={{ fontFamily: 'var(--font-body)', fontWeight: 700, color: '#fff', fontSize: '15px', marginBottom: 6 }}>Ready to generate</p>
-                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13.5px', lineHeight: 1.6 }}>Costs are calculated deterministically from NRM1 Excel benchmark data. The AI writes prose only — it never invents a number.</p>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13.5px', lineHeight: 1.6 }}>Costs are calculated deterministically from NRM1 Excel benchmark data. Every number in the report comes from that calculation.</p>
               </div>
             </div>
           </div>
