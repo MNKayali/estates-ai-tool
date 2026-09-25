@@ -2,9 +2,7 @@
  * /privacy — Privacy Notice (UK GDPR / Data Protection Act 2018)
  * Operator: Projento
  * Last reviewed: 25 September 2026
- *
- * TODO: Add a contact email address to the "Your rights" section below.
- *       Search for "ADD-YOUR-EMAIL" and replace with your real address.
+ * Contact email: BRAND.email (lib/brand.js), the same address the report's contact card shows.
  */
 import Logo from '../components/Logo'
 import { BRAND } from '@/lib/brand'
@@ -206,15 +204,11 @@ export default function PrivacyPage() {
             <li style={li}><strong>Object</strong> — object to processing based on legitimate interests.</li>
           </ul>
           <p style={body}>
-            To exercise any right, contact us. {/* TODO: replace the line below with your real email address */}
+            To exercise any right, contact us.
           </p>
           <p style={{ ...body, background: '#F8F1E2', border: `1px solid ${BLUE}`, borderRadius: '4px', padding: '12px 14px' }}>
             <strong>Contact:</strong> Reach the tool operator through the person who invited you,
-            or email{' '}
-            <span style={{ fontFamily: 'monospace', background: '#DBEAFE', padding: '1px 6px', borderRadius: '3px' }}>
-              [ADD-YOUR-EMAIL@HERE.COM]
-            </span>.
-            {/* ↑ Replace the placeholder above with your actual contact email, then delete this comment */}
+            or email <a href={`mailto:${BRAND.email}`} style={{ color: NAVY, fontWeight: 600 }}>{BRAND.email}</a>.
           </p>
           <p style={body}>
             You also have the right to complain to the{' '}
