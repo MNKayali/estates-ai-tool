@@ -10,17 +10,18 @@
  * /api/rates-check directly for that.
  */
 import { listReports, countReports, listFeedback } from '@/lib/kv'
+import { emailEnabled } from '@/lib/email'
 
 export async function GET() {
   const config = {
     aiKey:        !!process.env.AI_API_KEY,
     ratesUrl:     !!process.env.RATES_FILE_URL,
     programmeUrl: !!process.env.PROGRAMME_FILE_URL,
-    accessCode:   !!process.env.ACCESS_CODE,
     cookieSecret: !!process.env.COOKIE_SECRET,
     adminCode:    !!process.env.ADMIN_CODE,
     sentryDsn:    !!process.env.NEXT_PUBLIC_SENTRY_DSN,
     kv:           !!process.env.KV_REST_API_URL,
+    email:        emailEnabled(),
   }
 
   const [reports, reportCount, feedback] = await Promise.all([

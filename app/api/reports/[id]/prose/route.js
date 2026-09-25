@@ -29,6 +29,7 @@ import {
   buildProsePrompts, finaliseProse, scrubAnswers,
 } from '@/lib/prose'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
+import { authoriseReport } from '@/lib/auth'
 
 export const maxDuration = 60
 
@@ -69,6 +70,8 @@ export async function POST(request, { params }) {
       { status: 404 }
     )
   }
+  const auth = await authoriseReport(request, record)
+  if (auth.response) return auth.response
 
   // Already finished — by this invocation's own earlier work, another tab, or
   // a legacy pre-Phase-2 record that was always generated in one shot. Return
@@ -142,6 +145,7 @@ export async function POST(request, { params }) {
       aiProse,
       answers: record.answers,
       generatedAt: record.generatedAt,
+      ownerId: record.ownerId,
     }
     await finaliseReport(id, finalRecord)
     return Response.json({ success: true, status: 'complete', ...finalRecord })

@@ -6,7 +6,8 @@
  * Self-gating: the page shell is public, but every piece of data comes from
  * /api/admin/overview which is gated against ADMIN_CODE (see proxy.ts). On a 401
  * the page shows an inline admin-code form (POST /api/admin/login) and refetches.
- * Workbook health comes from the open /api/rates-check endpoint.
+ * Workbook health comes from /api/rates-check. Users (invite, disable, issue a
+ * set-password link) come from /api/admin/users.
  */
 
 import { useState, useEffect, useCallback } from 'react'
@@ -19,7 +20,7 @@ const CONFIG_LABELS = {
   ratesUrl:     'NRM1 rates URL',
   programmeUrl: 'Programme URL',
   kv:           'KV persistence',
-  accessCode:   'Access code',
+  email:        'Account emails (Resend)',
   cookieSecret: 'Cookie secret',
   adminCode:    'Admin code',
   sentryDsn:    'Sentry (error capture)',
@@ -105,6 +106,7 @@ function Header() {
 // ─── Dashboard ──────────────────────────────────────────────────────────────
 function Dashboard({ data, health, onRefresh }) {
   const { config, counts, reports, feedback } = data
+  const [users, setUsers] = useState([])
   return (
     <div className="rise rise-1">
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
@@ -127,12 +129,16 @@ function Dashboard({ data, health, onRefresh }) {
       <SectionHeader number="2" title="System health" />
       <HealthPanel config={config} health={health} />
 
+      {/* Users */}
+      <SectionHeader number="3" title="Users" />
+      <UsersPanel onUsers={setUsers} />
+
       {/* Reports browser */}
-      <SectionHeader number="3" title="Reports" />
-      <ReportsTable reports={reports} kvOn={config.kv} />
+      <SectionHeader number="4" title="Reports" />
+      <ReportsTable reports={reports} kvOn={config.kv} users={users} />
 
       {/* Feedback */}
-      <SectionHeader number="4" title="Recent feedback" />
+      <SectionHeader number="5" title="Recent feedback" />
       <FeedbackList feedback={feedback} />
     </div>
   )
@@ -175,7 +181,8 @@ function StatusRow({ label, ok, detail }) {
 }
 
 // ─── Reports table ──────────────────────────────────────────────────────────
-function ReportsTable({ reports, kvOn }) {
+function ReportsTable({ reports, kvOn, users = [] }) {
+  const emailOf = uid => users.find(u => u.uid === uid)?.email
   if (!reports?.length) {
     return (
       <Card style={{ padding: 24, marginBottom: 32 }}>
@@ -193,6 +200,7 @@ function ReportsTable({ reports, kvOn }) {
         <thead>
           <tr>
             <th style={{ textAlign: 'left' }}>Project</th>
+            <th style={{ textAlign: 'left' }}>Created by</th>
             <th style={{ textAlign: 'left' }}>Generated</th>
             <th style={{ textAlign: 'right' }}>Cost range (excl. VAT)</th>
             <th style={{ textAlign: 'right' }}>Weeks</th>
@@ -203,6 +211,7 @@ function ReportsTable({ reports, kvOn }) {
           {reports.map((r, i) => (
             <tr key={r.reportId || i}>
               <td style={{ fontWeight: 600 }}>{r.projectName || 'Untitled'}</td>
+              <td style={{ color: 'var(--text-mid)', fontSize: 13 }}>{r.ownerId ? (emailOf(r.ownerId) || 'Account') : 'Access code (legacy)'}</td>
               <td style={{ whiteSpace: 'nowrap', color: 'var(--text-mid)' }}>{fmtDate(r.generatedAt)}</td>
               <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{f1k(r.totalLow)} – {f1k(r.totalHigh)}</td>
               <td style={{ textAlign: 'right' }}>{r.totalWeeks ?? '—'}</td>
@@ -215,6 +224,171 @@ function ReportsTable({ reports, kvOn }) {
           ))}
         </tbody>
       </table>
+    </div>
+  )
+}
+
+// ─── Users ───────────────────────────────────────────────────────────────────
+async function fetchUsers() {
+  try {
+    const res = await fetch('/api/admin/users')
+    return { ok: res.ok, status: res.status, data: await res.json().catch(() => ({})) }
+  } catch {
+    return { ok: false, status: 0, data: { error: 'Network error loading users.' } }
+  }
+}
+
+const STATUS_LABEL = { active: 'Active', invited: 'Invited', disabled: 'Disabled' }
+
+function UsersPanel({ onUsers }) {
+  const [users, setUsers]   = useState(null)
+  const [emailOn, setEmailOn] = useState(false)
+  const [name, setName]     = useState('')
+  const [email, setEmail]   = useState('')
+  const [busy, setBusy]     = useState('')
+  const [error, setError]   = useState('')
+  const [link, setLink]     = useState(null) // { email, url, emailed, kind }
+  const [copied, setCopied] = useState(false)
+
+  const apply = useCallback(({ ok, status, data }) => {
+    if (!ok) { setError(data.error || `Users could not be loaded (${status || 'network error'}).`); setUsers([]); return }
+    setUsers(data.users || [])
+    setEmailOn(!!data.emailEnabled)
+    onUsers?.(data.users || [])
+  }, [onUsers])
+  const load = useCallback(() => fetchUsers().then(apply), [apply])
+
+  useEffect(() => {
+    let cancelled = false
+    fetchUsers().then(r => { if (!cancelled) apply(r) })
+    return () => { cancelled = true }
+  }, [apply])
+
+  async function invite(e) {
+    e.preventDefault()
+    setBusy('invite'); setError(''); setLink(null); setCopied(false)
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), email: email.trim() }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) { setError(data.error || 'The invitation could not be created.'); return }
+      setLink({ email: data.user.email, url: data.link, emailed: data.emailed, kind: 'invite' })
+      setName(''); setEmail('')
+      await load()
+    } catch {
+      setError('Network error. No invitation was created.')
+    } finally {
+      setBusy('')
+    }
+  }
+
+  async function act(u, action) {
+    if (action === 'disable' && !window.confirm(`Disable ${u.email}? They will be signed out and cannot sign in until you enable the account again. Their reports are kept.`)) return
+    setBusy(u.uid + action); setError(''); setLink(null); setCopied(false)
+    try {
+      const res = await fetch(`/api/admin/users/${u.uid}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) { setError(data.error || 'The change could not be saved.'); return }
+      if (action === 'link') setLink({ email: u.email, url: data.link, emailed: data.emailed, kind: data.kind })
+      await load()
+    } catch {
+      setError('Network error. Nothing was changed.')
+    } finally {
+      setBusy('')
+    }
+  }
+
+  async function copy() {
+    try { await navigator.clipboard.writeText(link.url); setCopied(true) } catch { /* the link is selectable below */ }
+  }
+
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <Card style={{ padding: '18px 20px', marginBottom: 14 }}>
+        <div className="stat-label" style={{ marginBottom: 12 }}>Invite someone</div>
+        <form onSubmit={invite} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: 10, alignItems: 'end' }}>
+          <div>
+            <label className="label" htmlFor="inv-name">Name</label>
+            <input id="inv-name" className="field" value={name} onChange={e => setName(e.target.value)} autoComplete="off" />
+          </div>
+          <div>
+            <label className="label" htmlFor="inv-email">Email</label>
+            <input id="inv-email" className="field" type="email" value={email} onChange={e => setEmail(e.target.value)} autoComplete="off" />
+          </div>
+          <button type="submit" className="btn btn-primary" disabled={busy === 'invite' || !name.trim() || !email.trim()}>
+            {busy === 'invite' ? 'Creating…' : 'Send invitation'}
+          </button>
+        </form>
+        <p className="help" style={{ marginTop: 10 }}>
+          {emailOn
+            ? 'The person is emailed a link to set their password (valid 7 days). The link is also shown here.'
+            : 'Account emails are not set up (RESEND_API_KEY / EMAIL_FROM), so copy the link shown after inviting and send it to the person yourself. It is valid for 7 days and works once.'}
+        </p>
+        {error && <p role="alert" style={{ color: 'var(--danger)', fontSize: 13, margin: '10px 0 0' }}>{error}</p>}
+        {link && (
+          <div role="status" style={{ marginTop: 14, padding: '12px 14px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--tint)' }}>
+            <div style={{ fontSize: 13, color: 'var(--text)', marginBottom: 8 }}>
+              {link.kind === 'reset' ? 'Password reset link' : 'Set-up link'} for <strong>{link.email}</strong>
+              {link.emailed ? ' — emailed to them.' : ' — not emailed; send it to them yourself.'}
+              {link.kind === 'reset' ? ' Valid for 1 hour.' : ' Valid for 7 days.'}
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <code style={{ fontSize: 12, wordBreak: 'break-all', flex: '1 1 260px', userSelect: 'all' }}>{link.url}</code>
+              <button type="button" className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: 12 }} onClick={copy}>
+                {copied ? '✓ Copied' : 'Copy link'}
+              </button>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {users === null ? (
+        <p role="status" style={{ color: 'var(--text-mute)', fontSize: 14 }}>Loading users…</p>
+      ) : !users.length ? (
+        <Card style={{ padding: 24 }}>
+          <p style={{ color: 'var(--text-mute)', fontSize: 14, margin: 0 }}>No accounts yet. Invite yourself first, then your colleagues.</p>
+        </Card>
+      ) : (
+        <div className="tbl-wrap">
+          <table className="tbl">
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left' }}>Name</th>
+                <th style={{ textAlign: 'left' }}>Email</th>
+                <th style={{ textAlign: 'left' }}>Status</th>
+                <th style={{ textAlign: 'left' }}>Last sign-in</th>
+                <th style={{ textAlign: 'right' }}><span className="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(u => (
+                <tr key={u.uid}>
+                  <td style={{ fontWeight: 600 }}>{u.name || '—'}</td>
+                  <td style={{ fontSize: 13 }}>{u.email}</td>
+                  <td><span className={`rag ${u.status === 'active' ? 'rag-low' : u.status === 'invited' ? 'rag-med' : 'rag-high'}`}>{STATUS_LABEL[u.status] || u.status}</span></td>
+                  <td style={{ whiteSpace: 'nowrap', color: 'var(--text-mid)', fontSize: 13 }}>{u.lastLoginAt ? fmtDate(u.lastLoginAt) : '—'}</td>
+                  <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                    {u.status !== 'disabled' && (
+                      <button className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: 12 }} disabled={!!busy} onClick={() => act(u, 'link')}>
+                        {u.status === 'invited' ? 'New set-up link' : 'Reset link'}
+                      </button>
+                    )}{' '}
+                    <button className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: 12, color: u.status === 'disabled' ? undefined : 'var(--danger)' }}
+                      disabled={!!busy} onClick={() => act(u, u.status === 'disabled' ? 'enable' : 'disable')}>
+                      {u.status === 'disabled' ? 'Enable' : 'Disable'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
@@ -281,7 +455,7 @@ function AdminLogin({ onSuccess }) {
         <div className="eyebrow">Restricted</div>
         <h1 style={{ fontSize: 24, margin: '8px 0 6px', color: 'var(--ink)' }}>Admin access</h1>
         <p style={{ fontSize: 14, color: 'var(--text-soft)', margin: '0 0 22px', lineHeight: 1.6 }}>
-          Enter the admin code to view system status and all generated reports.
+          Enter the admin code to manage accounts and view system status and all generated reports.
         </p>
         <form onSubmit={submit}>
           <label className="label">Admin code</label>
