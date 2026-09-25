@@ -1,0 +1,133 @@
+{
+ "id": "EW-1-education",
+ "projectType": "External works only",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Nursery outdoor play area renewal"
+   },
+   {
+    "q": "Q1.1",
+    "value": "LS11"
+   },
+   {
+    "q": "Q1.2",
+    "value": "External works only"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Education"
+   },
+   {
+    "q": "Q1.5",
+    "value": "210"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Renew the cracked and waterlogged play area surfacing, resolve the standing-water drainage problem, remove an unsafe boundary tree and add new planting, and provide covered cycle storage for staff — all within the six-week summer holiday."
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Existing hardstanding to break out",
+     "Trees or hedgerow on site",
+     "Underground services or obstructions"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Arboricultural survey (BS5837)",
+     "Topographic",
+     "Utilities / statutory services search"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Permitted development"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Term-time only working"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Play area must be fully reinstated, fenced off and safe for children before the first day of the autumn term. Site is shared with an after-school club that runs into early evening during the last week of term."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Ecological features — roof voids, mature trees, water bodies, bat roost potential"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-09-02"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-07-19"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Minimise disruption",
+     "Fixed / certain final cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0006",
+   "S-0081"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0006",
+    "name": "Tree removal",
+    "pick": "One",
+    "key": "S-0006-01",
+    "label": "Standard",
+    "qty": "1"
+   },
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "10"
+   }
+  ],
+  "method": null
+ }
+}

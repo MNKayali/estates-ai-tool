@@ -1,0 +1,240 @@
+{
+ "id": "EX-3-residential",
+ "projectType": "Extension",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Riverbank Court — New Residential Wing"
+   },
+   {
+    "q": "Q1.1",
+    "value": "G1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Extension"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "6"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Residential"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1900–1979"
+   },
+   {
+    "q": "Q1.6",
+    "value": "Yes"
+   },
+   {
+    "q": "Q1.5",
+    "value": "1800"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Add a new six-storey residential wing to the existing 1960s block to deliver additional affordable flats, with residents decanted from the existing block in phases as construction reaches them."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "PAS 2035",
+     "Net zero"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Structural concerns",
+     "Fire safety deficiencies"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "External wall insulation retrofit to the existing block, completed 2021."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos refurbishment & demolition survey",
+     "Structural",
+     "Condition",
+     "Ground investigation",
+     "Ecological appraisal",
+     "Utilities / statutory services search"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Scaffold licence or highway encroachment required"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Residents in the existing block are decanted a floor at a time as the new wing's connecting works reach them; fire escape routes through the existing block must remain compliant throughout."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Attached to or within 3 m of a neighbouring building (party wall)"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2028-06-30"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-12-01"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Funder / compliance requirement",
+     "Flexibility"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "No direct financial return — strategic or compliance project"
+    ]
+   },
+   {
+    "q": "Q6.1",
+    "value": "Please highlight Building Safety Act Gateway 2 requirements given the wing's height."
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0002",
+   "S-0008",
+   "S-0009",
+   "S-0011",
+   "S-0012",
+   "S-0013",
+   "S-0015",
+   "S-0016",
+   "S-0017",
+   "S-0018",
+   "S-0019",
+   "S-0020",
+   "S-0021",
+   "S-0022",
+   "S-0023",
+   "S-0025",
+   "S-0027",
+   "S-0028",
+   "S-0039",
+   "S-0040",
+   "S-0041",
+   "S-0043",
+   "S-0044",
+   "S-0045",
+   "S-0046",
+   "S-0047",
+   "S-0049",
+   "S-0050",
+   "S-0051",
+   "S-0052",
+   "S-0053",
+   "S-0054",
+   "S-0064",
+   "S-0065",
+   "S-0067",
+   "S-0073",
+   "S-0074",
+   "S-0076",
+   "S-0078",
+   "S-0080",
+   "S-0081",
+   "S-0082"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0008",
+    "name": "Foundations",
+    "pick": "One",
+    "key": "S-0008-02",
+    "label": "Type: Piled",
+    "dims": [
+     {
+      "dim": "Type",
+      "value": "Piled"
+     }
+    ]
+   },
+   {
+    "id": "S-0044",
+    "name": "Electricity supply upgrade",
+    "pick": "One",
+    "key": "S-0044-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0074",
+    "name": "Car parking",
+    "pick": "One",
+    "key": "S-0074-01",
+    "label": "Standard",
+    "qty": "20"
+   },
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "30"
+   }
+  ],
+  "method": null
+ }
+}

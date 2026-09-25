@@ -1,0 +1,265 @@
+{
+ "id": "OM-3-hospitality",
+ "projectType": "Other or mixed",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Cliffside Hotel & Leisure Club Refresh"
+   },
+   {
+    "q": "Q1.1",
+    "value": "BN1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Other or mixed"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Hospitality / leisure"
+   },
+   {
+    "q": "Q1.4",
+    "value": "Post-2000"
+   },
+   {
+    "q": "Q1.5",
+    "value": "1800"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Refurbish the hotel's spa, gym and restaurant wing and extend the roof terrace bar, reopening before next summer's peak season while the hotel continues trading. Deliver a high-spec guest experience that addresses tired changing rooms and an undersized gym, with minimal disruption to operating areas."
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "Net zero",
+     "Acoustic"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Ageing or inadequate M&E",
+     "Fire safety deficiencies"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Spa and gym last refitted at opening in the early 2000s; no significant M&E upgrades since."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Condition",
+     "Fire risk assessment",
+     "Utilities / statutory services search",
+     "Energy audit"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Restricted working hours"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "The hotel remains fully open and trading throughout; works must be sequenced to keep at least one changing room and the restaurant in operation at all times."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Ecological features — roof voids, mature trees, water bodies, bat roost potential"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-05-01"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-02"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Speed",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Not yet confirmed"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Increased asset value"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0003",
+   "S-0064",
+   "S-0065",
+   "S-0018",
+   "S-0019",
+   "S-0020",
+   "S-0021",
+   "S-0022",
+   "S-0023",
+   "S-0024",
+   "S-0025",
+   "S-0026",
+   "S-0030",
+   "S-0031",
+   "S-0032",
+   "S-0037",
+   "S-0039",
+   "S-0040",
+   "S-0041",
+   "S-0042",
+   "S-0043",
+   "S-0044",
+   "S-0045",
+   "S-0046",
+   "S-0047",
+   "S-0048",
+   "S-0049",
+   "S-0050",
+   "S-0051",
+   "S-0052",
+   "S-0053",
+   "S-0054",
+   "S-0055",
+   "S-0057",
+   "S-0063",
+   "S-0073",
+   "S-0074",
+   "S-0076",
+   "S-0077",
+   "S-0080",
+   "S-0081"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0025",
+    "name": "Bathrooms and en-suites",
+    "pick": "One",
+    "key": "S-0025-03",
+    "label": "Pods",
+    "dims": [
+     {
+      "dim": "Option",
+      "value": "Pods"
+     }
+    ]
+   },
+   {
+    "id": "S-0039",
+    "name": "Heating and hot water",
+    "pick": "One",
+    "key": "S-0039-03",
+    "label": "System: Ground source heat pump · Scope: Full system",
+    "dims": [
+     {
+      "dim": "System",
+      "value": "Ground source heat pump"
+     },
+     {
+      "dim": "Scope",
+      "value": "Full system"
+     }
+    ]
+   },
+   {
+    "id": "S-0044",
+    "name": "Electricity supply upgrade",
+    "pick": "One",
+    "key": "S-0044-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0026",
+    "name": "Showers",
+    "pick": "One",
+    "key": "S-0026-01",
+    "label": "Standard",
+    "qty": "24"
+   },
+   {
+    "id": "S-0037",
+    "name": "Sports",
+    "pick": "One",
+    "key": "S-0037-01",
+    "label": "Standard",
+    "qty": "450"
+   },
+   {
+    "id": "S-0074",
+    "name": "Car parking",
+    "pick": "One",
+    "key": "S-0074-01",
+    "label": "Standard",
+    "qty": "60"
+   },
+   {
+    "id": "S-0077",
+    "name": "Roof terrace and green roof",
+    "pick": "One",
+    "key": "S-0077-01",
+    "label": "Standard",
+    "qty": "150"
+   },
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "10"
+   }
+  ],
+  "method": null
+ }
+}

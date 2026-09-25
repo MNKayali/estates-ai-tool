@@ -1,0 +1,149 @@
+{
+ "id": "NB-1-residential",
+ "projectType": "New Build",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Ashgrove Close infill housing — two accessible bungalows"
+   },
+   {
+    "q": "Q1.1",
+    "value": "HU5"
+   },
+   {
+    "q": "Q1.2",
+    "value": "New Build"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "1"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Residential"
+   },
+   {
+    "q": "Q1.5",
+    "value": "230"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Build two single-storey, wheelchair-accessible bungalows on a cleared infill plot for households on our adapted-housing waiting list. Low running costs and step-free access throughout are essential."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "Net zero"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Trees or hedgerow on site",
+     "Existing structures on site to demolish"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Topographic",
+     "Ground investigation",
+     "Arboricultural survey (BS5837)",
+     "Utilities / statutory services search"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Restricted working hours"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Site is a cleared former garage court; boundary hedgerow to the rear is shared with a neighbouring garden."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Ecological features — roof voids, mature trees, water bodies, bat roost potential"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-02-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "420000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Lowest cost",
+     "Fixed / certain final cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0025",
+   "S-0074"
+  ],
+  "remove": [
+   "S-0024",
+   "S-0029",
+   "S-0047",
+   "S-0049",
+   "S-0052"
+  ],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0074",
+    "name": "Car parking",
+    "pick": "One",
+    "key": "S-0074-01",
+    "label": "Standard",
+    "qty": "4"
+   }
+  ],
+  "method": "Traditional"
+ }
+}

@@ -13,8 +13,8 @@ function Roi({ data, ctx, no }) {
     <Band no={no} title="Financial Case" />
     <div className="r-figs4">
       <div><div className="r-lbl">Project cost (mid)</div><div className="v">{m(roi?.mid)}</div></div>
-      <div><div className="r-lbl">Annual benefit</div><div className="v">{m(roi?.annual)}</div></div>
-      <div><div className="r-lbl">Simple payback</div><div className="v">{roi?.paybackYears} years</div></div>
+      <div><div className="r-lbl">Annual benefit</div><div className={roi?.annual ? 'v' : 'v r-v-small'}>{roi?.annual ? m(roi.annual) : 'Not stated'}</div></div>
+      <div><div className="r-lbl">Simple payback</div><div className={roi?.paybackYears ? 'v' : 'v r-v-small'}>{roi?.paybackYears ? `${roi.paybackYears} years` : 'Needs an annual figure'}</div></div>
       <div><div className="r-lbl">Benefit type</div><div className="v r-v-small">{benefit}</div></div>
     </div>
     {data.aiProse?.roiNarrative ? <p>{cleanReportText(data.aiProse.roiNarrative)}</p> : ctx.isPending && <Pending />}

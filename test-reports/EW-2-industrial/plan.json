@@ -1,0 +1,179 @@
+{
+ "id": "EW-2-industrial",
+ "projectType": "External works only",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Distribution yard expansion"
+   },
+   {
+    "q": "Q1.1",
+    "value": "NE28"
+   },
+   {
+    "q": "Q1.2",
+    "value": "External works only"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Industrial / warehouse"
+   },
+   {
+    "q": "Q1.5",
+    "value": "9500"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Expand the HGV yard and access road onto adjoining land, add staff car parking and EV charge points for the fleet transition, and upgrade the electricity supply to serve the new charging and lighting load, all while keeping the yard operational."
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Contaminated land",
+     "Existing hardstanding to break out",
+     "Underground services or obstructions"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Ground investigation",
+     "Contamination survey (Phase 1 / Phase 2)",
+     "Topographic",
+     "Utilities / statutory services search",
+     "Drainage / percolation testing"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Warehouse operates 24/7 and HGV movements cannot stop; works must be sequenced in stages so at least one yard route stays open at all times. Access road is shared with two neighbouring occupiers on the estate."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-12-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "1100000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Speed",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Energy or operational cost savings"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "60000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0067",
+   "S-0068",
+   "S-0071",
+   "S-0075",
+   "S-0074",
+   "S-0079",
+   "S-0080",
+   "S-0057",
+   "S-0044",
+   "S-0081"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0071",
+    "name": "Highways and site access",
+    "pick": "One",
+    "key": "S-0071-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0075",
+    "name": "HGV yard",
+    "pick": "One",
+    "key": "S-0075-01",
+    "label": "Standard",
+    "qty": "4200"
+   },
+   {
+    "id": "S-0074",
+    "name": "Car parking",
+    "pick": "One",
+    "key": "S-0074-01",
+    "label": "Standard",
+    "qty": "60"
+   },
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "20"
+   }
+  ],
+  "method": null
+ }
+}

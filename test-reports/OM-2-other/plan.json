@@ -1,0 +1,225 @@
+{
+ "id": "OM-2-other",
+ "projectType": "Other or mixed",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Old Chapel Community Hub Conversion"
+   },
+   {
+    "q": "Q1.1",
+    "value": "DH1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Other or mixed"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Other",
+    "other": "Community hub — hall, library corner and café"
+   },
+   {
+    "q": "Q1.4",
+    "value": "Pre-1900"
+   },
+   {
+    "q": "Q1.5",
+    "value": "220"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Convert a disused early-Victorian chapel into a community hub with a flexible hall, a small library corner and a café counter, within a fixed heritage grant. Repair known damp and structural movement in the bell-tower corner as part of the works, and keep the listed fabric and conservation-area setting intact."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Basic"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "None"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Structural concerns",
+     "Damp or water ingress",
+     "Asbestos known or suspected"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Unused since a small congregation closed the chapel around 2019; no works carried out since."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos refurbishment & demolition survey",
+     "Structural",
+     "Condition",
+     "Archaeological assessment"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning + Listed Building Consent"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Scaffold licence or highway encroachment required"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Grant funding has a fixed spend deadline; any delay in consents risks losing part of the award."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Conservation area or Article 4 direction"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-06-30"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-15"
+   },
+   {
+    "q": "Q4.3",
+    "value": "350000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Lowest cost",
+     "Funder / compliance requirement"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "No direct financial return — strategic or compliance project"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0001",
+   "S-0003",
+   "S-0064",
+   "S-0065",
+   "S-0066",
+   "S-0018",
+   "S-0019",
+   "S-0020",
+   "S-0021",
+   "S-0022",
+   "S-0023",
+   "S-0024",
+   "S-0027",
+   "S-0028",
+   "S-0029",
+   "S-0039",
+   "S-0040",
+   "S-0041",
+   "S-0044",
+   "S-0045",
+   "S-0046",
+   "S-0047",
+   "S-0049",
+   "S-0052",
+   "S-0053",
+   "S-0076",
+   "S-0079",
+   "S-0081"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0064",
+    "name": "Repairs",
+    "pick": "One",
+    "key": "S-0064-03",
+    "label": "Condition: Poor",
+    "dims": [
+     {
+      "dim": "Condition",
+      "value": "Poor"
+     }
+    ]
+   },
+   {
+    "id": "S-0039",
+    "name": "Heating and hot water",
+    "pick": "One",
+    "key": "S-0039-01",
+    "label": "System: Gas boiler · Scope: Full system",
+    "dims": [
+     {
+      "dim": "System",
+      "value": "Gas boiler"
+     },
+     {
+      "dim": "Scope",
+      "value": "Full system"
+     }
+    ]
+   },
+   {
+    "id": "S-0044",
+    "name": "Electricity supply upgrade",
+    "pick": "One",
+    "key": "S-0044-01",
+    "label": "Size: Small",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Small"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "8"
+   }
+  ],
+  "method": null
+ }
+}

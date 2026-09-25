@@ -7,7 +7,7 @@ export default function ScopePage({ data, ctx, n }) {
   return (
     <BodyPage ctx={ctx} page={n}>
       <Band no={2} title="Scope of Works" />
-      <p>{scopeStatement(cost)}</p>
+      <p>{scopeStatement(cost, data.answers)}</p>
       <h3>Included works</h3>
       <div className="r-scope-grid">
         {scopeGroups(cost).map(g => (

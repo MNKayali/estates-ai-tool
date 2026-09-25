@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { areaQuestionLabel, areaHelpText } from '../../lib/labels.js'
 import { SITE_CONTEXT_OPTIONS, SITE_CONTEXT_NONE, isHigherRiskBuilding } from '../../lib/siteContext.js'
+import { outwardCode, matchRegion } from '../../lib/postcodeRegion.js'
 import { PROJECT_TYPES } from '../../lib/projectTypes.js'
 import {
   buildContext, indexCatalogue, normaliseScopeAnswers, defaultOptionKeys,
@@ -494,8 +495,8 @@ function BcisResolver({ postcode, regions, chosen, onChoose }) {
   const typed = (postcode || '').trim()
   if (!typed || !Array.isArray(regions) || regions.length === 0) return null
 
-  const prefix = typed.toUpperCase().replace(/\d.*$/, '').trim()
-  const match = prefix ? regions.find(r => r.postcodes.some(p => p === prefix)) : null
+  const prefix = outwardCode(typed)
+  const match = matchRegion(typed, regions)
 
   const box = {
     marginTop: 12, padding: '10px 12px', borderRadius: 8, fontSize: 13.5,

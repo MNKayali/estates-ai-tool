@@ -1,0 +1,197 @@
+{
+ "id": "NB-3-industrial",
+ "projectType": "New Build",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Castle Donington distribution warehouse"
+   },
+   {
+    "q": "Q1.1",
+    "value": "DE74"
+   },
+   {
+    "q": "Q1.2",
+    "value": "New Build"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "1"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Industrial / warehouse"
+   },
+   {
+    "q": "Q1.5",
+    "value": "3200"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Deliver a new distribution warehouse with racking, dock levellers and an HGV yard, plus a welfare and office block, replacing a unit we have outgrown. Roof to be solar-ready given the scale of the building."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "DNO",
+     "Net zero"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Contaminated land",
+     "Underground services or obstructions"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Contamination survey (Phase 1 / Phase 2)",
+     "Ground investigation",
+     "Utilities / statutory services search",
+     "Flood risk assessment"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Height or weight restrictions on site"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Adjacent unit shares a party wall along the eastern boundary; a low railway bridge on the northern approach restricts delivery vehicle routing."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Attached to or within 3 m of a neighbouring building (party wall)"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-10-01"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-01-01"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Speed",
+     "Fixed / certain final cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "150000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0036",
+   "S-0075",
+   "S-0074",
+   "S-0044",
+   "S-0071",
+   "S-0055"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0044",
+    "name": "Electricity supply upgrade",
+    "pick": "One",
+    "key": "S-0044-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   },
+   {
+    "id": "S-0071",
+    "name": "Highways and site access",
+    "pick": "One",
+    "key": "S-0071-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0036",
+    "name": "Warehouse",
+    "pick": "One",
+    "key": "S-0036-01",
+    "label": "Standard",
+    "qty": "2800"
+   },
+   {
+    "id": "S-0075",
+    "name": "HGV yard",
+    "pick": "One",
+    "key": "S-0075-01",
+    "label": "Standard",
+    "qty": "1800"
+   },
+   {
+    "id": "S-0074",
+    "name": "Car parking",
+    "pick": "One",
+    "key": "S-0074-01",
+    "label": "Standard",
+    "qty": "40"
+   }
+  ],
+  "method": "Traditional"
+ }
+}

@@ -1,0 +1,159 @@
+{
+ "id": "NB-2-education",
+ "projectType": "New Build",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST] Elmfield Primary SEND resource base"
+   },
+   {
+    "q": "Q1.1",
+    "value": "GL54"
+   },
+   {
+    "q": "Q1.2",
+    "value": "New Build"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "1"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Education"
+   },
+   {
+    "q": "Q1.5",
+    "value": "650"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Deliver a new single-storey SEND resource base on the edge of the school's playing field, with sensory rooms, accessible changing and teaching space for up to 24 pupils, ready for September opening."
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "BREEAM",
+     "Acoustic"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Made ground or fill",
+     "Trees or hedgerow on site"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Topographic",
+     "Ground investigation",
+     "Ecological appraisal",
+     "Arboricultural survey (BS5837)"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Term-time only working"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "School remains fully open throughout construction; deliveries and noisy works must avoid the school day and any exam periods."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Conservation area or Article 4 direction"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-09-01"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-01-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "2400000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Design quality",
+     "Funder / compliance requirement"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "No direct financial return — strategic or compliance project"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0026",
+   "S-0030",
+   "S-0074"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0026",
+    "name": "Showers",
+    "pick": "One",
+    "key": "S-0026-01",
+    "label": "Standard",
+    "qty": "2"
+   },
+   {
+    "id": "S-0074",
+    "name": "Car parking",
+    "pick": "One",
+    "key": "S-0074-01",
+    "label": "Standard",
+    "qty": "6"
+   }
+  ],
+  "method": "Modular"
+ }
+}
