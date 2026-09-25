@@ -1,4 +1,6 @@
-# Estates AI Tool
+# Projento
+
+*Plan · Analyse · Report.* Formerly "Estates AI". The repository, package, Vercel project and storage keys keep the old `estates-ai-tool` name on purpose; see CLAUDE.md "Brand".
 
 A gated web app that produces **UK RIBA Stage 0–1 feasibility reports** for construction and refurbishment projects. A user completes a structured questionnaire about their project; the app returns a fully costed, programmed feasibility report — viewable on screen and downloadable as a Word document.
 
