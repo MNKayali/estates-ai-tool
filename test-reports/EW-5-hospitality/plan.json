@@ -1,0 +1,166 @@
+{
+ "id": "EW-5-hospitality",
+ "projectType": "External works only",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] The Pulteney Hotel courtyard and terrace renewal"
+   },
+   {
+    "q": "Q1.1",
+    "value": "BA1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "External works only"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Hospitality / leisure"
+   },
+   {
+    "q": "Q1.5",
+    "value": "460"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Repave the courtyard car park, rebuild the bowing retaining wall to the garden terrace, renew soft landscaping and external lighting, and add secure cycle storage for staff, in a style sympathetic to the conservation area setting."
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "BREEAM",
+     "Other"
+    ],
+    "other": "Bath World Heritage Site design guidance compliance"
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Existing hardstanding to break out",
+     "Trees or hedgerow on site",
+     "High water table"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Topographic",
+     "Ground investigation",
+     "Drainage / percolation testing"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Scaffold licence or highway encroachment required"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Hotel remains open and trading throughout, including a wedding season overlapping the works; all deliveries and contractor access must use the narrow rear lane and be coordinated with restaurant service hours."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Conservation area or Article 4 direction"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-02-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "260000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Design quality",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "35000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0067",
+   "S-0073",
+   "S-0072",
+   "S-0076",
+   "S-0080",
+   "S-0081",
+   "S-0079"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0072",
+    "name": "Retaining walls and earthworks",
+    "pick": "One",
+    "key": "S-0072-01",
+    "label": "Size: Small",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Small"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "8"
+   }
+  ],
+  "method": null
+ }
+}

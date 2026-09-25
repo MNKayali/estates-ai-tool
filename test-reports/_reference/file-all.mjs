@@ -1,21 +1,22 @@
 // Files every downloaded report PDF into Downloads/Agent test by matching the
 // download name (the app names it after the project title) to each scenario,
 // copies the scenario beside it and rewrites Agent test/index.md.
-//   node test-reports/_reference/file-all.mjs
+//   node test-reports/_reference/file-all.mjs [--batch 2]   (batch 2: report-ids-batch2.json → Agent test/Batch 2)
 import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/(\w:)/, '$1'))
 const ROOT = path.resolve(HERE, '..')
-const DL = path.join(os.homedir(), 'Downloads'), OUT = path.join(DL, 'Agent test')
+const bi = process.argv.indexOf('--batch'), batch = bi > 0 ? process.argv[bi + 1] : '1'
+const DL = path.join(os.homedir(), 'Downloads'), OUT = path.join(DL, 'Agent test', ...(batch === '1' ? [] : [`Batch ${batch}`]))
 fs.mkdirSync(OUT, { recursive: true })
-const ids = JSON.parse(fs.readFileSync(path.join(ROOT, 'report-ids.json'), 'utf8'))
+const ids = JSON.parse(fs.readFileSync(path.join(ROOT, batch === '1' ? 'report-ids.json' : `report-ids-batch${batch}.json`), 'utf8'))
 const rows = []
 for (const [id, reportId] of Object.entries(ids)) {
   const plan = JSON.parse(fs.readFileSync(path.join(ROOT, id, 'plan.json'), 'utf8'))
   const title = plan.sections[1].find(s => s.q === 'Q1.0').value
   const base = `${title.replace(/[^a-z0-9 _-]/gi, '_')}_Stage1_Report`
-  const found = fs.readdirSync(DL).filter(f => f === `${base}.pdf` || (f.startsWith(`${base} (`) && f.endsWith(').pdf')))
+  const found = fs.readdirSync(DL).filter(f => f === `${base}.pdf` || f === `${id} - report.pdf` || (f.startsWith(`${base} (`) && f.endsWith(').pdf')))
     .map(f => ({ f, t: fs.statSync(path.join(DL, f)).mtimeMs })).sort((a, b) => b.t - a.t)
   const dest = path.join(OUT, `${id} - report.pdf`)
   if (found.length) { fs.renameSync(path.join(DL, found[0].f), dest); for (const x of found.slice(1)) fs.unlinkSync(path.join(DL, x.f)) }

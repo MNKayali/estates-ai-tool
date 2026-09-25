@@ -1,0 +1,237 @@
+{
+ "id": "OM-4-industrial",
+ "projectType": "Other or mixed",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Stafford Park Distribution Centre Upgrade"
+   },
+   {
+    "q": "Q1.1",
+    "value": "TF3"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Other or mixed"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Industrial / warehouse"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1980–1999"
+   },
+   {
+    "q": "Q1.5",
+    "value": "4200"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Reconfigure an existing distribution unit for a new retail contract — additional racking and a mezzanine pick-office, upgraded power and standby capacity for materials-handling equipment charging, and solar PV with battery storage to meet the client's net-zero delivery clause. Break out and relay the HGV yard and treat made ground left from former mineral workings, ready for the client's peak-season go-live date."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "Net zero",
+     "MCS"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Made ground or fill",
+     "Ageing or inadequate M&E",
+     "Existing hardstanding to break out"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Last significant fit-out was the original 1990s shell fit-out; racking and dock levellers replaced piecemeal since, no wholesale M&E upgrade."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Ground investigation",
+     "Contamination survey (Phase 1 / Phase 2)",
+     "Condition",
+     "Utilities / statutory services search"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Height or weight restrictions on site"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "The unit must keep handling existing contracted volumes in unaffected bays while works proceed in phases; the new contract cannot start moving stock until the go-live date."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-09-01"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-01-05"
+   },
+   {
+    "q": "Q4.3",
+    "value": "1450000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Speed",
+     "Lowest cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Energy or operational cost savings"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "42000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0003",
+   "S-0005",
+   "S-0014",
+   "S-0015",
+   "S-0017",
+   "S-0020",
+   "S-0021",
+   "S-0022",
+   "S-0024",
+   "S-0036",
+   "S-0039",
+   "S-0040",
+   "S-0041",
+   "S-0044",
+   "S-0045",
+   "S-0046",
+   "S-0047",
+   "S-0048",
+   "S-0049",
+   "S-0052",
+   "S-0053",
+   "S-0055",
+   "S-0056",
+   "S-0057",
+   "S-0075"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0044",
+    "name": "Electricity supply upgrade",
+    "pick": "One",
+    "key": "S-0044-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   },
+   {
+    "id": "S-0048",
+    "name": "Standby power",
+    "pick": "Several",
+    "key": "S-0048-05",
+    "label": "Type: Generator · Size: Large",
+    "dims": [
+     {
+      "dim": "Type",
+      "value": "Generator"
+     },
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0014",
+    "name": "Mezzanine floor",
+    "pick": "One",
+    "key": "S-0014-01",
+    "label": "Standard",
+    "qty": "420"
+   },
+   {
+    "id": "S-0036",
+    "name": "Warehouse",
+    "pick": "One",
+    "key": "S-0036-01",
+    "label": "Standard",
+    "qty": "3600"
+   },
+   {
+    "id": "S-0056",
+    "name": "Battery storage",
+    "pick": "One",
+    "key": "S-0056-01",
+    "label": "Standard",
+    "qty": "250"
+   },
+   {
+    "id": "S-0075",
+    "name": "HGV yard",
+    "pick": "One",
+    "key": "S-0075-01",
+    "label": "Standard",
+    "qty": "1800"
+   }
+  ],
+  "method": null
+ }
+}

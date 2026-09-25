@@ -1,0 +1,229 @@
+{
+ "id": "EX-5-hospitality",
+ "projectType": "Extension",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Seafront Leisure Centre — Gym & Studio Extension"
+   },
+   {
+    "q": "Q1.1",
+    "value": "PL1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Extension"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "2"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Hospitality / leisure"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1980–1999"
+   },
+   {
+    "q": "Q1.5",
+    "value": "950"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Add a two-storey extension with a new gym floor, fitness studios and changing facilities alongside the existing pool hall, to meet growing membership demand. The centre remains fully open to members throughout."
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "BREEAM",
+     "Other"
+    ],
+    "other": "Green Tourism Gold Award"
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Ageing or inadequate M&E",
+     "Drainage issues"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Pool hall roof replaced in 2017; no other significant capital works since the original 1980s build."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Structural",
+     "Condition",
+     "Ground investigation"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Unsure (pre-application advice)"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "The pool hall and existing gym must remain open to members throughout construction; noisy works need to be scheduled outside peak swim session times."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Attached to or within 3 m of a neighbouring building (party wall)"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-01-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "2800000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Design quality",
+     "Speed"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "95000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0008",
+   "S-0009",
+   "S-0011",
+   "S-0012",
+   "S-0013",
+   "S-0015",
+   "S-0016",
+   "S-0017",
+   "S-0018",
+   "S-0019",
+   "S-0020",
+   "S-0021",
+   "S-0022",
+   "S-0023",
+   "S-0024",
+   "S-0026",
+   "S-0028",
+   "S-0029",
+   "S-0031",
+   "S-0037",
+   "S-0039",
+   "S-0040",
+   "S-0041",
+   "S-0042",
+   "S-0043",
+   "S-0044",
+   "S-0045",
+   "S-0046",
+   "S-0047",
+   "S-0049",
+   "S-0051",
+   "S-0052",
+   "S-0053",
+   "S-0054",
+   "S-0067",
+   "S-0073",
+   "S-0074",
+   "S-0076",
+   "S-0080"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0044",
+    "name": "Electricity supply upgrade",
+    "pick": "One",
+    "key": "S-0044-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0026",
+    "name": "Showers",
+    "pick": "One",
+    "key": "S-0026-01",
+    "label": "Standard",
+    "qty": "12"
+   },
+   {
+    "id": "S-0037",
+    "name": "Sports",
+    "pick": "One",
+    "key": "S-0037-01",
+    "label": "Standard",
+    "qty": "480"
+   },
+   {
+    "id": "S-0074",
+    "name": "Car parking",
+    "pick": "One",
+    "key": "S-0074-01",
+    "label": "Standard",
+    "qty": "35"
+   }
+  ],
+  "method": null
+ }
+}

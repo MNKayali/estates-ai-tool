@@ -101,3 +101,38 @@ questions.
 - No "higher-risk building" content (3 storeys)
 Never predict exact £ figures or weeks — the engines decide those.
 ```
+
+## Batch 2 (25 Sept 2026) — scenarios 4–6 per type
+
+Numbering continues (e.g. `NB-4-healthcare`). Project titles start **[TEST2]**.
+
+| Type | 4 | 5 | 6 |
+|---|---|---|---|
+| NB New Build | Healthcare | Commercial offices | Student accommodation (PBSA / halls) |
+| EX Extension | Education | Hospitality / leisure | Commercial offices |
+| RF Refurbishment | Residential | Retail | Other |
+| FO Fit-out | Healthcare | Education | Mixed use |
+| EW External works only | Residential | Hospitality / leisure | Student accommodation (PBSA / halls) |
+| DM Demolition only | Industrial / warehouse | Retail | Mixed use |
+| OM Other or mixed | Industrial / warehouse | Other | Commercial offices |
+
+Batch 1 found and fixed bugs in these areas — across each type's three
+scenarios, make sure they are exercised where the type allows:
+- Postcodes in areas that used to fall back to the default region: Bristol
+  (BS), Exeter (EX), Plymouth (PL), Bath (BA), Gloucester/Cotswolds (GL),
+  Liverpool (L), Milton Keynes (MK), Telford (TF), Shrewsbury (SY1–SY13), and an
+  Inner London district (SW1, SE1, EC).
+- A Q5.1 financial benefit WITHOUT a Q5.2 annual figure, and one WITH a figure.
+- Q4.5 "Developed design (Stage 3)" together with a planning route that needs
+  consent (Full planning / Change of use / Prior approval).
+- Q2.5 including "Other" (then describe it — the form shows a text box).
+- For New Build / Extension / Refurbishment at least one tall building: 7 or
+  more storeys (residential-type use) so the higher-risk building rules apply.
+- Q3.1 known issues on every scenario that allows them (vary them).
+- Tight, comfortable and absent budgets; hard and no target dates.
+
+When Q2.5 includes "Other", describe it on a sub-bullet, exactly like this:
+```
+- Q2.5 Standards: BREEAM, Other
+  - Other standard: Passivhaus certification
+```

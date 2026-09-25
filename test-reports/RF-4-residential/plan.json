@@ -1,0 +1,179 @@
+{
+ "id": "RF-4-residential",
+ "projectType": "Refurbishment",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Cladding remediation, Thames View Tower"
+   },
+   {
+    "q": "Q1.1",
+    "value": "SE1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Refurbishment"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "7"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Residential"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1900–1979"
+   },
+   {
+    "q": "Q1.6",
+    "value": "Yes"
+   },
+   {
+    "q": "Q1.5",
+    "value": "5200"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Remediate the external envelope of a 22-storey residential tower following a PAS 9980 fire risk appraisal — replace non-compliant cladding and windows, re-roof, and upgrade fire-stopping at compartment lines — with residents remaining in occupation throughout."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Fabric and finishes only"
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "BREEAM",
+     "Other"
+    ],
+    "other": "PAS 9980 external wall fire risk appraisal follow-up"
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Fire safety deficiencies",
+     "Structural concerns"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Window replacement to two of eight floors in 2011; original 1960s cladding and roof otherwise untouched."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Condition",
+     "Structural"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Height or weight restrictions on site",
+     "Scaffold licence or highway encroachment required"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Residents remain in occupation throughout — no decant funding is available, so all work must be sequenced from external scaffold and access towers only."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2028-03-31"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-02-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "4100000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Funder / compliance requirement",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Avoidance of compliance cost or penalty"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "38000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0001",
+   "S-0015",
+   "S-0016",
+   "S-0017",
+   "S-0020",
+   "S-0064"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0064",
+    "name": "Repairs",
+    "pick": "One",
+    "key": "S-0064-03",
+    "label": "Condition: Poor",
+    "dims": [
+     {
+      "dim": "Condition",
+      "value": "Poor"
+     }
+    ]
+   }
+  ],
+  "quantities": [],
+  "method": null
+ }
+}

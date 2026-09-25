@@ -1,0 +1,152 @@
+{
+ "id": "EW-4-residential",
+ "projectType": "External works only",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Riverside Court estate grounds refresh"
+   },
+   {
+    "q": "Q1.1",
+    "value": "EX4"
+   },
+   {
+    "q": "Q1.2",
+    "value": "External works only"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Residential"
+   },
+   {
+    "q": "Q1.5",
+    "value": "2200"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Resurface and drain the communal car park, enlarge the bin store, add secure cycle storage and EV charging bays, and improve external lighting on the rear paths, all while keeping the car park in use throughout."
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "Other"
+    ],
+    "other": "Secured by Design accreditation for communal areas"
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Existing hardstanding to break out",
+     "Underground services or obstructions",
+     "Trees or hedgerow on site"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Utilities / statutory services search",
+     "Arboricultural survey (BS5837)",
+     "Topographic"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Permitted development"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Restricted working hours"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Residents live on site throughout and rely on the car park daily; works must be phased so at least half the spaces stay available at all times, and noisy works restricted to weekday daytime hours."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Ecological features — roof voids, mature trees, water bodies, bat roost potential"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-03-15"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-16"
+   },
+   {
+    "q": "Q4.3",
+    "value": "180000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Minimise disruption",
+     "Fixed / certain final cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Avoidance of compliance cost or penalty"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0074",
+   "S-0081",
+   "S-0057",
+   "S-0082"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0074",
+    "name": "Car parking",
+    "pick": "One",
+    "key": "S-0074-01",
+    "label": "Standard",
+    "qty": "45"
+   },
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "24"
+   }
+  ],
+  "method": null
+ }
+}

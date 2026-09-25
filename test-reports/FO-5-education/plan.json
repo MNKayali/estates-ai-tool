@@ -1,0 +1,184 @@
+{
+ "id": "FO-5-education",
+ "projectType": "Fit-out",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Sixth-form science and sports wing, Shrewsbury School"
+   },
+   {
+    "q": "Q1.1",
+    "value": "SY1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Fit-out"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Education"
+   },
+   {
+    "q": "Q1.4",
+    "value": "Pre-1900"
+   },
+   {
+    "q": "Q1.5",
+    "value": "1750"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Reconfigure a Victorian teaching block into a sixth-form science and sports wing, with new labs, a sports hall and a full internal redesign, timed around term dates and completing in time for the next academic year."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Reconfiguration or full redesign"
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "BREEAM",
+     "Other"
+    ],
+    "other": "DfE Building Bulletin acoustic and fire design standards for schools"
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Structural concerns",
+     "Asbestos known or suspected"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Classrooms last refurbished in 1985; no structural or services work since."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos refurbishment & demolition survey",
+     "Condition"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Term-time only working"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Rest of the school campus remains in session throughout; works must avoid exam periods and coordinate with the site's shared service road."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Ecological features — roof voids, mature trees, water bodies, bat roost potential"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-08-31"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-01-11"
+   },
+   {
+    "q": "Q4.3",
+    "value": "3500000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Design quality",
+     "Funder / compliance requirement"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Grant or funding unlock"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "45000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0024",
+   "S-0030",
+   "S-0033",
+   "S-0037",
+   "S-0052",
+   "S-0058",
+   "S-0050"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0039",
+    "name": "Heating and hot water",
+    "pick": "One",
+    "key": "S-0039-04",
+    "label": "System: District heating · Scope: Full system",
+    "dims": [
+     {
+      "dim": "System",
+      "value": "District heating"
+     },
+     {
+      "dim": "Scope",
+      "value": "Full system"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0037",
+    "name": "Sports",
+    "pick": "One",
+    "key": "S-0037-01",
+    "label": "Standard",
+    "qty": "300"
+   }
+  ],
+  "method": null
+ }
+}

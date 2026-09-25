@@ -84,3 +84,27 @@ layout. Categories: Answers, Region, Scope, Risk, Programme, Cost, Budget,
 Financial case, Instructions, Prose, Layout. Quote the report exactly (short).
 Be specific and evidence-based; don't pad — if there are no issues, say so.
 Do not edit anything except your review.md files.
+
+## Batch 2 — also confirm last round's fixes hold
+Batch 1 found these; they were fixed before batch 2 ran. Check each one that
+applies to your report and report any recurrence as **High** with category
+"Regression":
+1. Every budget figure in the prose, risk register and constraints matches the
+   "Budget check" box (same gross range, same shortfall/headroom).
+2. The region matches the postcode (BS/EX/PL/BA/GL/TA/TQ/TR = South West,
+   L = North West, MK = South East, TF and SY1–SY13 = West Midlands, SW1/SE1/EC =
+   Inner London); no "did not match any region" text unless the postcode is invalid.
+3. A Financial Case section exists whenever Q5.1 names a benefit (other than
+   "No direct financial return"); payback shown only when Q5.2 gives a figure;
+   its mid-point matches the rest of the report.
+4. With Q4.5 "Developed design (Stage 3)" and a planning route needing consent,
+   the programme still shows a planning determination (alongside Stage 4).
+5. A higher-risk building (18 m+ / 7+ storeys, residential-type use) shows a
+   Gateway 2 programme stage; an ecology context shows an ecology survey stage.
+6. No "Specification" on External works only / Demolition only reports; the
+   Q2.5 standards appear on the Scope page; an "Other" building use shows its
+   description on the cover.
+7. The project cost table foots (rows add to the subtotals and total).
+8. Every Q3.1 known issue has its own risk-register entry; no two entries are
+   the same risk reworded.
+9. No "+x% for restricted working hours" on a vacant building unless Q3.5 ticked it.

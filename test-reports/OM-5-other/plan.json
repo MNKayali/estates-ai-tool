@@ -1,0 +1,207 @@
+{
+ "id": "OM-5-other",
+ "projectType": "Other or mixed",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Walcot Coach House Repair Café Conversion"
+   },
+   {
+    "q": "Q1.1",
+    "value": "BA1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Other or mixed"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Other",
+    "other": "Repair café and community makerspace"
+   },
+   {
+    "q": "Q1.4",
+    "value": "Pre-1900"
+   },
+   {
+    "q": "Q1.5",
+    "value": "140"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Convert a disused Georgian coach house into a repair café and community makerspace where residents can bring broken appliances, bikes and furniture to be repaired rather than discarded. Address suspected damp and asbestos, confirm the structure is sound, and keep the conservation-area setting and historic fabric intact throughout."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Basic"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "PAS 2035",
+     "Other"
+    ],
+    "other": "Historic England energy retrofit guidance for traditional buildings"
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Damp or water ingress",
+     "Unsure — surveys needed"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Used as a builder's store into the early 2000s; disused and unheated since, no works carried out."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos management survey",
+     "Condition",
+     "Structural",
+     "Archaeological assessment"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning + Listed Building Consent"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "No vehicle access or restricted deliveries"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "The building sits within the Bath conservation area and behind a terrace with no vehicle access, so materials will need to be hand-carried in; the grant has no fixed spending deadline."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Conservation area or Article 4 direction"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-04-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "480000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Design quality",
+     "Funder / compliance requirement"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Grant or funding unlock"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0001",
+   "S-0003",
+   "S-0064",
+   "S-0065",
+   "S-0066",
+   "S-0018",
+   "S-0019",
+   "S-0021",
+   "S-0022",
+   "S-0023",
+   "S-0024",
+   "S-0028",
+   "S-0039",
+   "S-0040",
+   "S-0041",
+   "S-0045",
+   "S-0046",
+   "S-0047",
+   "S-0049",
+   "S-0052",
+   "S-0081"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0064",
+    "name": "Repairs",
+    "pick": "One",
+    "key": "S-0064-03",
+    "label": "Condition: Poor",
+    "dims": [
+     {
+      "dim": "Condition",
+      "value": "Poor"
+     }
+    ]
+   },
+   {
+    "id": "S-0039",
+    "name": "Heating and hot water",
+    "pick": "One",
+    "key": "S-0039-05",
+    "label": "System: Electric · Scope: Full system",
+    "dims": [
+     {
+      "dim": "System",
+      "value": "Electric"
+     },
+     {
+      "dim": "Scope",
+      "value": "Full system"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "6"
+   }
+  ],
+  "method": null
+ }
+}

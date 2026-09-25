@@ -1,0 +1,28 @@
+# Review — FO-5
+
+Verdict: The report correctly carries through the answers (including the SY1→West Midlands region and the planning-gate-at-Stage-4 fix, both previously-fixed batch-1 items), but has a duplicated ecological/bat-roost risk entry and drops the Inflation-allowance basis from the "How the percentages were set" explanations.
+
+## Issues
+| # | Severity | Category | Page | Report says | Expected (scenario) | Issue |
+|---|---|---|---|---|---|---|
+| 1 | Medium | Risk | 4 | R04 (HIGH, Programme): "Ecological features present: preliminary ecological appraisal and protected-species surveys needed; bat surveys May–September only; licence adds months." R07 (MEDIUM, Regulatory): "Bat roost potential and mature trees require ecological surveys; timing constraints and licensing can delay programme and add cost." | One risk register entry per underlying issue (Q3.8 ecological features) | R04 and R07 are the same underlying Q3.8 ecological/bat-roost risk described twice, under different categories and severities (HIGH vs MEDIUM) — effectively the same risk reworded rather than a single entry. |
+| 2 | Medium | Cost | 7 | "How the percentages were set" lists Preliminaries, Overheads and profit, Professional fees, Developer and project costs, Risk, Contingency — six bullets | Every percentage line in the cost table should have a basis explanation | Inflation allowance (F), 4% of works, appears as a costed line in the table above but has no corresponding explanation bullet — the only percentage in the table left unexplained. FO-4's equivalent section does include an Inflation bullet, so this is a one-off omission, not a structural absence of the feature. |
+| 3 | Low | Cost | 6 | "Works cost total" Low £1,457,000, from Element-group subtotals £98,000+£219,000+£272,000+£237,000+£630,000 | Group subtotals should sum to the displayed total | The five group Low subtotals sum to £1,456,000, £1,000 short of the displayed £1,457,000 total; High sums exactly. Appendix A's 24 individual lines (p11) sum to exactly £1,457,000, so the true total is correct — this is a display-only footing gap in the group-summary table caused by rounding each group subtotal independently. |
+
+## Expectations
+| Expectation | Result | Note |
+|---|---|---|
+| Cover/summary: [TEST2] Sixth-form science and sports wing, Fit-out, Education, 1,750 m², SY1 | Pass | All present; region correctly West Midlands for SY1 (confirms the batch-1 region fix holds — see Batch 2 check below). |
+| Scope page lists Strip-out, Internal walls, Internal doors, Fire stopping, full finishes, district heating, Water and drainage, Ventilation, Power, Lighting, Emergency lighting, Fire alarm, Sprinklers, Toilets, AV equipment, Laboratory, Sports at 300 m² (your figure), Data and IT, Compressed air | Pass | All present (p3, p11); Sports correctly shown as "client figure" at 300 m²; Fume extraction also appears, a reasonable typical-scope addition alongside Laboratory. |
+| Risk register includes a structural risk and an asbestos risk (Q3.1) and an ecological-features context risk (Q3.8) | Partly | Structural (R02) and asbestos (R03) are each a single clean entry; the ecological-features risk is present but split into two overlapping entries (R04, R07) — see Issue 1. |
+| Programme includes a planning stage (Full planning) at Developed design (Stage 3), checked against the 31 Aug 2027 target, flagging if term-time-only access tightens the critical path | Pass | Planning determination (11 wks) runs parallel with Stage 4 — the project correctly starts at Stage 4 since Q4.5 marks Stage 3 already complete; target flagged as missed by ~69 weeks; construction narrative notes "an allowance for working around occupants." |
+| Budget verdict: expect the estimate to sit comfortably within the £3,500,000 budget (no shortfall) | Partly | No shortfall occurs (Pass on that point), but the verdict is "tight" — achievable only if the project prices toward the lower end, with no margin for cost growth — not the "comfortable" margin the scenario anticipated. This reflects the engine's own cost calculation, not a report defect. |
+| No "higher-risk building" content | Pass | None present; Fit-out correctly has no storeys/height questions. |
+| Estimate Basis lists BREEAM plus the "DfE Building Bulletin acoustic and fire design standards for schools" custom standard, and Standard spec level | Pass | Scope page: "standard specification... standards: BREEAM, DfE Building Bulletin acoustic and fire design standards for schools." |
+| Confidence grade should reflect the two surveys held (asbestos R&D, condition) rather than an unsurveyed building | Pass | Executive Summary cites estimated quantities and lack of published benchmarks as the confidence deficiencies, not missing surveys; Next Steps treats the asbestos survey as something to confirm/reuse rather than commission from scratch. |
+
+## Batch 2 — confirmation of last round's fixes
+- Region (check 2): SY1 correctly shows as West Midlands, per the brief's own list — batch-1 fix holds, no recurrence.
+- Planning stage with Q4.5 "Developed design (Stage 3)" (check 4): a planning determination stage is present alongside Stage 4 — batch-1 fix holds, no recurrence.
+- Restricted-working-hours premium (check 9): not applied here (Q3.5 was "Term-time only working", not "Restricted working hours") — correct, no recurrence.
+- Q3.1 duplicate-risk check (check 8) does not itself recur (Structural and Asbestos are each single, distinct entries) — but see Issue 1 above for an equivalent duplication on the Q3.8 ecological risk, which check 8 does not literally cover but the same underlying defect class.

@@ -6,7 +6,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { modelFromBytes, publicCatalogue } from '../../lib/nrmWorkbook.js'
-import { buildContext, isShown, offeredOptions, isOptionAvailable } from '../../lib/scopeEngine.js'
+import { buildContext, isShown, offeredOptions, isOptionAvailable, isItemAvailable } from '../../lib/scopeEngine.js'
 import { knownIssuesFor, surveysFor, isQuestionShown } from '../../lib/questionSets.js'
 import { SITE_CONTEXT_OPTIONS } from '../../lib/siteContext.js'
 
@@ -33,7 +33,7 @@ const LISTS = {
   'Q5.1': ['Energy or operational cost savings', 'Rental or commercial income', 'Grant or funding unlock', 'Avoidance of compliance cost or penalty', 'Increased asset value', 'No direct financial return — strategic or compliance project'],
 }
 const MULTI = new Set(['Q2.5', 'Q3.1', 'Q3.3', 'Q3.5', 'Q3.8', 'Q4.4', 'Q5.1'])
-const KEY = { 'Q1.2a': 'q1_2_storeys', 'Q1.4': 'q1_4_buildingAge', 'Q3.5': 'q3_5_accessConstraints', 'Q3.6': 'q3_6_occupation', 'Q3.2': 'q3_2_previousWorks', 'Q3.8': 'q3_8_siteContext' }
+const KEY = { 'Q1.2a': 'q1_2_storeys', 'Q1.4': 'q1_4_buildingAge', 'Q3.5': 'q3_5_accessConstraints', 'Q3.6': 'q3_6_occupation', 'Q3.2': 'q3_2_previousWorks', 'Q3.8': 'q3_8_siteContext', 'Q5.1': 'q5_1_financialBenefit', 'Q5.2': 'q5_2_annualBenefit', 'Q1.6': 'q1_6_heightOver18m', 'Q2.2': 'q2_3_interventionLevel', 'Q2.4': 'q2_4_specLevel' }
 
 // Pick known options out of free text, longest first, in the order they appear.
 function pickOptions(text, options) {
@@ -103,12 +103,15 @@ function build(id) {
         const item = itemById.get(sid)
         if (!item) problems.push(`Q2.3: unknown item ${sid}`)
         else if (!isShown(item, ctx)) problems.push(`Q2.3: ${sid} ${item.name} is not shown for ${pt}`)
+        else if (scope.add.includes(sid) && !isItemAvailable(item, ctx)) problems.push(`Q2.3: ${sid} ${item.name} is greyed out at this level of intervention`)
       }
       for (const m of (blank(s.options) ? [] : s.options.matchAll(/(S-\d{4}-\d{2})/g))) {
         const key = m[1], item = itemById.get(key.slice(0, 6)), opt = item?.options.find(o => o.key === key)
         if (!opt) { problems.push(`Q2.3: unknown option ${key}`); continue }
         if (!offeredOptions(item, ctx).some(o => o.key === key)) problems.push(`Q2.3: option ${key} is not offered for ${pt}`)
         else if (!isOptionAvailable(opt, ctx)) problems.push(`Q2.3: option ${key} needs a higher intervention level`)
+        // A single offered option has no drop-down: it is the default, nothing to set.
+        if (item.pick === 'One' && offeredOptions(item, ctx).length < 2) continue
         scope.options.push({ id: item.id, name: item.name, pick: item.pick, key, label: opt.label, dims: opt.dims.map(d => ({ dim: d.dim || 'Option', value: d.value })) })
       }
       for (const m of (blank(s.quantities) ? [] : s.quantities.matchAll(/(S-\d{4}-\d{2})[^=]*=\s*([\d,.]+)/g))) {
@@ -133,6 +136,11 @@ function build(id) {
     if (it.q === 'Q4.3' || it.q === 'Q5.2' || it.q === 'Q1.5') value = value.replace(/[£,\s]/g, '')
     const step = { q: it.q, value }
     if (it.q === 'Q1.3') { const other = it.subs.find(x => /describe/i.test(x.key)); if (other) step.other = other.value }
+    if (it.q === 'Q2.5') {
+      const other = it.subs.find(x => /other standard/i.test(x.key))
+      if (other) step.other = other.value
+      else if (value.includes('Other')) problems.push('Q2.5: "Other" ticked but no "Other standard:" sub-bullet')
+    }
     sections[sec].push(step)
   }
   if (ptRow.usesLevel && !get('Q2.2')) problems.push('Q2.2: level of intervention is required for this type')

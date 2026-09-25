@@ -1,0 +1,209 @@
+{
+ "id": "NB-5-offices",
+ "projectType": "New Build",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Clerkenwell speculative office development"
+   },
+   {
+    "q": "Q1.1",
+    "value": "EC1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "New Build"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "6"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Commercial offices"
+   },
+   {
+    "q": "Q1.6",
+    "value": "Yes"
+   },
+   {
+    "q": "Q1.5",
+    "value": "4200"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Deliver a new six-storey speculative office building on a cleared City-fringe site, targeting BREEAM Excellent and WELL certification to attract institutional tenants, with a basement plant level and full raised-access-floor fit-out shell."
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "BREEAM",
+     "Other"
+    ],
+    "other": "WELL Building Standard v2 certification"
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Existing structures on site to demolish",
+     "Contaminated land"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Topographic",
+     "Contamination survey (Phase 1 / Phase 2)",
+     "Utilities / statutory services search",
+     "Archaeological assessment"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Scaffold licence or highway encroachment required"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Site cleared following demolition of a 1960s office block; the adjoining building's party wall runs the full depth of the site on the northern boundary."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Attached to or within 3 m of a neighbouring building (party wall)"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-03-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "18000000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Design quality",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q6.1",
+    "value": "Focus the executive summary on deliverability against the development appraisal budget and flag any risk to the target return."
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0002",
+   "S-0010",
+   "S-0044",
+   "S-0048",
+   "S-0054",
+   "S-0057",
+   "S-0063",
+   "S-0081"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0022",
+    "name": "Floor finishes",
+    "pick": "One",
+    "key": "S-0022-02",
+    "label": "Raised access floor: Yes",
+    "dims": [
+     {
+      "dim": "Raised access floor",
+      "value": "Yes"
+     }
+    ]
+   },
+   {
+    "id": "S-0044",
+    "name": "Electricity supply upgrade",
+    "pick": "One",
+    "key": "S-0044-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   },
+   {
+    "id": "S-0048",
+    "name": "Standby power",
+    "pick": "Several",
+    "key": "S-0048-04",
+    "label": "Type: UPS · Size: Medium",
+    "dims": [
+     {
+      "dim": "Type",
+      "value": "UPS"
+     },
+     {
+      "dim": "Size",
+      "value": "Medium"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "120"
+   }
+  ],
+  "method": "Traditional"
+ }
+}
