@@ -1,7 +1,7 @@
 // Merges every test-reports/<id>/review.md into one issues table:
 //   Downloads/Agent test/Issues.md   (summary + all issues, High first)
 //   Downloads/Agent test/Issues.xlsx (Issues, Expectations, Summary sheets)
-//   node test-reports/_reference/combine-reviews.mjs
+//   node test-reports/_reference/combine-reviews.mjs [--batch 2]   (batch N = scenarios in report-ids-batchN.json)
 import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
@@ -9,7 +9,8 @@ import * as XLSX from 'xlsx'
 
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/(\w:)/, '$1'))
 const ROOT = path.resolve(HERE, '..')
-const OUT = path.join(os.homedir(), 'Downloads', 'Agent test')
+const bi = process.argv.indexOf('--batch'), batch = bi > 0 ? process.argv[bi + 1] : '1'
+const OUT = path.join(os.homedir(), 'Downloads', 'Agent test', ...(batch === '1' ? [] : [`Batch ${batch}`]))
 const TYPES = { NB: 'New Build', EX: 'Extension', RF: 'Refurbishment', FO: 'Fit-out', EW: 'External works only', DM: 'Demolition only', OM: 'Other or mixed' }
 const RANK = { High: 0, Medium: 1, Low: 2 }
 
@@ -28,7 +29,7 @@ function tableAfter(md, heading) {
   return rows.slice(2) // header + separator
 }
 
-const ids = fs.readdirSync(ROOT).filter(d => /^[A-Z]{2}-\d-/.test(d)).sort()
+const ids = Object.keys(JSON.parse(fs.readFileSync(path.join(ROOT, batch === '1' ? 'report-ids.json' : `report-ids-batch${batch}.json`), 'utf8'))).sort()
 const issues = [], expectations = [], summary = [], missing = []
 for (const id of ids) {
   const f = path.join(ROOT, id, 'review.md')

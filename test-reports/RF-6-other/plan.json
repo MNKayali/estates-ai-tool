@@ -1,0 +1,191 @@
+{
+ "id": "RF-6-other",
+ "projectType": "Refurbishment",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Corn Exchange community hub reconfiguration"
+   },
+   {
+    "q": "Q1.1",
+    "value": "SY1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Refurbishment"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "2"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Other",
+    "other": "Grade II-listed former corn exchange, part community use"
+   },
+   {
+    "q": "Q1.4",
+    "value": "Pre-1900"
+   },
+   {
+    "q": "Q1.5",
+    "value": "480"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Reconfigure the ground and first floors of a Grade II-listed former corn exchange into bookable meeting rooms, a café servery and shared co-working space, retaining the historic roof and façade and keeping all works sympathetic to the building's listed status."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Reconfiguration or full redesign"
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "None"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Structural concerns",
+     "Damp or water ingress"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Roof repairs following storm damage in 2016; no works to the interior since the 1980s."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Condition",
+     "Structural",
+     "Asbestos refurbishment & demolition survey"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning + Listed Building Consent"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "No vehicle access or restricted deliveries"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "The community group's evening bookings must be able to continue in the unaffected part of the building for as much of the works period as possible."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Conservation area or Article 4 direction"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-11-30"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-01-04"
+   },
+   {
+    "q": "Q4.3",
+    "value": "1450000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Design quality",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0001",
+   "S-0003",
+   "S-0018",
+   "S-0019",
+   "S-0021",
+   "S-0022",
+   "S-0023",
+   "S-0024",
+   "S-0027",
+   "S-0028",
+   "S-0039",
+   "S-0040",
+   "S-0041",
+   "S-0045",
+   "S-0046",
+   "S-0047",
+   "S-0049",
+   "S-0052",
+   "S-0064",
+   "S-0065"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0027",
+    "name": "Kitchens",
+    "pick": "One",
+    "key": "S-0027-02",
+    "label": "Type: Tea point",
+    "dims": [
+     {
+      "dim": "Type",
+      "value": "Tea point"
+     }
+    ]
+   },
+   {
+    "id": "S-0064",
+    "name": "Repairs",
+    "pick": "One",
+    "key": "S-0064-01",
+    "label": "Condition: Fair",
+    "dims": [
+     {
+      "dim": "Condition",
+      "value": "Fair"
+     }
+    ]
+   }
+  ],
+  "quantities": [],
+  "method": null
+ }
+}

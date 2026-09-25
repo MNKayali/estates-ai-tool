@@ -1,0 +1,184 @@
+{
+ "id": "NB-6-student",
+ "projectType": "New Build",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Edge Hill student accommodation tower, Liverpool"
+   },
+   {
+    "q": "Q1.1",
+    "value": "L7"
+   },
+   {
+    "q": "Q1.2",
+    "value": "New Build"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "7"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Student accommodation (PBSA / halls)"
+   },
+   {
+    "q": "Q1.6",
+    "value": "Yes"
+   },
+   {
+    "q": "Q1.5",
+    "value": "3600"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Deliver a new seven-storey purpose-built student accommodation tower on a former surface car park near the Edge Hill campus, with cluster flats, a communal servery and gym space, ready for the following September intake."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "University design guide",
+     "Net zero"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Trees or hedgerow on site",
+     "Unsure — surveys needed"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Topographic",
+     "Ecological appraisal",
+     "Arboricultural survey (BS5837)",
+     "Biodiversity Net Gain assessment"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "No vehicle access or restricted deliveries"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Site was previously a surface car park; a historic dock wall and mature trees along the northern boundary are to be retained."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Ecological features — roof voids, mature trees, water bodies, bat roost potential"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-08-15"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-01"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Speed",
+     "Fixed / certain final cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Not yet confirmed"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "480000"
+   },
+   {
+    "q": "Q6.1",
+    "value": "Flag the Gateway 2 / Building Safety Act implications clearly for the funding committee, and note any risk to the September occupancy date."
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0025",
+   "S-0032",
+   "S-0037",
+   "S-0051",
+   "S-0054",
+   "S-0081"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0025",
+    "name": "Bathrooms and en-suites",
+    "pick": "One",
+    "key": "S-0025-03",
+    "label": "Pods",
+    "dims": [
+     {
+      "dim": "Option",
+      "value": "Pods"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0037",
+    "name": "Sports",
+    "pick": "One",
+    "key": "S-0037-01",
+    "label": "Standard",
+    "qty": "220"
+   },
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "180"
+   }
+  ],
+  "method": "Modular"
+ }
+}

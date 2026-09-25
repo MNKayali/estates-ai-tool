@@ -1,0 +1,213 @@
+{
+ "id": "OM-6-offices",
+ "projectType": "Other or mixed",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] Cornhill House Office Conversion"
+   },
+   {
+    "q": "Q1.1",
+    "value": "EC2"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Other or mixed"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Commercial offices"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1900–1979"
+   },
+   {
+    "q": "Q1.5",
+    "value": "950"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Convert a vacated bank branch — banking hall and upper floors — into flexible Grade A office space for a professional-services tenant ahead of a fixed lease-commencement date. Remove asbestos, replace under-capacity M&E, bring fire compartmentation up to current standard, and deliver a high-quality fit-out under a change-of-use consent."
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "BREEAM"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Ageing or inadequate M&E",
+     "Fire safety deficiencies"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Last refitted as a bank branch in the 1970s; no significant M&E or fabric upgrade since."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos refurbishment & demolition survey",
+     "Structural",
+     "Condition",
+     "Utilities / statutory services search"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Change of use"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Restricted working hours"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "No capital budget has been fixed yet — the landlord is awaiting this feasibility report before committing funds — but the incoming tenant's lease-commencement date is fixed and cannot slip."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Conservation area or Article 4 direction",
+     "Attached to or within 3 m of a neighbouring building (party wall)"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-03-01"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-01"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Fixed / certain final cost",
+     "Design quality"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "310000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0001",
+   "S-0003",
+   "S-0018",
+   "S-0019",
+   "S-0020",
+   "S-0021",
+   "S-0022",
+   "S-0023",
+   "S-0024",
+   "S-0027",
+   "S-0028",
+   "S-0030",
+   "S-0031",
+   "S-0039",
+   "S-0040",
+   "S-0041",
+   "S-0042",
+   "S-0044",
+   "S-0045",
+   "S-0046",
+   "S-0047",
+   "S-0049",
+   "S-0052",
+   "S-0053",
+   "S-0054"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0022",
+    "name": "Floor finishes",
+    "pick": "One",
+    "key": "S-0022-02",
+    "label": "Raised access floor: Yes",
+    "dims": [
+     {
+      "dim": "Raised access floor",
+      "value": "Yes"
+     }
+    ]
+   },
+   {
+    "id": "S-0027",
+    "name": "Kitchens",
+    "pick": "One",
+    "key": "S-0027-02",
+    "label": "Type: Tea point",
+    "dims": [
+     {
+      "dim": "Type",
+      "value": "Tea point"
+     }
+    ]
+   },
+   {
+    "id": "S-0039",
+    "name": "Heating and hot water",
+    "pick": "One",
+    "key": "S-0039-04",
+    "label": "System: District heating · Scope: Full system",
+    "dims": [
+     {
+      "dim": "System",
+      "value": "District heating"
+     },
+     {
+      "dim": "Scope",
+      "value": "Full system"
+     }
+    ]
+   }
+  ],
+  "quantities": [],
+  "method": null
+ }
+}

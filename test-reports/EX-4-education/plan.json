@@ -1,0 +1,224 @@
+{
+ "id": "EX-4-education",
+ "projectType": "Extension",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST2] St Chad's Primary School — SEN Classroom Extension"
+   },
+   {
+    "q": "Q1.1",
+    "value": "SY1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Extension"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "1"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Education"
+   },
+   {
+    "q": "Q1.4",
+    "value": "Pre-1900"
+   },
+   {
+    "q": "Q1.5",
+    "value": "220"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Add two new classrooms and a dedicated SEN sensory room to the end of the existing Victorian teaching block, with an accessible WC and Changing Places facility, to accommodate the rising number of pupils with additional needs. The school remains open throughout."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "BREEAM",
+     "Acoustic"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Damp or water ingress"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Roof re-covering to the main teaching block in 2015; no other recent capital works to the area being extended."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos management survey",
+     "Structural",
+     "Arboricultural survey (BS5837)"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Term-time only working"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Works must avoid disrupting the adjacent Reception classroom during term time, and playground access for pupils needs to be maintained throughout construction."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Ecological features — roof voids, mature trees, water bodies, bat roost potential"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-08-27"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-04-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "480000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Fixed / certain final cost",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Avoidance of compliance cost or penalty"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0006",
+   "S-0008",
+   "S-0009",
+   "S-0011",
+   "S-0015",
+   "S-0016",
+   "S-0017",
+   "S-0018",
+   "S-0019",
+   "S-0020",
+   "S-0021",
+   "S-0022",
+   "S-0023",
+   "S-0024",
+   "S-0029",
+   "S-0031",
+   "S-0039",
+   "S-0040",
+   "S-0041",
+   "S-0043",
+   "S-0045",
+   "S-0046",
+   "S-0047",
+   "S-0049",
+   "S-0052",
+   "S-0053",
+   "S-0067",
+   "S-0076",
+   "S-0080"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0024",
+    "name": "Toilets",
+    "pick": "Several",
+    "key": "S-0024-01",
+    "label": "Standard",
+    "dims": [
+     {
+      "dim": "Option",
+      "value": "Standard"
+     }
+    ]
+   },
+   {
+    "id": "S-0024",
+    "name": "Toilets",
+    "pick": "Several",
+    "key": "S-0024-04",
+    "label": "Accessible",
+    "dims": [
+     {
+      "dim": "Option",
+      "value": "Accessible"
+     }
+    ]
+   },
+   {
+    "id": "S-0024",
+    "name": "Toilets",
+    "pick": "Several",
+    "key": "S-0024-05",
+    "label": "Changing Places",
+    "dims": [
+     {
+      "dim": "Option",
+      "value": "Changing Places"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0006",
+    "name": "Tree removal",
+    "pick": "One",
+    "key": "S-0006-01",
+    "label": "Standard",
+    "qty": "2"
+   }
+  ],
+  "method": null
+ }
+}
