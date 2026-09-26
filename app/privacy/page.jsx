@@ -2,8 +2,7 @@
  * /privacy — Privacy Notice (UK GDPR / Data Protection Act 2018)
  * Operator: Projento
  * Last reviewed: 25 September 2026
- *
- * The contact address is BRAND.email (lib/brand.js).
+ * Contact email: BRAND.email (lib/brand.js), the same address the report's contact card shows.
  */
 import Logo from '../components/Logo'
 import { BRAND } from '@/lib/brand'
@@ -229,7 +228,7 @@ export default function PrivacyPage() {
             To exercise any right, including closing your account, contact us from the email address your account uses.
           </p>
           <p style={{ ...body, background: '#F8F1E2', border: `1px solid ${BLUE}`, borderRadius: '4px', padding: '12px 14px' }}>
-            <strong>Contact:</strong> email <a href={`mailto:${BRAND.email}`} style={{ color: BLUE }}>{BRAND.email}</a>.
+            <strong>Contact:</strong> email <a href={`mailto:${BRAND.email}`} style={{ color: NAVY, fontWeight: 600 }}>{BRAND.email}</a>.
           </p>
           <p style={body}>
             You also have the right to complain to the{' '}
