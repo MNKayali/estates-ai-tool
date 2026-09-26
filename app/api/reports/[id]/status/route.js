@@ -7,7 +7,7 @@
  * from its last successful fetch; this just answers "is it done yet".
  */
 import { getReport } from '@/lib/kv'
-import { authoriseReport } from '@/lib/auth'
+import { authoriseReport, getSessionUser, reportNotFoundResponse } from '@/lib/auth'
 
 export async function GET(request, { params }) {
   const { id } = await params
@@ -16,9 +16,7 @@ export async function GET(request, { params }) {
   }
 
   const record = await getReport(id)
-  if (!record) {
-    return Response.json({ error: 'Report not found or expired.' }, { status: 404 })
-  }
+  if (!record) return reportNotFoundResponse(await getSessionUser(request))
   const auth = await authoriseReport(request, record)
   if (auth.response) return auth.response
 

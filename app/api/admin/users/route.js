@@ -1,5 +1,5 @@
 /**
- * GET  /api/admin/users — every account (no password hashes).
+ * GET  /api/admin/users — every account (no password hashes), with its report count.
  * POST /api/admin/users { name, email } — invite someone: creates the account
  *      and a 7-day set-password link, emailed when Resend is configured and
  *      always returned so the admin can pass it on by hand.
@@ -8,11 +8,16 @@
  */
 import { listUsers, createUser, createLinkToken, publicUser, normaliseEmail, isValidEmail } from '@/lib/users'
 import { emailEnabled, sendEmail, inviteEmail, appOrigin } from '@/lib/email'
+import { countUserReports } from '@/lib/kv'
 
 export async function GET() {
   try {
     const users = await listUsers()
-    return Response.json({ users: users.map(publicUser), emailEnabled: emailEnabled() })
+    const counts = await Promise.all(users.map(u => countUserReports(u.uid)))
+    return Response.json({
+      users: users.map((u, i) => ({ ...publicUser(u), reportCount: counts[i] })),
+      emailEnabled: emailEnabled(),
+    })
   } catch (e) {
     console.error('[admin/users] list failed:', e.message)
     return Response.json({ error: 'Users could not be loaded (is KV configured?).' }, { status: 503 })

@@ -103,7 +103,7 @@ function Header() {
 
 // ─── Dashboard ──────────────────────────────────────────────────────────────
 function Dashboard({ data, health, onRefresh }) {
-  const { config, counts, reports, feedback } = data
+  const { config, counts, reports, feedback, usage } = data
   const [users, setUsers] = useState([])
   return (
     <div className="rise rise-1">
@@ -118,10 +118,12 @@ function Dashboard({ data, health, onRefresh }) {
       {/* Usage counts */}
       <SectionHeader number="1" title="Usage" />
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(160px, 100%), 1fr))', gap: 14, marginBottom: 32 }}>
-        <Card style={{ padding: '18px 20px' }}><Stat value={counts.reports}       label="Reports generated" /></Card>
+        <Card style={{ padding: '18px 20px' }}><Stat value={counts.reports}       label="Reports completed" /></Card>
         <Card style={{ padding: '18px 20px' }}><Stat value={counts.reportsLast7d} label="Last 7 days" /></Card>
+        <Card style={{ padding: '18px 20px' }}><Stat value={counts.users ?? '—'}  label="Accounts" /></Card>
         <Card style={{ padding: '18px 20px' }}><Stat value={counts.feedback}      label="Feedback flagged" /></Card>
       </div>
+      {usage && <UsagePanel usage={usage} />}
 
       {/* System health */}
       <SectionHeader number="2" title="System health" />
@@ -186,7 +188,7 @@ function ReportsTable({ reports, kvOn, users = [] }) {
       <Card style={{ padding: 24, marginBottom: 32 }}>
         <p style={{ color: 'var(--text-mute)', fontSize: 14, margin: 0 }}>
           {kvOn
-            ? 'No reports generated yet. They will appear here as colleagues use the tool.'
+            ? 'No reports generated yet. They will appear here as people use the tool.'
             : 'Persistence (KV) is not configured, so reports are not indexed. Set KV_REST_API_URL / KV_REST_API_TOKEN to enable the reports browser.'}
         </p>
       </Card>
@@ -209,7 +211,7 @@ function ReportsTable({ reports, kvOn, users = [] }) {
           {reports.map((r, i) => (
             <tr key={r.reportId || i}>
               <td style={{ fontWeight: 600 }}>{r.projectName || 'Untitled'}</td>
-              <td style={{ color: 'var(--text-mid)', fontSize: 13 }}>{r.ownerId ? (emailOf(r.ownerId) || 'Account') : 'Access code (legacy)'}</td>
+              <td style={{ color: 'var(--text-mid)', fontSize: 13 }}>{r.ownerId ? (emailOf(r.ownerId) || 'Account (deleted?)') : r.trial ? 'Free trial' : 'Access code (legacy)'}</td>
               <td style={{ whiteSpace: 'nowrap', color: 'var(--text-mid)' }}>{fmtDate(r.generatedAt)}</td>
               <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{f1k(r.totalLow)} – {f1k(r.totalHigh)}</td>
               <td style={{ textAlign: 'right' }}>{r.totalWeeks ?? '—'}</td>
@@ -222,6 +224,49 @@ function ReportsTable({ reports, kvOn, users = [] }) {
           ))}
         </tbody>
       </table>
+    </div>
+  )
+}
+
+// ─── Usage over time ─────────────────────────────────────────────────────────
+// Sign-ups per week, reports per week (account holders vs free-trial visitors)
+// and the free trial's conversion: visitors refused at the limit, and how many
+// of them then created an account. Weekly report counts start when this
+// release went live; earlier weeks show 0.
+function UsagePanel({ usage }) {
+  const { weeks = [], trial = { limitHit: 0, converted: 0 } } = usage
+  const rate = trial.limitHit ? Math.round((trial.converted / trial.limitHit) * 100) : null
+  const recent = [...weeks].reverse()
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(160px, 100%), 1fr))', gap: 14, marginBottom: 14 }}>
+        <Card style={{ padding: '18px 20px' }}><Stat value={trial.limitHit} label="Trial visitors who hit the limit" /></Card>
+        <Card style={{ padding: '18px 20px' }}><Stat value={trial.converted} label="…who then signed up" /></Card>
+        <Card style={{ padding: '18px 20px' }}><Stat value={rate == null ? '—' : `${rate}%`} label="Trial conversion" /></Card>
+      </div>
+      <div className="tbl-wrap">
+        <table className="tbl">
+          <caption className="sr-only">Sign-ups and reports per week, most recent first</caption>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left' }}>Week</th>
+              <th style={{ textAlign: 'right' }}>Sign-ups</th>
+              <th style={{ textAlign: 'right' }}>Reports (accounts)</th>
+              <th style={{ textAlign: 'right' }}>Reports (free trial)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {recent.map(w => (
+              <tr key={w.week}>
+                <td className="mono" style={{ fontSize: 12.5 }}>{w.week}</td>
+                <td style={{ textAlign: 'right' }}>{w.signups}</td>
+                <td style={{ textAlign: 'right' }}>{w.userReports}</td>
+                <td style={{ textAlign: 'right' }}>{w.trialReports}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
@@ -284,11 +329,18 @@ function UsersPanel({ onUsers }) {
 
   async function act(u, action) {
     if (action === 'disable' && !window.confirm(`Disable ${u.email}? They will be signed out and cannot sign in until you enable the account again. Their reports are kept.`)) return
+    if (action === 'delete' && !window.confirm(`Delete ${u.email}? The account, all ${u.reportCount ?? 0} of their reports and every signed-in session are removed at once. This cannot be undone.`)) return
+    let extra = {}
+    if (action === 'tier') {
+      const tier = window.prompt(`Tier for ${u.email} (one word, e.g. free). Nothing reads the tier yet.`, u.tier || 'free')
+      if (tier == null) return
+      extra = { tier }
+    }
     setBusy(u.uid + action); setError(''); setLink(null); setCopied(false)
     try {
       const res = await fetch(`/api/admin/users/${u.uid}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, ...extra }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) { setError(data.error || 'The change could not be saved.'); return }
@@ -349,7 +401,7 @@ function UsersPanel({ onUsers }) {
         <p role="status" style={{ color: 'var(--text-mute)', fontSize: 14 }}>Loading users…</p>
       ) : !users.length ? (
         <Card style={{ padding: 24 }}>
-          <p style={{ color: 'var(--text-mute)', fontSize: 14, margin: 0 }}>No accounts yet. Invite yourself first, then your colleagues.</p>
+          <p style={{ color: 'var(--text-mute)', fontSize: 14, margin: 0 }}>No accounts yet. Anyone can sign up at /signup; you can also invite someone above.</p>
         </Card>
       ) : (
         <div className="tbl-wrap">
@@ -359,7 +411,10 @@ function UsersPanel({ onUsers }) {
                 <th style={{ textAlign: 'left' }}>Name</th>
                 <th style={{ textAlign: 'left' }}>Email</th>
                 <th style={{ textAlign: 'left' }}>Status</th>
-                <th style={{ textAlign: 'left' }}>Last sign-in</th>
+                <th style={{ textAlign: 'left' }}>Tier</th>
+                <th style={{ textAlign: 'right' }}>Reports</th>
+                <th style={{ textAlign: 'left' }}>Joined</th>
+                <th style={{ textAlign: 'left' }}>Last active</th>
                 <th style={{ textAlign: 'right' }}><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
@@ -369,7 +424,10 @@ function UsersPanel({ onUsers }) {
                   <td style={{ fontWeight: 600 }}>{u.name || '—'}</td>
                   <td style={{ fontSize: 13 }}>{u.email}</td>
                   <td><span className={`rag ${u.status === 'active' ? 'rag-low' : u.status === 'invited' ? 'rag-med' : 'rag-high'}`}>{STATUS_LABEL[u.status] || u.status}</span></td>
-                  <td style={{ whiteSpace: 'nowrap', color: 'var(--text-mid)', fontSize: 13 }}>{u.lastLoginAt ? fmtDate(u.lastLoginAt) : '—'}</td>
+                  <td style={{ fontSize: 13 }}>{u.tier || 'free'}</td>
+                  <td style={{ textAlign: 'right' }}>{u.reportCount ?? '—'}</td>
+                  <td style={{ whiteSpace: 'nowrap', color: 'var(--text-mid)', fontSize: 13 }}>{fmtDate(u.createdAt)}</td>
+                  <td style={{ whiteSpace: 'nowrap', color: 'var(--text-mid)', fontSize: 13 }}>{u.lastActiveAt ? fmtDate(u.lastActiveAt) : '—'}</td>
                   <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                     {u.status !== 'disabled' && (
                       <button className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: 12 }} disabled={!!busy} onClick={() => act(u, 'link')}>
@@ -379,6 +437,14 @@ function UsersPanel({ onUsers }) {
                     <button className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: 12, color: u.status === 'disabled' ? undefined : 'var(--danger)' }}
                       disabled={!!busy} onClick={() => act(u, u.status === 'disabled' ? 'enable' : 'disable')}>
                       {u.status === 'disabled' ? 'Enable' : 'Disable'}
+                    </button>{' '}
+                    <button className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: 12 }} disabled={!!busy} onClick={() => act(u, 'tier')}
+                      aria-label={`Change tier for ${u.email}`}>
+                      Tier
+                    </button>{' '}
+                    <button className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: 12, color: 'var(--danger)' }} disabled={!!busy} onClick={() => act(u, 'delete')}
+                      aria-label={`Delete ${u.email}`}>
+                      Delete
                     </button>
                   </td>
                 </tr>

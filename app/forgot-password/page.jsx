@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { AuthShell, FormError, FormNote, SubmitButton, linkStyle } from '../components/AuthShell'
+import { BRAND } from '@/lib/brand'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail]     = useState('')
@@ -23,7 +24,7 @@ export default function ForgotPasswordPage() {
       })
       const data = await res.json().catch(() => ({}))
       if (res.status === 429) setError(data.error || 'Too many requests. Please wait and try again.')
-      else if (data.emailEnabled === false) setNote('Password reset by email is not set up yet. Ask your administrator for a reset link.')
+      else if (data.emailEnabled === false) setNote(`Password reset by email is not available yet. Contact the ${BRAND.name} team${BRAND.email ? ` at ${BRAND.email}` : ''} from the address your account uses and we will send you a reset link.`)
       else setNote('If that email has an account, a reset link is on its way. It works once and expires in one hour — check your junk folder if it has not arrived in a few minutes.')
     } catch {
       setError('Network error. Please check your connection and try again.')

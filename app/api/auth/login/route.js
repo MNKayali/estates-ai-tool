@@ -10,6 +10,8 @@ import { NextResponse } from 'next/server'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 import { getUserByEmail, verifyPassword, burnPasswordCheck, recordLogin, normaliseEmail } from '@/lib/users'
 import { createSessionToken, sessionCookieOptions, SESSION_COOKIE } from '@/lib/session'
+import { getTrialId } from '@/lib/auth'
+import { claimTrialReports } from '@/lib/trial'
 
 const WRONG = 'That email and password do not match an account.'
 
@@ -50,7 +52,15 @@ export async function POST(request) {
   }
   await recordLogin(user.uid).catch(() => {})
 
-  const res = NextResponse.json({ success: true, name: user.name })
+  // Reports made on this browser's free trial move into the account.
+  let claimed = 0
+  try {
+    claimed = await claimTrialReports(await getTrialId(request), user.uid)
+  } catch (e) {
+    console.warn('[login] claiming trial reports failed:', e.message)
+  }
+
+  const res = NextResponse.json({ success: true, name: user.name, claimed })
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions())
   return res
 }

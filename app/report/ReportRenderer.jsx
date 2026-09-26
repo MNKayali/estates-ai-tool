@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { track } from '@vercel/analytics'
 import ReportDocument from './doc/ReportDocument'
+import AuthDialog from '../components/AuthDialog'
 import { BRAND, reportFileName } from '@/lib/brand'
 import { reportReference } from '@/lib/reportContent'
 
@@ -31,7 +32,11 @@ const FONT_BODY = "var(--font-dm-sans), 'DM Sans', 'Segoe UI', sans-serif"
 // `sample` — rendering the public /sample page: a fixed, fictional report used
 // to show what the tool produces. Hides every action that needs a real saved
 // report (download, PDF, share link, flag an issue) and shows a banner instead.
-export default function ReportRenderer({ data, reportId, sample = false }) {
+// `accountRequired` — the viewer is a free-trial visitor: the download buttons
+// stay visible but open the sign-up dialog, and once the account exists (the
+// server has moved this report into it) the chosen download runs. The download
+// routes refuse a trial visitor themselves; this is the friendly half.
+export default function ReportRenderer({ data, reportId, sample = false, accountRequired = false, signedIn = true, onAccountCreated }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const isPdf = searchParams?.get('pdf') === '1'   // server-side Puppeteer render
@@ -39,6 +44,40 @@ export default function ReportRenderer({ data, reportId, sample = false }) {
   const [downloadError, setDownloadError] = useState('')
   const [copied, setCopied]             = useState(false)
   const [pdfLoading, setPdfLoading]     = useState(false)
+  // null follows the page's `accountRequired`; 'needed' / 'unlocked' once the
+  // server refused a download or the visitor has just created an account.
+  const [accountState, setAccountState] = useState(null)
+  const needsAccount = accountState ? accountState === 'needed' : accountRequired
+  const setNeedsAccount = needed => setAccountState(needed ? 'needed' : 'unlocked')
+  const [signupFor, setSignupFor]       = useState(null) // 'pdf' | 'docx' | 'account'
+
+  // A download by a free-trial visitor opens sign-up instead (only for a saved
+  // report — an unsaved local one carries its own file and needs no server).
+  function gated(kind, run) {
+    return () => {
+      if (needsAccount && reportId) { setSignupFor(kind); return }
+      run()
+    }
+  }
+
+  async function afterSignup() {
+    const kind = signupFor
+    setNeedsAccount(false)
+    setSignupFor(null)
+    onAccountCreated?.()
+    if (kind === 'pdf') downloadPdf()
+    if (kind === 'docx') downloadDocx()
+  }
+
+  // The server's own refusal (the visitor's state changed since the page loaded).
+  async function refusedForAccount(res, kind) {
+    if (res.status !== 401) return false
+    const body = await res.clone().json().catch(() => ({}))
+    if (!body.signupRequired) return false
+    setNeedsAccount(true)
+    setSignupFor(kind)
+    return true
+  }
 
   // ── Feedback ("Flag an issue") modal state ──────────────────────────────────
   const [fbOpen, setFbOpen]       = useState(false)
@@ -84,6 +123,7 @@ export default function ReportRenderer({ data, reportId, sample = false }) {
       let blob
       if (reportId) {
         const res = await fetch(`/api/reports/${reportId}/docx`)
+        if (await refusedForAccount(res, 'docx')) { setDownloading(false); return }
         if (!res.ok) throw new Error('docx service unavailable')
         blob = await res.blob()
       } else if (data?.docx) {
@@ -115,6 +155,7 @@ export default function ReportRenderer({ data, reportId, sample = false }) {
     setDownloadError('')
     try {
       const res = await fetch(`/api/report-pdf/${reportId}`)
+      if (await refusedForAccount(res, 'pdf')) { setPdfLoading(false); return }
       if (!res.ok) throw new Error('PDF service unavailable')
       const blob = await res.blob()
       const url  = URL.createObjectURL(blob)
@@ -166,9 +207,15 @@ export default function ReportRenderer({ data, reportId, sample = false }) {
             </div>
           ) : (
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <button onClick={() => router.push('/reports')} style={btnStyle('outline')}>
-              My reports
-            </button>
+            {signedIn ? (
+              <button onClick={() => router.push('/reports')} style={btnStyle('outline')}>
+                My reports
+              </button>
+            ) : (
+              <button onClick={() => setSignupFor('account')} style={btnStyle('outline')}>
+                Create free account
+              </button>
+            )}
             <button onClick={() => {
               // Without this, "New Report" landed on a form silently
               // pre-filled with this project's answers — there was no
@@ -183,19 +230,19 @@ export default function ReportRenderer({ data, reportId, sample = false }) {
               style={btnStyle('outline')}>
               ⚑ Flag an issue
             </button>
-            {reportId && (
+            {reportId && signedIn && (
               <button onClick={copyLink}
                 title="Opens this report on any device where you are signed in"
                 style={btnStyle(copied ? 'copied' : 'link')}>
                 {copied ? '✓ Copied!' : '🔗 Copy Link'}
               </button>
             )}
-            <button onClick={downloadPdf} disabled={pdfLoading || isPending}
+            <button onClick={gated('pdf', downloadPdf)} disabled={pdfLoading || isPending}
               title={isPending ? 'Available once the narrative sections finish generating' : undefined}
               style={btnStyle('gray', pdfLoading || isPending)}>
               {pdfLoading ? 'Preparing PDF…' : '⬇ Download PDF'}
             </button>
-            <button onClick={downloadDocx} disabled={downloading || isPending}
+            <button onClick={gated('docx', downloadDocx)} disabled={downloading || isPending}
               title={isPending ? 'Available once the narrative sections finish generating' : undefined}
               style={btnStyle('green', downloading || isPending)}>
               {downloading ? 'Downloading…' : '⬇ Download Word (.docx)'}
@@ -262,20 +309,22 @@ export default function ReportRenderer({ data, reportId, sample = false }) {
                 <p style={{ fontWeight: 700, color: NAVY, marginBottom: '6px', fontSize: '14px' }}>Download this report</p>
                 <p style={{ color: '#666', fontSize: '12px', marginBottom: '14px' }}>
                   Word document (.docx) for editing and sharing · PDF for print-ready archive
+                  {needsAccount && reportId ? ' · free account needed' : ''}
                 </p>
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button onClick={downloadPdf} disabled={pdfLoading}
-                    style={btnStyle('gray', pdfLoading)}>
+                  <button onClick={gated('pdf', downloadPdf)} disabled={pdfLoading || isPending}
+                    style={btnStyle('gray', pdfLoading || isPending)}>
                     {pdfLoading ? 'Preparing PDF…' : '⬇ Download PDF'}
                   </button>
-                  <button onClick={downloadDocx} disabled={downloading}
-                    style={btnStyle('green', downloading)}>
+                  <button onClick={gated('docx', downloadDocx)} disabled={downloading || isPending}
+                    style={btnStyle('green', downloading || isPending)}>
                     {downloading ? 'Downloading…' : '⬇ Download Word (.docx)'}
                   </button>
-                  {reportId && (
+                  {reportId && signedIn && (
                     <button onClick={copyLink}
+                      title="Opens this report on any device where you are signed in"
                       style={btnStyle(copied ? 'copied' : 'link')}>
-                      {copied ? '✓ Copied!' : '🔗 Copy shareable link'}
+                      {copied ? '✓ Copied!' : '🔗 Copy link'}
                     </button>
                   )}
                 </div>
@@ -285,6 +334,17 @@ export default function ReportRenderer({ data, reportId, sample = false }) {
           </div>
         )}
       </div>
+
+      {/* ── Sign-up (free-trial visitor downloading, or asking for an account) ── */}
+      <AuthDialog
+        open={!!signupFor}
+        title={signupFor === 'account' ? 'Create your free account' : 'Create a free account to download'}
+        intro={signupFor === 'account'
+          ? 'Unlimited reports, PDF and Word downloads, and every report kept in one place. This report comes with you.'
+          : 'Sign up and everything opens: PDF and Word downloads, unlimited reports and a list of every report you create. This report moves into your account and downloads straight away.'}
+        onClose={() => setSignupFor(null)}
+        onSuccess={afterSignup}
+      />
 
       {/* ── Flag-an-issue modal (screen only) ── */}
       {fbOpen && (

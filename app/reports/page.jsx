@@ -3,16 +3,19 @@
 /**
  * /reports — the signed-in user's report history, plus a password change.
  *
- * Lists the summaries written at finalise (lib/kv.js listUserReports), newest
- * first. A report only appears here once its AI text has finished; reports are
- * kept until their owner deletes them.
+ * Lists the summaries lib/kv.js keeps per user (listUserReports), newest first:
+ * a report appears as "In progress" from the moment it is created and becomes
+ * openable-and-downloadable once its written sections finish. Reports are kept
+ * until their owner deletes them. Free-trial reports join this list when the
+ * visitor signs up or signs in.
  */
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Card, Badge, SectionHeader } from '../components/ui'
 import { FormError, FormNote } from '../components/AuthShell'
-import { BRAND } from '@/lib/brand'
+import { BRAND, reportFileName } from '@/lib/brand'
+import { reportReference } from '@/lib/reportContent'
 import Logo from '../components/Logo'
 
 const f1k = n => (n == null ? '—' : `£${(Math.round(n / 1000) * 1000).toLocaleString('en-GB')}`)
@@ -115,7 +118,7 @@ function ReportList({ reports, deleting, onDelete }) {
     return (
       <Card style={{ padding: 24, marginBottom: 32 }}>
         <p style={{ color: 'var(--text-soft)', fontSize: 14, margin: 0, lineHeight: 1.6 }}>
-          No reports yet. Reports you generate are saved here automatically once they finish.{' '}
+          No reports yet. Every report you generate is saved here automatically.{' '}
           <Link href="/questionnaire" style={{ color: 'var(--navy)' }}>Start your first report</Link>.
         </p>
       </Card>
@@ -134,31 +137,74 @@ function ReportList({ reports, deleting, onDelete }) {
           </tr>
         </thead>
         <tbody>
-          {reports.map(r => (
-            <tr key={r.reportId}>
-              <td>
-                <div style={{ fontWeight: 600 }}>{r.projectName || 'Untitled'}</div>
-                <div className="only-sm" style={{ fontSize: 12.5, color: 'var(--text-mid)', marginTop: 4, lineHeight: 1.5 }}>
-                  {fmtDate(r.generatedAt)} · {f1k(r.totalLow)} – {f1k(r.totalHigh)} excl. VAT{r.totalWeeks != null ? ` · ${r.totalWeeks} weeks` : ''}
-                </div>
-                {r.projectType && <div style={{ marginTop: 4 }}><Badge>{r.projectType}</Badge></div>}
-              </td>
-              <td className="hide-sm" style={{ whiteSpace: 'nowrap', color: 'var(--text-mid)' }}>{fmtDate(r.generatedAt)}</td>
-              <td className="hide-sm" style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{f1k(r.totalLow)} – {f1k(r.totalHigh)}</td>
-              <td className="hide-sm" style={{ textAlign: 'right' }}>{r.totalWeeks ?? '—'}</td>
-              <td style={{ textAlign: 'right' }}>
-                <Link className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: 12 }} href={`/report/${r.reportId}`}>Open</Link>{' '}
-                <button className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: 12, color: 'var(--danger)' }}
-                  disabled={deleting === r.reportId} onClick={() => onDelete(r)}
-                  aria-label={`Delete ${r.projectName || 'Untitled'}`}>
-                  {deleting === r.reportId ? 'Deleting…' : 'Delete'}
-                </button>
-              </td>
-            </tr>
-          ))}
+          {reports.map(r => {
+            const inProgress = r.status === 'in-progress'
+            const name = r.projectName || 'Untitled'
+            return (
+              <tr key={r.reportId}>
+                <td>
+                  <div style={{ fontWeight: 600 }}>{name}</div>
+                  <div className="only-sm" style={{ fontSize: 12.5, color: 'var(--text-mid)', marginTop: 4, lineHeight: 1.5 }}>
+                    {fmtDate(r.generatedAt)} · {f1k(r.totalLow)} – {f1k(r.totalHigh)} excl. VAT{r.totalWeeks != null ? ` · ${r.totalWeeks} weeks` : ''}
+                  </div>
+                  <div style={{ marginTop: 4, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {inProgress && <Badge>In progress</Badge>}
+                    {r.projectType && <Badge>{r.projectType}</Badge>}
+                  </div>
+                </td>
+                <td className="hide-sm" style={{ whiteSpace: 'nowrap', color: 'var(--text-mid)' }}>{fmtDate(r.generatedAt)}</td>
+                <td className="hide-sm" style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{f1k(r.totalLow)} – {f1k(r.totalHigh)}</td>
+                <td className="hide-sm" style={{ textAlign: 'right' }}>{r.totalWeeks ?? '—'}</td>
+                <td style={{ textAlign: 'right' }}>
+                  <div style={{ display: 'inline-flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    <Link className="btn btn-ghost" style={smallBtn} href={`/report/${r.reportId}`}>Open</Link>
+                    {!inProgress && <DownloadButton report={r} kind="pdf" />}
+                    {!inProgress && <DownloadButton report={r} kind="docx" />}
+                    <button className="btn btn-ghost" style={{ ...smallBtn, color: 'var(--danger)' }}
+                      disabled={deleting === r.reportId} onClick={() => onDelete(r)}
+                      aria-label={`Delete ${name}`}>
+                      {deleting === r.reportId ? 'Deleting…' : 'Delete'}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
+  )
+}
+
+const smallBtn = { padding: '6px 12px', fontSize: 12 }
+
+// PDF (rendered on the server, ~10 s) or Word, fetched and saved under the
+// report's download name. Errors stay on the button rather than a banner.
+function DownloadButton({ report, kind }) {
+  const [state, setState] = useState('idle') // idle | busy | error
+  const label = kind === 'pdf' ? 'PDF' : 'Word'
+  async function run() {
+    setState('busy')
+    try {
+      const res = await fetch(kind === 'pdf' ? `/api/report-pdf/${report.reportId}` : `/api/reports/${report.reportId}/docx`)
+      if (!res.ok) throw new Error(String(res.status))
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = reportFileName(reportReference(report.reportId, report), kind)
+      a.click()
+      URL.revokeObjectURL(url)
+      setState('idle')
+    } catch {
+      setState('error')
+    }
+  }
+  return (
+    <button className="btn btn-ghost" style={smallBtn} onClick={run} disabled={state === 'busy'}
+      aria-label={`Download ${report.projectName || 'Untitled'} as ${label}`}>
+      {state === 'busy' ? 'Preparing…' : state === 'error' ? `${label} failed — retry` : `⬇ ${label}`}
+    </button>
   )
 }
 

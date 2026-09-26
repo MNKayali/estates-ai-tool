@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Badge, Card, Stat } from './components/ui'
 import Logo from './components/Logo'
@@ -13,6 +14,14 @@ const INCLUDED = [
 ]
 
 export default function LandingPage() {
+  // Signed in → "My reports"; otherwise "Sign in". Nothing until it loads.
+  const [signedIn, setSignedIn] = useState(null)
+  useEffect(() => {
+    let alive = true
+    fetch('/api/auth/status').then(r => r.json()).then(d => { if (alive) setSignedIn(!!d.user) }).catch(() => {})
+    return () => { alive = false }
+  }, [])
+
   return (
     <div>
       {/* ── Top bar ── */}
@@ -22,8 +31,9 @@ export default function LandingPage() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0' }}>
             <Brand />
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Link href="/reports" className="btn btn-ghost">My reports</Link>
-              <Link href="/questionnaire" className="btn btn-primary">Launch tool ▸</Link>
+              {signedIn === true && <Link href="/reports" className="btn btn-ghost">My reports</Link>}
+              {signedIn === false && <Link href="/login" className="btn btn-ghost">Sign in</Link>}
+              <Link href="/questionnaire" className="btn btn-primary">{signedIn ? 'New report ▸' : 'Try it free ▸'}</Link>
             </div>
           </div>
         </div>
@@ -45,13 +55,15 @@ export default function LandingPage() {
               programme and risk register — a costed, programmed Stage&nbsp;1 report in minutes, not weeks.
             </p>
             <div className="rise rise-4" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 36 }}>
-              <Link href="/questionnaire" className="btn btn-accent" style={{ fontSize: 16, padding: '14px 26px' }}>Start questionnaire ▸</Link>
+              <Link href="/questionnaire" className="btn btn-accent" style={{ fontSize: 16, padding: '14px 26px' }}>{signedIn ? 'Start a new report ▸' : 'Try it free ▸'}</Link>
               {/* Explicit background and a visible border: with only a ghost
                   border over the navy hero this read as a disabled control. */}
               <Link href="/sample" className="btn" style={{ fontSize: 16, padding: '14px 26px', color: '#fff', background: 'rgba(255,255,255,.10)', border: '1.5px solid rgba(255,255,255,.55)' }}>See a sample report</Link>
             </div>
             <p className="rise rise-4 mono" style={{ marginTop: 18, fontSize: 12, color: '#7E8DA8', letterSpacing: '.08em' }}>
-              ~10–15 MIN · PROGRESS AUTO-SAVED · ON-SCREEN + .DOCX + PDF EXPORT
+              {signedIn
+                ? '~10–15 MIN · PROGRESS AUTO-SAVED · ON-SCREEN + .DOCX + PDF EXPORT'
+                : '3 FREE REPORTS · NO SIGN-UP TO START · FREE ACCOUNT FOR PDF + .DOCX'}
             </p>
           </div>
         </div>
@@ -88,9 +100,9 @@ export default function LandingPage() {
           flexWrap: 'wrap', gap: 24, alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <h2 style={{ fontSize: 30, margin: 0, color: '#fff', fontWeight: 700 }}>Ready to scope a project?</h2>
-            <p style={{ color: '#B7C3D8', margin: '10px 0 0', fontSize: 16 }}>Answer the questionnaire and download a board-ready report.</p>
+            <p style={{ color: '#B7C3D8', margin: '10px 0 0', fontSize: 16 }}>Answer the questionnaire and get a board-ready report. Your first three are free, no account needed.</p>
           </div>
-          <Link href="/questionnaire" className="btn btn-accent" style={{ fontSize: 16, padding: '14px 28px' }}>Begin assessment ▸</Link>
+          <Link href="/questionnaire" className="btn btn-accent" style={{ fontSize: 16, padding: '14px 28px' }}>{signedIn ? 'Begin assessment ▸' : 'Try it free ▸'}</Link>
         </Card>
       </section>
 

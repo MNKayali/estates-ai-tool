@@ -22,6 +22,12 @@
  * to running the AI prose and the docx build inline, exactly as the old
  * single-invocation pipeline did — see the bottom of POST().
  *
+ * Who may call it: a signed-in user (the report is owned — ownerId) or a
+ * free-trial visitor within their TRIAL_LIMIT reports (anonId, lib/trial.js).
+ * A trial place is reserved before generating and given back unless the record
+ * is saved, so a failed generation never counts. Over the limit the route
+ * answers 403 with `signupRequired`, and the questionnaire opens sign-up.
+ *
  * Rule: the AI never calculates a number.
  */
 import * as Sentry from '@sentry/nextjs'
@@ -29,11 +35,13 @@ import { calculateCost, getScopeCatalogue } from '@/lib/costCalculator'
 import { projectTypeUsesLevel } from '@/lib/scopeEngine'
 import { calculateProgramme } from '@/lib/programmeCalculator'
 import { buildReport } from '@/lib/reportBuilder'
-import { createReport } from '@/lib/kv'
+import { createReport, recordReportStat } from '@/lib/kv'
 import { runSenseCheck, refreshBudget } from '@/lib/senseCheck'
 import { computeConfidence, runProseSequential, scrubAnswers } from '@/lib/prose'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
-import { getSessionUser, unauthorisedResponse } from '@/lib/auth'
+import { getSessionUser, getTrialId } from '@/lib/auth'
+import { TRIAL_LIMIT, reserveTrialReport, recordTrialReport } from '@/lib/trial'
+import { recordActivity } from '@/lib/users'
 
 // Report a caught pipeline failure to Sentry with a scrubbed projection of the
 // answers that triggered it, so a crash a colleague never reports still arrives
@@ -54,6 +62,11 @@ function capturePipelineError(e, step, answers) {
 // still has its old budget.
 export const maxDuration = 60
 
+const TRIAL_REFUSED = {
+  'visitor-limit': `You have used your ${TRIAL_LIMIT} free reports. Create a free account to keep going — your answers are saved and this report will generate straight away.`,
+  'ip-limit': 'The free reports available from your network have been used. Create a free account to keep going — your answers are saved and this report will generate straight away.',
+}
+
 export async function POST(request) {
   // Generous relative to sign-in — this route is now cheap
   // CPU-only work in production, but still creates a KV record and (with no
@@ -61,11 +74,54 @@ export async function POST(request) {
   const rl = await checkRateLimit('generate-report', request, { requests: 30, window: '10 m' })
   if (!rl.allowed) return rateLimitedResponse(rl.retryAfterSeconds)
 
-  // proxy.ts already requires a session; the user is read again here because
-  // the report is stamped with its owner.
+  // A signed-in user, or a free-trial visitor within their allowance. The
+  // report is stamped with one or the other (ownerId / anonId).
   const user = await getSessionUser(request)
-  if (!user) return unauthorisedResponse()
+  let trialId = null
+  let reservation = null
+  if (!user) {
+    trialId = await getTrialId(request)
+    if (!trialId) {
+      return Response.json({
+        error: 'Your browser did not keep our cookie, so the free trial cannot count your reports. Allow cookies for this site, or create a free account.',
+        signupRequired: true,
+      }, { status: 401 })
+    }
+    // Tighter than for accounts: the public can spend API credit here.
+    const trl = await checkRateLimit('generate-report-trial', request, { requests: 5, window: '1 h' })
+    if (!trl.allowed) return rateLimitedResponse(trl.retryAfterSeconds)
+    try {
+      reservation = await reserveTrialReport(trialId, request)
+    } catch (e) {
+      // Without KV the allowance cannot be counted. Production refuses rather
+      // than generate uncounted; local development (no KV) carries on.
+      console.warn('[generate-report] trial allowance unavailable:', e.message)
+      if (process.env.NODE_ENV === 'production') {
+        return Response.json({ error: 'The free trial is unavailable right now. Please try again shortly, or create a free account.' }, { status: 503 })
+      }
+      reservation = { ok: true, release: async () => {} }
+    }
+    if (!reservation.ok) {
+      return Response.json({ error: TRIAL_REFUSED[reservation.reason], signupRequired: true, reason: reservation.reason }, { status: 403 })
+    }
+  }
 
+  const outcome = { reportId: null }
+  const response = await generate(request, { user, trialId }, outcome)
+  // A free report counts only when Phase 1 saved the record; anything else
+  // (a validation error, a calculator failure) gives it back.
+  if (reservation) {
+    if (outcome.reportId) await recordTrialReport(trialId, outcome.reportId).catch(e => console.warn('[generate-report] recordTrialReport:', e.message))
+    else await reservation.release()
+  }
+  if (outcome.reportId) {
+    await recordReportStat(user ? 'user' : 'anon')
+    if (user) await recordActivity(user.uid)
+  }
+  return response
+}
+
+async function generate(request, { user, trialId }, outcome) {
   // Request-level clock. Only exercised by the KV-unavailable fallback below —
   // the normal path never gets close to it.
   const requestStart = Date.now()
@@ -205,12 +261,14 @@ export async function POST(request) {
       confidence,
       answers,
       generatedAt,
-      ownerId:     user.uid,
+      ownerId:     user?.uid || null,
+      ...(trialId && { anonId: trialId }),
     }
 
     const kvOk = await createReport(reportId, record)
 
     if (kvOk) {
+      outcome.reportId = reportId
       return Response.json({
         success: true,
         reportId,

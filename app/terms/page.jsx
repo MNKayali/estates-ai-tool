@@ -49,13 +49,14 @@ export default function TermsPage() {
 
         <Section title="1. About this tool">
           <p style={body}>
-            {BRAND.name} is an internal planning tool that generates indicative feasibility reports at{' '}
-            <strong>RIBA Stage 0–1</strong> accuracy. It is operated for the benefit of authorised personnel
-            engaged in early-stage estates planning and capital investment appraisal.
+            {BRAND.name} is a planning tool that generates indicative feasibility reports at{' '}
+            <strong>RIBA Stage 0–1</strong> accuracy, for early-stage estates planning and capital
+            investment appraisal.
           </p>
           <p style={body}>
-            Access is restricted to invited users with their own account. By signing in and using this tool
-            you agree to these terms.
+            You can try it free without an account (three reports, viewed on screen), or create a free
+            account for unlimited reports and PDF and Word downloads. By using this tool, or by creating
+            an account or signing in, you agree to these terms.
           </p>
         </Section>
 
