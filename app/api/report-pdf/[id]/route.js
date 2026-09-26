@@ -10,14 +10,14 @@
  * Flow: launch Chromium → hand it the caller's own cookies → navigate to the live
  * /report/[id]?pdf=1 page → wait for the React render → page.pdf().
  *
- * Protected by proxy.ts (signed-in users) and limited to the report's owner or
- * the admin. The route reads KV directly to confirm the report exists and to
- * name the download.
+ * Limited to the report's owner or the admin; a free-trial visitor who made
+ * the report is refused here with `signupRequired` (downloadRequiresAccount). The route reads KV directly to confirm the report
+ * exists and to name the download.
  *
  * SECURITY: never reference AI_API_KEY here.
  */
 import { getReport } from '@/lib/kv'
-import { authoriseReport } from '@/lib/auth'
+import { authoriseReport, downloadRequiresAccount, getSessionUser, reportNotFoundResponse } from '@/lib/auth'
 import { SESSION_COOKIE } from '@/lib/session'
 import { reportFileName } from '@/lib/brand'
 import { reportReference } from '@/lib/reportContent'
@@ -70,14 +70,11 @@ export async function GET(request, { params }) {
   }
 
   const data = await getReport(id)
-  if (!data) {
-    return Response.json(
-      { error: 'Report not found or expired. Reports are retained for 90 days.' },
-      { status: 404 }
-    )
-  }
+  if (!data) return reportNotFoundResponse(await getSessionUser(request))
   const auth = await authoriseReport(request, data)
   if (auth.response) return auth.response
+  const needsAccount = downloadRequiresAccount(auth)
+  if (needsAccount) return needsAccount
 
   // A record freshly created by generate-report has no docx yet — the AI
   // prose (Phase 2) hasn't finished. Rendering a PDF now would just capture

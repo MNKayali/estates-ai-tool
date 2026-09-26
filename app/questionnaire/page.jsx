@@ -13,6 +13,7 @@ import {
 } from '../../lib/scopeEngine.js'
 import ScopePicker from './ScopePicker.jsx'
 import Logo from '../components/Logo'
+import AuthDialog from '../components/AuthDialog'
 import { BRAND } from '../../lib/brand.js'
 import { titleLooksThin } from '../../lib/reportContent.js'
 import {
@@ -557,6 +558,29 @@ function migrateDraftScope(catalogue, prev) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
+const headerLinkStyle = {
+  color: 'rgba(255,255,255,0.75)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase',
+  textDecoration: 'none', fontFamily: 'var(--font-body)',
+}
+
+// The free-trial allowance, shown lightly at the start of the questionnaire.
+// The server (generate-report) is the real check; this only informs.
+function TrialAllowance({ trial, onSignup }) {
+  const out = trial.remaining <= 0
+  return (
+    <p role="status" style={{ margin: '12px 0 0', fontSize: 13, color: 'var(--text-soft)', lineHeight: 1.6 }}>
+      {out
+        ? <>You have used your {trial.limit} free reports. You can still fill in the questionnaire; you will be asked to create a free account when you generate the report. </>
+        : <><strong style={{ color: 'var(--ink)', fontWeight: 600 }}>{trial.remaining} of {trial.limit}</strong> free report{trial.limit === 1 ? '' : 's'} left, no account needed. </>}
+      <button type="button" onClick={onSignup}
+        style={{ background: 'none', border: 'none', padding: 0, color: 'var(--navy)', textDecoration: 'underline', cursor: 'pointer', font: 'inherit' }}>
+        {out ? 'Create a free account now' : 'Create a free account'}
+      </button>
+      {!out && ' for unlimited reports and PDF and Word downloads.'}
+    </p>
+  )
+}
+
 export default function QuestionnairePage() {
   const router = useRouter()
   const [section, setSection] = useState(1)
@@ -568,6 +592,13 @@ export default function QuestionnairePage() {
   // session) — the error banner offers a real link to re-authenticate rather
   // than leaving the user stuck reading the proxy's raw message.
   const [authError, setAuthError] = useState(false)
+  // Who is filling this in: `{ user, trial }` from /api/auth/status — a
+  // signed-in account, or a free-trial visitor with `trial.remaining` reports
+  // left. null until it loads (nothing is shown for it meanwhile).
+  const [viewer, setViewer] = useState(null)
+  // The sign-up dialog, opened when the free trial is used up. The draft stays
+  // in localStorage; once the account exists the report generates at once.
+  const [signupPrompt, setSignupPrompt] = useState(null) // { text, generate }
   const [validationErrors, setValidationErrors] = useState({})
   const [scopeData, setScopeData] = useState(null)
   // Q5 and Q6.1 are entirely optional and sit at the end of the longest step.
@@ -637,6 +668,15 @@ export default function QuestionnairePage() {
   // cache so the final report generation skips the cold-compile cost that
   // otherwise risks a timeout under the 60s function ceiling. Once on mount,
   // and again when the user reaches the final (Report) section as a top-up.
+  useEffect(() => {
+    let alive = true
+    fetch('/api/auth/status')
+      .then(r => r.json())
+      .then(d => { if (alive) setViewer(d) })
+      .catch(() => {})
+    return () => { alive = false }
+  }, [])
+
   useEffect(() => { fetch('/api/warm-prose').catch(() => {}) }, [])
   useEffect(() => { if (section >= 6) fetch('/api/warm-prose').catch(() => {}) }, [section])
 
@@ -912,6 +952,15 @@ export default function QuestionnairePage() {
     router.push('/login')
   }
 
+  // The account now exists (and holds any trial reports): generate the report
+  // the visitor was asking for, from the answers still in the form.
+  async function afterSignup() {
+    const generate = signupPrompt?.generate
+    setSignupPrompt(null)
+    try { setViewer(await (await fetch('/api/auth/status')).json()) } catch {}
+    if (generate) submit()
+  }
+
   async function submit() {
     const errs = validateSection(section)
     if (Object.keys(errs).length > 0) { scrollToFirstError(section, errs); return }
@@ -928,6 +977,13 @@ export default function QuestionnairePage() {
       // here and land in the catch block below as a misleading "Network error"
       // even though a response was actually received.
       const data = await res.json().catch(() => ({}))
+      if (data.signupRequired) {
+        // The free trial is used up (or the trial cookie is missing): offer an
+        // account. Nothing is lost — the answers are still in this form.
+        setSignupPrompt({ text: data.error || 'Create a free account to generate this report.', generate: true })
+        setLoading(false)
+        return
+      }
       if (!res.ok || !data.success) {
         setError(data.error || data.detail || 'Report generation failed. Please try again.')
         setAuthError(res.status === 401)
@@ -1018,14 +1074,16 @@ export default function QuestionnairePage() {
             <span className="mono hide-sm" style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase' }}>
               Stage 0–1 Questionnaire
             </span>
-            <Link href="/reports"
-              style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', textDecoration: 'none', fontFamily: 'var(--font-body)' }}>
-              My reports
-            </Link>
-            <button onClick={logout}
-              style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.75)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
-              Sign out
-            </button>
+            {viewer?.user ? (
+              <>
+                <Link href="/reports" style={headerLinkStyle}>My reports</Link>
+                <button onClick={logout} style={{ ...headerLinkStyle, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                  Sign out
+                </button>
+              </>
+            ) : viewer ? (
+              <Link href="/login?from=/questionnaire" style={headerLinkStyle}>Sign in</Link>
+            ) : null}
           </div>
         </div>
       </header>
@@ -1074,6 +1132,7 @@ export default function QuestionnairePage() {
           </div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '28px', color: 'var(--ink)', letterSpacing: '-0.2px', margin: '0 0 6px' }}>{SECTIONS[section - 1].title}</h1>
           <p style={{ color: 'var(--text-soft)', fontSize: '14.5px', margin: 0 }}>{SECTIONS[section - 1].subtitle}</p>
+          {section === 1 && viewer?.trial && <TrialAllowance trial={viewer.trial} onSignup={() => setSignupPrompt({ text: 'Unlimited reports, PDF and Word downloads, and every report kept in one place. Your answers so far are kept.', generate: false })} />}
           {section === 1 && answers.q1_0_projectName && (
             <button
               onClick={() => {
@@ -1094,6 +1153,14 @@ export default function QuestionnairePage() {
             </button>
           )}
         </div>
+
+        <AuthDialog
+          open={!!signupPrompt}
+          title="Create your free account"
+          intro={signupPrompt?.text}
+          onClose={() => setSignupPrompt(null)}
+          onSuccess={afterSignup}
+        />
 
         {error && (
           <div role="alert" aria-live="assertive" className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: '#FEF2F2', borderColor: 'var(--danger)', color: 'var(--danger)' }}>

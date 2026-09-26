@@ -6,13 +6,14 @@
  * which risks the KV value-size limit, and building on demand means every
  * report (older ones included) gets the current design.
  *
- * Protected by proxy.ts (/api/reports/:path*) and limited to the report's owner
- * (or the admin) by authoriseReport().
+ * Limited to the report's owner (or the admin) by authoriseReport(); a
+ * free-trial visitor may view their report but downloads need an account
+ * (downloadRequiresAccount — enforced here, not just by the page's button).
  * SECURITY: never reference AI_API_KEY here.
  */
 import { getReport } from '@/lib/kv'
 import { buildReport } from '@/lib/reportBuilder'
-import { authoriseReport } from '@/lib/auth'
+import { authoriseReport, downloadRequiresAccount, getSessionUser, reportNotFoundResponse } from '@/lib/auth'
 import { reportFileName } from '@/lib/brand'
 import { reportReference } from '@/lib/reportContent'
 
@@ -25,11 +26,11 @@ export async function GET(request, { params }) {
     return Response.json({ error: 'Invalid report ID.' }, { status: 400 })
   }
   const data = await getReport(id)
-  if (!data) {
-    return Response.json({ error: 'Report not found or expired. Reports are retained for 90 days.' }, { status: 404 })
-  }
+  if (!data) return reportNotFoundResponse(await getSessionUser(request))
   const auth = await authoriseReport(request, data)
   if (auth.response) return auth.response
+  const needsAccount = downloadRequiresAccount(auth)
+  if (needsAccount) return needsAccount
   if (data.status && data.status !== 'complete') {
     return Response.json({ error: 'This report is still being generated. Try again in a few seconds.' }, { status: 409 })
   }

@@ -7,17 +7,16 @@
  * seconds with the deterministic cost/programme data and status
  * 'deterministic' — no AI prose yet. This page loads that record, renders it
  * immediately (ReportRenderer shows pending placeholders for anything AI-only),
- * and — if this tab is the one that just generated the report — repeatedly
- * calls POST /api/reports/[id]/prose until status flips to 'complete'. Each
- * call gets a brand-new 60s ceiling, so a slow API day costs extra round
- * trips rather than a lost, already-paid-for report.
+ * and repeatedly calls POST /api/reports/[id]/prose until status flips to
+ * 'complete'. Each call gets a brand-new 60s ceiling, so a slow API day costs
+ * extra round trips rather than a lost, already-paid-for report.
  *
- * A tab that opens a shared link to a report already mid-generation elsewhere
- * (no matching sessionStorage entry — it didn't just generate this ID) does
- * NOT also start driving prose; piling every viewer's tab onto the same
- * generation would just multiply lock-contention traffic for no benefit. It
- * polls the cheap /status endpoint instead and re-fetches the full record
- * once that reports completion.
+ * Any tab showing an unfinished report drives it (September 2026, owner-only
+ * reports): a second tab is the same person reopening it, and the per-half
+ * locks stop two tabs paying for the same half — a tab that finds both halves
+ * locked gets 409 and simply waits. Before reports were owner-only, a tab
+ * opened from a shared link only polled /status, which left a report whose
+ * generating tab had been closed unfinished for good.
  *
  * Loading strategy for the initial record (unchanged two-tier):
  *   1. sessionStorage — avoids a network round-trip when this tab is the one
@@ -44,14 +43,22 @@ export default function ReportByIdPage() {
   const router  = useRouter()
   const [data,  setData]  = useState(null)
   const [error, setError] = useState('')
+  const [signInHint, setSignInHint] = useState(false)
   const [stalled, setStalled] = useState(false)
+  // `{ user, trial, admin }` — decides whether downloads need sign-up.
+  const [viewer, setViewer] = useState(null)
   const drivingRef = useRef(false)
+
+  useEffect(() => {
+    let alive = true
+    fetch('/api/auth/status').then(r => r.json()).then(d => { if (alive) setViewer(d) }).catch(() => {})
+    return () => { alive = false }
+  }, [])
 
   useEffect(() => {
     if (!id) return
     const controller = new AbortController()
     let cancelled = false
-    let isOriginator = false
 
     async function load() {
       // ── Tier 1: sessionStorage (same-tab, fresh generation) ──────────────────
@@ -60,7 +67,6 @@ export default function ReportByIdPage() {
         if (stored) {
           const result = JSON.parse(stored)
           if (result.reportId === id) {
-            isOriginator = true
             // `result.answers` is exactly what was submitted for this report —
             // the questionnaire writes it into this same sessionStorage entry
             // at submit time (see submit() in app/questionnaire/page.jsx). It
@@ -84,7 +90,10 @@ export default function ReportByIdPage() {
         const res = await fetch(`/api/reports/${id}`)
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
-          if (!cancelled) setError(body.error || 'Report not found.')
+          if (!cancelled) {
+            setError(body.error || 'Report not found.')
+            setSignInHint(!!body.signIn)
+          }
           return null
         }
         const result = await res.json()
@@ -154,51 +163,31 @@ export default function ReportByIdPage() {
       }
     }
 
-    // A tab that did NOT just generate this report (shared link, or this ID
-    // opened fresh) polls passively instead of also driving prose — otherwise
-    // every viewer's tab would pile onto the same lock contention for no
-    // benefit, since only one of them can ever hold a half's lock at a time.
-    async function watchProse(initial) {
-      let record = initial
-      while (!cancelled && record?.status && record.status !== 'complete') {
-        await sleep(POLL_INTERVAL_MS)
-        if (cancelled) return
-        try {
-          const res = await fetch(`/api/reports/${id}/status`)
-          if (!res.ok) continue
-          const status = await res.json()
-          if (status.status === 'complete') {
-            const res2 = await fetch(`/api/reports/${id}`)
-            if (res2.ok) {
-              const full = await res2.json()
-              if (!cancelled) setData(full)
-            }
-            return
-          }
-          record = status
-        } catch {
-          // transient — keep polling
-        }
-      }
-    }
-
+    // Every tab drives an unfinished report, not only the one that generated
+    // it: reports are owner-only, so another tab is the same person (or the
+    // admin) reopening it — from "My reports" after closing the original tab,
+    // say — and a passive watcher would then wait forever for text nobody was
+    // generating. The per-half KV locks keep two tabs from paying twice; the
+    // loser gets 409 and waits (see driveProse).
     load().then(result => {
       if (cancelled || !result) return
-      if (result.status && result.status !== 'complete') {
-        if (isOriginator) driveProse(result)
-        else watchProse(result)
-      }
+      if (result.status && result.status !== 'complete') driveProse(result)
     })
 
     return () => { cancelled = true; controller.abort() }
   }, [id])
 
-  if (error)  return <ErrorView error={error} onBack={() => router.push('/questionnaire')} />
+  if (error)  return <ErrorView error={error} signInHref={signInHint ? `/login?from=/report/${id}` : null} onBack={() => router.push('/questionnaire')} />
   if (!data)  return <Spinner />
   if (stalled && data.status !== 'complete') {
     return <StalledView onRetry={() => { setStalled(false); drivingRef.current = false; router.refresh() }} />
   }
-  return <ReportRenderer data={data} reportId={id} />
+  return (
+    <ReportRenderer data={data} reportId={id}
+      signedIn={!viewer || !!viewer.user}
+      accountRequired={!!viewer && !viewer.user && !viewer.admin}
+      onAccountCreated={() => setViewer(v => ({ ...v, user: {}, trial: null }))} />
+  )
 }
 
 // ─── Loading spinner ──────────────────────────────────────────────────────────
@@ -212,7 +201,7 @@ function Spinner() {
 }
 
 // ─── Error state ──────────────────────────────────────────────────────────────
-function ErrorView({ error, onBack }) {
+function ErrorView({ error, signInHref, onBack }) {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#EFEBE1', padding: '24px', fontFamily: 'var(--font-body)' }}>
       <div style={{ maxWidth: '440px', width: '100%', background: '#fff', borderRadius: '8px', padding: '40px 32px', boxShadow: '0 2px 16px rgba(0,0,0,0.10)', textAlign: 'center' }}>
@@ -223,6 +212,11 @@ function ErrorView({ error, onBack }) {
         <p style={{ color: '#555', fontSize: '14px', lineHeight: 1.6, margin: '0 0 24px' }}>
           {error}
         </p>
+        {signInHref && (
+          <p style={{ fontSize: '14px', margin: '0 0 20px' }}>
+            <a href={signInHref} style={{ color: NAVY, fontWeight: 700, textDecoration: 'underline' }}>Sign in to open your report</a>
+          </p>
+        )}
         <button
           onClick={onBack}
           style={{ padding: '12px 28px', background: NAVY, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>

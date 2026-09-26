@@ -3,14 +3,12 @@
  *                            aiProse, answers).
  * DELETE /api/reports/[id] — delete a report from its owner's account.
  *
- * Protected by proxy.ts (signed-in users) and limited to the report's owner or
- * the admin by authoriseReport(); someone else's report answers 404, not 403,
- * so an id cannot be confirmed to exist.
+ * Limited by authoriseReport() to the report's owner, the free-trial visitor
+ * who made it (until an account claims it) and the admin; anyone else gets the
+ * same 404 as for a missing report, so an id cannot be confirmed to exist.
  */
 import { getReport, deleteReport } from '@/lib/kv'
-import { authoriseReport } from '@/lib/auth'
-
-const NOT_FOUND = 'Report not found. It may have been deleted, or it was an older report past its 90-day expiry.'
+import { authoriseReport, getSessionUser, reportNotFoundResponse } from '@/lib/auth'
 
 export async function GET(request, { params }) {
   const { id } = await params
@@ -21,7 +19,7 @@ export async function GET(request, { params }) {
   }
 
   const data = await getReport(id)
-  if (!data) return Response.json({ error: NOT_FOUND }, { status: 404 })
+  if (!data) return reportNotFoundResponse(await getSessionUser(request))
 
   const auth = await authoriseReport(request, data)
   if (auth.response) return auth.response
@@ -36,7 +34,7 @@ export async function DELETE(request, { params }) {
   }
 
   const data = await getReport(id)
-  if (!data) return Response.json({ error: NOT_FOUND }, { status: 404 })
+  if (!data) return reportNotFoundResponse(await getSessionUser(request))
 
   const auth = await authoriseReport(request, data)
   if (auth.response) return auth.response

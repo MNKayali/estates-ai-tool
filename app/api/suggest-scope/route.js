@@ -10,20 +10,28 @@
  * are listed first. The user reviews and edits the result; the deterministic
  * engine prices it. The AI never sees a rate and never touches a number.
  *
- * Gated by the access cookie (proxy.ts). Rate-limited: each call is a small
- * Haiku request (~£0.001), but an unbounded endpoint is still a cheap way to
- * burn credit.
+ * Open to signed-in users and free-trial visitors (requireCaller; proxy.ts
+ * checks the same). Rate-limited, and tighter for trial visitors: each call is
+ * a small Haiku request (~£0.001), but an unbounded endpoint is still a cheap
+ * way to burn credit.
  */
 import { getScopeCatalogue } from '@/lib/costCalculator'
 import { buildContext, isOffered, isItemAvailable, isRelevant } from '@/lib/scopeEngine'
 import { PROSE_MODEL, getAnthropicKey } from '@/lib/proseSchema'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
+import { requireCaller } from '@/lib/auth'
 
 export const maxDuration = 30
 
 export async function POST(request) {
   const rl = await checkRateLimit('suggest-scope', request, { requests: 20, window: '10 m' })
   if (!rl.allowed) return rateLimitedResponse(rl.retryAfterSeconds)
+  const caller = await requireCaller(request)
+  if (caller.response) return caller.response
+  if (!caller.user && !caller.isAdmin) {
+    const trl = await checkRateLimit('suggest-scope-trial', request, { requests: 10, window: '1 h' })
+    if (!trl.allowed) return rateLimitedResponse(trl.retryAfterSeconds)
+  }
 
   let body
   try { body = await request.json() } catch { return Response.json({ error: 'Invalid JSON body.' }, { status: 400 }) }

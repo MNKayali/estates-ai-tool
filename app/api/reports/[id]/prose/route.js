@@ -29,7 +29,7 @@ import {
   buildProsePrompts, finaliseProse, scrubAnswers,
 } from '@/lib/prose'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
-import { authoriseReport } from '@/lib/auth'
+import { authoriseReport, getSessionUser, reportNotFoundResponse } from '@/lib/auth'
 
 export const maxDuration = 60
 
@@ -64,12 +64,7 @@ export async function POST(request, { params }) {
   const deadline = requestStart + 60_000 - FINALISE_RESERVE_MS
 
   const record = await getReport(id)
-  if (!record) {
-    return Response.json(
-      { error: 'Report not found or expired.' },
-      { status: 404 }
-    )
-  }
+  if (!record) return reportNotFoundResponse(await getSessionUser(request))
   const auth = await authoriseReport(request, record)
   if (auth.response) return auth.response
 
@@ -146,6 +141,7 @@ export async function POST(request, { params }) {
       answers: record.answers,
       generatedAt: record.generatedAt,
       ownerId: record.ownerId,
+      ...(record.anonId && { anonId: record.anonId }),
     }
     await finaliseReport(id, finalRecord)
     return Response.json({ success: true, status: 'complete', ...finalRecord })

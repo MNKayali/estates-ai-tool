@@ -14,6 +14,7 @@
  */
 import { runDeterministicPipeline } from '@/lib/pipeline'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
+import { requireCaller } from '@/lib/auth'
 import { isQuestionShown } from '@/lib/questionSets'
 import { getScopeCatalogue } from '@/lib/costCalculator'
 import { loadNrmWorkbook, distinctSpecLevels } from '@/lib/nrmWorkbook'
@@ -51,6 +52,8 @@ const AXES = {
 export async function POST(request) {
   const rl = await checkRateLimit('compare', request, { requests: 30, window: '10 m' })
   if (!rl.allowed) return rateLimitedResponse(rl.retryAfterSeconds)
+  const caller = await requireCaller(request)
+  if (caller.response) return caller.response
 
   let body
   try { body = await request.json() } catch { return Response.json({ error: 'Invalid JSON body.' }, { status: 400 }) }

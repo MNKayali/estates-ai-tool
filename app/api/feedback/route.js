@@ -15,6 +15,7 @@
  */
 import { saveFeedback } from '@/lib/kv'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
+import { requireCaller } from '@/lib/auth'
 
 // Mirror the options offered in the report-page modal. An unrecognised value is
 // coerced to 'Other' rather than rejected, so the UI can evolve without 400s.
@@ -25,6 +26,8 @@ export async function POST(request) {
   // a cheap way to flood the capped feedback list in KV.
   const rl = await checkRateLimit('feedback', request, { requests: 10, window: '1 h' })
   if (!rl.allowed) return rateLimitedResponse(rl.retryAfterSeconds)
+  const caller = await requireCaller(request)
+  if (caller.response) return caller.response
 
   let body
   try {

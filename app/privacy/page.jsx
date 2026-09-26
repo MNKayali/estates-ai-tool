@@ -69,14 +69,14 @@ export default function PrivacyPage() {
           Privacy Notice
         </h1>
         <p style={{ ...body, color: '#666', marginBottom: '32px' }}>
-          Last reviewed: 25 September 2026 &nbsp;|&nbsp; This notice applies to all authorised users of {BRAND.name}.
+          Last reviewed: 25 September 2026 &nbsp;|&nbsp; This notice applies to everyone who uses {BRAND.name}: visitors trying it free, and account holders.
         </p>
 
         <Section title="1. Who processes your data">
           <p style={body}>
-            {BRAND.name} is an internal planning tool. The <strong>data controller</strong> is the
-            organisation or individual who operates this instance of the tool and issues user accounts.
-            If you are an authorised user within an organisation, your data controller is that organisation.
+            {BRAND.name} is a feasibility-reporting tool for capital projects. You can try it free without
+            an account, and anyone can create a free account. The <strong>data controller</strong> is the
+            operator of {BRAND.name}.
           </p>
           <p style={body}>
             If your organisation is subject to UK GDPR (as most UK-based organisations are), the controller
@@ -96,19 +96,34 @@ export default function PrivacyPage() {
               'Legitimate interests: supporting internal estates planning and capital investment appraisal',
             ],
             [
-              'Account details — your name, email address, a one-way hash of your password (never the password itself), account status, and the dates you were invited and last signed in',
-              'Signing you in, sending your invitation and password-reset emails, and showing you your own reports.',
-              'Legitimate interests: security and access control',
+              'Account details — your email address (your login), your name if you give it, a one-way hash of your password (never the password itself), account status and tier, and the dates you joined, last signed in and last generated a report',
+              'Creating your account, signing you in, showing you your own reports, and (if enabled) sending password-reset emails.',
+              'Contract: providing the account you asked for. Legitimate interests: security and access control',
             ],
             [
-              'Generated report content — cost estimate, programme table, risk register, written sections, report ID, linked to your account',
+              'Generated report content — cost estimate, programme table, risk register, written sections, questionnaire answers, report ID, linked to your account or to your free-trial visitor ID',
               'Kept so you can reopen and download your reports from “My reports”. Only you (and the tool administrator) can open them.',
-              'Legitimate interests',
+              'Contract / legitimate interests',
+            ],
+            [
+              'Free-trial visitor ID — a random identifier in a cookie (projento_trial), the number of free reports used with it, and the IDs of those reports',
+              'Counting free reports (three per visitor) and, if you then sign up or sign in, moving the reports you made into your account.',
+              'Legitimate interests: operating a fair free trial',
+            ],
+            [
+              'Network address, stored only in a keyed one-way hashed form (never the address itself)',
+              'A backstop count of free reports per network over 30 days, so the free trial cannot be reset simply by clearing cookies.',
+              'Legitimate interests: preventing abuse of the free trial',
             ],
             [
               'Session cookie (projento_session) — a signed value identifying your account',
               'Keeping you signed in. It contains an account reference, not your name, email or password.',
               'Legitimate interests: security and access control',
+            ],
+            [
+              'Usage data — how many reports are generated each week, sign-ups, and how many free-trial visitors go on to create an account; and the project information in reports, used in anonymised and aggregated form',
+              'Improving the tool, and research into capital project feasibility and costs. Anything used for research or shared outside the tool is anonymised and aggregated: it never identifies you, your organisation or an individual project.',
+              'Legitimate interests: product improvement and research',
             ],
             [
               'Error data — page URL, error message, browser type, approximate location (no name, email, or device ID)',
@@ -149,7 +164,7 @@ export default function PrivacyPage() {
             ],
             [
               'Upstash Inc. (via Vercel KV) — report storage',
-              'Your account details and your generated reports (cost figures, programme, questionnaire answers) are stored in an Upstash Redis database.',
+              'Your account details, your generated reports (cost figures, programme, questionnaire answers), the free-trial counts and the weekly usage counts are stored in an Upstash Redis database.',
               'EU-West, London (lhr1) — data does not leave the UK/EU',
               'No international transfer — data held in UK/EU region.',
             ],
@@ -170,10 +185,12 @@ export default function PrivacyPage() {
 
         <Section title="4. How long we keep your data">
           <ul style={{ paddingLeft: '20px', margin: '0 0 10px' }}>
-            <li style={li}><strong>Generated reports</strong> — kept until you delete them from “My reports”, or until your account is closed. Deletion is immediate and permanent. Reports created before accounts were introduced are deleted automatically 90 days after they were generated.</li>
-            <li style={li}><strong>Account details</strong> — kept while your account exists. Ask the administrator to close your account and delete them.</li>
+            <li style={li}><strong>Reports in your account</strong> — kept until you delete them from “My reports”, or until your account is closed. Deletion is immediate and permanent.</li>
+            <li style={li}><strong>Free-trial reports</strong> — deleted automatically 90 days after they were generated, unless you create an account or sign in on the same browser first, in which case they move into your account and are kept like any other report. Reports created before accounts were introduced are also deleted 90 days after they were generated.</li>
+            <li style={li}><strong>Account details</strong> — kept while your account exists. Contact us to close your account: the account, all its reports and every signed-in session are deleted at once.</li>
+            <li style={li}><strong>Free-trial count</strong> — the visitor ID and its count of free reports are kept for one year; the hashed network count for 30 days.</li>
             <li style={li}><strong>Invitation and reset links</strong> — expire after 7 days and 1 hour respectively, and work only once.</li>
-            <li style={li}><strong>Session cookie</strong> — expires 30 days after you sign in, or when you sign out.</li>
+            <li style={li}><strong>Session cookie</strong> — expires 30 days after you sign in, or when you sign out. The free-trial cookie expires after one year.</li>
             <li style={li}><strong>Error logs (Sentry)</strong> — retained by Sentry for up to 90 days on our current plan, then deleted.</li>
             <li style={li}><strong>Analytics events (Vercel)</strong> — aggregated counts only; no individual event records are retained.</li>
           </ul>
@@ -181,11 +198,15 @@ export default function PrivacyPage() {
 
         <Section title="5. Cookies">
           <p style={body}>
-            This tool uses <strong>one cookie</strong> for signed-in users: <code style={{ background: '#F0F2F4', padding: '1px 5px', borderRadius: '3px' }}>projento_session</code>.
-            It keeps you signed in, contains a signed account reference (not your name, email or
-            password), expires after 30 days or when you sign out, and is never used for advertising or
-            cross-site tracking. It is strictly necessary for the service, so no consent is required.
-            The administrator&apos;s area uses a second cookie of the same kind, <code style={{ background: '#F0F2F4', padding: '1px 5px', borderRadius: '3px' }}>estate_admin</code>.
+            This tool uses <strong>two cookies</strong>, neither of them for advertising or cross-site tracking:
+          </p>
+          <ul style={{ paddingLeft: '20px', margin: '0 0 10px' }}>
+            <li style={li}><code style={{ background: '#F0F2F4', padding: '1px 5px', borderRadius: '3px' }}>projento_session</code> — keeps you signed in. It contains a signed account reference (not your name, email or password) and expires after 30 days or when you sign out.</li>
+            <li style={li}><code style={{ background: '#F0F2F4', padding: '1px 5px', borderRadius: '3px' }}>projento_trial</code> — set when you start the questionnaire without an account. It holds a random visitor ID so the free trial can count your reports and keep them yours; it expires after one year.</li>
+          </ul>
+          <p style={body}>
+            Both are strictly necessary for the service you asked for, so no consent is required.
+            The administrator&apos;s area uses a third cookie of the same kind, <code style={{ background: '#F0F2F4', padding: '1px 5px', borderRadius: '3px' }}>estate_admin</code>.
           </p>
           <p style={body}>
             Vercel Analytics does <strong>not</strong> set any cookies. No consent banner is required
@@ -198,17 +219,16 @@ export default function PrivacyPage() {
           <p style={body}>You have the right to:</p>
           <ul style={{ paddingLeft: '20px', margin: '0 0 10px' }}>
             <li style={li}><strong>Access</strong> — ask for a copy of personal data we hold about you.</li>
-            <li style={li}><strong>Erasure</strong> — delete any of your reports yourself from “My reports”, or ask us to close your account and delete everything linked to it.</li>
+            <li style={li}><strong>Erasure</strong> — delete any of your reports yourself from “My reports”, or ask us to close your account and delete everything linked to it (account deletion is handled by us on request for now).</li>
             <li style={li}><strong>Rectification</strong> — ask us to correct inaccurate data.</li>
             <li style={li}><strong>Restriction</strong> — ask us to pause processing while a query is resolved.</li>
             <li style={li}><strong>Object</strong> — object to processing based on legitimate interests.</li>
           </ul>
           <p style={body}>
-            To exercise any right, contact us.
+            To exercise any right, including closing your account, contact us from the email address your account uses.
           </p>
           <p style={{ ...body, background: '#F8F1E2', border: `1px solid ${BLUE}`, borderRadius: '4px', padding: '12px 14px' }}>
-            <strong>Contact:</strong> Reach the tool operator through the person who invited you,
-            or email <a href={`mailto:${BRAND.email}`} style={{ color: NAVY, fontWeight: 600 }}>{BRAND.email}</a>.
+            <strong>Contact:</strong> email <a href={`mailto:${BRAND.email}`} style={{ color: NAVY, fontWeight: 600 }}>{BRAND.email}</a>.
           </p>
           <p style={body}>
             You also have the right to complain to the{' '}

@@ -4,11 +4,15 @@
  *   'enable'     — undo 'disable'
  *   'link'       — a fresh set-password link: an invite link while the person
  *                  has not set a password yet, else a 1-hour reset link.
- *                  Emailed when Resend is configured, always returned.
+ *                  Emailed when Resend is configured, always returned. This is
+ *                  the v1 route for a forgotten password: the admin passes the
+ *                  link on and never learns the password.
+ *   'tier'       — { tier } set the account's tier label (nothing reads it yet)
+ *   'delete'     — delete the account, its reports and its sessions
  *
  * Gated by proxy.ts (estate_admin cookie vs ADMIN_CODE).
  */
-import { getUser, setDisabled, createLinkToken, publicUser } from '@/lib/users'
+import { getUser, setDisabled, setTier, deleteUser, createLinkToken, publicUser } from '@/lib/users'
 import { sendEmail, inviteEmail, resetEmail, appOrigin } from '@/lib/email'
 
 export async function POST(request, { params }) {
@@ -16,7 +20,8 @@ export async function POST(request, { params }) {
   if (!/^[0-9a-f]{16}$/.test(uid || '')) return Response.json({ error: 'Invalid user.' }, { status: 400 })
 
   let action = ''
-  try { action = (await request.json())?.action } catch { /* handled below */ }
+  let body = {}
+  try { body = (await request.json()) || {}; action = body.action } catch { /* handled below */ }
 
   try {
     const user = await getUser(uid)
@@ -35,6 +40,20 @@ export async function POST(request, { params }) {
       const message = kind === 'invite' ? inviteEmail({ name: user.name, link }) : resetEmail({ name: user.name, link })
       const emailed = await sendEmail({ to: user.email, ...message })
       return Response.json({ user: publicUser(user), link, kind, emailed })
+    }
+
+    if (action === 'tier') {
+      try {
+        return Response.json({ user: publicUser(await setTier(uid, String(body.tier || '').trim().toLowerCase())) })
+      } catch (e) {
+        if (e.message === 'bad-tier') return Response.json({ error: 'A tier is one word: lower-case letters, digits or hyphens.' }, { status: 400 })
+        throw e
+      }
+    }
+
+    if (action === 'delete') {
+      const { reportsDeleted } = await deleteUser(uid)
+      return Response.json({ deleted: true, reportsDeleted })
     }
 
     return Response.json({ error: 'Unknown action.' }, { status: 400 })
