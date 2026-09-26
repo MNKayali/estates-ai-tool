@@ -6,7 +6,8 @@
  * from the report's download buttons). Either way the server moves this
  * browser's free-trial reports into the account (lib/trial.js).
  *
- * mode: 'signup' | 'login' — the form offers a link to switch.
+ * mode: 'signup' | 'login' — the form offers a link to switch, and tells the
+ * page through onModeChange so its heading can follow (ACCOUNT_COPY).
  * onSuccess({ mode, claimed }) runs after the session cookie is set.
  */
 import { useState } from 'react'
@@ -15,7 +16,21 @@ import { FormError, SubmitButton, linkStyle } from './AuthShell'
 
 const MIN = 10
 
-export default function AccountForm({ initialMode = 'signup', onSuccess, idPrefix = 'acct', autoFocus = true }) {
+/** The heading of a page built around this form, for each mode. */
+export const ACCOUNT_COPY = {
+  login: {
+    eyebrow: 'Sign in',
+    title: 'Welcome back',
+    intro: 'Sign in to start a new feasibility report or open one you have already created.',
+  },
+  signup: {
+    eyebrow: 'Free account',
+    title: 'Create your account',
+    intro: 'Unlimited feasibility reports, PDF and Word downloads, and every report you create kept in one place. Reports you made on the free trial come with you.',
+  },
+}
+
+export default function AccountForm({ initialMode = 'signup', onSuccess, onModeChange, idPrefix = 'acct', autoFocus = true }) {
   const [mode, setMode]         = useState(initialMode)
   const [name, setName]         = useState('')
   const [email, setEmail]       = useState('')
@@ -30,6 +45,7 @@ export default function AccountForm({ initialMode = 'signup', onSuccess, idPrefi
 
   function switchMode(next) {
     setMode(next); setError(''); setField(''); setExists(false)
+    onModeChange?.(next)
   }
 
   async function submit(e) {
