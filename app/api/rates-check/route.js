@@ -22,7 +22,7 @@ import { loadNrmWorkbook, workbookStatus, columnsFor } from '@/lib/nrmWorkbook'
 import { fetchProgrammeWorkbook } from '@/lib/programmeCalculator'
 
 const PROGRAMME_SIZE_BANDS = ['S1 (<150)', 'S2 (≤250)', 'S3 (≤500)', 'S4 (≤1500)', 'S5 (≤3000)', 'S6 (>3000)']
-// One representative line whose rate proves '2. Scope and Rates' parsed.
+// One representative line whose rate proves '2. Rates' and '4. Scope rules' parsed and joined.
 const SAMPLE_ITEM = 'Wall finishes'
 
 function parseDurationsTab(wb) {

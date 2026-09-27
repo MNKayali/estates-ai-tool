@@ -296,7 +296,6 @@ export default function ScopePicker({ catalogue, answers, setAnswers, suggestBar
             <label htmlFor={`scope-${item.id}`} style={{ ...S.name, cursor: available ? 'pointer' : 'not-allowed' }}>{item.name}</label>
             {item.included && !on && <span style={S.sub}>{item.included}</span>}
             {!available && <span style={S.req}>Requires: {levelName(itemAvailableFrom(item, ctx))}</span>}
-            {on && lacksRate(item, ctx) && <span style={S.req}>No rate in the workbook for this project type yet — it will be listed as unpriced.</span>}
             {on && c && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 14px', alignItems: 'center' }}>
                 {item.pick === 'One' && offeredOpts.length > 1 && (

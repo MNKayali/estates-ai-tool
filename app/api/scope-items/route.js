@@ -2,7 +2,7 @@
  * GET /api/scope-items
  * Workbook-derived reference data for the questionnaire, in one request:
  *  - `catalogue`: every scope item, option, rule and list from NRM1 v5.2
- *    ('2. Scope and Rates' + '3. Settings'), rates and price sources stripped.
+ *    ('2. Rates' + '4. Scope rules' + '3. Settings'), rates and price sources stripped.
  *    The questionnaire runs lib/scopeEngine.js over it — the same rules the
  *    cost engine runs — so no filtering happens here.
  *  - `bcisRegions`: ▶ location_factors regions and their postcode prefixes, so
