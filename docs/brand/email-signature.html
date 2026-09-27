@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projento email signature</title>
+<!--
+  Projento email signature (docs/brand/email-signature.html).
+  The signature itself is the table inside #signature: inline styles only and
+  a hosted PNG, because Gmail strips <style> blocks and cannot show SVG. The
+  logo is loaded from the live site (public/brand/), so it must stay at
+  https://www.projento.co.uk/brand/projento-wordmark-navy-1600.png.
+  Colours and tagline follow docs/brand/BRAND.md: navy #1A2E4A, brand amber
+  #D9A12E as a fill only (the rule), muted grey #6D7182 for small text.
+-->
+<style>
+  body { margin: 0; padding: 32px 16px; background: #F4F1EA; font-family: Helvetica, Arial, sans-serif; color: #1A2E4A; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  p, li { font-size: 14px; line-height: 1.6; color: #3A4556; }
+  .card { background: #FFFFFF; border: 1px solid #D9D3C7; border-radius: 8px; padding: 24px; margin: 18px 0; }
+  button { background: #1A2E4A; color: #FFFFFF; border: 0; border-radius: 6px; padding: 10px 18px; font-size: 14px; cursor: pointer; }
+  #status { margin-left: 10px; font-size: 13px; color: #3A4556; }
+  ol { padding-left: 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Projento email signature</h1>
+  <p>For <strong>mail.projento@gmail.com</strong>, sending as <strong>info@projento.co.uk</strong>.</p>
+
+  <div class="card" id="signature">
+    <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;font-family:'IBM Plex Sans',Helvetica,Arial,sans-serif;">
+      <tr>
+        <td style="padding:0 0 6px 0;">
+          <a href="https://www.projento.co.uk" style="text-decoration:none;">
+            <img src="https://www.projento.co.uk/brand/projento-wordmark-navy-1600.png" alt="Projento" width="120" height="30" style="display:block;width:120px;height:30px;border:0;">
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:0 0 8px 0;font-size:10px;line-height:14px;letter-spacing:2.5px;text-transform:uppercase;color:#6D7182;font-weight:600;">
+          Plan &middot; Analyse &middot; Report
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:0 0 8px 0;">
+          <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;"><tr><td width="36" height="2" style="width:36px;height:2px;background:#D9A12E;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:0 0 2px 0;font-size:13px;line-height:18px;color:#1A2E4A;">
+          Feasibility reporting for capital projects
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:0 0 2px 0;font-size:13px;line-height:18px;color:#1A2E4A;">
+          <a href="tel:+447522172121" style="color:#1A2E4A;text-decoration:none;">+44 7522 172121</a>
+        </td>
+      </tr>
+      <tr>
+        <td style="font-size:13px;line-height:18px;color:#1A2E4A;">
+          <a href="mailto:info@projento.co.uk" style="color:#1A2E4A;text-decoration:none;">info@projento.co.uk</a>
+          <span style="color:#6D7182;">&nbsp;|&nbsp;</span>
+          <a href="https://www.projento.co.uk" style="color:#1A2E4A;text-decoration:none;">www.projento.co.uk</a>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <p><button type="button" id="copy">Copy signature</button><span id="status" role="status" aria-live="polite"></span></p>
+
+  <div class="card">
+    <strong>Add it to Gmail</strong>
+    <ol>
+      <li>Click <strong>Copy signature</strong> above. (If that does nothing, drag to select everything in the white box above, logo included, and press Ctrl+C.)</li>
+      <li>In Gmail (mail.projento@gmail.com): <strong>⚙ → See all settings → General</strong>, scroll to <strong>Signature</strong>, click <strong>+ Create new</strong> and name it <em>Projento</em>.</li>
+      <li>Click in the signature box and press <strong>Ctrl+V</strong>.</li>
+      <li>Under <strong>Signature defaults</strong>, choose the <strong>info@projento.co.uk</strong> address and set <em>Projento</em> for both <strong>For new emails use</strong> and <strong>On reply/forward use</strong>.</li>
+      <li>Scroll to the bottom and click <strong>Save Changes</strong>.</li>
+    </ol>
+  </div>
+</div>
+<script>
+  document.getElementById('copy').addEventListener('click', async () => {
+    const status = document.getElementById('status')
+    const node = document.querySelector('#signature table')
+    try {
+      await navigator.clipboard.write([new ClipboardItem({
+        'text/html': new Blob([node.outerHTML], { type: 'text/html' }),
+        'text/plain': new Blob([node.innerText.replace(/\n{2,}/g, '\n').trim()], { type: 'text/plain' }),
+      })])
+      status.textContent = 'Copied. Paste it into Gmail’s signature box.'
+    } catch {
+      const range = document.createRange()
+      range.selectNode(node)
+      const sel = window.getSelection()
+      sel.removeAllRanges()
+      sel.addRange(range)
+      status.textContent = document.execCommand('copy') ? 'Copied. Paste it into Gmail’s signature box.' : 'Select the signature and press Ctrl+C.'
+    }
+  })
+</script>
+</body>
+</html>
