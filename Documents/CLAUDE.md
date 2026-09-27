@@ -1,3 +1,6 @@
+> **OUT OF DATE — do not follow.** An old (June 2026) copy of the project guide: NRM1 v3.7, the retired access code, a single AI call.
+> The current guide is the CLAUDE.md in the repository root.
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.

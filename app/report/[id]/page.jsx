@@ -45,6 +45,10 @@ export default function ReportByIdPage() {
   const [error, setError] = useState('')
   const [signInHint, setSignInHint] = useState(false)
   const [stalled, setStalled] = useState(false)
+  // Bumped by "Try again" after a stall: re-runs the load-and-drive effect.
+  // (router.refresh() does not — it re-renders server components, and this
+  // effect's dependencies would not change, so nothing restarted the driver.)
+  const [attempt, setAttempt] = useState(0)
   // `{ user, trial, admin }` — decides whether downloads need sign-up.
   const [viewer, setViewer] = useState(null)
   const drivingRef = useRef(false)
@@ -150,6 +154,12 @@ export default function ReportByIdPage() {
 
         if (body.status === 'complete') {
           track('report_generation_complete', { reportId: id })
+          // Replace this tab's Phase 1 copy, so coming back to the report
+          // shows it finished rather than as pending until a /prose call.
+          try {
+            const stored = JSON.parse(sessionStorage.getItem('estatesAI_result') || 'null')
+            if (stored?.reportId === id) sessionStorage.setItem('estatesAI_result', JSON.stringify({ ...stored, ...body }))
+          } catch {}
           return
         }
 
@@ -174,19 +184,21 @@ export default function ReportByIdPage() {
       if (result.status && result.status !== 'complete') driveProse(result)
     })
 
-    return () => { cancelled = true; controller.abort() }
-  }, [id])
+    return () => { cancelled = true; controller.abort(); drivingRef.current = false }
+  }, [id, attempt])
 
   if (error)  return <ErrorView error={error} signInHref={signInHint ? `/login?from=/report/${id}` : null} onBack={() => router.push('/questionnaire')} />
   if (!data)  return <Spinner />
-  if (stalled && data.status !== 'complete') {
-    return <StalledView onRetry={() => { setStalled(false); drivingRef.current = false; router.refresh() }} />
-  }
   return (
-    <ReportRenderer data={data} reportId={id}
-      signedIn={!viewer || !!viewer.user}
-      accountRequired={!!viewer && !viewer.user && !viewer.admin}
-      onAccountCreated={() => setViewer(v => ({ ...v, user: {}, trial: null }))} />
+    <>
+      {stalled && data.status !== 'complete' && (
+        <StalledBanner onRetry={() => { setStalled(false); setAttempt(a => a + 1) }} />
+      )}
+      <ReportRenderer data={data} reportId={id}
+        signedIn={!viewer || !!viewer.user}
+        accountRequired={!!viewer && !viewer.user && !viewer.admin}
+        onAccountCreated={() => setViewer(v => ({ ...v, user: {}, trial: null }))} />
+    </>
   )
 }
 
@@ -228,20 +240,18 @@ function ErrorView({ error, signInHref, onBack }) {
 }
 
 // ─── Stalled generation — manual retry ─────────────────────────────────────────
-function StalledView({ onRetry }) {
+// A banner above the report, not a page in its place: the figures are ready and
+// the reader keeps them in view while the written sections are retried.
+function StalledBanner({ onRetry }) {
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#EFEBE1', padding: '24px', fontFamily: 'var(--font-body)' }}>
-      <div style={{ maxWidth: '440px', width: '100%', background: '#fff', borderRadius: '8px', padding: '40px 32px', boxShadow: '0 2px 16px rgba(0,0,0,0.10)', textAlign: 'center' }}>
-        <div style={{ fontSize: '32px', marginBottom: '16px' }}>⏳</div>
-        <h2 style={{ color: NAVY, fontSize: '20px', fontWeight: 700, margin: '0 0 12px' }}>
-          Still working on it
-        </h2>
-        <p style={{ color: '#555', fontSize: '14px', lineHeight: 1.6, margin: '0 0 24px' }}>
-          The cost and programme figures below are ready, but the narrative sections are taking longer than usual to generate. Your progress is saved — try again in a moment.
+    <div role="alert" className="no-print" style={{ background: '#FFF8E6', borderBottom: '1px solid #E8D9B0', padding: '14px 16px', fontFamily: 'var(--font-body)' }}>
+      <div style={{ maxWidth: '880px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+        <p style={{ color: NAVY, fontSize: '14px', lineHeight: 1.5, margin: 0, flex: '1 1 320px' }}>
+          <strong>Still working on it.</strong> The cost and programme figures below are ready, but the written sections are taking longer than usual. Your progress is saved — try again in a moment.
         </p>
         <button
           onClick={onRetry}
-          style={{ padding: '12px 28px', background: NAVY, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+          style={{ padding: '10px 22px', background: NAVY, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
           Try again
         </button>
       </div>

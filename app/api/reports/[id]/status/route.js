@@ -6,19 +6,12 @@
  * excludes cost, programme, aiProse and docx — the driver already has those
  * from its last successful fetch; this just answers "is it done yet".
  */
-import { getReport } from '@/lib/kv'
-import { authoriseReport, getSessionUser, reportNotFoundResponse } from '@/lib/auth'
+import { loadReport } from '@/lib/auth'
 
 export async function GET(request, { params }) {
   const { id } = await params
-  if (!id || !/^[0-9a-f]{16}$/.test(id)) {
-    return Response.json({ error: 'Invalid report ID.' }, { status: 400 })
-  }
-
-  const record = await getReport(id)
-  if (!record) return reportNotFoundResponse(await getSessionUser(request))
-  const auth = await authoriseReport(request, record)
-  if (auth.response) return auth.response
+  const { response, record } = await loadReport(request, id)
+  if (response) return response
 
   const status = !record.status ? 'complete' : record.status
   return Response.json({

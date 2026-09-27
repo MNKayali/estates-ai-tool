@@ -16,8 +16,7 @@
  *
  * SECURITY: never reference AI_API_KEY here.
  */
-import { getReport } from '@/lib/kv'
-import { authoriseReport, downloadRequiresAccount, getSessionUser, reportNotFoundResponse } from '@/lib/auth'
+import { loadReport, downloadRequiresAccount } from '@/lib/auth'
 import { SESSION_COOKIE } from '@/lib/session'
 import { reportFileName } from '@/lib/brand'
 import { reportReference } from '@/lib/reportContent'
@@ -64,16 +63,9 @@ function getOrigin(request) {
 
 export async function GET(request, { params }) {
   const { id } = await params
-
-  if (!id || !/^[0-9a-f]{16}$/.test(id)) {
-    return Response.json({ error: 'Invalid report ID.' }, { status: 400 })
-  }
-
-  const data = await getReport(id)
-  if (!data) return reportNotFoundResponse(await getSessionUser(request))
-  const auth = await authoriseReport(request, data)
-  if (auth.response) return auth.response
-  const needsAccount = downloadRequiresAccount(auth)
+  const { response, record: data, caller } = await loadReport(request, id)
+  if (response) return response
+  const needsAccount = downloadRequiresAccount(caller)
   if (needsAccount) return needsAccount
 
   // A record freshly created by generate-report has no docx yet — the AI

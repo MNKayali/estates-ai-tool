@@ -21,7 +21,7 @@
  */
 import * as Sentry from '@sentry/nextjs'
 import {
-  getReport, getProseHalf, saveProseHalf,
+  getProseHalf, saveProseHalf,
   claimLock, releaseLock, finaliseReport,
 } from '@/lib/kv'
 import {
@@ -29,7 +29,7 @@ import {
   buildProsePrompts, finaliseProse, scrubAnswers,
 } from '@/lib/prose'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
-import { authoriseReport, getSessionUser, reportNotFoundResponse } from '@/lib/auth'
+import { loadReport, reportNotFoundResponse, REPORT_ID } from '@/lib/auth'
 
 export const maxDuration = 60
 
@@ -48,7 +48,7 @@ function capturePipelineError(e, step, answers) {
 
 export async function POST(request, { params }) {
   const { id } = await params
-  if (!id || !/^[0-9a-f]{16}$/.test(id)) {
+  if (!id || !REPORT_ID.test(id)) {
     return Response.json({ error: 'Invalid report ID.' }, { status: 400 })
   }
 
@@ -63,10 +63,8 @@ export async function POST(request, { params }) {
   const requestStart = Date.now()
   const deadline = requestStart + 60_000 - FINALISE_RESERVE_MS
 
-  const record = await getReport(id)
-  if (!record) return reportNotFoundResponse(await getSessionUser(request))
-  const auth = await authoriseReport(request, record)
-  if (auth.response) return auth.response
+  const { response, record, caller } = await loadReport(request, id)
+  if (response) return response
 
   // Already finished — by this invocation's own earlier work, another tab, or
   // a legacy pre-Phase-2 record that was always generated in one shot. Return
@@ -85,23 +83,23 @@ export async function POST(request, { params }) {
   )
   const prompts = { narrative: narrativePrompt, risk: riskPrompt }
 
-  // Snapshot which halves already exist before doing any work, so a half
-  // finished by an earlier invocation (or a concurrent tab, mid-request) is
-  // never re-run.
-  const before = {}
-  for (const half of PROSE_ORDER) before[half] = await getProseHalf(id, half)
-
+  // Which halves already exist, so a half finished by an earlier invocation is
+  // never re-run. getReport() read both sidecar keys to build prosePending, so
+  // skipping a finished half costs no extra KV read.
   let madeProgress = false
   let anyLocked = false
   let lastError = null
 
   for (const half of PROSE_ORDER) {
-    if (before[half]) continue // already done
+    if (!record.prosePending?.[half]) continue // already done
 
     const token = await claimLock(id, half)
     if (!token) { anyLocked = true; continue } // another invocation is on it right now
 
     try {
+      // A concurrent tab may have finished this half (and released its lock)
+      // since getReport() read it: check again under the lock before paying.
+      if (await getProseHalf(id, half)) continue
       const remaining = deadline - Date.now()
       if (remaining < PROSE_HALVES[half].minAttemptMs) break // out of runway this call — next call gets a fresh 60s
       const out = await requestProseHalf(half, prompts[half], deadline, {
@@ -143,7 +141,9 @@ export async function POST(request, { params }) {
       ownerId: record.ownerId,
       ...(record.anonId && { anonId: record.anonId }),
     }
-    await finaliseReport(id, finalRecord)
+    // null: the owner deleted the report while its text was being written —
+    // it stays deleted (finaliseReport never recreates a missing record).
+    if ((await finaliseReport(id, finalRecord)) === null) return reportNotFoundResponse(caller.user)
     return Response.json({ success: true, status: 'complete', ...finalRecord })
   }
 
