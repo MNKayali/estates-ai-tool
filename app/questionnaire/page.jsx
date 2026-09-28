@@ -20,6 +20,7 @@ import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
   showsHeightQuestion, KNOWN_ISSUE_NONE, SURVEY_NONE,
   sectionCounts, unansweredRequired, progressPercent, QUESTIONS_BY_SECTION,
+  PRIORITY_OPTIONS, PUBLIC_CLIENT_OPTIONS, showsTopPriorityQuestion, topPriority,
 } from '../../lib/questionSets.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
@@ -145,10 +146,9 @@ const OCCUPATION_OPTIONS = [
 ]
 
 // ─── Section 4 data ───────────────────────────────────────────────────────────
-const PRIORITIES = [
-  'Lowest cost', 'Fixed / certain final cost', 'Speed', 'Design quality',
-  'Flexibility', 'Minimise disruption', 'Funder / compliance requirement',
-]
+// Q4.4's options live in lib/questionSets.js: the Procurement Reference
+// workbook is matched against the same labels.
+const PRIORITIES = PRIORITY_OPTIONS
 
 const DESIGN_STAGE_OPTIONS = [
   'Concept only (Stage 0–1)', 'Concept complete (Stage 2)',
@@ -700,6 +700,14 @@ export default function QuestionnairePage() {
   }, [loading])
 
   const set = (field, val) => setAnswers(prev => ({ ...prev, [field]: val }))
+  // Q4.4a names one of the Q4.4 ticks; unticking it clears the answer so the
+  // question is asked again rather than carrying a choice no longer on screen.
+  const setPriorities = v => setAnswers(prev => ({
+    ...prev,
+    q4_4_priorities: v,
+    ...(prev.q4_4_topPriority && !(v || []).includes(prev.q4_4_topPriority) && { q4_4_topPriority: undefined }),
+  }))
+  const topPriorityAnswer = (answers.q4_4_priorities || []).includes(answers.q4_4_topPriority) ? answers.q4_4_topPriority : undefined
   // Q2.5 is stored as a comma-joined string so the cost engine's BREEAM
   // substring test and the AI prompt keep reading the same shape they always
   // have; the UI works in a list.
@@ -896,8 +904,14 @@ export default function QuestionnairePage() {
       q3_8_siteContext:       'Site and building context',
       q4_5_designStage:       'Design stage already reached',
     }
+    // The two procurement drivers have no "None" option to point at.
+    const PLAIN = {
+      q4_4_topPriority:  'Pick the one priority that matters most',
+      q4_8_publicClient: 'Say whether the client is a public-sector body — Yes or No',
+    }
     for (const key of unansweredRequired(sec, answers.q1_2_projectType, answers)) {
-      if (!errs[key] && LABELS[key]) {
+      if (!errs[key] && PLAIN[key]) errs[key] = PLAIN[key]
+      else if (!errs[key] && LABELS[key]) {
         errs[key] = `${LABELS[key]} is required — pick an option, including "None" if that is the answer`
       }
     }
@@ -1637,15 +1651,22 @@ export default function QuestionnairePage() {
 
             <QCard>
               <Label>Q4.4 — What matters most on this project?</Label>
-              <HelpText>Choose up to two. The first you tick is treated as the primary priority and drives the procurement recommendation; the second informs the programme options.</HelpText>
-              <CheckboxGroup options={PRIORITIES} values={answers.q4_4_priorities} onChange={v => set('q4_4_priorities', v)} max={2} ariaLabel="Project priorities" />
-              {Array.isArray(answers.q4_4_priorities) && answers.q4_4_priorities.length > 0 && (
-                <p style={{ marginTop: 8, fontSize: 12.5, color: 'var(--text-soft)' }}>
-                  Primary: <strong style={{ color: 'var(--ink)' }}>{answers.q4_4_priorities[0]}</strong>
-                  {answers.q4_4_priorities[1] ? <> · Secondary: <strong style={{ color: 'var(--ink)' }}>{answers.q4_4_priorities[1]}</strong></> : null}
-                </p>
-              )}
+              <HelpText>Choose up to two. Your top priority counts double in the procurement recommendation; both inform the programme options.</HelpText>
+              <CheckboxGroup options={PRIORITIES} values={answers.q4_4_priorities} onChange={setPriorities} max={2} ariaLabel="Project priorities" />
             </QCard>
+
+            {/* Q4.4a — only with two priorities ticked, offering just those two.
+                Older drafts without it fall back to questionnaire order
+                (topPriority() in lib/questionSets.js). */}
+            {showsTopPriorityQuestion(answers.q4_4_priorities) && (
+              <QCard qkey="q4_4_topPriority">
+                <Label required>Q4.4a — Which ONE of these matters most?</Label>
+                <HelpText>Used to choose the preferred procurement route and route to market.</HelpText>
+                <RadioGroup options={answers.q4_4_priorities} value={topPriorityAnswer} onChange={v => set('q4_4_topPriority', v)}
+                  required describedBy={validationErrors.q4_4_topPriority ? 'err-q4_4_topPriority' : undefined} />
+                {validationErrors.q4_4_topPriority && <p id="err-q4_4_topPriority" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_4_topPriority}</p>}
+              </QCard>
+            )}
 
             {/* Visible numbers below now match their answer keys. They used to
                 run one behind from Q4.3 onward (two questions were both labelled
@@ -1673,6 +1694,14 @@ export default function QuestionnairePage() {
               <Label>Q4.7 — Funding source</Label>
               <HelpText>Grant or public funding adds a governance approval allowance to the programme.</HelpText>
               <RadioGroup options={FUNDING_OPTIONS} value={answers.q4_7_funding} onChange={v => set('q4_7_funding', v)} />
+            </QCard>
+
+            <QCard qkey="q4_8_publicClient">
+              <Label required>Q4.8 — Is the client a public-sector body, or eligible for public frameworks (e.g. a housing association)?</Label>
+              <HelpText>Framework routes to market are offered only to public and eligible clients; a negotiated contract only to private ones.</HelpText>
+              <RadioGroup options={PUBLIC_CLIENT_OPTIONS} value={answers.q4_8_publicClient} onChange={v => set('q4_8_publicClient', v)}
+                required describedBy={validationErrors.q4_8_publicClient ? 'err-q4_8_publicClient' : undefined} />
+              {validationErrors.q4_8_publicClient && <p id="err-q4_8_publicClient" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_8_publicClient}</p>}
             </QCard>
 
             {/* ── Financial case (was its own step) ───────────────────────────── */}
@@ -1762,7 +1791,9 @@ export default function QuestionnairePage() {
                   ['Start', answers.q4_0_startDate
                     ? new Date(answers.q4_0_startDate + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
                     : 'Assumed: the report date'],
-                  ['Priorities', (answers.q4_4_priorities || []).join(' · ') || 'Not stated'],
+                  ['Priorities', (answers.q4_4_priorities || []).length > 1
+                    ? `${topPriority(answers) || '—'} (top) · ${answers.q4_4_priorities.filter(x => x !== topPriority(answers)).join(' · ')}`
+                    : (answers.q4_4_priorities || []).join(' · ') || 'Not stated'],
                 ].map(([k, v]) => (
                   <div key={k} style={{ display: 'flex', gap: 8, fontSize: '13.5px' }}>
                     <span style={{ color: 'var(--text-soft)', fontFamily: 'var(--font-body)', fontWeight: 600, minWidth: 84 }}>{k}</span>

@@ -1,6 +1,7 @@
 /**
  * GET /api/rates-check
- * Health check — confirms NRM1 v5.2 and Programme v4.3 data files load correctly.
+ * Health check — confirms the NRM1, Programme and Procurement Reference
+ * workbooks load correctly.
  *
  * Gated behind the access code in proxy.ts. It reports real sample values (a rate
  * and a duration) on purpose: that is what proves the sheets actually PARSED,
@@ -20,6 +21,7 @@
 import * as XLSX from 'xlsx'
 import { loadNrmWorkbook, workbookStatus, columnsFor } from '@/lib/nrmWorkbook'
 import { fetchProgrammeWorkbook } from '@/lib/programmeCalculator'
+import { fetchProcurementWorkbook, parseProcurementWorkbook } from '@/lib/procurementCalculator'
 
 const PROGRAMME_SIZE_BANDS = ['S1 (<150)', 'S2 (≤250)', 'S3 (≤500)', 'S4 (≤1500)', 'S5 (≤3000)', 'S6 (>3000)']
 // One representative line whose rate proves '2. Rates' and '4. Scope rules' parsed and joined.
@@ -60,7 +62,11 @@ export async function GET() {
       rangeWidthsTable: false,    // '3. Settings' ▶ range_widths (optional; legacy ±11% applies without it)
       baseDate: null,             // v5.2 has no rate base date; reports say "the workbook issue date"
     },
-    procurementSheet: false,      // Programme sheet "Procurement"
+    procurementSheet: false,      // Programme sheet "Procurement" (superseded by the Procurement Reference)
+    procurementOk: false,
+    // Procurement Reference: option and contract-row counts and the driver
+    // weights, which prove the three sheets parsed (v2.0: 15, 11, 1/1/1/2).
+    procurement: null,
     newDurationRows: { SV7: false, BS1: false },
     fetchedAt: new Date().toISOString(),
     errors: [],
@@ -126,7 +132,25 @@ export async function GET() {
     result.errors.push('Programme workbook: ' + e.message)
   }
 
-  const httpStatus = (result.ratesOk && result.programmeOk) ? 200 : 503
+  // ── Procurement Reference workbook ────────────────────────────────────────
+  try {
+    const model = parseProcurementWorkbook(await fetchProcurementWorkbook())
+    const count = kind => model.options.filter(o => o.kind === kind).length
+    result.procurement = {
+      version: model.version,
+      options: model.options.length,
+      byOutput: { routes: count('route'), commercialModels: count('model'), routesToMarket: count('market') },
+      contractRows: Object.keys(model.contracts).length,
+      weights: model.weights,
+      worksThresholdInclVat: model.threshold.inclVat,
+      tenderPeriodColumn: model.options.some(o => o.tenderId),
+    }
+    result.procurementOk = model.options.length > 0 && result.procurement.contractRows > 0
+  } catch (e) {
+    result.errors.push('Procurement Reference workbook: ' + e.message)
+  }
+
+  const httpStatus = (result.ratesOk && result.programmeOk && result.procurementOk) ? 200 : 503
 
   return Response.json(result, { status: httpStatus })
 }

@@ -108,6 +108,11 @@
 .r-t .r-code { font-family: var(--r-mono); font-size: var(--r-fs-small); color: var(--r-code); white-space: nowrap; }
 .r-t .r-rate { color: var(--r-grey); white-space: nowrap; }
 .r-foot-note { font-size: var(--r-fs-small); color: var(--r-grey-mute); margin: 6px 0 0; }
+/* procurement: Preferred / Alternative table (lib/reportContent.js procurementTable) */
+.r-proc-basis { margin: 0 0 8px; }
+.r-t.r-proc { margin-bottom: 12px; }
+.r-t.r-proc td:first-child { color: var(--r-grey-mute); }
+.r-t.r-proc td b { font-weight: 600; color: var(--r-navy); }
 
 /* scope */
 .r-scope-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 18px; margin: 6px 0 4px; }

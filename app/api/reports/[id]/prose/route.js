@@ -79,7 +79,7 @@ export async function POST(request, { params }) {
     clientWarnings: record.senseCheck?.clientWarnings || [],
   }
   const { narrativePrompt, riskPrompt, isROI } = buildProsePrompts(
-    record.answers, record.cost, record.programme, senseCheck, record.confidence
+    record.answers, record.cost, record.programme, senseCheck, record.confidence, record.procurement || null
   )
   const prompts = { narrative: narrativePrompt, risk: riskPrompt }
 
@@ -105,6 +105,7 @@ export async function POST(request, { params }) {
       const out = await requestProseHalf(half, prompts[half], deadline, {
         // Kept and trimmed, never failed — but worth knowing how often the model misses the shape.
         onShapeMiss: (h, message) => Sentry.captureMessage(`[prose] shape miss (${h}): ${message}`, 'warning'),
+        procurement: record.procurement || null,
       })
       await saveProseHalf(id, half, out)
       madeProgress = true
@@ -134,6 +135,7 @@ export async function POST(request, { params }) {
       projectName: record.projectName,
       cost: record.cost,
       programme: record.programme,
+      ...(record.procurement && { procurement: record.procurement }),
       budget: record.budget,
       aiProse,
       answers: record.answers,

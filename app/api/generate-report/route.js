@@ -4,10 +4,11 @@
  * Phase 1 of two. This route is now deterministic-only — no AI call — and
  * returns in a few seconds:
  *
- *   Step 1 — costCalculator.js  → deterministic cost JSON (no AI)
- *   Step 2 — programmeCalculator.js → deterministic programme JSON (no AI)
- *   Step 2b — re-run cost with the known programme length (inflation + prelims)
- *   Step 2c — senseCheck.js → deterministic warnings + confidence grade
+ *   Steps 1–2 — lib/pipeline.js's runDeterministicPipeline(): cost, programme,
+ *     cost again with the programme length, sense check and confidence, the
+ *     procurement recommendation (lib/procurementCalculator.js), then the final
+ *     programme (tender period from the recommendation) and cost passes. The
+ *     order, and why, is in that file's header. No AI.
  *   Step 3 — write the record to KV with status 'deterministic' and return
  *
  * The AI prose lives in app/api/reports/[id]/prose/route.js (Phase 2), which
@@ -31,13 +32,12 @@
  * Rule: the AI never calculates a number.
  */
 import * as Sentry from '@sentry/nextjs'
-import { calculateCost, getScopeCatalogue } from '@/lib/costCalculator'
+import { getScopeCatalogue } from '@/lib/costCalculator'
 import { projectTypeUsesLevel } from '@/lib/scopeEngine'
-import { calculateProgramme } from '@/lib/programmeCalculator'
+import { runDeterministicPipeline } from '@/lib/pipeline'
 import { buildReport } from '@/lib/reportBuilder'
 import { createReport, recordReportStat } from '@/lib/kv'
-import { runSenseCheck, refreshBudget } from '@/lib/senseCheck'
-import { computeConfidence, runProseSequential, scrubAnswers } from '@/lib/prose'
+import { runProseSequential, scrubAnswers } from '@/lib/prose'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 import { getSessionUser, getTrialId } from '@/lib/auth'
 import { TRIAL_LIMIT, reserveTrialReport, recordTrialReport } from '@/lib/trial'
@@ -174,35 +174,17 @@ async function generate(request, { user, trialId }, outcome) {
       }, { status: 400 })
     }
 
-    // ── Step 1: Deterministic cost calculation ────────────────────────────────
-    console.log('[Step 1] Running cost calculator...')
-    let cost
+    // ── Steps 1–2: the deterministic pipeline ──────────────────────────────────
+    console.log('[Steps 1–2] Running the deterministic pipeline...')
+    let cost, programme, senseCheck, confidence, procurement
     try {
-      // First pass: programme unknown → estimate construction weeks for inflation
-      cost = await calculateCost(answers, 0)
+      ({ cost, programme, senseCheck, confidence, procurement } = await runDeterministicPipeline(answers))
     } catch (e) {
-      console.error('[Step 1 error]', e.message)
-      capturePipelineError(e, 'cost', answers)
-      return Response.json({ error: 'Cost calculation failed: ' + e.message }, { status: 500 })
-    }
-
-    // Guard 3 — cost calculator must return line items
-    if (!cost.lineItems || cost.lineItems.length === 0) {
-      return Response.json({
-        error: 'Cost calculator returned no line items. Check scope inputs and workbook connection.',
-        debug: { scope: answers.q2_2_scopeItems, interventionLevel: answers.q2_3_interventionLevel },
-      }, { status: 500 })
-    }
-
-    // ── Step 2: Deterministic programme calculation ────────────────────────────
-    console.log('[Step 2] Running programme calculator...')
-    let programme
-    try {
-      programme = await calculateProgramme(answers, cost.total.mid, { scope: cost.scopeSummary })
-    } catch (e) {
-      console.error('[Step 2 error]', e.message)
-      capturePipelineError(e, 'programme', answers)
-      return Response.json({ error: 'Programme calculation failed: ' + e.message }, { status: 500 })
+      const step = e?.pipelineStep || 'pipeline'
+      console.error(`[${step} error]`, e.message)
+      capturePipelineError(e, step, answers)
+      const label = { cost: 'Cost calculation', programme: 'Programme calculation', procurement: 'Procurement recommendation', senseCheck: 'Sense check' }[step] || 'Report calculation'
+      return Response.json({ error: `${label} failed: ${e.message}` }, { status: 500 })
     }
 
     // Guard 4 — tender stage must not be zero
@@ -217,26 +199,6 @@ async function generate(request, { user, trialId }, outcome) {
       console.warn('[Guard 5] Unfilled placeholder found in programme assumptions')
     }
 
-    // ── Re-run cost with programme weeks (for inflation + prelims cap) ────────
-    // Construction weeks are passed explicitly (not stashed on `answers`) so the
-    // user's answer object is never mutated before it is persisted / returned.
-    cost = await calculateCost(answers, programme.totalWeeks, programme.constructionWeeks)
-
-    // ── Step 2c: Sense check + confidence grade ───────────────────────────────
-    const senseCheck = await runSenseCheck(cost, programme, answers)
-    const confidence = computeConfidence(answers, cost, senseCheck)
-
-    // ── Step 2d: Final cost pass with the confidence-linked range ────────────
-    // The estimate range widens with the deterministic confidence grade (Tab
-    // ▶ range_widths on '3. Settings'), and the grade is only known now. Warnings and the
-    // grade itself depend on works.mid, which the range does not touch, so
-    // the sense check is not re-run — only the budget verdict, which compares
-    // the stated budget against the (now wider or narrower) gross range, and
-    // the BUDGET_SHORTFALL warning with it (refreshBudget): the AI and the risk
-    // register must quote the same range the budget box prints.
-    cost = await calculateCost(answers, programme.totalWeeks, programme.constructionWeeks, { rangeGrade: confidence.score })
-    refreshBudget(senseCheck, answers, cost)
-
     // ── Step 3: Save the deterministic record and return fast ────────────────
     const reportId    = crypto.randomUUID().replace(/-/g, '').slice(0, 16)
     const generatedAt = new Date().toISOString()
@@ -249,6 +211,7 @@ async function generate(request, { user, trialId }, outcome) {
       projectName: answers.q1_0_projectName,
       cost:        costData,
       programme:   progData,
+      procurement,
       budget,
       // Only the fields buildProsePrompts()/computeConfidence() actually read —
       // see lib/kv.js's file header for why this can't just be recomputed from
@@ -276,6 +239,7 @@ async function generate(request, { user, trialId }, outcome) {
         projectName: record.projectName,
         cost:        costData,
         programme:   progData,
+        procurement,
         budget,
         confidence,
         generatedAt,
@@ -296,7 +260,7 @@ async function generate(request, { user, trialId }, outcome) {
       // sample-report script and every local end-to-end run for no reason.
       const inlineBudgetMs = process.env.VERCEL ? 48_000 : (Number(process.env.PROSE_INLINE_BUDGET_MS) || 150_000)
       const proseDeadline = requestStart + inlineBudgetMs
-      aiProse = await runProseSequential(answers, cost, programme, senseCheck, proseDeadline)
+      aiProse = await runProseSequential(answers, cost, programme, senseCheck, proseDeadline, procurement)
     } catch (e) {
       console.error('[Step 3 error]', e.message)
       capturePipelineError(e, 'prose', answers)
@@ -305,7 +269,7 @@ async function generate(request, { user, trialId }, outcome) {
 
     let docxBuffer, templateError
     try {
-      docxBuffer = await buildReport({ answers, cost, programme, aiProse, budget })
+      docxBuffer = await buildReport({ answers, cost, programme, procurement, aiProse, budget })
     } catch (e) {
       console.error('[Step 4 error]', e.message)
       capturePipelineError(e, 'reportBuilder', answers)
@@ -326,6 +290,7 @@ async function generate(request, { user, trialId }, outcome) {
       projectName: answers.q1_0_projectName,
       cost:        costData,
       programme:   progData,
+      procurement,
       budget,
       aiProse,
       answers,
@@ -401,6 +366,7 @@ function serializeProgramme(programme) {
     endDate:             programme.endDate,
     fastTrackOptions:    programme.fastTrackOptions,
     tenderType:          programme.tenderType,
+    tenderId:            programme.tenderId,
     designResponsibility: programme.designResponsibility,
     procurementRationale: programme.procurementRationale,
     procurementSource:   programme.procurementSource,

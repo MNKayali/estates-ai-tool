@@ -115,6 +115,7 @@ http.createServer((req, res) => {
     AUTH_OPEN: '',
     RATES_FILE_URL: process.env.RATES_FILE_URL || 'NRM1_Cost_Estimate_Tool_v5_2.xlsx',
     PROGRAMME_FILE_URL: process.env.PROGRAMME_FILE_URL || 'Estates_AI_Programme_v4_3.xlsx',
+    PROCUREMENT_FILE_URL: process.env.PROCUREMENT_FILE_URL || 'Projento_Procurement_Reference.xlsx',
   }
   const child = spawn(
     process.platform === 'win32' ? 'npx.cmd' : 'npx',

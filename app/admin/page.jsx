@@ -147,8 +147,9 @@ function Dashboard({ data, health, onRefresh }) {
 // ─── System health ──────────────────────────────────────────────────────────
 function HealthPanel({ config, health }) {
   const workbookRows = [
-    { label: 'NRM1 rates workbook', ok: health?.ratesOk, detail: health?.ratesOk ? `${health.elementCount} elements` : (health?.errors?.[0] || 'not loaded') },
+    { label: 'NRM1 rates workbook', ok: health?.ratesOk, detail: health?.ratesOk ? `${health.itemCount} scope items` : (health?.errors?.[0] || 'not loaded') },
     { label: 'Programme workbook',  ok: health?.programmeOk, detail: health?.programmeOk ? `DS2·S3 sample ${health.sampleDuration_DS2_S3_mid}w` : 'not loaded' },
+    { label: 'Procurement workbook', ok: health?.procurementOk, detail: health?.procurementOk ? `${health.procurement.options} options · ${health.procurement.contractRows} contracts` : (health?.errors?.find(e => e.startsWith('Procurement')) || 'not loaded') },
   ]
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))', gap: 14, marginBottom: 32 }}>
