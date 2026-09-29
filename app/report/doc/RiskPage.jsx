@@ -1,12 +1,12 @@
 import { TABLES, LIMITS } from '@/lib/reportStyle'
-import { prepareRisks, riskTableMode, RAG_CLASS } from '@/lib/reportContent'
+import { prepareRisks, riskTableMode, RAG_CLASS, SECTION_CAVEATS } from '@/lib/reportContent'
 import { BodyPage, Band, Cols, Pending } from './parts'
 
 export default function RiskPage({ data, ctx, n }) {
   const { risks, counts } = prepareRisks(data.aiProse?.riskRegister)
   return (
     <BodyPage ctx={ctx} page={n}>
-      <Band no={3} title="Risk Register" note={`Ordered by rating · ${LIMITS.maxRisks} risks at most`} />
+      <Band no={3} title="Risk Register" note={`Ordered by rating · ${LIMITS.maxRisks} risks at most`} caveat={SECTION_CAVEATS.risk} />
       {risks.length === 0
         ? (ctx.isPending ? <Pending /> : <p className="r-lead">No risk register data available.</p>)
         : <>

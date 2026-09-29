@@ -2,7 +2,7 @@ import { TABLES } from '@/lib/reportStyle'
 import { fmtDate, programmeHeadline } from '@/lib/reportShared'
 import {
   selectMilestones, overviewSegments, programmeDetailRows, programmeNarrativeLines, targetPct,
-  milestoneTickClass, fmtMonthYear, fmtShortDate, SEGMENT_KEY_LABELS,
+  milestoneTickClass, fmtMonthYear, fmtShortDate, SEGMENT_KEY_LABELS, SECTION_CAVEATS,
 } from '@/lib/reportContent'
 import { BodyPage, Band, Cols } from './parts'
 
@@ -19,7 +19,7 @@ export default function ProgrammePage({ data, ctx, n }) {
   const surveys = rows.find(r => r.stage === 'Surveys')
   return (
     <BodyPage ctx={ctx} page={n}>
-      <Band no={4} title="High-Level Programme" note={programmeHeadline(p)} />
+      <Band no={4} title="High-Level Programme" note={programmeHeadline(p)} caveat={SECTION_CAVEATS.programme} />
       <h3 className="r-first">Key milestones</h3>
       <div className="r-ms-list" style={{ '--rows': Math.ceil(ms.length / 2) }}>
         {ms.map(m => (

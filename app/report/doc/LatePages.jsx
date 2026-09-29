@@ -1,7 +1,7 @@
 // Financial Case, Procurement and Constraints: placed into shared pages by
 // layoutLateSections() in lib/reportContent.js (the same decision Word uses).
 import { TABLES } from '@/lib/reportStyle'
-import { cleanReportText, procurementTable, procurementBasisSentence, PROCUREMENT_GUIDANCE } from '@/lib/reportContent'
+import { cleanReportText, procurementTable, procurementBasisSentence, SECTION_CAVEATS } from '@/lib/reportContent'
 import { BodyPage, Band, Cols, Pending } from './parts'
 
 function Roi({ data, ctx, no }) {
@@ -10,7 +10,7 @@ function Roi({ data, ctx, no }) {
   const b = data.answers?.q5_1_financialBenefit
   const benefit = Array.isArray(b) ? b.join(', ') : (b || '—')
   return <>
-    <Band no={no} title="Financial Case" />
+    <Band no={no} title="Financial Case" caveat={SECTION_CAVEATS.roi} />
     <div className="r-figs4">
       <div><div className="r-lbl">Project cost (mid)</div><div className="v">{m(roi?.mid)}</div></div>
       <div><div className="r-lbl">Annual benefit</div><div className={roi?.annual ? 'v' : 'v r-v-small'}>{roi?.annual ? m(roi.annual) : 'Not stated'}</div></div>
@@ -29,7 +29,7 @@ function Procurement({ data, ctx, no }) {
   const rows = procurementTable(data.procurement)
   const design = String(a.procurementDesignResp || p.designResponsibility || '').toLowerCase()
   return <>
-    <Band no={no} title="Procurement Suggestion" />
+    <Band no={no} title="Procurement Suggestion" caveat={SECTION_CAVEATS.procurement} />
     {rows ? <>
       <p className="r-foot-note r-proc-basis">{procurementBasisSentence(data.procurement)}</p>
       <table className="r-t r-proc">
@@ -38,7 +38,6 @@ function Procurement({ data, ctx, no }) {
         <tbody>{rows.map(([label, pref, alt]) => <tr key={label}><td>{label}</td><td><b>{pref}</b></td><td>{alt}</td></tr>)}</tbody>
       </table>
     </> : <>
-      <p className="r-foot-note r-proc-basis">{PROCUREMENT_GUIDANCE}</p>
       <table className="r-kv"><tbody>
         <tr><td>Route</td><td>{a.procurementRoute || p.procurementRoute}</td></tr>
         <tr><td>Contract</td><td>{a.procurementContractForm || p.contractForm}</td></tr>
@@ -57,7 +56,7 @@ function Procurement({ data, ctx, no }) {
 function Constraints({ data, ctx, no }) {
   const list = data.aiProse?.constraints || []
   return <>
-    <Band no={no} title="Constraints Summary" />
+    <Band no={no} title="Constraints Summary" caveat={SECTION_CAVEATS.constraints} />
     {list.length === 0 ? (ctx.isPending ? <Pending /> : null) : (
       <table className="r-t">
         <Cols widths={TABLES.constraints} />

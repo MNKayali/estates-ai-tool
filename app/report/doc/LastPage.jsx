@@ -1,21 +1,21 @@
-// Always the last page: next steps, disclaimer and the contact block.
+// Always the last page: next steps, the Important Notice and the contact block.
 import { BRAND } from '@/lib/reportStyle'
 import { LOGOS, logoWidth, contactRows, contactLead } from '@/lib/brand'
-import { cleanReportText, DISCLAIMER, dataSourcesSentence } from '@/lib/reportContent'
+import { cleanReportText, IMPORTANT_NOTICE, IMPORTANT_NOTICE_TITLE, NEXT_STEPS_TITLE, SECTION_CAVEATS, dataSourcesSentence } from '@/lib/reportContent'
 import { BodyPage, Band, Pending } from './parts'
 
 export default function LastPage({ data, ctx, n, page }) {
   const { aiProse, cost, programme } = data
   return (
     <BodyPage ctx={ctx} page={n} className="r-lastp">
-      <Band no={page.no} title="Recommendations and Next Steps" />
+      <Band no={page.no} title={NEXT_STEPS_TITLE} caveat={SECTION_CAVEATS.next} />
       {aiProse?.nextSteps?.length
         ? <ol>{aiProse.nextSteps.map((s, i) => <li key={i}>{cleanReportText(s)}</li>)}</ol>
         : ctx.isPending ? <Pending /> : <p>Commission outstanding surveys and appoint a design team to proceed to RIBA Stage 2.</p>}
       <div className="r-disc">
-        <b>Disclaimer</b>
-        {DISCLAIMER} {dataSourcesSentence(cost, programme)}{' '}
-        Use of this tool is subject to our <a href="/terms">Terms of Use</a> and <a href="/privacy">Privacy Notice</a>.
+        <b>{IMPORTANT_NOTICE_TITLE}</b>
+        {IMPORTANT_NOTICE} {dataSourcesSentence(cost, programme)}{' '}
+        See the <a href="/terms">Terms of Use</a> and <a href="/privacy">Privacy Notice</a>.
       </div>
       <div className="r-contact">
         <div className="r-c-brand">
