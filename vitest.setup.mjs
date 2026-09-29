@@ -25,3 +25,5 @@ process.env.RATES_FILE_URL = process.env.RATES_FILE_URL_TEST || 'NRM1_Cost_Estim
 // The programme workbook the same way (September 2026): tests follow the copy
 // on this branch, not whatever `main` serves. PROGRAMME_FILE_URL_TEST overrides.
 process.env.PROGRAMME_FILE_URL = process.env.PROGRAMME_FILE_URL_TEST || 'Estates_AI_Programme_v4_3.xlsx'
+// The Procurement Reference workbook the same way (September 2026).
+process.env.PROCUREMENT_FILE_URL = process.env.PROCUREMENT_FILE_URL_TEST || 'Projento_Procurement_Reference.xlsx'

@@ -153,7 +153,7 @@ export default function PrivacyPage() {
             ['Service', 'What data is sent', 'Where data is held', 'Transfer mechanism'],
             [
               'Anthropic PBC — drafting of the report\'s written sections',
-              'Your project questionnaire answers are sent to Anthropic\'s API to generate the text sections of the report (executive summary, risk commentary, procurement recommendation). No personal data should be included — see §2.',
+              'Your project questionnaire answers are sent to Anthropic\'s API to generate the text sections of the report (executive summary, risk commentary, procurement suggestion). No personal data should be included — see §2.',
               'United States',
               'UK International Data Transfer Agreement (IDTA) / Standard Contractual Clauses. Anthropic\'s data processing terms apply.',
             ],

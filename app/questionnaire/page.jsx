@@ -20,6 +20,7 @@ import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
   showsHeightQuestion, KNOWN_ISSUE_NONE, SURVEY_NONE,
   sectionCounts, unansweredRequired, progressPercent, QUESTIONS_BY_SECTION,
+  PRIORITY_OPTIONS, PRIORITY_MAX, PUBLIC_CLIENT_OPTIONS,
 } from '../../lib/questionSets.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
@@ -145,10 +146,9 @@ const OCCUPATION_OPTIONS = [
 ]
 
 // ─── Section 4 data ───────────────────────────────────────────────────────────
-const PRIORITIES = [
-  'Lowest cost', 'Fixed / certain final cost', 'Speed', 'Design quality',
-  'Flexibility', 'Minimise disruption', 'Funder / compliance requirement',
-]
+// Q4.4's options live in lib/questionSets.js: the Procurement Reference
+// workbook is matched against the same labels.
+const PRIORITIES = PRIORITY_OPTIONS
 
 const DESIGN_STAGE_OPTIONS = [
   'Concept only (Stage 0–1)', 'Concept complete (Stage 2)',
@@ -381,6 +381,78 @@ function CheckboxGroup({ options, values = [], onChange, note, ariaLabel, max, d
           )
         })}
       </div>
+    </div>
+  )
+}
+
+/**
+ * A multi-select whose order matters: ticks are ranked 1, 2, 3 in the order
+ * they are made, the rank shows on each option, and the list below can be
+ * reordered. Unticking closes the gap. Same checkbox semantics as
+ * CheckboxGroup (each option is an independent tab stop); the rank is part of
+ * each option's accessible name, and the move buttons are real buttons.
+ */
+function RankedChoice({ options, values = [], onChange, ariaLabel, max, describedBy }) {
+  const arr = Array.isArray(values) ? values : []
+  const atMax = Number.isFinite(max) && arr.length >= max
+  const toggle = opt => {
+    if (arr.includes(opt)) return onChange(arr.filter(v => v !== opt))
+    if (atMax) return
+    onChange([...arr, opt])
+  }
+  const move = (i, by) => {
+    const j = i + by
+    if (j < 0 || j >= arr.length) return
+    const next = [...arr]
+    ;[next[i], next[j]] = [next[j], next[i]]
+    onChange(next)
+  }
+  const moveBtn = { border: '1px solid var(--border)', background: 'var(--surface)', borderRadius: 6, width: 30, height: 30, cursor: 'pointer', color: 'var(--navy)', fontSize: 14, lineHeight: 1 }
+  return (
+    <div role="group" aria-label={ariaLabel} aria-describedby={describedBy}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+        {options.map(opt => {
+          const rank = arr.indexOf(opt) + 1
+          const sel = rank > 0
+          const blocked = !sel && atMax
+          return (
+            <button key={opt} type="button" role="checkbox" aria-checked={sel} aria-disabled={blocked || undefined}
+              aria-label={sel ? `${opt}, ranked ${rank}` : opt} onClick={() => toggle(opt)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 7,
+                padding: '8px 14px', borderRadius: 8, cursor: blocked ? 'not-allowed' : 'pointer',
+                opacity: blocked ? 0.45 : 1,
+                border: sel ? '1.5px solid var(--navy)' : '1.5px solid var(--border)',
+                background: sel ? 'rgba(26,46,74,.06)' : 'var(--surface)',
+                color: sel ? 'var(--ink)' : 'var(--text-mid)',
+                fontFamily: 'var(--font-body)', fontWeight: sel ? 700 : 500,
+                fontSize: '13.5px', lineHeight: 1.35,
+                transition: 'border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease',
+                boxShadow: sel ? '0 1px 5px rgba(26,46,74,0.14)' : 'none',
+              }}>
+              {sel && (
+                <span aria-hidden="true" style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20, borderRadius: 10,
+                  background: 'var(--navy)', color: '#FFF', fontFamily: 'var(--font-mono)', fontSize: 11.5, fontWeight: 600,
+                }}>{rank}</span>
+              )}
+              {opt}
+            </button>
+          )
+        })}
+      </div>
+      {arr.length > 1 && (
+        <ol aria-label="Your order" style={{ listStyle: 'none', margin: '12px 0 0', padding: 0, display: 'grid', gap: 6, maxWidth: 440 }}>
+          {arr.map((opt, i) => (
+            <li key={opt} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13.5px', color: 'var(--ink)' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-soft)', width: 18 }}>{i + 1}.</span>
+              <span style={{ flex: 1, fontWeight: i === 0 ? 700 : 500 }}>{opt}</span>
+              <button type="button" style={{ ...moveBtn, opacity: i === 0 ? 0.35 : 1 }} disabled={i === 0} onClick={() => move(i, -1)} aria-label={`Move ${opt} up`}>↑</button>
+              <button type="button" style={{ ...moveBtn, opacity: i === arr.length - 1 ? 0.35 : 1 }} disabled={i === arr.length - 1} onClick={() => move(i, 1)} aria-label={`Move ${opt} down`}>↓</button>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   )
 }
@@ -896,8 +968,13 @@ export default function QuestionnairePage() {
       q3_8_siteContext:       'Site and building context',
       q4_5_designStage:       'Design stage already reached',
     }
+    // The client-type question has no "None" option to point at.
+    const PLAIN = {
+      q4_8_publicClient: 'Say whether the client is a public-sector body — Yes or No',
+    }
     for (const key of unansweredRequired(sec, answers.q1_2_projectType, answers)) {
-      if (!errs[key] && LABELS[key]) {
+      if (!errs[key] && PLAIN[key]) errs[key] = PLAIN[key]
+      else if (!errs[key] && LABELS[key]) {
         errs[key] = `${LABELS[key]} is required — pick an option, including "None" if that is the answer`
       }
     }
@@ -1635,16 +1712,14 @@ export default function QuestionnairePage() {
                 grosses up by the full workbook VAT rate, which is the
                 conservative reading. */}
 
+            {/* Ranked, not just ticked: the order is the client's. Rank 1 is
+                the top priority the Procurement Reference scores (weighted
+                double); every rank informs the programme options and the
+                report text. topPriority() in lib/questionSets.js. */}
             <QCard>
               <Label>Q4.4 — What matters most on this project?</Label>
-              <HelpText>Choose up to two. The first you tick is treated as the primary priority and drives the procurement recommendation; the second informs the programme options.</HelpText>
-              <CheckboxGroup options={PRIORITIES} values={answers.q4_4_priorities} onChange={v => set('q4_4_priorities', v)} max={2} ariaLabel="Project priorities" />
-              {Array.isArray(answers.q4_4_priorities) && answers.q4_4_priorities.length > 0 && (
-                <p style={{ marginTop: 8, fontSize: 12.5, color: 'var(--text-soft)' }}>
-                  Primary: <strong style={{ color: 'var(--ink)' }}>{answers.q4_4_priorities[0]}</strong>
-                  {answers.q4_4_priorities[1] ? <> · Secondary: <strong style={{ color: 'var(--ink)' }}>{answers.q4_4_priorities[1]}</strong></> : null}
-                </p>
-              )}
+              <HelpText>Pick up to three, most important first. Your first choice counts double in the procurement suggestion; all three inform the programme options and the report.</HelpText>
+              <RankedChoice options={PRIORITIES} values={answers.q4_4_priorities} onChange={v => set('q4_4_priorities', v)} max={PRIORITY_MAX} ariaLabel="Project priorities, in order of importance" />
             </QCard>
 
             {/* Visible numbers below now match their answer keys. They used to
@@ -1673,6 +1748,14 @@ export default function QuestionnairePage() {
               <Label>Q4.7 — Funding source</Label>
               <HelpText>Grant or public funding adds a governance approval allowance to the programme.</HelpText>
               <RadioGroup options={FUNDING_OPTIONS} value={answers.q4_7_funding} onChange={v => set('q4_7_funding', v)} />
+            </QCard>
+
+            <QCard qkey="q4_8_publicClient">
+              <Label required>Q4.8 — Is the client a public-sector body, or eligible for public frameworks (e.g. a housing association)?</Label>
+              <HelpText>Framework routes to market are offered only to public and eligible clients; a negotiated contract only to private ones.</HelpText>
+              <RadioGroup options={PUBLIC_CLIENT_OPTIONS} value={answers.q4_8_publicClient} onChange={v => set('q4_8_publicClient', v)}
+                required describedBy={validationErrors.q4_8_publicClient ? 'err-q4_8_publicClient' : undefined} />
+              {validationErrors.q4_8_publicClient && <p id="err-q4_8_publicClient" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_8_publicClient}</p>}
             </QCard>
 
             {/* ── Financial case (was its own step) ───────────────────────────── */}
@@ -1762,7 +1845,7 @@ export default function QuestionnairePage() {
                   ['Start', answers.q4_0_startDate
                     ? new Date(answers.q4_0_startDate + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
                     : 'Assumed: the report date'],
-                  ['Priorities', (answers.q4_4_priorities || []).join(' · ') || 'Not stated'],
+                  ['Priorities', (answers.q4_4_priorities || []).map((p, i) => `${i + 1}. ${p}`).join(' · ') || 'Not stated'],
                 ].map(([k, v]) => (
                   <div key={k} style={{ display: 'flex', gap: 8, fontSize: '13.5px' }}>
                     <span style={{ color: 'var(--text-soft)', fontFamily: 'var(--font-body)', fontWeight: 600, minWidth: 84 }}>{k}</span>

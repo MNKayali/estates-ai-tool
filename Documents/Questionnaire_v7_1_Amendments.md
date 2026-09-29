@@ -23,3 +23,23 @@ Keep Q5.1 as **multi-select** ("Select all that apply"). Add the rule: *"No dire
 
 ---
 *Header line to update: "coordinated with NRM1 Cost Tool **v3.7** and Programme Duration Reference **v4.3**". Version → v7.1.*
+
+---
+
+# Addendum — procurement drivers (September 2026)
+**29 September 2026 · Q4.4 becomes a ranking and one question is added to Section 4 for the Procurement Reference workbook. Wording to be confirmed by Nabil before release.**
+
+> The report's procurement section (Section 7) is now chosen by `Projento_Procurement_Reference.xlsx` from four drivers: construction value, construction duration, the number of risks rated High, and the client's top priority. Framework and negotiated routes also depend on whether the client is public. Q4.4 did not say which priority came first, and nothing asked about the client type.
+
+## 7 · Q4.4 What matters most → ranked, up to three (changed)
+Q4.4 becomes a **ranking**: the client picks **up to three** of the seven options, most important first. Each pick shows its rank (1, 2, 3) in the order it was made, and the picks are listed below with up / down buttons to reorder. Unticking one closes the gap. Key unchanged: `q4_4_priorities`, now in the client's order.
+Help text: *"Pick up to three, most important first. Your first choice counts double in the procurement recommendation; all three inform the programme options and the report."*
+Rank 1 is the top priority the workbook scores. Ranks 2 and 3 do not score in the procurement workbook; they still trigger programme acceleration options (e.g. Speed) and are given to the report text as the client's other priorities. A saved draft keeps its ticks in the order they were made, which the old form already treated as primary-first.
+(Replaces an earlier draft of this addendum that added a separate "Which ONE of these matters most?" follow-up — a ranking asks it in one question.)
+
+## 8 · Q4.8 Public client (new)
+*"Is the client a public-sector body, or eligible for public frameworks (e.g. a housing association)?"* Yes / No, single choice. Placed after Q4.7 (funding). **Required.** Key `q4_8_publicClient`.
+Help text: *"Framework routes to market are offered only to public and eligible clients; a negotiated contract only to private ones."*
+Effect: Yes removes 'Private only' options (Negotiated); No removes 'Public only' options (both framework routes). Unanswered (a report or draft from before this question) removes both.
+
+*Also: the Q4.4 labels "Fixed / certain final cost" and "Funder / compliance requirement" are matched to the workbook's "Fixed/certain final cost" and "Funder/compliance requirement" ignoring spaces and case, so neither side needs renaming.*
