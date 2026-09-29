@@ -20,7 +20,7 @@ import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
   showsHeightQuestion, KNOWN_ISSUE_NONE, SURVEY_NONE,
   sectionCounts, unansweredRequired, progressPercent, QUESTIONS_BY_SECTION,
-  PRIORITY_OPTIONS, PUBLIC_CLIENT_OPTIONS, showsTopPriorityQuestion, topPriority,
+  PRIORITY_OPTIONS, PRIORITY_MAX, PUBLIC_CLIENT_OPTIONS,
 } from '../../lib/questionSets.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
@@ -386,6 +386,78 @@ function CheckboxGroup({ options, values = [], onChange, note, ariaLabel, max, d
 }
 
 /**
+ * A multi-select whose order matters: ticks are ranked 1, 2, 3 in the order
+ * they are made, the rank shows on each option, and the list below can be
+ * reordered. Unticking closes the gap. Same checkbox semantics as
+ * CheckboxGroup (each option is an independent tab stop); the rank is part of
+ * each option's accessible name, and the move buttons are real buttons.
+ */
+function RankedChoice({ options, values = [], onChange, ariaLabel, max, describedBy }) {
+  const arr = Array.isArray(values) ? values : []
+  const atMax = Number.isFinite(max) && arr.length >= max
+  const toggle = opt => {
+    if (arr.includes(opt)) return onChange(arr.filter(v => v !== opt))
+    if (atMax) return
+    onChange([...arr, opt])
+  }
+  const move = (i, by) => {
+    const j = i + by
+    if (j < 0 || j >= arr.length) return
+    const next = [...arr]
+    ;[next[i], next[j]] = [next[j], next[i]]
+    onChange(next)
+  }
+  const moveBtn = { border: '1px solid var(--border)', background: 'var(--surface)', borderRadius: 6, width: 30, height: 30, cursor: 'pointer', color: 'var(--navy)', fontSize: 14, lineHeight: 1 }
+  return (
+    <div role="group" aria-label={ariaLabel} aria-describedby={describedBy}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+        {options.map(opt => {
+          const rank = arr.indexOf(opt) + 1
+          const sel = rank > 0
+          const blocked = !sel && atMax
+          return (
+            <button key={opt} type="button" role="checkbox" aria-checked={sel} aria-disabled={blocked || undefined}
+              aria-label={sel ? `${opt}, ranked ${rank}` : opt} onClick={() => toggle(opt)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 7,
+                padding: '8px 14px', borderRadius: 8, cursor: blocked ? 'not-allowed' : 'pointer',
+                opacity: blocked ? 0.45 : 1,
+                border: sel ? '1.5px solid var(--navy)' : '1.5px solid var(--border)',
+                background: sel ? 'rgba(26,46,74,.06)' : 'var(--surface)',
+                color: sel ? 'var(--ink)' : 'var(--text-mid)',
+                fontFamily: 'var(--font-body)', fontWeight: sel ? 700 : 500,
+                fontSize: '13.5px', lineHeight: 1.35,
+                transition: 'border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease',
+                boxShadow: sel ? '0 1px 5px rgba(26,46,74,0.14)' : 'none',
+              }}>
+              {sel && (
+                <span aria-hidden="true" style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20, borderRadius: 10,
+                  background: 'var(--navy)', color: '#FFF', fontFamily: 'var(--font-mono)', fontSize: 11.5, fontWeight: 600,
+                }}>{rank}</span>
+              )}
+              {opt}
+            </button>
+          )
+        })}
+      </div>
+      {arr.length > 1 && (
+        <ol aria-label="Your order" style={{ listStyle: 'none', margin: '12px 0 0', padding: 0, display: 'grid', gap: 6, maxWidth: 440 }}>
+          {arr.map((opt, i) => (
+            <li key={opt} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13.5px', color: 'var(--ink)' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-soft)', width: 18 }}>{i + 1}.</span>
+              <span style={{ flex: 1, fontWeight: i === 0 ? 700 : 500 }}>{opt}</span>
+              <button type="button" style={{ ...moveBtn, opacity: i === 0 ? 0.35 : 1 }} disabled={i === 0} onClick={() => move(i, -1)} aria-label={`Move ${opt} up`}>↑</button>
+              <button type="button" style={{ ...moveBtn, opacity: i === arr.length - 1 ? 0.35 : 1 }} disabled={i === arr.length - 1} onClick={() => move(i, 1)} aria-label={`Move ${opt} down`}>↓</button>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  )
+}
+
+/**
  * Makes a "none of these" option mutually exclusive with the rest of a
  * multi-select.
  *
@@ -700,14 +772,6 @@ export default function QuestionnairePage() {
   }, [loading])
 
   const set = (field, val) => setAnswers(prev => ({ ...prev, [field]: val }))
-  // Q4.4a names one of the Q4.4 ticks; unticking it clears the answer so the
-  // question is asked again rather than carrying a choice no longer on screen.
-  const setPriorities = v => setAnswers(prev => ({
-    ...prev,
-    q4_4_priorities: v,
-    ...(prev.q4_4_topPriority && !(v || []).includes(prev.q4_4_topPriority) && { q4_4_topPriority: undefined }),
-  }))
-  const topPriorityAnswer = (answers.q4_4_priorities || []).includes(answers.q4_4_topPriority) ? answers.q4_4_topPriority : undefined
   // Q2.5 is stored as a comma-joined string so the cost engine's BREEAM
   // substring test and the AI prompt keep reading the same shape they always
   // have; the UI works in a list.
@@ -904,9 +968,8 @@ export default function QuestionnairePage() {
       q3_8_siteContext:       'Site and building context',
       q4_5_designStage:       'Design stage already reached',
     }
-    // The two procurement drivers have no "None" option to point at.
+    // The client-type question has no "None" option to point at.
     const PLAIN = {
-      q4_4_topPriority:  'Pick the one priority that matters most',
       q4_8_publicClient: 'Say whether the client is a public-sector body — Yes or No',
     }
     for (const key of unansweredRequired(sec, answers.q1_2_projectType, answers)) {
@@ -1649,24 +1712,15 @@ export default function QuestionnairePage() {
                 grosses up by the full workbook VAT rate, which is the
                 conservative reading. */}
 
+            {/* Ranked, not just ticked: the order is the client's. Rank 1 is
+                the top priority the Procurement Reference scores (weighted
+                double); every rank informs the programme options and the
+                report text. topPriority() in lib/questionSets.js. */}
             <QCard>
               <Label>Q4.4 — What matters most on this project?</Label>
-              <HelpText>Choose up to two. Your top priority counts double in the procurement recommendation; both inform the programme options.</HelpText>
-              <CheckboxGroup options={PRIORITIES} values={answers.q4_4_priorities} onChange={setPriorities} max={2} ariaLabel="Project priorities" />
+              <HelpText>Pick up to three, most important first. Your first choice counts double in the procurement recommendation; all three inform the programme options and the report.</HelpText>
+              <RankedChoice options={PRIORITIES} values={answers.q4_4_priorities} onChange={v => set('q4_4_priorities', v)} max={PRIORITY_MAX} ariaLabel="Project priorities, in order of importance" />
             </QCard>
-
-            {/* Q4.4a — only with two priorities ticked, offering just those two.
-                Older drafts without it fall back to questionnaire order
-                (topPriority() in lib/questionSets.js). */}
-            {showsTopPriorityQuestion(answers.q4_4_priorities) && (
-              <QCard qkey="q4_4_topPriority">
-                <Label required>Q4.4a — Which ONE of these matters most?</Label>
-                <HelpText>Used to choose the preferred procurement route and route to market.</HelpText>
-                <RadioGroup options={answers.q4_4_priorities} value={topPriorityAnswer} onChange={v => set('q4_4_topPriority', v)}
-                  required describedBy={validationErrors.q4_4_topPriority ? 'err-q4_4_topPriority' : undefined} />
-                {validationErrors.q4_4_topPriority && <p id="err-q4_4_topPriority" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_4_topPriority}</p>}
-              </QCard>
-            )}
 
             {/* Visible numbers below now match their answer keys. They used to
                 run one behind from Q4.3 onward (two questions were both labelled
@@ -1791,9 +1845,7 @@ export default function QuestionnairePage() {
                   ['Start', answers.q4_0_startDate
                     ? new Date(answers.q4_0_startDate + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
                     : 'Assumed: the report date'],
-                  ['Priorities', (answers.q4_4_priorities || []).length > 1
-                    ? `${topPriority(answers) || '—'} (top) · ${answers.q4_4_priorities.filter(x => x !== topPriority(answers)).join(' · ')}`
-                    : (answers.q4_4_priorities || []).join(' · ') || 'Not stated'],
+                  ['Priorities', (answers.q4_4_priorities || []).map((p, i) => `${i + 1}. ${p}`).join(' · ') || 'Not stated'],
                 ].map(([k, v]) => (
                   <div key={k} style={{ display: 'flex', gap: 8, fontSize: '13.5px' }}>
                     <span style={{ color: 'var(--text-soft)', fontFamily: 'var(--font-body)', fontWeight: 600, minWidth: 84 }}>{k}</span>

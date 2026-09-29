@@ -54,10 +54,9 @@ export const SAMPLE_ANSWERS = {
   q4_0_startDate: '2027-01-11',
   q4_1_targetDate: '2028-09-01',
   q4_3_budget: '4500000',
+  // Ranked: an occupied teaching block, so disruption matters most.
   q4_4_priorities: ['Minimise disruption', 'Fixed / certain final cost'],
-  // An occupied teaching block: disruption matters most. A university is
-  // eligible for public frameworks.
-  q4_4_topPriority: 'Minimise disruption',
+  // A university is eligible for public frameworks.
   q4_5_designStage: 'Concept only (Stage 0–1)',
   q4_6_phasing: 'Multiple phases',
   q4_7_funding: 'Grant or public funding',

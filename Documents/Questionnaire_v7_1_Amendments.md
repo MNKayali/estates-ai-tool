@@ -27,15 +27,15 @@ Keep Q5.1 as **multi-select** ("Select all that apply"). Add the rule: *"No dire
 ---
 
 # Addendum — procurement drivers (September 2026)
-**29 September 2026 · two questions added to Section 4 for the Procurement Reference workbook. Wording to be confirmed by Nabil before release.**
+**29 September 2026 · Q4.4 becomes a ranking and one question is added to Section 4 for the Procurement Reference workbook. Wording to be confirmed by Nabil before release.**
 
-> The report's procurement section (Section 7) is now chosen by `Projento_Procurement_Reference.xlsx` from four drivers: construction value, construction duration, the number of risks rated High, and the client's single top priority. Framework and negotiated routes also depend on whether the client is public. Q4.4 alone could not give one top priority, and nothing asked about the client type, hence these two questions.
+> The report's procurement section (Section 7) is now chosen by `Projento_Procurement_Reference.xlsx` from four drivers: construction value, construction duration, the number of risks rated High, and the client's top priority. Framework and negotiated routes also depend on whether the client is public. Q4.4 did not say which priority came first, and nothing asked about the client type.
 
-## 7 · Q4.4a Which ONE of these matters most? (new)
-Asked **only when two priorities are ticked in Q4.4**. It offers just those two as a single choice. **Required when shown.** Key `q4_4_topPriority`.
-Help text: *"Used to choose the preferred procurement route and route to market."*
-Q4.4's help text changes to: *"Choose up to two. Your top priority counts double in the procurement recommendation; both inform the programme options."* (It no longer says the first tick is the primary one.)
-With one tick, that tick is the top priority. A saved draft from before this question, with two ticks, uses the one listed first in Q4.4's option order until the user answers Q4.4a. Unticking the chosen priority clears the answer.
+## 7 · Q4.4 What matters most → ranked, up to three (changed)
+Q4.4 becomes a **ranking**: the client picks **up to three** of the seven options, most important first. Each pick shows its rank (1, 2, 3) in the order it was made, and the picks are listed below with up / down buttons to reorder. Unticking one closes the gap. Key unchanged: `q4_4_priorities`, now in the client's order.
+Help text: *"Pick up to three, most important first. Your first choice counts double in the procurement recommendation; all three inform the programme options and the report."*
+Rank 1 is the top priority the workbook scores. Ranks 2 and 3 do not score in the procurement workbook; they still trigger programme acceleration options (e.g. Speed) and are given to the report text as the client's other priorities. A saved draft keeps its ticks in the order they were made, which the old form already treated as primary-first.
+(Replaces an earlier draft of this addendum that added a separate "Which ONE of these matters most?" follow-up — a ranking asks it in one question.)
 
 ## 8 · Q4.8 Public client (new)
 *"Is the client a public-sector body, or eligible for public frameworks (e.g. a housing association)?"* Yes / No, single choice. Placed after Q4.7 (funding). **Required.** Key `q4_8_publicClient`.
