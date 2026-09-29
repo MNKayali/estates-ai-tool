@@ -13,19 +13,19 @@
         "item": "Asbestos removal",
         "option": "Standard",
         "description": "Asbestos removal",
-        "unit": "m²",
-        "source": "Derived from v4.5",
+        "unit": "m² GIFA",
+        "source": "Your figure",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
         "ratioEstimate": false,
         "estimate": 1200,
-        "rate": 37.6,
-        "rateLow": 33.84,
-        "rateHigh": 41.36,
-        "lineMid": 45120,
-        "lineLow": 40608,
-        "lineHigh": 49632,
+        "rate": 23.5,
+        "rateLow": 21.15,
+        "rateHigh": 25.85,
+        "lineMid": 28200,
+        "lineLow": 25380,
+        "lineHigh": 31020,
         "bcis": [
           {
             "element": "0.1",
@@ -42,19 +42,19 @@
         "item": "Strip-out",
         "option": "Standard",
         "description": "Strip-out",
-        "unit": "m²",
-        "source": "v4.5 – no source recorded",
+        "unit": "m² GIFA",
+        "source": "Your figure",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
         "ratioEstimate": false,
         "estimate": 1200,
-        "rate": 23.5,
-        "rateLow": 21.15,
-        "rateHigh": 25.85,
-        "lineMid": 28200,
-        "lineLow": 25380,
-        "lineHigh": 31020,
+        "rate": 42.3,
+        "rateLow": 38.07,
+        "rateHigh": 46.53,
+        "lineMid": 50760,
+        "lineLow": 45684,
+        "lineHigh": 55836,
         "bcis": [
           {
             "element": "0.2",
@@ -71,19 +71,19 @@
         "item": "Windows and external doors",
         "option": "Standard",
         "description": "Windows and external doors",
-        "unit": "m²",
-        "source": "v4.5 – no source recorded",
+        "unit": "m² GIFA",
+        "source": "Spon's-based (approved)",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
         "ratioEstimate": false,
         "estimate": 1200,
-        "rate": 141,
-        "rateLow": 126.9,
-        "rateHigh": 155.1,
-        "lineMid": 169200,
-        "lineLow": 152280,
-        "lineHigh": 186120,
+        "rate": 112.8,
+        "rateLow": 101.52,
+        "rateHigh": 124.08,
+        "lineMid": 135360,
+        "lineLow": 121824,
+        "lineHigh": 148896,
         "bcis": [
           {
             "element": "2.6",
@@ -100,19 +100,19 @@
         "item": "Internal doors",
         "option": "Standard",
         "description": "Internal doors",
-        "unit": "m²",
-        "source": "v4.5 – no source recorded",
+        "unit": "m² GIFA",
+        "source": "Spon's-based (approved)",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
         "ratioEstimate": false,
         "estimate": 1200,
-        "rate": 32.9,
-        "rateLow": 29.61,
-        "rateHigh": 36.19,
-        "lineMid": 39480,
-        "lineLow": 35532,
-        "lineHigh": 43428,
+        "rate": 56.4,
+        "rateLow": 50.76,
+        "rateHigh": 62.04,
+        "lineMid": 67680,
+        "lineLow": 60912,
+        "lineHigh": 74448,
         "bcis": [
           {
             "element": "2.8",
@@ -129,9 +129,9 @@
         "item": "Fire stopping",
         "option": "Standard",
         "description": "Fire stopping",
-        "unit": "m²",
-        "source": "AI estimate – verify",
-        "aiEstimate": true,
+        "unit": "m² GIFA",
+        "source": "Kept after Spon's check",
+        "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
         "ratioEstimate": false,
@@ -158,19 +158,19 @@
         "item": "Wall finishes",
         "option": "Standard",
         "description": "Wall finishes",
-        "unit": "m²",
-        "source": "v4.5 – no source recorded",
+        "unit": "m² GIFA",
+        "source": "Your figure",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
         "ratioEstimate": false,
         "estimate": 1200,
-        "rate": 51.7,
-        "rateLow": 46.53,
-        "rateHigh": 56.87,
-        "lineMid": 62040,
-        "lineLow": 55836,
-        "lineHigh": 68244,
+        "rate": 70.5,
+        "rateLow": 63.45,
+        "rateHigh": 77.55,
+        "lineMid": 84600,
+        "lineLow": 76140,
+        "lineHigh": 93060,
         "bcis": [
           {
             "element": "3.1",
@@ -187,8 +187,8 @@
         "item": "Floor finishes",
         "option": "Raised access floor: No",
         "description": "Floor finishes — Raised access floor: No",
-        "unit": "m²",
-        "source": "v4.5 – no source recorded",
+        "unit": "m² GIFA",
+        "source": "Kept after Spon's check",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
@@ -216,8 +216,8 @@
         "item": "Ceiling finishes",
         "option": "Standard",
         "description": "Ceiling finishes",
-        "unit": "m²",
-        "source": "v4.5 – no source recorded",
+        "unit": "m² GIFA",
+        "source": "Spon's-based (approved)",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
@@ -245,19 +245,19 @@
         "item": "Toilets",
         "option": "Standard",
         "description": "Toilets — Standard",
-        "unit": "nr",
-        "source": "Derived from v4.5",
+        "unit": "nr WCs",
+        "source": "Kept after Spon's check",
         "aiEstimate": false,
         "qty": 18,
         "qtySource": "user",
         "ratioEstimate": false,
         "estimate": 12,
-        "rate": 4653,
-        "rateLow": 4187.7,
-        "rateHigh": 5118.3,
-        "lineMid": 83754,
-        "lineLow": 75379,
-        "lineHigh": 92129,
+        "rate": 3713,
+        "rateLow": 3341.7,
+        "rateHigh": 4084.3,
+        "lineMid": 66834,
+        "lineLow": 60151,
+        "lineHigh": 73517,
         "bcis": [
           {
             "element": "5.1",
@@ -278,9 +278,9 @@
         "item": "Toilets",
         "option": "Accessible",
         "description": "Toilets — Accessible",
-        "unit": "nr",
-        "source": "AI estimate – verify",
-        "aiEstimate": true,
+        "unit": "nr WCs",
+        "source": "Kept after Spon's check",
+        "aiEstimate": false,
         "qty": 3,
         "qtySource": "user",
         "ratioEstimate": false,
@@ -311,8 +311,8 @@
         "item": "Fixed joinery",
         "option": "Standard",
         "description": "Fixed joinery",
-        "unit": "m²",
-        "source": "v4.5 – no source recorded",
+        "unit": "m² GIFA",
+        "source": "Older workbook (v4.5)",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
@@ -340,8 +340,8 @@
         "item": "Heating and hot water",
         "option": "System: Air source heat pump · Scope: Full system",
         "description": "Heating and hot water — Air source heat pump, Full system",
-        "unit": "m²",
-        "source": "AI estimate – verify",
+        "unit": "m² GIFA",
+        "source": "Unverified † (= 5.1a × 1.3)",
         "aiEstimate": true,
         "qty": 1200,
         "qtySource": "estimate",
@@ -373,8 +373,8 @@
         "item": "Water and drainage",
         "option": "Scope: Full installation",
         "description": "Water and drainage — Full installation",
-        "unit": "m²",
-        "source": "v4.5 – no source recorded",
+        "unit": "m² GIFA",
+        "source": "Older workbook (v4.5)",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
@@ -406,8 +406,8 @@
         "item": "Ventilation",
         "option": "Standard",
         "description": "Ventilation",
-        "unit": "m²",
-        "source": "v4.5 – no source recorded",
+        "unit": "m² GIFA",
+        "source": "Older workbook (v4.5)",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
@@ -435,8 +435,8 @@
         "item": "Power",
         "option": "Scope: Full installation",
         "description": "Power — Full installation",
-        "unit": "m²",
-        "source": "Derived from v4.5",
+        "unit": "m² GIFA",
+        "source": "Older workbook (v4.5)",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
@@ -464,8 +464,8 @@
         "item": "Lighting",
         "option": "Scope: Full installation",
         "description": "Lighting — Full installation",
-        "unit": "m²",
-        "source": "Derived from v4.5",
+        "unit": "m² GIFA",
+        "source": "Older workbook (v4.5)",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
@@ -493,8 +493,8 @@
         "item": "Emergency lighting",
         "option": "Standard",
         "description": "Emergency lighting",
-        "unit": "m²",
-        "source": "v4.5 – BCIS cited",
+        "unit": "m² GIFA",
+        "source": "Older workbook (v4.5)",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
@@ -522,8 +522,8 @@
         "item": "Fire alarm",
         "option": "Standard",
         "description": "Fire alarm",
-        "unit": "m²",
-        "source": "v4.5 – BCIS cited",
+        "unit": "m² GIFA",
+        "source": "Older workbook (v4.5)",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
@@ -551,8 +551,8 @@
         "item": "Data and IT",
         "option": "Standard",
         "description": "Data and IT",
-        "unit": "m²",
-        "source": "v4.5 – no source recorded",
+        "unit": "m² GIFA",
+        "source": "Older workbook (v4.5)",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
@@ -580,8 +580,8 @@
         "item": "Builder's work in connection",
         "option": "Standard",
         "description": "Builder's work in connection",
-        "unit": "m²",
-        "source": "v4.5 – no source recorded",
+        "unit": "m² GIFA",
+        "source": "Older workbook (v4.5)",
         "aiEstimate": false,
         "qty": 1200,
         "qtySource": "estimate",
@@ -611,32 +611,32 @@
       {
         "element": "0.1",
         "group": 0,
-        "amount": 45120
+        "amount": 28200
       },
       {
         "element": "0.2",
         "group": 0,
-        "amount": 28200
+        "amount": 50760
       },
       {
         "element": "2.6",
         "group": 2,
-        "amount": 169200
+        "amount": 135360
       },
       {
         "element": "2.7",
         "group": 2,
-        "amount": 53693
+        "amount": 50309
       },
       {
         "element": "2.8",
         "group": 2,
-        "amount": 39480
+        "amount": 67680
       },
       {
         "element": "3.1",
         "group": 3,
-        "amount": 62040
+        "amount": 84600
       },
       {
         "element": "3.2",
@@ -656,7 +656,7 @@
       {
         "element": "5.1",
         "group": 5,
-        "amount": 79411
+        "amount": 65875
       },
       {
         "element": "5.3",
@@ -727,21 +727,21 @@
       ]
     },
     "works": {
-      "mid": 1133000,
-      "low": 1019000,
-      "high": 1246000
+      "mid": 1138000,
+      "low": 1024000,
+      "high": 1252000
     },
     "construction": {
-      "mid": 1354000,
-      "low": 1218000,
-      "high": 1489000
+      "mid": 1360000,
+      "low": 1223000,
+      "high": 1496000
     },
     "total": {
-      "mid": 1798000,
-      "low": 1617000,
-      "high": 1976000
+      "mid": 1794000,
+      "low": 1613000,
+      "high": 1973000
     },
-    "vat": 360000,
+    "vat": 359000,
     "bcisFactor": 0.94,
     "bcisRegion": "West Midlands",
     "gifa": 1200,
@@ -756,22 +756,22 @@
       "devCosts": 0,
       "risk": 8,
       "contingency": 5,
-      "inflation": 7,
+      "inflation": 6,
       "riskLevel": "Medium"
     },
     "breakdown": {
-      "prelims": 113000,
+      "prelims": 114000,
       "ohp": 108000,
-      "fees": 217000,
+      "fees": 218000,
       "devCosts": 0,
       "risk": 91000,
       "contingency": 57000,
-      "inflation": 79000,
+      "inflation": 68000,
       "belowLine": 0
     },
     "excludedNoQuantity": [],
     "additionalScopeNote": null,
-    "workbookVersion": "NRM1 v5.3 (2026-09-23)",
+    "workbookVersion": "NRM1 v5.6 (2026-09-28)",
     "baseDate": null,
     "rangeApplied": {
       "grade": "A",
@@ -866,13 +866,13 @@
       "inflation": [
         {
           "code": "F",
-          "label": "18+ months to tender → 6% (96 wks to tender)",
-          "pct": 6
+          "label": "12–18 months to tender → 4% (60 wks to tender)",
+          "pct": 4
         },
         {
           "code": "F",
-          "label": "Construction ≤ 6 months → 1% (26 wks construction)",
-          "pct": 1
+          "label": "Construction 6–12 months → 2% (30 wks construction)",
+          "pct": 2
         }
       ]
     },
@@ -982,9 +982,9 @@
       },
       {
         "stage": "Tender / Procurement",
-        "activity": "Traditional — Single Stage Tender",
+        "activity": "Two-stage (PCSA) — Selective tender",
         "weeks": 12,
-        "notes": "Formal competitive tender — total project cost exceeds £100,000 threshold (12 weeks)",
+        "notes": "Two-stage (PCSA), Selective tender — preferred option from the Procurement Reference (12 weeks, TN1)",
         "startWeek": 38,
         "endWeek": 50,
         "startDate": "2027-10-04",
@@ -993,42 +993,32 @@
       {
         "stage": "Construction",
         "activity": "RIBA Stage 5 — Refurb — M&E Replacement",
-        "weeks": 26,
-        "notes": "20% uplift for occupation; 18% for access constraints",
+        "weeks": 30,
+        "notes": "20% uplift for occupation; 18% for access constraints; 15% for phased delivery",
         "startWeek": 50,
-        "endWeek": 76,
+        "endWeek": 80,
         "startDate": "2027-12-27",
-        "endDate": "2028-06-26"
+        "endDate": "2028-07-24"
       },
       {
         "stage": "Handover",
         "activity": "RIBA Stage 6 — Commissioning, snagging, Practical Completion",
         "weeks": 5,
         "notes": "Defects liability period begins at Practical Completion",
-        "startWeek": 76,
-        "endWeek": 81,
-        "startDate": "2028-06-26",
-        "endDate": "2028-07-31"
-      },
-      {
-        "stage": "Phase 2+ Construction",
-        "activity": "Subsequent phases — construction and re-mobilisation",
-        "weeks": 34,
-        "notes": "Phase sizes assumed equal at Stage 0–1. Confirm split at Stage 2.",
-        "startWeek": 81,
-        "endWeek": 115,
-        "startDate": "2028-07-31",
-        "endDate": "2029-03-26"
+        "startWeek": 80,
+        "endWeek": 85,
+        "startDate": "2028-07-24",
+        "endDate": "2028-08-28"
       },
       {
         "stage": "Programme float",
         "activity": "Float / contingency across the critical path",
-        "weeks": 9,
-        "notes": "9 wk(s) at 1 week per 13 weeks of critical path (Modifiers PROG-FLOAT). Best case without float: 115 weeks.",
-        "startWeek": 115,
-        "endWeek": 124,
-        "startDate": "2029-03-26",
-        "endDate": "2029-05-28"
+        "weeks": 7,
+        "notes": "7 wk(s) at 1 week per 13 weeks of critical path (Modifiers PROG-FLOAT). Best case without float: 85 weeks.",
+        "startWeek": 85,
+        "endWeek": 92,
+        "startDate": "2028-08-28",
+        "endDate": "2028-10-16"
       }
     ],
     "milestones": [
@@ -1038,9 +1028,9 @@
       "Week 18 (17 May 2027): Stage 3 Developed Design complete",
       "Week 38 (4 Oct 2027): Stage 4 Technical Design complete — Tender issued",
       "Week 50 (27 Dec 2027): Contractor appointed — construction commences",
-      "Week 110 (19 Feb 2029): Practical Completion",
-      "Week 115 (26 Mar 2029): Project Close-out — Defects liability period begins",
-      "Week 124 (28 May 2029): Programme completion including 9 week(s) float"
+      "Week 80 (24 Jul 2028): Practical Completion",
+      "Week 85 (28 Aug 2028): Project Close-out — Defects liability period begins",
+      "Week 92 (16 Oct 2028): Programme completion including 7 week(s) float"
     ],
     "assumptions": [
       "Programme durations are indicative only and based on information provided at RIBA Stage 0–1. Actual durations to be confirmed at Stage 2 once surveys, design scope, and procurement strategy are finalised.",
@@ -1052,8 +1042,8 @@
       "A 18% construction duration uplift has been applied for access constraints (Q3.5) — the highest single applicable tier only; access-constraint uplifts are never stacked with each other.",
       "Surveys shown at the start of Stage 2 are identified as required but not yet commissioned. Commissioning surveys before Stage 2 commences is a gateway condition.",
       "Calendar dates run from the stated expected start of 11 Jan 2027 (Q4.0), taken as Stage 1 Gateway approval (Week 0). A later start shifts every date accordingly.",
-      "A programme float of 9 week(s) (1 week per 13 weeks of critical path, Modifiers PROG-FLOAT) is included in the headline programme. The best-case programme without float is 115 weeks; the client should plan around the with-float figure.",
-      "Procurement threshold rule: total project cost mid-point (£1724k) exceeds £100,000 — formal competitive tender of approximately 12 weeks applied.",
+      "A programme float of 7 week(s) (1 week per 13 weeks of critical path, Modifiers PROG-FLOAT) is included in the headline programme. The best-case programme without float is 85 weeks; the client should plan around the with-float figure.",
+      "The tender period (12 weeks, TN1) follows the preferred route to market in the Procurement section (Selective tender). A different route to market would change it.",
       "Handover (RIBA Stage 6) includes commissioning, snagging, and Practical Completion. The defects liability period is not shown — it begins at Practical Completion and is typically 12 months."
     ],
     "standardAssumptions": [
@@ -1066,16 +1056,16 @@
       "A 18% construction duration uplift has been applied for access constraints (Q3.5) — the highest single applicable tier only; access-constraint uplifts are never stacked with each other.",
       "Surveys shown at the start of Stage 2 are identified as required but not yet commissioned. Commissioning surveys before Stage 2 commences is a gateway condition.",
       "Calendar dates run from the stated expected start of 11 Jan 2027 (Q4.0), taken as Stage 1 Gateway approval (Week 0). A later start shifts every date accordingly.",
-      "A programme float of 9 week(s) (1 week per 13 weeks of critical path, Modifiers PROG-FLOAT) is included in the headline programme. The best-case programme without float is 115 weeks; the client should plan around the with-float figure.",
-      "Procurement threshold rule: total project cost mid-point (£1724k) exceeds £100,000 — formal competitive tender of approximately 12 weeks applied.",
+      "A programme float of 7 week(s) (1 week per 13 weeks of critical path, Modifiers PROG-FLOAT) is included in the headline programme. The best-case programme without float is 85 weeks; the client should plan around the with-float figure.",
+      "The tender period (12 weeks, TN1) follows the preferred route to market in the Procurement section (Selective tender). A different route to market would change it.",
       "Handover (RIBA Stage 6) includes commissioning, snagging, and Practical Completion. The defects liability period is not shown — it begins at Practical Completion and is typically 12 months."
     ],
-    "totalWeeks": 124,
-    "totalWeeksBestCase": 115,
-    "floatWeeks": 9,
+    "totalWeeks": 92,
+    "totalWeeksBestCase": 85,
+    "floatWeeks": 7,
     "startDate": "2027-01-11",
     "startDateAssumed": false,
-    "endDate": "2029-05-28",
+    "endDate": "2028-10-16",
     "fastTrackOptions": [
       {
         "id": "FT2",
@@ -1092,82 +1082,277 @@
         "tradeOff": "Commits spend before contract award; specification must be fixed early. Flag plant lead times to the client."
       }
     ],
-    "tenderType": "Single stage",
-    "designResponsibility": "Client design team",
+    "tenderType": "Selective tender",
+    "tenderId": "TN1",
+    "designResponsibility": "",
     "procurementRationale": "",
-    "procurementSource": "value threshold (no Procurement sheet)",
+    "procurementSource": "Procurement Reference",
     "surveyWeeks": 3,
     "designWeeks": 32,
     "tenderWeeks": 12,
-    "constructionWeeks": 26,
+    "constructionWeeks": 30,
     "handoverWeeks": 5,
     "planningWeeks": 0,
+    "planningStatus": "none",
+    "planningAlongside": null,
     "bcWeeks": 0,
     "targetStatus": "at-risk",
-    "targetNote": "The target date of 1 September 2028 is not achievable from a stated start of 11 Jan 2027. The 124-week programme completes around 28 May 2029, approximately 38 weeks beyond the target.",
-    "procurementRoute": "Traditional — Single Stage Tender",
-    "contractForm": "JCT Standard Building Contract 2024",
+    "targetNote": "The target date of 1 September 2028 is not achievable from a stated start of 11 Jan 2027. The 92-week programme completes around 16 Oct 2028, approximately 6 weeks beyond the target.",
+    "procurementRoute": "Two-stage (PCSA) — Selective tender",
+    "contractForm": "JCT Pre-Construction Services Agreement (PCSA), then JCT DB (or SBC)",
     "occupationUplift": 20,
     "constructionType": "Refurb — M&E Replacement",
     "grantGovernanceWeeks": 6,
     "procurementNote": "Grant or public funding — formal competitive procurement required regardless of value.",
-    "workbookVersion": "Programme v4.3 (June 2026)",
-    "phasingNote": "Multiple phases: construction shown (26 wks) is per phase. Allow an additional 34 weeks for subsequent phase(s) including re-mobilisation. Phase split to be confirmed at Stage 2.",
+    "workbookVersion": "Programme v4.4 (September 2026)",
+    "phasingNote": "Multiple phases: the 30-week construction period covers every phase, including a 15% uplift (Modifiers PH-1) for sequential handovers and re-mobilisation. Phase split to be confirmed at Stage 2.",
     "programmeStartNote": ""
+  },
+  "procurement": {
+    "drivers": {
+      "valueGBP": 1360000,
+      "valueLevel": "V2 £1m to threshold",
+      "weeks": 30,
+      "durationLevel": "D2 27–52 wks",
+      "highRisks": 3,
+      "riskLevel": "R2 Medium",
+      "priority": "Minimise disruption",
+      "priorityLevel": "P6 Minimise disruption",
+      "publicClient": true
+    },
+    "preferred": {
+      "route": {
+        "id": "PR3",
+        "name": "Two-stage (PCSA)",
+        "score": 8,
+        "whatItIs": "A contractor is appointed early under a pre-construction services agreement on fees and prelims, helps develop the design, then prices the works open-book for the second stage.",
+        "bestWhen": "Complex, occupied or phased work, or poor existing information, where early contractor input to sequencing and buildability pays off.",
+        "watchOuts": "Less price competition at the second stage. Needs a strong cost consultant to test the price. Scope creep if not controlled."
+      },
+      "model": {
+        "id": "CM1",
+        "name": "Lump sum",
+        "score": 7,
+        "whatItIs": "One agreed price for a defined scope; the contractor carries the risk of its own pricing.",
+        "bestWhen": "Scope and design are well defined and the client wants a firm price at award.",
+        "watchOuts": "Unclear or changing scope leads to variations and claims. Contractors add risk allowances where information is poor."
+      },
+      "contract": {
+        "key": "PR3|CM1",
+        "jct": "JCT Pre-Construction Services Agreement (PCSA), then JCT DB (or SBC)",
+        "nec4": "First stage under NEC4 Professional Service Contract (PSC); construction under ECC Option A",
+        "notes": "Test the second-stage price against benchmarks before signing."
+      },
+      "routeToMarket": {
+        "id": "RM3",
+        "name": "Selective tender",
+        "score": 8,
+        "whatItIs": "A shortlist of 4–6 suitable contractors is invited to tender.",
+        "bestWhen": "The client wants competition among contractors of proven capability.",
+        "watchOuts": "Public bodies above the threshold need a compliant procedure (e.g. competitive flexible) to shortlist. Prequalification takes time.",
+        "tenderId": "TN1"
+      }
+    },
+    "alternative": {
+      "route": {
+        "id": "PR1",
+        "name": "Traditional",
+        "score": 7,
+        "whatItIs": "The client's design team completes the design; contractors then price and build it. The client keeps design control.",
+        "bestWhen": "Design can be completed before tender; cost certainty and design quality matter more than speed.",
+        "watchOuts": "Slowest route to site. Gaps in the design become client variations. Little contractor input to buildability."
+      },
+      "model": {
+        "id": "CM4",
+        "name": "Remeasurement",
+        "score": 8,
+        "whatItIs": "Priced against approximate quantities or a schedule of rates; the work is measured as built and paid at the tendered rates.",
+        "bestWhen": "The type of work is known but not its quantity — repairs, refurbishment with hidden conditions, or rolling programmes.",
+        "watchOuts": "Final cost is only known at the end. Needs a reliable estimate of quantities and regular measurement."
+      },
+      "contract": {
+        "key": "PR1|CM4",
+        "jct": "JCT SBC with Approximate Quantities (SBC/AQ)",
+        "nec4": "ECC Option B (priced contract with bill of quantities); Term Service Contract (TSC) for a programme",
+        "notes": "Regular measurement needed through the works."
+      },
+      "routeToMarket": {
+        "id": "RM4",
+        "name": "Framework — mini-competition",
+        "score": 8,
+        "whatItIs": "A competition among contractors already appointed to a public-sector framework.",
+        "bestWhen": "Public clients who want competition with pre-vetted contractors and standard terms, faster than an open tender.",
+        "watchOuts": "Public and eligible bodies only. Check the lot's scope, value band, region and expiry. Framework fees may apply.",
+        "tenderId": "TN3"
+      }
+    },
+    "maxScore": 10,
+    "thresholdInclVat": 5193000,
+    "vocabulary": {
+      "options": [
+        {
+          "id": "PR1",
+          "kind": "route",
+          "name": "Traditional"
+        },
+        {
+          "id": "PR2",
+          "kind": "route",
+          "name": "Design and build (single stage)"
+        },
+        {
+          "id": "PR3",
+          "kind": "route",
+          "name": "Two-stage (PCSA)"
+        },
+        {
+          "id": "PR4",
+          "kind": "route",
+          "name": "Construction management"
+        },
+        {
+          "id": "CM1",
+          "kind": "model",
+          "name": "Lump sum"
+        },
+        {
+          "id": "CM2",
+          "kind": "model",
+          "name": "Guaranteed maximum price (GMP)"
+        },
+        {
+          "id": "CM3",
+          "kind": "model",
+          "name": "Target cost"
+        },
+        {
+          "id": "CM4",
+          "kind": "model",
+          "name": "Remeasurement"
+        },
+        {
+          "id": "CM5",
+          "kind": "model",
+          "name": "Cost reimbursable"
+        },
+        {
+          "id": "RM1",
+          "kind": "market",
+          "name": "Quotations"
+        },
+        {
+          "id": "RM2",
+          "kind": "market",
+          "name": "Open tender"
+        },
+        {
+          "id": "RM3",
+          "kind": "market",
+          "name": "Selective tender"
+        },
+        {
+          "id": "RM4",
+          "kind": "market",
+          "name": "Framework — mini-competition"
+        },
+        {
+          "id": "RM5",
+          "kind": "market",
+          "name": "Framework — direct award"
+        },
+        {
+          "id": "RM6",
+          "kind": "market",
+          "name": "Negotiated"
+        }
+      ],
+      "contractTokens": [
+        "JCT",
+        "MW",
+        "IC",
+        "ICD",
+        "SBC/Q",
+        "SBC/XQ",
+        "ECC",
+        "ECSC",
+        "CE",
+        "MTC",
+        "SBC",
+        "SBC/AQ",
+        "TSC",
+        "PCC",
+        "MWD",
+        "DB",
+        "GMP",
+        "PCSA",
+        "PSC",
+        "CM/A",
+        "CM/TC",
+        "MC",
+        "Option A",
+        "Option C",
+        "Option D",
+        "Option B",
+        "Option E",
+        "Option F",
+        "X22"
+      ]
+    },
+    "workbookVersion": "Procurement Reference v2.0"
   },
   "budget": {
     "status": "sufficient",
     "budget": 4500000,
-    "grossLow": 1940000,
-    "grossHigh": 2371000,
-    "margin": 2129000,
+    "grossLow": 1936000,
+    "grossHigh": 2368000,
+    "margin": 2132000,
     "grossFactor": 1.2,
-    "note": "The stated budget of £4,500,000 (incl. fees and VAT) is sufficient against the estimated gross range of £1,940,000 – £2,371,000, with headroom of approximately £2,129,000 above the top of the range."
+    "note": "The stated budget of £4,500,000 (incl. fees and VAT) is sufficient against the estimated gross range of £1,936,000 – £2,368,000, with headroom of approximately £2,132,000 above the top of the range."
   },
   "aiProse": {
-    "executiveSummary": "This feasibility study examines the refurbishment of Hargreaves Teaching Block, a three-storey 1960s education building at Example University, Birmingham (1200 m² GIFA). The project will replace life-expired services, upgrade fire safety, and improve thermal performance to support net-zero objectives. Estimated project cost is £1,617,000 to £1,976,000 excluding VAT, with Grade A (High Confidence). The target date of 1 September 2028 is not achievable; the 124-week programme completes around 28 May 2029. Term-time working restrictions present the single most material risk to programme delivery.",
+    "executiveSummary": "This feasibility study examines the refurbishment of Hargreaves Teaching Block, a three-storey 1960s education building at Example University, Birmingham (1200 m² GIFA). The project will replace life-expired mechanical, electrical and plumbing services, upgrade fire safety, improve thermal performance to support net-zero targets, and create flexible teaching space. The estimated project cost is £1,613,000 to £1,973,000 excluding VAT, with Grade A (High Confidence). The target date of 1 September 2028 is at risk; the 92-week programme completes approximately 6 weeks later. Asbestos and ageing services present the most material risks.",
     "keyFindings": [
-      "The works cost mid-point is £1,133,000 (range £1,019,000–£1,246,000), driven by full systems replacement across mechanical, electrical, and fabric elements across 1200 m².",
-      "The target date of 1 September 2028 is not achievable; the 124-week programme completes approximately 38 weeks later, around 28 May 2029.",
-      "The stated budget of £4,500,000 including fees and VAT is sufficient, with headroom of approximately £2,129,000 above the top of the estimated range.",
-      "The most significant risk is term-time working confinement: works must fit within vacation windows, spanning multiple academic terms and risking overrun into occupied periods.",
-      "Traditional Single Stage Tender is recommended; formal competitive procurement is required for public funding, and this route suits the defined scope and fixed-price certainty the client prioritises."
+      "The works cost mid-point is £1,138,000, with a total project cost of £1,794,000 including design fees, preliminaries and risk allowances across a 92-week programme.",
+      "The target date of 1 September 2028 is not achievable; the 92-week programme completes around 16 October 2028, approximately 6 weeks beyond the deadline.",
+      "The stated budget of £4,500,000 including fees and VAT is sufficient, with headroom of approximately £2,132,000 above the top of the estimated range.",
+      "Asbestos is known or suspected and requires licensed removal; a refurbishment and demolition survey is essential before Stage 2 to confirm scope and cost.",
+      "The preferred procurement option is a two-stage pre-construction services agreement with lump-sum pricing, which suits complex phased work with early contractor input to sequencing."
     ],
     "scopeAssumptions": [
-      "External plant space for the air source heat pump is included within the heating and hot water scope.",
-      "The roof was recovered in 2011 and windows on the south elevation were replaced in 2016; north elevation windows are original and included in the replacement scope.",
-      "No mechanical, electrical, or plumbing services have been replaced since original construction in the 1960s, justifying full systems replacement."
+      "The scope covers full systems replacement across 1200 m² GIFA, including 18 standard and 3 accessible WCs, with external plant space for the air source heat pump included.",
+      "The building was last refurbished in 2011 (roof) and 2016 (south-elevation windows); north-elevation windows and all services remain original and are included in the replacement scope.",
+      "Works are confined to vacation and holiday windows only, with examination blackout periods in January and May–June; the programme reflects restricted working hours and partial occupation."
     ],
-    "costNarrative": "The works cost reflects full replacement of mechanical, electrical, plumbing, and fire safety systems across the entire 1200 m² building, together with asbestos removal, strip-out, and comprehensive refurbishment of fabric finishes. Preliminaries are elevated by partial occupation, restricted working hours, and extended programme duration. Professional fees reflect the M&E-heavy scope and BREEAM compliance requirement.",
-    "roiNarrative": "Simple payback on the project cost mid-point of £1,797,000 against annual energy and operational savings of £95,000 is 18.9 years. The key financial risk is that actual operational savings may fall short of projections if building use patterns or energy pricing assumptions change materially during the payback period.",
+    "costNarrative": "The works cost is driven by full replacement of mechanical, electrical, plumbing and fire safety systems across the entire building, combined with comprehensive strip-out, asbestos removal, and upgrade of the building envelope to meet net-zero and BREEAM standards. Preliminaries are elevated by partial occupation, restricted working hours and a phased delivery approach. Professional fees reflect the complexity of M&E-heavy scope and BREEAM compliance.",
+    "roiNarrative": "The project cost mid-point of £1,794,000 generates annual energy and operational savings of £95,000, yielding a simple payback of 18.9 years. The key financial risk is that actual energy savings may fall short of projections if building use patterns or occupancy differ from assumptions, or if utility price inflation does not materialise as forecast.",
     "constraints": [
       {
         "category": "Programme",
-        "title": "Term-time working confinement",
-        "text": "Works must fit within vacation windows only, spanning multiple academic terms and risking overrun into occupied periods if not carefully phased."
+        "title": "Vacation-window working",
+        "text": "Works confined to vacation periods only; examination blackouts in January and May–June create hard constraints on the construction schedule."
       },
       {
         "category": "Access",
         "title": "Restricted working hours",
-        "text": "Confined hours extend construction duration and may attract premium rates, increasing both cost and programme risk."
-      },
-      {
-        "category": "Regulatory",
-        "title": "Conservation area constraints",
-        "text": "Site is in a conservation area; external alterations require full planning consent and enhanced material specification from the local authority."
+        "text": "Partial occupation and restricted working hours extend the construction duration and may attract premium rates; out-of-hours working is programme-critical."
       },
       {
         "category": "Technical",
-        "title": "Electrical capacity check",
-        "text": "Air source heat pump installation requires confirmation of electrical capacity and DNO approval before detailed design can proceed."
+        "title": "Asbestos and M&E risk",
+        "text": "Asbestos is known or suspected; ageing services capacity and condition are uncertain and may require more replacement than currently assumed."
+      },
+      {
+        "category": "Regulatory",
+        "title": "Conservation area",
+        "text": "The site is in a conservation area; external alterations will require full planning with enhanced materials and detailing."
       }
     ],
     "nextSteps": [
-      "Confirm with the university estates team the exact vacation windows available for each phase and any blackout dates around examinations (January and May–June) to refine the phasing strategy.",
-      "Engage the conservation officer at the local authority to establish expectations for external materials, detailing, and the planning consent pathway for windows and doors.",
-      "Commission or review the asbestos management survey to confirm scope and inform the detailed strip-out and disposal strategy at Stage 2 design.",
-      "Investigate electrical capacity and submit a DNO enquiry for the air source heat pump installation to confirm feasibility and any infrastructure upgrades required.",
-      "Develop a detailed phasing plan at Stage 2 that sequences works to minimise disruption, allocates the 34-week re-mobilisation allowance between phases, and builds in programme float to protect against term-time overrun."
+      "Commission a refurbishment and demolition asbestos survey before Stage 2 design to confirm scope, cost and programme impact; carry a provisional sum until it reports.",
+      "Obtain pre-application advice from the conservation officer on external alterations, materials and detailing to confirm planning assumptions and cost.",
+      "Confirm electrical supply capacity and DNO requirements for the air source heat pump and full electrical replacement; investigate early to avoid Stage 2 delays.",
+      "Develop a detailed phasing plan at Stage 2 that sequences works to vacation windows, confirms blackout dates with faculty, and identifies any out-of-hours working needed to meet the target date.",
+      "Evaluate the two-stage procurement route with your advisers, testing the second-stage price against benchmarks and confirming early contractor input to sequencing and buildability."
     ],
     "riskRegister": [
       {
@@ -1191,67 +1376,75 @@
         "seedRef": "ACC-D"
       },
       {
+        "ref": "KI-MANDE",
+        "category": "Technical",
+        "description": "Ageing or inadequate mechanical and electrical services: capacity, condition and compliance of existing plant and distribution are uncertain and may need more replacement than assumed.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Commission an M&E condition and capacity survey at Stage 2; confirm supply capacity with the utility early.",
+        "seedRef": "KI-MANDE"
+      },
+      {
+        "ref": "KI-ASBESTOS",
+        "category": "Health & Safety",
+        "description": "Asbestos is known or suspected: licensed removal, notification periods and air testing add cost and time, and finds during strip-out can stop work.",
+        "likelihood": "High",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Commission a refurbishment and demolition asbestos survey before Stage 2 design; carry a provisional sum for removal until it reports.",
+        "seedRef": "KI-ASBESTOS"
+      },
+      {
         "ref": "CTX-CONSERVATION",
         "category": "Regulatory",
-        "description": "Site in conservation area or subject to Article 4 direction; external alterations likely need full planning consent; enhanced materials required.",
+        "description": "Site is in a conservation area or under an Article 4 direction: external alterations are likely to need full planning, with enhanced materials and detailing.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Seek pre-application advice on conservation officer's expectations; assume full planning for external works; allow enhanced material specification.",
+        "mitigation": "Seek pre-application advice from the conservation officer; assume full planning for external works; allow for enhanced materials when costing.",
         "seedRef": "CTX-CONSERVATION"
       },
       {
         "ref": "SCOPE-S-0039-1",
         "category": "Technical",
-        "description": "Air source heat pump selected; electrical capacity and DNO check required before commitment.",
+        "description": "Heating and hot water: electrical capacity and DNO check raised by the selected scope.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Investigate and confirm electrical capacity and DNO requirements during Stage 2 design; carry outcome into cost plan.",
-        "seedRef": "NONE"
-      },
-      {
-        "ref": "R05",
-        "category": "Cost",
-        "description": "Asbestos known or suspected in 1960s building; removal cost and programme impact uncertain until survey complete.",
-        "likelihood": "High",
-        "impact": "Medium",
-        "rating": "Medium",
-        "mitigation": "Complete asbestos management survey immediately; obtain specialist removal quotations; build contingency for unforeseen contamination.",
-        "seedRef": "NONE"
-      },
-      {
-        "ref": "R06",
-        "category": "Programme",
-        "description": "Multiple phases with 34 additional weeks for re-mobilisation and subsequent phases; total programme extends to May 2029, 38 weeks beyond target.",
-        "likelihood": "High",
-        "impact": "High",
-        "rating": "High",
-        "mitigation": "Confirm phase split and boundaries at Stage 2; explore acceleration options such as long-lead procurement; review phasing strategy with client.",
-        "seedRef": "NONE"
+        "mitigation": "Investigate and confirm during Stage 2 design, and carry the outcome into the cost plan.",
+        "seedRef": "SCOPE-S-0039-1"
       },
       {
         "ref": "R07",
         "category": "Cost",
-        "description": "Partial occupation during works increases site management complexity, welfare provision, and coordination overhead.",
+        "description": "Phased delivery over multiple phases increases re-mobilisation, site management and programme overhead costs.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Establish clear occupation zones; agree access and working protocols with occupants; price additional site management and welfare provision.",
+        "mitigation": "Confirm phase boundaries and handover strategy at Stage 2; negotiate fixed re-mobilisation costs with the contractor.",
+        "seedRef": "NONE"
+      },
+      {
+        "ref": "R08",
+        "category": "Procurement",
+        "description": "Two-stage procurement requires strong cost control and scope discipline to avoid creep and cost overrun at second stage.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Appoint a cost consultant to benchmark and challenge the second-stage price; freeze scope before PCSA second stage.",
         "seedRef": "NONE"
       }
     ],
-    "procurementRoute": "Traditional — Single Stage Tender",
-    "procurementContractForm": "JCT Standard Building Contract 2024",
-    "procurementDesignResp": "Client design team",
-    "procurementTenderType": "Single stage",
-    "procurementNarrative": "Traditional single-stage tender is appropriate for a refurbishment of this scale and complexity, with a fixed scope and full design at tender stage. This route delivers the certainty of a fixed price and defined programme that the client prioritises, whilst formal competitive procurement is mandated by the grant funding source regardless of contract value.",
+    "procurementNarrative": "A two-stage procurement with a lump-sum commercial model and selective tender route suits this complex, occupied, phased refurbishment where early contractor input to sequencing and buildability is valuable. The alternative traditional route with remeasurement would suit if design can be completed before tender and cost certainty is less critical than design quality and control.",
     "procurementConsiderations": [
-      "Long-lead items such as air source heat pump, switchgear and ventilation plant should be identified and ordered during design to reduce on-site construction duration and mitigate programme risk.",
-      "Restricted working hours and vacation-only access will increase preliminaries and may require out-of-hours working premiums; confirm permitted hours and pricing with the client before tender.",
-      "Phasing strategy must be confirmed at Stage 2 to establish clear boundaries, re-mobilisation costs and programme sequencing; include phasing requirements in the tender brief."
+      "Less price competition at the second stage; appoint a cost consultant to test the contractor's open-book price against benchmarks before signing.",
+      "Scope creep can erode the fixed price if not controlled; freeze scope and change procedures before the PCSA second stage begins.",
+      "Public bodies above the threshold must follow a compliant procedure to shortlist contractors; allow time for prequalification and competitive flexible procurement."
     ],
-    "procurementConflicts": [],
+    "procurementConflicts": [
+      "Two-stage procurement commits spend on fees and prelims before the second-stage price is known, which may conflict with the client's priority for a fixed and certain final cost."
+    ],
     "confidenceScore": "A",
     "confidenceLabel": "High Confidence"
   },
@@ -1326,9 +1519,11 @@
       "Minimise disruption",
       "Fixed / certain final cost"
     ],
+    "q4_4_topPriority": "Minimise disruption",
     "q4_5_designStage": "Concept only (Stage 0–1)",
     "q4_6_phasing": "Multiple phases",
     "q4_7_funding": "Grant or public funding",
+    "q4_8_publicClient": "Yes",
     "q5_1_financialBenefit": [
       "Energy or operational cost savings",
       "Grant or funding unlock"
@@ -1336,7 +1531,7 @@
     "q5_2_annualBenefit": "95000",
     "q6_2_instructions": "Write for an estates committee that includes non-technical members."
   },
-  "generatedAt": "2026-09-24T13:36:00.976Z",
+  "generatedAt": "2026-09-29T06:10:19.365Z",
   "reportId": null,
   "sample": true
 }

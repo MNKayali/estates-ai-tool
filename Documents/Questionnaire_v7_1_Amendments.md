@@ -23,3 +23,23 @@ Keep Q5.1 as **multi-select** ("Select all that apply"). Add the rule: *"No dire
 
 ---
 *Header line to update: "coordinated with NRM1 Cost Tool **v3.7** and Programme Duration Reference **v4.3**". Version → v7.1.*
+
+---
+
+# Addendum — procurement drivers (September 2026)
+**29 September 2026 · two questions added to Section 4 for the Procurement Reference workbook. Wording to be confirmed by Nabil before release.**
+
+> The report's procurement section (Section 7) is now chosen by `Projento_Procurement_Reference.xlsx` from four drivers: construction value, construction duration, the number of risks rated High, and the client's single top priority. Framework and negotiated routes also depend on whether the client is public. Q4.4 alone could not give one top priority, and nothing asked about the client type, hence these two questions.
+
+## 7 · Q4.4a Which ONE of these matters most? (new)
+Asked **only when two priorities are ticked in Q4.4**. It offers just those two as a single choice. **Required when shown.** Key `q4_4_topPriority`.
+Help text: *"Used to choose the preferred procurement route and route to market."*
+Q4.4's help text changes to: *"Choose up to two. Your top priority counts double in the procurement recommendation; both inform the programme options."* (It no longer says the first tick is the primary one.)
+With one tick, that tick is the top priority. A saved draft from before this question, with two ticks, uses the one listed first in Q4.4's option order until the user answers Q4.4a. Unticking the chosen priority clears the answer.
+
+## 8 · Q4.8 Public client (new)
+*"Is the client a public-sector body, or eligible for public frameworks (e.g. a housing association)?"* Yes / No, single choice. Placed after Q4.7 (funding). **Required.** Key `q4_8_publicClient`.
+Help text: *"Framework routes to market are offered only to public and eligible clients; a negotiated contract only to private ones."*
+Effect: Yes removes 'Private only' options (Negotiated); No removes 'Public only' options (both framework routes). Unanswered (a report or draft from before this question) removes both.
+
+*Also: the Q4.4 labels "Fixed / certain final cost" and "Funder / compliance requirement" are matched to the workbook's "Fixed/certain final cost" and "Funder/compliance requirement" ignoring spaces and case, so neither side needs renaming.*
