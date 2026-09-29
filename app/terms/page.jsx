@@ -1,12 +1,13 @@
 /**
  * /terms — Terms of Use
  * Operator: Projento
- * Last reviewed: 25 September 2026
+ * Last reviewed: 29 September 2026
  * Governing law: England and Wales
  */
 import Link from 'next/link'
 import Logo from '../components/Logo'
 import { BRAND } from '@/lib/brand'
+import { DATA_PAGE } from '@/lib/siteNotice'
 
 const NAVY = '#1A2E4A'
 const BLUE = '#A86F12'   // brand accent (deep amber) — name kept to avoid churn
@@ -45,7 +46,7 @@ export default function TermsPage() {
           Terms of Use
         </h1>
         <p style={{ ...body, color: '#666', marginBottom: '32px' }}>
-          Last reviewed: 25 September 2026 &nbsp;|&nbsp; Governing law: England and Wales
+          Last reviewed: 29 September 2026 &nbsp;|&nbsp; Governing law: England and Wales
         </p>
 
         <Section title="1. About this tool">
@@ -57,7 +58,12 @@ export default function TermsPage() {
           <p style={body}>
             You can try it free without an account (three reports, viewed on screen), or create a free
             account for unlimited reports and PDF and Word downloads. By using this tool, or by creating
-            an account or signing in, you agree to these terms.
+            an account or signing in, you agree to these terms, which include our{' '}
+            <a href={DATA_PAGE.href} style={{ color: BLUE }}>{DATA_PAGE.label}</a> page.
+          </p>
+          <p style={body}>
+            {BRAND.name} is a research and development tool. Features, rates, methods and outputs may change
+            or be withdrawn without notice.
           </p>
         </Section>
 
@@ -120,7 +126,8 @@ export default function TermsPage() {
             <li style={li}>errors, omissions, or inaccuracies in the underlying benchmark data (BCIS/RICS);</li>
             <li style={li}>temporary unavailability due to maintenance, Vercel infrastructure outages,
               or third-party service downtime;</li>
-            <li style={li}>loss of report data after the 90-day retention period has elapsed.</li>
+            <li style={li}>loss of report data, including reports you delete and reports removed under the
+              retention periods in our Privacy Notice.</li>
           </ul>
           <p style={body}>
             Nothing in these terms excludes liability for death or personal injury caused by negligence,
@@ -139,7 +146,8 @@ export default function TermsPage() {
 
         <Section title="7. Data and privacy">
           <p style={body}>
-            The project data you enter is processed as described in our{' '}
+            The project data you enter is used only within {BRAND.name}, as described in our{' '}
+            <a href={DATA_PAGE.href} style={{ color: BLUE }}>{DATA_PAGE.label}</a> page and{' '}
             <a href="/privacy" style={{ color: BLUE }}>Privacy Notice</a>.
             By using this tool you confirm that the project information you provide does not include
             personal data about identifiable individuals beyond what is strictly necessary, and that
@@ -166,10 +174,12 @@ export default function TermsPage() {
       <footer style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center' }}>
         <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>
           {BRAND.name} &nbsp;·&nbsp;
+          <a href={DATA_PAGE.href} style={{ color: BLUE }}>{DATA_PAGE.label}</a>
+          &nbsp;·&nbsp;
           <a href="/privacy" style={{ color: BLUE }}>Privacy Notice</a>
           &nbsp;·&nbsp;
           <a href="/reports" style={{ color: BLUE }}>Return to tool</a>
-          &nbsp;·&nbsp; Last reviewed 25 September 2026
+          &nbsp;·&nbsp; Last reviewed 29 September 2026
         </p>
       </footer>
 

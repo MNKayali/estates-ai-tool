@@ -13,6 +13,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { FormError, SubmitButton, linkStyle } from './AuthShell'
+import { BRAND } from '@/lib/brand'
+import { DATA_PAGE } from '@/lib/siteNotice'
 
 const MIN = 10
 
@@ -102,8 +104,11 @@ export default function AccountForm({ initialMode = 'signup', onSuccess, onModeC
           <span>
             I accept the{' '}
             <a href="/terms" target="_blank" rel="noopener noreferrer" style={linkStyle}>Terms of Use</a>
+            {', '}
+            <a href={DATA_PAGE.href} target="_blank" rel="noopener noreferrer" style={linkStyle}>{DATA_PAGE.label}</a>
             {' '}and the{' '}
             <a href="/privacy" target="_blank" rel="noopener noreferrer" style={linkStyle}>Privacy Notice</a>
+            . My answers and reports are stored and used only within {BRAND.name} to produce my reports and improve the tool.
           </span>
         </label>
       )}

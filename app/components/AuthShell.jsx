@@ -7,6 +7,7 @@
 import Link from 'next/link'
 import { BRAND } from '@/lib/brand'
 import Logo from './Logo'
+import SiteFooter from './SiteFooter'
 
 export function AuthShell({ eyebrow, title, intro, children, footer }) {
   return (
@@ -22,6 +23,7 @@ export function AuthShell({ eyebrow, title, intro, children, footer }) {
         {children}
         {footer}
       </main>
+      <SiteFooter style={{ borderTop: 'none', maxWidth: 560, position: 'relative' }} />
     </div>
   )
 }
