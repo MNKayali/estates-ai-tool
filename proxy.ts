@@ -37,10 +37,11 @@ import { TRIAL_COOKIE, createTrialToken, sessionCookieOptions, TRIAL_MAX_AGE } f
 
 const ACCOUNT_PAGES = ['/reports']
 const ACCOUNT_API   = ['/api/my-reports', '/api/auth/me', '/api/auth/change-password']
-// /api/warm-prose and /api/rates-check are gated because both are expensive to
-// call, not because they return anything secret: warm-prose makes two real
-// Anthropic requests (and is throttled globally in the route), and rates-check
-// re-downloads both remote workbooks — admin only since the trial went public.
+// /api/warm-prose is gated because it is expensive to call, not because it
+// returns anything secret: it makes two real Anthropic requests (and is
+// throttled globally in the route). /api/rates-check is admin only since the
+// trial went public: it reports workbook internals (sample rates, data gaps,
+// a rejected upload's problems) and can trigger a workbook re-read.
 // report-pdf is here rather than with the account APIs so a trial visitor gets
 // the route's own "create a free account" refusal (downloadRequiresAccount),
 // which the page turns into the sign-up dialog.
@@ -104,9 +105,12 @@ export async function proxy(request: NextRequest) {
   const isCallerApi   = CALLER_API.some(p => pathname.startsWith(p))
   if (!isAccountPage && !isAccountApi && !isCallerApi) return NextResponse.next()
 
+  // Caller APIs: the trial and admin cookies verify by signature alone, while a
+  // session costs a KV read — and every caller API reads the caller again for
+  // its own rule. So try the cheap ones first; most callers carry a trial
+  // cookie, and this saves them a KV round trip per request.
+  if (isCallerApi && (await getTrialId(request) || await isAdminRequest(request))) return NextResponse.next()
   if (await getSessionUser(request)) return NextResponse.next()
-  if (isCallerApi && await getTrialId(request)) return NextResponse.next()
-  if (isCallerApi && await isAdminRequest(request)) return NextResponse.next()
 
   // Blocked — return 401 for API, redirect to /login for pages
   if (isAccountApi || isCallerApi) {

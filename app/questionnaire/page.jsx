@@ -1067,9 +1067,9 @@ export default function QuestionnairePage() {
       {/* Header */}
       <header className="sticky top-0 z-10 px-4" style={{ backgroundColor: 'var(--navy)', height: 56, display: 'flex', alignItems: 'center', boxShadow: '0 2px 10px rgba(14,27,46,.25)' }}>
         <div className="max-w-2xl mx-auto w-full flex items-center justify-between">
-          <a href="/" aria-label={`${BRAND.name} home`} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Link href="/" aria-label={`${BRAND.name} home`} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <Logo variant="white" height={24} compactBelow360 />
-          </a>
+          </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span className="mono hide-sm" style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase' }}>
               Stage 0–1 Questionnaire
@@ -1181,7 +1181,7 @@ export default function QuestionnairePage() {
           <div className="flex flex-col gap-5 section-enter">
             <QCard qkey="q1_0_projectName">
               <Label required>Q1.0 — Project title</Label>
-              <HelpText>This becomes the heading of your report. Include the work type, building type, and location — e.g. "Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" or "New Sports Hall, University of Birmingham, Edgbaston".</HelpText>
+              <HelpText>This becomes the heading of your report. Include the work type, building type, and location — e.g. “Full Refurbishment — Accommodation Flat, B91 1SF, Solihull” or “New Sports Hall, University of Birmingham, Edgbaston”.</HelpText>
               <TextInput value={answers.q1_0_projectName} onChange={v => set('q1_0_projectName', v)} placeholder="e.g. Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" />
               {validationErrors.q1_0_projectName && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_0_projectName}</p>}
               {/* The title is the largest text on the report cover — show it,
@@ -1501,7 +1501,7 @@ export default function QuestionnairePage() {
 
             <QCard qkey="q3_4_planningConsents">
               <Label required>Q3.4 — Planning consent required</Label>
-              <HelpText>Select the most likely planning pathway. If unsure, choose 'Unsure' — pre-application advice is recommended.</HelpText>
+              <HelpText>Select the most likely planning pathway. If unsure, choose ‘Unsure’ — pre-application advice is recommended.</HelpText>
               <RadioGroup options={PLANNING_OPTIONS} value={answers.q3_4_planningConsents} onChange={v => set('q3_4_planningConsents', v)}
                 required describedBy={validationErrors.q3_4_planningConsents ? 'err-q3_4_planningConsents' : undefined} />
               {validationErrors.q3_4_planningConsents && <p id="err-q3_4_planningConsents" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_4_planningConsents}</p>}
@@ -1509,7 +1509,7 @@ export default function QuestionnairePage() {
 
             <QCard qkey="q3_5_accessConstraints">
               <Label required>Q3.5 — Access constraints</Label>
-              <HelpText>Select all that apply. These affect the contractor's preliminaries allowance.</HelpText>
+              <HelpText>Select all that apply. These affect the contractor’s preliminaries allowance.</HelpText>
               {/* "No access constraints" must be exclusive: ticked alongside a
                   real constraint it silently suppressed every access risk seed
                   in the generated report. */}

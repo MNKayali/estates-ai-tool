@@ -4,6 +4,7 @@
  * Last reviewed: 25 September 2026
  * Contact email: BRAND.email (lib/brand.js), the same address the report's contact card shows.
  */
+import Link from 'next/link'
 import Logo from '../components/Logo'
 import { BRAND } from '@/lib/brand'
 
@@ -56,9 +57,9 @@ export default function PrivacyPage() {
       {/* Header */}
       <header style={{ background: NAVY, padding: '12px 24px' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <a href="/" aria-label={`${BRAND.name} home`} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Link href="/" aria-label={`${BRAND.name} home`} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <Logo variant="white" height={24} />
-          </a>
+          </Link>
         </div>
       </header>
 

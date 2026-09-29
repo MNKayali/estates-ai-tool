@@ -16,6 +16,7 @@ import { Card, Badge, SectionHeader } from '../components/ui'
 import { FormError, FormNote } from '../components/AuthShell'
 import { BRAND, reportFileName } from '@/lib/brand'
 import { reportReference } from '@/lib/reportContent'
+import { saveBlob } from '@/lib/saveBlob'
 import Logo from '../components/Logo'
 
 const f1k = n => (n == null ? '—' : `£${(Math.round(n / 1000) * 1000).toLocaleString('en-GB')}`)
@@ -189,12 +190,7 @@ function DownloadButton({ report, kind }) {
       const res = await fetch(kind === 'pdf' ? `/api/report-pdf/${report.reportId}` : `/api/reports/${report.reportId}/docx`)
       if (!res.ok) throw new Error(String(res.status))
       const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = reportFileName(reportReference(report.reportId, report), kind)
-      a.click()
-      URL.revokeObjectURL(url)
+      saveBlob(blob, reportFileName(reportReference(report.reportId, report), kind))
       setState('idle')
     } catch {
       setState('error')

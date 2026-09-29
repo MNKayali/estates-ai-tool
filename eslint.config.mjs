@@ -22,6 +22,11 @@ const eslintConfig = defineConfig([
     "portfolio-advisor/**",
     "Beach Game/**",
   ]),
+  // .cjs files are CommonJS by definition: require() is correct there.
+  {
+    files: ["**/*.cjs"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
 ]);
 
 export default eslintConfig;

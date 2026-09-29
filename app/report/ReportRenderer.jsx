@@ -7,6 +7,7 @@ import ReportDocument from './doc/ReportDocument'
 import AuthDialog from '../components/AuthDialog'
 import { BRAND, reportFileName } from '@/lib/brand'
 import { reportReference } from '@/lib/reportContent'
+import { saveBlob } from '@/lib/saveBlob'
 
 // ─── Screen chrome only ───────────────────────────────────────────────────────
 // The report itself (every page, colour and size) lives in app/report/doc and
@@ -132,12 +133,7 @@ export default function ReportRenderer({ data, reportId, sample = false, account
       } else {
         throw new Error('no Word file')
       }
-      const url = URL.createObjectURL(blob)
-      const a   = document.createElement('a')
-      a.href     = url
-      a.download = reportFileName(reportReference(reportId, data), 'docx')
-      a.click()
-      URL.revokeObjectURL(url)
+      saveBlob(blob, reportFileName(reportReference(reportId, data), 'docx'))
       track('docx_downloaded', { reportId: reportId || 'unsaved' })
     } catch {
       setDownloadError('The Word file could not be created. Please try again in a moment.')
@@ -146,11 +142,10 @@ export default function ReportRenderer({ data, reportId, sample = false, account
   }
 
   async function downloadPdf() {
-    track('pdf_downloaded', { reportId: reportId || 'unsaved' })
     // Saved reports → server-side Puppeteer PDF of the same A4 pages.
     // Unsaved reports (no id / KV off, local only) → browser print, whose
     // print CSS produces the same pages.
-    if (!reportId) { window.print(); return }
+    if (!reportId) { track('pdf_downloaded', { reportId: 'unsaved' }); window.print(); return }
     setPdfLoading(true)
     setDownloadError('')
     try {
@@ -158,12 +153,8 @@ export default function ReportRenderer({ data, reportId, sample = false, account
       if (await refusedForAccount(res, 'pdf')) { setPdfLoading(false); return }
       if (!res.ok) throw new Error('PDF service unavailable')
       const blob = await res.blob()
-      const url  = URL.createObjectURL(blob)
-      const a    = document.createElement('a')
-      a.href     = url
-      a.download = reportFileName(reportReference(reportId, data), 'pdf')
-      a.click()
-      URL.revokeObjectURL(url)
+      saveBlob(blob, reportFileName(reportReference(reportId, data), 'pdf'))
+      track('pdf_downloaded', { reportId })
     } catch {
       // No silent fallback to browser print: that produced an off-spec PDF
       // (browser margins, no fonts check) that looked like a real export.
