@@ -21,6 +21,7 @@ export async function GET() {
     aiKey:        !!process.env.AI_API_KEY,
     ratesUrl:     !!process.env.RATES_FILE_URL,
     programmeUrl: !!process.env.PROGRAMME_FILE_URL,
+    procurementUrl: !!process.env.PROCUREMENT_FILE_URL,
     cookieSecret: !!process.env.COOKIE_SECRET,
     adminCode:    !!process.env.ADMIN_CODE,
     sentryDsn:    !!process.env.NEXT_PUBLIC_SENTRY_DSN,

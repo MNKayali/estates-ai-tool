@@ -20,6 +20,7 @@ const CONFIG_LABELS = {
   aiKey:        'AI API key',
   ratesUrl:     'NRM1 rates URL',
   programmeUrl: 'Programme URL',
+  procurementUrl: 'Procurement URL',
   kv:           'KV persistence',
   email:        'Account emails (Resend)',
   cookieSecret: 'Cookie secret',
