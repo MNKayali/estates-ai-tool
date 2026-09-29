@@ -1,7 +1,7 @@
-import { cleanReportText, vatPct } from '@/lib/reportContent'
+import { cleanReportText, vatPct, SECTION_CAVEATS, BUDGET_LABELS } from '@/lib/reportContent'
 import { BodyPage, Band, Pending } from './parts'
 
-const BUDGET = { sufficient: ['r-callout-ok', 'sufficient'], tight: ['r-callout-warn', 'tight'], insufficient: ['r-callout-bad', 'shortfall'] }
+const BUDGET = { sufficient: ['r-callout-ok', BUDGET_LABELS.sufficient], tight: ['r-callout-warn', BUDGET_LABELS.tight], insufficient: ['r-callout-bad', BUDGET_LABELS.insufficient] }
 
 export default function SummaryPage({ data, ctx, n }) {
   const { cost, programme, aiProse, budget } = data
@@ -14,7 +14,7 @@ export default function SummaryPage({ data, ctx, n }) {
         <div><div className="r-lbl">Programme</div><div className="v">{programme?.totalWeeks} weeks</div><div className="s">{programme?.floatWeeks > 0 ? `Incl. ${programme.floatWeeks} weeks float · best case ${programme.totalWeeksBestCase} weeks` : 'Critical path, no float'}</div></div>
         <div><div className="r-lbl">BCIS region</div><div className="v">{cost?.bcisRegion || '—'}</div><div className="s">Location factor {cost?.bcisFactor}</div></div>
       </div>
-      <Band no={1} title="Executive Summary" />
+      <Band no={1} title="Executive Summary" caveat={SECTION_CAVEATS.summary} />
       {aiProse?.executiveSummary ? <p>{cleanReportText(aiProse.executiveSummary)}</p> : ctx.isPending && <Pending />}
       {aiProse?.keyFindings?.length > 0 && <>
         <h3>Key findings</h3>

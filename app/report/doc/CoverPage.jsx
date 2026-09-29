@@ -1,6 +1,6 @@
 import { BRAND } from '@/lib/reportStyle'
 import { LOGOS, logoWidth } from '@/lib/brand'
-import { coverTitle, coverTitleSize, coverSubtitle, coverCostRange, confidenceWord, deriveCostRiskLevel, coverFactRows } from '@/lib/reportContent'
+import { coverTitle, coverTitleSize, coverSubtitle, coverCostRange, confidenceWord, deriveCostRiskLevel, coverFactRows, NOTICE_SHORT } from '@/lib/reportContent'
 import { Sheet } from './parts'
 
 export default function CoverPage({ data, ctx }) {
@@ -36,7 +36,7 @@ export default function CoverPage({ data, ctx }) {
           <tr><td>Status</td><td>Indicative</td></tr>
         </tbody></table>
       </div>
-      <p className="r-cv-note">Order of cost estimate from benchmark rates, not measured quantities. Not for financial commitment without review by a Chartered Quantity Surveyor.</p>
+      <p className="r-cv-note">{NOTICE_SHORT}</p>
       <div className="r-cv-foot"><span>{BRAND.name.toUpperCase()} &nbsp;|&nbsp; FEASIBILITY REPORT</span><em>Ref {ctx.reference} · {ctx.dateLong}</em></div>
     </Sheet>
   )

@@ -1,4 +1,4 @@
-import { cleanReportText, scopeStatement, scopeGroups, notInScopeLines, notPricedLines } from '@/lib/reportContent'
+import { cleanReportText, scopeStatement, scopeGroups, notInScopeLines, notPricedLines, SECTION_CAVEATS } from '@/lib/reportContent'
 import { BodyPage, Band, Pending } from './parts'
 
 export default function ScopePage({ data, ctx, n }) {
@@ -6,7 +6,7 @@ export default function ScopePage({ data, ctx, n }) {
   const notPriced = notPricedLines(cost)
   return (
     <BodyPage ctx={ctx} page={n}>
-      <Band no={2} title="Scope of Works" />
+      <Band no={2} title="Scope of Works" caveat={SECTION_CAVEATS.scope} />
       <p>{scopeStatement(cost, data.answers)}</p>
       <h3>Included works</h3>
       <div className="r-scope-grid">

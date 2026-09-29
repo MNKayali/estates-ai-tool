@@ -3,6 +3,7 @@
 // lib/reportContent.js — nothing here decides a colour, size or wording.
 import { BRAND } from '@/lib/reportStyle'
 import { LOGOS, logoWidth } from '@/lib/brand'
+import { FOOTER_TAG } from '@/lib/reportContent'
 
 export function Sheet({ className = '', children }) {
   return <div className="r-sheet"><div className={`r-page ${className}`}>{children}</div></div>
@@ -24,7 +25,7 @@ export function RunningHeader({ ctx }) {
 export function RunningFooter({ page, ctx }) {
   return (
     <div className="r-rf">
-      <span><b>{BRAND.name}</b> · {BRAND.descriptor}{BRAND.siteUrl ? ` · ${BRAND.siteUrl}` : ''} · Indicative only</span>
+      <span><b>{BRAND.name}</b> · {BRAND.descriptor}{BRAND.siteUrl ? ` · ${BRAND.siteUrl}` : ''} · {FOOTER_TAG}</span>
       <span>Page {page} of {ctx.totalPages}</span>
     </div>
   )
@@ -40,14 +41,17 @@ export function BodyPage({ ctx, page, className = '', children }) {
   )
 }
 
-export function Band({ no, title, note }) {
-  return (
+// A section heading, with that section's caveat line under it
+// (SECTION_CAVEATS in lib/reportContent.js — every section passes one).
+export function Band({ no, title, note, caveat }) {
+  return <>
     <div className="r-band">
       <span className="r-band-no">{typeof no === 'number' ? String(no).padStart(2, '0') : no}</span>
       <h2>{title}</h2>
       {note && <small>{note}</small>}
     </div>
-  )
+    {caveat && <p className="r-caveat">{caveat}</p>}
+  </>
 }
 
 export function Cols({ widths }) {
