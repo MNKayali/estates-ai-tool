@@ -1,7 +1,7 @@
 // Financial Case, Procurement and Constraints: placed into shared pages by
 // layoutLateSections() in lib/reportContent.js (the same decision Word uses).
 import { TABLES } from '@/lib/reportStyle'
-import { cleanReportText, procurementTable, procurementBasisSentence } from '@/lib/reportContent'
+import { cleanReportText, procurementTable, procurementBasisSentence, PROCUREMENT_GUIDANCE } from '@/lib/reportContent'
 import { BodyPage, Band, Cols, Pending } from './parts'
 
 function Roi({ data, ctx, no }) {
@@ -29,7 +29,7 @@ function Procurement({ data, ctx, no }) {
   const rows = procurementTable(data.procurement)
   const design = String(a.procurementDesignResp || p.designResponsibility || '').toLowerCase()
   return <>
-    <Band no={no} title="Procurement Recommendation" />
+    <Band no={no} title="Procurement Suggestion" />
     {rows ? <>
       <p className="r-foot-note r-proc-basis">{procurementBasisSentence(data.procurement)}</p>
       <table className="r-t r-proc">
@@ -37,13 +37,14 @@ function Procurement({ data, ctx, no }) {
         <thead><tr><th></th><th>Preferred</th><th>Alternative</th></tr></thead>
         <tbody>{rows.map(([label, pref, alt]) => <tr key={label}><td>{label}</td><td><b>{pref}</b></td><td>{alt}</td></tr>)}</tbody>
       </table>
-    </> : (
+    </> : <>
+      <p className="r-foot-note r-proc-basis">{PROCUREMENT_GUIDANCE}</p>
       <table className="r-kv"><tbody>
         <tr><td>Route</td><td>{a.procurementRoute || p.procurementRoute}</td></tr>
         <tr><td>Contract</td><td>{a.procurementContractForm || p.contractForm}</td></tr>
         <tr><td>Tender type · design</td><td>{a.procurementTenderType || p.tenderType}{design ? ` · ${design}` : ''}</td></tr>
       </tbody></table>
-    )}
+    </>}
     {a.procurementNarrative ? <p>{cleanReportText(a.procurementNarrative)}</p> : ctx.isPending && <Pending />}
     {a.procurementConsiderations?.length > 0 && <>
       <h3>Commercial considerations</h3>

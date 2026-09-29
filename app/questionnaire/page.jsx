@@ -1718,7 +1718,7 @@ export default function QuestionnairePage() {
                 report text. topPriority() in lib/questionSets.js. */}
             <QCard>
               <Label>Q4.4 — What matters most on this project?</Label>
-              <HelpText>Pick up to three, most important first. Your first choice counts double in the procurement recommendation; all three inform the programme options and the report.</HelpText>
+              <HelpText>Pick up to three, most important first. Your first choice counts double in the procurement suggestion; all three inform the programme options and the report.</HelpText>
               <RankedChoice options={PRIORITIES} values={answers.q4_4_priorities} onChange={v => set('q4_4_priorities', v)} max={PRIORITY_MAX} ariaLabel="Project priorities, in order of importance" />
             </QCard>
 

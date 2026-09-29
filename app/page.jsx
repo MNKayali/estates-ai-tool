@@ -10,7 +10,7 @@ const INCLUDED = [
   { k: '01', t: 'NRM1 Cost Estimate', d: 'Order-of-cost with low, mid and high ranges, built deterministically from NRM1 benchmark rates, BCIS location factor, prelims, fees, risk and inflation. No figure is ever invented.' },
   { k: '02', t: 'RIBA Programme', d: 'Stage-by-stage design, surveys, planning and construction durations — size-banded and adjusted for complexity modifiers, with a Gantt overview.' },
   { k: '03', t: 'Risk Register', d: 'A project-specific risk table, RAG-rated and seeded deterministically from your inputs, with mitigations written in plain English.' },
-  { k: '04', t: 'Procurement Advice', d: 'A recommended contract form and procurement route matched to your priorities, programme and project complexity.' },
+  { k: '04', t: 'Procurement Suggestion', d: 'A suggested procurement route, commercial model, route to market and contract, with an alternative, matched to your project\'s value, programme, risks and priorities. For guidance, to be developed with a procurement professional or QS.' },
 ]
 
 export default function LandingPage() {
