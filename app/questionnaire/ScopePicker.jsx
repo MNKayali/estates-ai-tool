@@ -296,7 +296,6 @@ export default function ScopePicker({ catalogue, answers, setAnswers, suggestBar
             <label htmlFor={`scope-${item.id}`} style={{ ...S.name, cursor: available ? 'pointer' : 'not-allowed' }}>{item.name}</label>
             {item.included && !on && <span style={S.sub}>{item.included}</span>}
             {!available && <span style={S.req}>Requires: {levelName(itemAvailableFrom(item, ctx))}</span>}
-            {on && lacksRate(item, ctx) && <span style={S.req}>No rate in the workbook for this project type yet — it will be listed as unpriced.</span>}
             {on && c && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 14px', alignItems: 'center' }}>
                 {item.pick === 'One' && offeredOpts.length > 1 && (
@@ -307,6 +306,12 @@ export default function ScopePicker({ catalogue, answers, setAnswers, suggestBar
                   ? <span style={S.sub}>{c.lines.map(l => `${l.option.label}: ${qtyText(l)}`).join(' · ')}</span>
                   : <span style={S.sub}>{qtyText(c.lines[0])}</span>}
                 {c.bumpedBy && <span style={S.sub}>(one size up — {c.bumpedBy.join(', ')})</span>}
+                {item.pick === 'One' && offeredOpts.length > 1 && (() => {
+                  // What the chosen option means — "Medium: new larger supply …" —
+                  // so a Small / Medium / Large choice is not a guess.
+                  const chosen = offeredOpts.find(o => o.key === c.optionKeys[0])
+                  return chosen?.included ? <span style={{ ...S.sub, flexBasis: '100%' }}>{chosen.included}</span> : null
+                })()}
                 {!isBand || item.pick === 'Several' ? (
                   <button type="button" style={S.linkBtn} aria-expanded={refineOpen} aria-controls={`refine-${item.id}`}
                     onClick={() => toggleSet(setOpenRefine, item.id)}>
