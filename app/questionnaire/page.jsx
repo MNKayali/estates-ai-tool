@@ -15,6 +15,8 @@ import ScopePicker from './ScopePicker.jsx'
 import Logo from '../components/Logo'
 import AuthDialog from '../components/AuthDialog'
 import { BRAND } from '../../lib/brand.js'
+import { DATA_PAGE, ENTRY_NOTICE_TAIL } from '../../lib/siteNotice.js'
+import SiteFooter from '../components/SiteFooter'
 import { titleLooksThin } from '../../lib/reportContent.js'
 import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
@@ -1903,10 +1905,18 @@ export default function QuestionnairePage() {
           )}
         </div>
 
+        {section === SECTIONS.length && (
+          <p className="mt-4 text-center text-xs" style={{ color: 'var(--text-mute)', lineHeight: 1.6 }}>
+            By generating a report you agree to our{' '}
+            <Link href={DATA_PAGE.href} target="_blank" style={{ color: 'var(--navy)', textDecoration: 'underline' }}>{DATA_PAGE.label}</Link>
+            {' '}{ENTRY_NOTICE_TAIL}
+          </p>
+        )}
         <p className="mt-4 text-center text-xs" style={{ color: '#6B7280' }}>
           Your answers are saved automatically. You can return to this page to resume.
         </p>
       </div>
+      <SiteFooter style={{ marginTop: 48 }} />
     </div>
   )
 }

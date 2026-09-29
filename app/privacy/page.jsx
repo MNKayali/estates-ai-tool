@@ -1,12 +1,13 @@
 /**
  * /privacy — Privacy Notice (UK GDPR / Data Protection Act 2018)
  * Operator: Projento
- * Last reviewed: 25 September 2026
+ * Last reviewed: 29 September 2026
  * Contact email: BRAND.email (lib/brand.js), the same address the report's contact card shows.
  */
 import Link from 'next/link'
 import Logo from '../components/Logo'
 import { BRAND } from '@/lib/brand'
+import { DATA_PAGE } from '@/lib/siteNotice'
 
 const NAVY = '#1A2E4A'
 const BLUE = '#A86F12'   // brand accent (deep amber) — name kept to avoid churn
@@ -70,7 +71,13 @@ export default function PrivacyPage() {
           Privacy Notice
         </h1>
         <p style={{ ...body, color: '#666', marginBottom: '32px' }}>
-          Last reviewed: 25 September 2026 &nbsp;|&nbsp; This notice applies to everyone who uses {BRAND.name}: visitors trying it free, and account holders.
+          Last reviewed: 29 September 2026 &nbsp;|&nbsp; This notice applies to everyone who uses {BRAND.name}: visitors trying it free, and account holders.
+        </p>
+        <p style={{ ...body, background: '#F8F1E2', border: `1px solid ${BLUE}`, borderRadius: '4px', padding: '12px 14px', marginBottom: '32px' }}>
+          {BRAND.name} is in research and development. The information you enter and the reports you create are
+          used only within {BRAND.name}, to produce your reports and to develop and improve the tool, and are not
+          sold or shared with third parties. A short summary is on our{' '}
+          <a href={DATA_PAGE.href} style={{ color: NAVY, fontWeight: 600 }}>{DATA_PAGE.label}</a> page; the full detail follows.
         </p>
 
         <Section title="1. Who processes your data">
@@ -97,7 +104,7 @@ export default function PrivacyPage() {
               'Legitimate interests: supporting internal estates planning and capital investment appraisal',
             ],
             [
-              'Account details — your email address (your login), your name if you give it, a one-way hash of your password (never the password itself), account status and tier, and the dates you joined, last signed in and last generated a report',
+              'Account details — your email address (your login), your name if you give it, a one-way hash of your password (not the password itself), account status and tier, and the dates you joined, last signed in and last generated a report',
               'Creating your account, signing you in, showing you your own reports, and (if enabled) sending password-reset emails.',
               'Contract: providing the account you asked for. Legitimate interests: security and access control',
             ],
@@ -112,7 +119,7 @@ export default function PrivacyPage() {
               'Legitimate interests: operating a fair free trial',
             ],
             [
-              'Network address, stored only in a keyed one-way hashed form (never the address itself)',
+              'Network address, stored only in a keyed one-way hashed form (not the address itself)',
               'A backstop count of free reports per network over 30 days, so the free trial cannot be reset simply by clearing cookies.',
               'Legitimate interests: preventing abuse of the free trial',
             ],
@@ -123,8 +130,13 @@ export default function PrivacyPage() {
             ],
             [
               'Usage data — how many reports are generated each week, sign-ups, and how many free-trial visitors go on to create an account; and the project information in reports, used in anonymised and aggregated form',
-              'Improving the tool, and research into capital project feasibility and costs. Anything used for research or shared outside the tool is anonymised and aggregated: it never identifies you, your organisation or an individual project.',
-              'Legitimate interests: product improvement and research',
+              'Developing and improving the tool, for use within Projento only. Information used for development is anonymised and aggregated first, so that it does not identify you, your organisation or an individual project. It is not sold or shared with third parties.',
+              'Legitimate interests: developing and improving the tool',
+            ],
+            [
+              'Feedback you send from a report — your message, its category, the report ID, the project name and the page address',
+              'Following up on the problem you reported and improving the tool.',
+              'Legitimate interests: product improvement',
             ],
             [
               'Error data — page URL, error message, browser type, approximate location (no name, email, or device ID)',
@@ -177,7 +189,7 @@ export default function PrivacyPage() {
             ],
             [
               'Sentry Inc. — error monitoring',
-              'When an error occurs, Sentry receives the error message, a stack trace, the page URL, and your browser type. Session replay is enabled on errors only; all text fields are masked before transmission — Sentry never sees what you typed.',
+              'When an error occurs, Sentry receives the error message, a stack trace, the page URL, and your browser type. Session replay is enabled on errors only; all text fields are masked before transmission — Sentry does not see what you typed.',
               'United States',
               'UK IDTA / Standard Contractual Clauses. Sentry\'s DPA applies.',
             ],
@@ -253,10 +265,12 @@ export default function PrivacyPage() {
       <footer style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center' }}>
         <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>
           {BRAND.name} &nbsp;·&nbsp;
+          <a href={DATA_PAGE.href} style={{ color: BLUE }}>{DATA_PAGE.label}</a>
+          &nbsp;·&nbsp;
           <a href="/terms" style={{ color: BLUE }}>Terms of Use</a>
           &nbsp;·&nbsp;
           <a href="/reports" style={{ color: BLUE }}>Return to tool</a>
-          &nbsp;·&nbsp; Last reviewed 25 September 2026
+          &nbsp;·&nbsp; Last reviewed 29 September 2026
         </p>
       </footer>
 

@@ -3,6 +3,7 @@
 // lib/reportContent.js — nothing here decides a colour, size or wording.
 import { BRAND } from '@/lib/reportStyle'
 import { LOGOS, logoWidth } from '@/lib/brand'
+import { FOOTER_STATUS } from '@/lib/reportContent'
 
 export function Sheet({ className = '', children }) {
   return <div className="r-sheet"><div className={`r-page ${className}`}>{children}</div></div>
@@ -24,7 +25,7 @@ export function RunningHeader({ ctx }) {
 export function RunningFooter({ page, ctx }) {
   return (
     <div className="r-rf">
-      <span><b>{BRAND.name}</b> · {BRAND.descriptor}{BRAND.siteUrl ? ` · ${BRAND.siteUrl}` : ''} · Indicative only</span>
+      <span><b>{BRAND.name}</b>{BRAND.siteUrl ? ` · ${BRAND.siteUrl}` : ''} · {FOOTER_STATUS}</span>
       <span>Page {page} of {ctx.totalPages}</span>
     </div>
   )

@@ -18,6 +18,7 @@ import { BRAND, reportFileName } from '@/lib/brand'
 import { reportReference } from '@/lib/reportContent'
 import { saveBlob } from '@/lib/saveBlob'
 import Logo from '../components/Logo'
+import SiteFooter from '../components/SiteFooter'
 
 const f1k = n => (n == null ? '—' : `£${(Math.round(n / 1000) * 1000).toLocaleString('en-GB')}`)
 
@@ -109,6 +110,7 @@ export default function MyReportsPage() {
         <SectionHeader number="2" title="Password" />
         <ChangePassword />
       </main>
+      <SiteFooter />
     </div>
   )
 }

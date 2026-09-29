@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Badge, Card, Stat } from './components/ui'
 import Logo from './components/Logo'
 import { BRAND } from '@/lib/brand'
+import { SiteNotice } from './components/SiteFooter'
 
 const INCLUDED = [
   { k: '01', t: 'NRM1 Cost Estimate', d: 'Order-of-cost with low, mid and high ranges, built deterministically from NRM1 benchmark rates, BCIS location factor, prelims, fees, risk and inflation. No figure is ever invented.' },
@@ -128,6 +129,9 @@ function Footer() {
           Costs derived from NRM1 benchmark data — every calculation deterministic and traceable to its source.
           Indicative at Stage 0–1 only; always verify with a Chartered Quantity Surveyor.
         </span>
+      </div>
+      <div style={{ ...wrap(1120), paddingBottom: 26 }}>
+        <SiteNotice />
       </div>
     </footer>
   )
