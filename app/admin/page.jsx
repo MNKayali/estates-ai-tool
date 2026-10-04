@@ -147,10 +147,13 @@ function Dashboard({ data, health, onRefresh }) {
 
 // ─── System health ──────────────────────────────────────────────────────────
 function HealthPanel({ config, health }) {
+  // Version first, so the admin can see which issue of each workbook is live.
+  const withVersion = (version, detail) => [version, detail].filter(Boolean).join(' · ')
+  const rejected = health?.workbook?.rejectedUpdate
   const workbookRows = [
-    { label: 'NRM1 rates workbook', ok: health?.ratesOk, detail: health?.ratesOk ? `${health.itemCount} scope items` : (health?.errors?.[0] || 'not loaded') },
-    { label: 'Programme workbook',  ok: health?.programmeOk, detail: health?.programmeOk ? `DS2·S3 sample ${health.sampleDuration_DS2_S3_mid}w` : 'not loaded' },
-    { label: 'Procurement workbook', ok: health?.procurementOk, detail: health?.procurementOk ? `${health.procurement.options} options · ${health.procurement.contractRows} contracts` : (health?.errors?.find(e => e.startsWith('Procurement')) || 'not loaded') },
+    { label: 'NRM1 rates workbook', ok: health?.ratesOk && !rejected, detail: health?.ratesOk ? withVersion(health.workbook?.version, `${health.itemCount} scope items`) + (rejected ? ' · newer upload rejected' : '') : (health?.errors?.[0] || 'not loaded') },
+    { label: 'Programme workbook',  ok: health?.programmeOk, detail: health?.programmeOk ? withVersion(health.programmeVersion, `DS2·S3 sample ${health.sampleDuration_DS2_S3_mid}w`) : 'not loaded' },
+    { label: 'Procurement workbook', ok: health?.procurementOk, detail: health?.procurementOk ? withVersion(health.procurement.version, `${health.procurement.options} options · ${health.procurement.contractRows} contracts`) : (health?.errors?.find(e => e.startsWith('Procurement')) || 'not loaded') },
   ]
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))', gap: 14, marginBottom: 32 }}>
@@ -175,7 +178,7 @@ function StatusRow({ label, ok, detail }) {
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '5px 0', borderBottom: '1px solid var(--border)' }}>
       <span style={{ fontSize: 13.5, color: 'var(--text)' }}>{label}</span>
       <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontSize: 12, color: 'var(--text-mute)' }}>{detail}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-mute)', textAlign: 'right' }}>{detail}</span>
         <span className={`rag ${ok ? 'rag-low' : 'rag-high'}`}>{ok ? 'OK' : 'OFF'}</span>
       </span>
     </div>
