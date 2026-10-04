@@ -20,7 +20,7 @@
  */
 import * as XLSX from 'xlsx'
 import { loadNrmWorkbook, workbookStatus, columnsFor } from '@/lib/nrmWorkbook'
-import { fetchProgrammeWorkbook } from '@/lib/programmeCalculator'
+import { fetchProgrammeWorkbook, parseWorkbookVersion } from '@/lib/programmeCalculator'
 import { fetchProcurementWorkbook, parseProcurementWorkbook } from '@/lib/procurementCalculator'
 
 const PROGRAMME_SIZE_BANDS = ['S1 (<150)', 'S2 (≤250)', 'S3 (≤500)', 'S4 (≤1500)', 'S5 (≤3000)', 'S6 (>3000)']
@@ -55,6 +55,7 @@ export async function GET() {
     sampleRate: null,             // { item, rateKey, column, rate }
     programmeSizeBands:   PROGRAMME_SIZE_BANDS,
     sampleDuration_DS2_S3_mid: null,
+    programmeVersion: null,       // "Programme v4.4 (September 2026)", from its README sheet
     // Data the engine works around rather than inventing numbers for.
     gaps: {
       shownWithoutRate: [],       // items 'Shown on' a project type with no rate in its columns
@@ -109,6 +110,7 @@ export async function GET() {
   try {
     const wb = await fetchProgrammeWorkbook()
     const sheetNames = wb.SheetNames
+    result.programmeVersion = parseWorkbookVersion(wb)
     const hasDurationsTab = sheetNames.includes('Durations')
     const hasModifiersTab = sheetNames.includes('Modifiers')
 
