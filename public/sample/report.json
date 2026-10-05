@@ -1310,49 +1310,54 @@
     "note": "The stated budget of £4,500,000 (incl. fees and VAT) is sufficient against the estimated gross range of £1,936,000 – £2,368,000, with headroom of approximately £2,132,000 above the top of the range."
   },
   "aiProse": {
-    "executiveSummary": "This feasibility study examines the refurbishment of Hargreaves Teaching Block, a three-storey 1960s education building at Example University, Birmingham (1200 m² GIFA). The project will replace life-expired mechanical, electrical and plumbing services, upgrade fire safety, improve thermal performance to support net-zero targets, and create flexible teaching space. The estimated project cost is £1,613,000 to £1,973,000 excluding VAT, with Grade A (High Confidence). The target date of 1 September 2028 is at risk; the 92-week programme completes approximately 6 weeks later. Asbestos and ageing services present the most material risks.",
+    "executiveSummary": "This feasibility study examines the refurbishment of Hargreaves Teaching Block, a three-storey 1960s education building at Example University in Birmingham, covering 1200 m² GIFA. The project will replace life-expired mechanical, electrical and plumbing services, upgrade fire safety, improve thermal performance to support net-zero objectives, and create modern flexible teaching space. The estimated total project cost is £1,613,000 to £1,973,000 excluding VAT, with Grade A confidence. The target date of 1 September 2028 is at risk; asbestos and ageing services present material delivery challenges.",
     "keyFindings": [
-      "The works cost mid-point is £1,138,000, with a total project cost of £1,794,000 including design fees, preliminaries and risk allowances across a 92-week programme.",
-      "The target date of 1 September 2028 is not achievable; the 92-week programme completes around 16 October 2028, approximately 6 weeks beyond the deadline.",
-      "The stated budget of £4,500,000 including fees and VAT is sufficient, with headroom of approximately £2,132,000 above the top of the estimated range.",
-      "Asbestos is known or suspected and requires licensed removal; a refurbishment and demolition survey is essential before Stage 2 to confirm scope and cost.",
-      "The preferred procurement option is a two-stage pre-construction services agreement with lump-sum pricing, which suits complex phased work with early contractor input to sequencing."
+      "The works cost mid-point is £1,138,000 with a range of £1,024,000 to £1,252,000; construction duration is 30 weeks within a 92-week total programme including design and procurement.",
+      "The target date of 1 September 2028 is not achievable; the 92-week programme completes approximately 6 weeks later, around 16 October 2028.",
+      "The stated budget of £4,500,000 including fees and VAT is sufficient, with approximately £2,132,000 headroom above the estimated range.",
+      "Asbestos is known or suspected in the building; a refurbishment and demolition survey is essential before Stage 2 design to confirm scope and cost.",
+      "The preferred option for the client to consider is a two-stage procurement route with lump-sum commercial model, which suits complex occupied phased work and minimises disruption."
     ],
     "scopeAssumptions": [
-      "The scope covers full systems replacement across 1200 m² GIFA, including 18 standard and 3 accessible WCs, with external plant space for the air source heat pump included.",
-      "The building was last refurbished in 2011 (roof) and 2016 (south-elevation windows); north-elevation windows and all services remain original and are included in the replacement scope.",
-      "Works are confined to vacation and holiday windows only, with examination blackout periods in January and May–June; the programme reflects restricted working hours and partial occupation."
+      "External plant space for the air source heat pump system is included within the heating and hot water scope.",
+      "The building was last refurbished in 2011 when the roof was recovered; windows on the south elevation were replaced in 2016, but north elevation windows and all services remain original.",
+      "Works are confined to university vacation and holiday windows only, excluding examination periods in January and May–June."
     ],
-    "costNarrative": "The works cost is driven by full replacement of mechanical, electrical, plumbing and fire safety systems across the entire building, combined with comprehensive strip-out, asbestos removal, and upgrade of the building envelope to meet net-zero and BREEAM standards. Preliminaries are elevated by partial occupation, restricted working hours and a phased delivery approach. Professional fees reflect the complexity of M&E-heavy scope and BREEAM compliance.",
-    "roiNarrative": "The project cost mid-point of £1,794,000 generates annual energy and operational savings of £95,000, yielding a simple payback of 18.9 years. The key financial risk is that actual energy savings may fall short of projections if building use patterns or occupancy differ from assumptions, or if utility price inflation does not materialise as forecast.",
+    "costNarrative": "The works cost reflects full replacement of mechanical, electrical, plumbing and fire safety systems across 1200 m² GIFA, together with strip-out, asbestos removal, and complete internal and external finishes. Preliminaries are elevated by partial occupation, restricted working hours and a phased programme. Professional fees account for the M&E-heavy scope and BREEAM compliance requirements.",
+    "roiNarrative": "The project cost mid-point of £1,794,000 against annual energy and operational savings of £95,000 yields a simple payback of 18.9 years. The key financial risk is that actual savings may fall short of projections if occupancy patterns, energy prices or operational practice diverge from assumptions used in the benefit calculation.",
     "constraints": [
       {
         "category": "Programme",
-        "title": "Vacation-window working",
-        "text": "Works confined to vacation periods only; examination blackouts in January and May–June create hard constraints on the construction schedule."
+        "title": "Vacation-only working",
+        "text": "Works confined to university vacation windows; examination blackouts in January and May–June will fragment the construction programme and extend duration."
       },
       {
         "category": "Access",
         "title": "Restricted working hours",
-        "text": "Partial occupation and restricted working hours extend the construction duration and may attract premium rates; out-of-hours working is programme-critical."
+        "text": "Limited permitted hours on a single service road in the middle of campus will increase labour costs and may attract out-of-hours premiums."
       },
       {
         "category": "Technical",
-        "title": "Asbestos and M&E risk",
-        "text": "Asbestos is known or suspected; ageing services capacity and condition are uncertain and may require more replacement than currently assumed."
+        "title": "Asbestos and services",
+        "text": "Asbestos is known or suspected; ageing M&E systems of uncertain capacity and condition may require scope changes and cost increases during design."
       },
       {
         "category": "Regulatory",
         "title": "Conservation area",
-        "text": "The site is in a conservation area; external alterations will require full planning with enhanced materials and detailing."
+        "text": "The site lies in a conservation area; external alterations will likely require full planning consent with enhanced materials and detailing."
+      },
+      {
+        "category": "Financial",
+        "title": "Target date at risk",
+        "text": "The 92-week programme completes 6 weeks after the target date; acceleration will require additional cost or scope trade-offs."
       }
     ],
     "nextSteps": [
-      "Commission a refurbishment and demolition asbestos survey before Stage 2 design to confirm scope, cost and programme impact; carry a provisional sum until it reports.",
-      "Obtain pre-application advice from the conservation officer on external alterations, materials and detailing to confirm planning assumptions and cost.",
-      "Confirm electrical supply capacity and DNO requirements for the air source heat pump and full electrical replacement; investigate early to avoid Stage 2 delays.",
-      "Develop a detailed phasing plan at Stage 2 that sequences works to vacation windows, confirms blackout dates with faculty, and identifies any out-of-hours working needed to meet the target date.",
-      "Evaluate the two-stage procurement route with your advisers, testing the second-stage price against benchmarks and confirming early contractor input to sequencing and buildability."
+      "Commission a refurbishment and demolition asbestos survey immediately to confirm scope, cost and programme impact before Stage 2 design begins.",
+      "Obtain pre-application advice from the conservation officer on external alterations, materials and detailing to avoid planning delays.",
+      "Confirm electrical supply capacity and DNO requirements for the air source heat pump system with the utility and building services engineer.",
+      "Agree detailed blackout dates and permitted working hours with the university; model programme phasing to fit vacation windows and confirm float requirements.",
+      "Evaluate the two-stage procurement route with the client and cost consultant; prepare a shortlist of contractors with experience in occupied educational refurbishment."
     ],
     "riskRegister": [
       {
@@ -1416,34 +1421,34 @@
         "seedRef": "SCOPE-S-0039-1"
       },
       {
-        "ref": "R07",
-        "category": "Cost",
-        "description": "Phased delivery over multiple phases increases re-mobilisation, site management and programme overhead costs.",
+        "ref": "PROG-FLOAT",
+        "category": "Programme",
+        "description": "The 92-week programme includes 7 weeks float; target date of 1 September 2028 is at risk of overrun by approximately 6 weeks.",
+        "likelihood": "High",
+        "impact": "Medium",
+        "rating": "High",
+        "mitigation": "Review acceleration options at Stage 2, including long-lead procurement of major plant and reuse of existing surveys where scope-relevant.",
+        "seedRef": "WARN-PROG_LONG"
+      },
+      {
+        "ref": "PHASE-COMPLEXITY",
+        "category": "Procurement",
+        "description": "Multiple-phase delivery with 15% uplift for sequential handovers and re-mobilisation; phase split to be confirmed at Stage 2.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Confirm phase boundaries and handover strategy at Stage 2; negotiate fixed re-mobilisation costs with the contractor.",
-        "seedRef": "NONE"
-      },
-      {
-        "ref": "R08",
-        "category": "Procurement",
-        "description": "Two-stage procurement requires strong cost control and scope discipline to avoid creep and cost overrun at second stage.",
-        "likelihood": "Medium",
-        "impact": "High",
-        "rating": "High",
-        "mitigation": "Appoint a cost consultant to benchmark and challenge the second-stage price; freeze scope before PCSA second stage.",
+        "mitigation": "Develop detailed phase plan and sequencing strategy at Stage 2; confirm with occupants and facilities team early.",
         "seedRef": "NONE"
       }
     ],
-    "procurementNarrative": "A two-stage procurement with a lump-sum commercial model and selective tender route suits this complex, occupied, phased refurbishment where early contractor input to sequencing and buildability is valuable. The alternative traditional route with remeasurement would suit if design can be completed before tender and cost certainty is less critical than design quality and control.",
+    "procurementNarrative": "A two-stage procurement with a lump-sum commercial model and selective tender route suits this complex, occupied, phased refurbishment where early contractor input to sequencing and buildability will reduce disruption and cost risk. The alternative traditional route with remeasurement would suit if design can be completed before tender and final cost certainty is less critical than design quality and control.",
     "procurementConsiderations": [
-      "Less price competition at the second stage; appoint a cost consultant to test the contractor's open-book price against benchmarks before signing.",
-      "Scope creep can erode the fixed price if not controlled; freeze scope and change procedures before the PCSA second stage begins.",
-      "Public bodies above the threshold must follow a compliant procedure to shortlist contractors; allow time for prequalification and competitive flexible procurement."
+      "Two-stage procurement typically offers less price competition at the second stage, so a strong cost consultant must test the final price against benchmarks before signing.",
+      "Lump-sum contracts place pricing risk on the contractor; if scope or design changes, variations and claims can follow, so scope control is essential.",
+      "Selective tender requires prequalification of 4–6 contractors, which takes time; public bodies above the threshold must follow a compliant procedure to shortlist."
     ],
     "procurementConflicts": [
-      "Two-stage procurement commits spend on fees and prelims before the second-stage price is known, which may conflict with the client's priority for a fixed and certain final cost."
+      "Two-stage procurement can provide less price certainty at the point of entering the second stage, as the final contract price is typically developed and agreed later in the process."
     ],
     "confidenceScore": "A",
     "confidenceLabel": "High Confidence"
@@ -1530,7 +1535,7 @@
     "q5_2_annualBenefit": "95000",
     "q6_2_instructions": "Write for an estates committee that includes non-technical members."
   },
-  "generatedAt": "2026-09-29T06:10:19.365Z",
+  "generatedAt": "2026-09-29T09:15:12.493Z",
   "reportId": null,
   "sample": true
 }
