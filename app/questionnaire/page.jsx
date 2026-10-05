@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { areaQuestionLabel, areaHelpText } from '../../lib/labels.js'
 import { SITE_CONTEXT_OPTIONS, SITE_CONTEXT_NONE, isHigherRiskBuilding } from '../../lib/siteContext.js'
-import { outwardCode, matchRegion } from '../../lib/postcodeRegion.js'
+import { outwardCode, matchRegion, validatePostcode } from '../../lib/postcodeRegion.js'
 import { PROJECT_TYPES } from '../../lib/projectTypes.js'
 import {
   buildContext, indexCatalogue, normaliseScopeAnswers, defaultOptionKeys,
@@ -911,6 +911,7 @@ export default function QuestionnairePage() {
     if (sec === 1) {
       if (!answers.q1_0_projectName?.trim()) errs.q1_0_projectName = 'Project name is required'
       if (!answers.q1_1_postcode?.trim()) errs.q1_1_postcode = 'Postcode is required'
+      else { const pv = validatePostcode(answers.q1_1_postcode); if (!pv.ok) errs.q1_1_postcode = pv.reason }
       if (!answers.q1_2_projectType) errs.q1_2_projectType = 'Project type is required'
       // GIFA is the single most load-bearing number in the report — it is linear
       // on most priced rows and selects the programme size band. The old check

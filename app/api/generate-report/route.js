@@ -34,6 +34,7 @@
 import * as Sentry from '@sentry/nextjs'
 import { getScopeCatalogue } from '@/lib/costCalculator'
 import { projectTypeUsesLevel } from '@/lib/scopeEngine'
+import { validatePostcode } from '@/lib/postcodeRegion'
 import { runDeterministicPipeline } from '@/lib/pipeline'
 import { buildReport } from '@/lib/reportBuilder'
 import { createReport, recordReportStat } from '@/lib/kv'
@@ -134,6 +135,11 @@ async function generate(request, { user, trialId }, outcome) {
     const missing = required.filter(f => !answers[f])
     if (missing.length > 0) {
       return Response.json({ error: `Missing required fields: ${missing.join(', ')}` }, { status: 400 })
+    }
+
+    const pv = validatePostcode(answers.q1_1_postcode)
+    if (!pv.ok) {
+      return Response.json({ error: `Q1.1 — ${pv.reason}`, field: 'q1_1_postcode' }, { status: 400 })
     }
 
     // GIFA must be a positive, finite number — otherwise the calculator either
