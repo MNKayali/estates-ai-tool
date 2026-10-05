@@ -23,6 +23,7 @@ import {
   showsHeightQuestion, KNOWN_ISSUE_NONE, SURVEY_NONE,
   sectionCounts, unansweredRequired, progressPercent, QUESTIONS_BY_SECTION,
   PRIORITY_OPTIONS, PRIORITY_MAX, PUBLIC_CLIENT_OPTIONS,
+  isPhased, PHASE_COUNT_MIN, PHASE_COUNT_MAX, PHASE_GAP_MAX,
 } from '../../lib/questionSets.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
@@ -973,6 +974,19 @@ export default function QuestionnairePage() {
     // The client-type question has no "None" option to point at.
     const PLAIN = {
       q4_8_publicClient: 'Say whether the client is a public-sector body — Yes or No',
+      q4_6a_phaseCount: `Enter the number of phases (${PHASE_COUNT_MIN}–${PHASE_COUNT_MAX})`,
+      q4_6b_phaseGapWeeks: 'Enter the gap between phases in weeks — 0 if the next phase starts straight away',
+    }
+    // Phased construction: answered is not enough, the figures must be usable.
+    if (sec === 4 && isPhased(answers)) {
+      const n = Number(answers.q4_6a_phaseCount)
+      if (String(answers.q4_6a_phaseCount ?? '').trim() !== '' && !(Number.isInteger(n) && n >= PHASE_COUNT_MIN && n <= PHASE_COUNT_MAX)) {
+        errs.q4_6a_phaseCount = `The number of phases must be a whole number from ${PHASE_COUNT_MIN} to ${PHASE_COUNT_MAX}`
+      }
+      const g = Number(answers.q4_6b_phaseGapWeeks)
+      if (String(answers.q4_6b_phaseGapWeeks ?? '').trim() !== '' && !(Number.isInteger(g) && g >= 0 && g <= PHASE_GAP_MAX)) {
+        errs.q4_6b_phaseGapWeeks = `The gap must be a whole number of weeks from 0 to ${PHASE_GAP_MAX}`
+      }
     }
     for (const key of unansweredRequired(sec, answers.q1_2_projectType, answers)) {
       if (!errs[key] && PLAIN[key]) errs[key] = PLAIN[key]
@@ -1738,13 +1752,37 @@ export default function QuestionnairePage() {
             </QCard>
 
             <QCard>
-              <Label>Q4.6 — Single or phased delivery?</Label>
-              <HelpText>Phased delivery extends the total construction programme. Each phase is assumed to be roughly equal in size at Stage 0–1.</HelpText>
+              <Label>Q4.6 — Will construction be delivered in phases?</Label>
+              <HelpText>Phasing applies to construction only — design, planning and tender run once for the whole project.</HelpText>
               <SelectInput value={answers.q4_6_phasing || 'Single phase'} onChange={v => set('q4_6_phasing', v)}>
-                <option value="Single phase">Single phase — full project delivered in one continuous programme</option>
-                <option value="Multiple phases">Multiple phases — phased delivery (e.g. floor by floor, building by building, or rolling programme)</option>
+                <option value="Single phase">No — one continuous construction period</option>
+                <option value="Multiple phases">Yes — in phases (blocks, floors or zones handed over separately)</option>
               </SelectInput>
             </QCard>
+
+            {isPhased(answers) && (
+              <QCard qkey="q4_6a_phaseCount">
+                <Label required>Q4.6a — How many phases?</Label>
+                <HelpText>Each phase is assumed to be roughly equal in size; the construction period is shared between them.</HelpText>
+                <input id="q4_6a_phaseCount" aria-label="Number of phases" type="number" inputMode="numeric" min={PHASE_COUNT_MIN} max={PHASE_COUNT_MAX} step={1}
+                  value={answers.q4_6a_phaseCount ?? ''} onChange={e => set('q4_6a_phaseCount', e.target.value)}
+                  placeholder={`${PHASE_COUNT_MIN}–${PHASE_COUNT_MAX}`} className="field" style={{ minHeight: '48px', fontSize: '16px', maxWidth: 200 }}
+                  aria-describedby={validationErrors.q4_6a_phaseCount ? 'err-q4_6a_phaseCount' : undefined} />
+                {validationErrors.q4_6a_phaseCount && <p id="err-q4_6a_phaseCount" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_6a_phaseCount}</p>}
+              </QCard>
+            )}
+
+            {isPhased(answers) && (
+              <QCard qkey="q4_6b_phaseGapWeeks">
+                <Label required>Q4.6b — Gap between phases (weeks)</Label>
+                <HelpText>Time between one phase finishing and the next starting — for example decanting or moving occupants, or waiting for the next vacation. Enter 0 if the contractor moves straight on.</HelpText>
+                <input id="q4_6b_phaseGapWeeks" aria-label="Gap between phases in weeks" type="number" inputMode="numeric" min={0} max={PHASE_GAP_MAX} step={1}
+                  value={answers.q4_6b_phaseGapWeeks ?? ''} onChange={e => set('q4_6b_phaseGapWeeks', e.target.value)}
+                  placeholder="e.g. 2" className="field" style={{ minHeight: '48px', fontSize: '16px', maxWidth: 200 }}
+                  aria-describedby={validationErrors.q4_6b_phaseGapWeeks ? 'err-q4_6b_phaseGapWeeks' : undefined} />
+                {validationErrors.q4_6b_phaseGapWeeks && <p id="err-q4_6b_phaseGapWeeks" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_6b_phaseGapWeeks}</p>}
+              </QCard>
+            )}
 
             <QCard>
               <Label>Q4.7 — Funding source</Label>
