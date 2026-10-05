@@ -74,7 +74,7 @@ export default function LandingPage() {
       <section style={{ ...wrap(1120), marginTop: -36, position: 'relative', zIndex: 5 }}>
         <Card className="rise rise-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(180px, 100%), 1fr))', gap: 28, padding: '26px 30px', borderTop: '3px solid var(--amber)' }}>
           <Stat value="NRM1" label="Cost methodology" />
-          <Stat value="S1–S6" label="Programme size bands" />
+          <Stat value="S1–S7" label="Programme size bands" />
           <Stat value="100%" label="Figures traced to benchmark data" />
           <Stat value="Saved" label="Reports kept in your account" />
         </Card>
