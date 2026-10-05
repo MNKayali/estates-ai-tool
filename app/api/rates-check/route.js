@@ -23,7 +23,7 @@ import { loadNrmWorkbook, workbookStatus, columnsFor } from '@/lib/nrmWorkbook'
 import { fetchProgrammeWorkbook, parseWorkbookVersion } from '@/lib/programmeCalculator'
 import { fetchProcurementWorkbook, parseProcurementWorkbook } from '@/lib/procurementCalculator'
 
-const PROGRAMME_SIZE_BANDS = ['S1 (<150)', 'S2 (≤250)', 'S3 (≤500)', 'S4 (≤1500)', 'S5 (≤3000)', 'S6 (>3000)']
+const PROGRAMME_SIZE_BANDS = ['S1 (<150)', 'S2 (≤250)', 'S3 (≤500)', 'S4 (≤1500)', 'S5 (≤3000)', 'S6 (≤10000)', 'S7 (>10000)']
 // One representative line whose rate proves '2. Rates' and '4. Scope rules' parsed and joined.
 const SAMPLE_ITEM = 'Wall finishes'
 
