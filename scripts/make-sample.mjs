@@ -58,7 +58,11 @@ export const SAMPLE_ANSWERS = {
   q4_4_priorities: ['Minimise disruption', 'Fixed / certain final cost'],
   // A university is eligible for public frameworks.
   q4_5_designStage: 'Concept only (Stage 0–1)',
+  // Two phases, one per floor group, with a four-week decant between them
+  // (Q4.6a / Q4.6b, October 2026).
   q4_6_phasing: 'Multiple phases',
+  q4_6a_phaseCount: '2',
+  q4_6b_phaseGapWeeks: '4',
   q4_7_funding: 'Grant or public funding',
   q4_8_publicClient: 'Yes',
   q5_1_financialBenefit: ['Energy or operational cost savings', 'Grant or funding unlock'],
