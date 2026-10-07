@@ -737,11 +737,11 @@
       "high": 2280000
     },
     "total": {
-      "mid": 2462000,
-      "low": 2094000,
-      "high": 3079000
+      "mid": 2526000,
+      "low": 2150000,
+      "high": 3159000
     },
-    "vat": 492000,
+    "vat": 505000,
     "bcisFactor": 0.94,
     "bcisRegion": "West Midlands",
     "gifa": 1200,
@@ -754,19 +754,90 @@
       "ohp": 9.5,
       "fees": 16,
       "devCosts": 0,
-      "risk": 8,
-      "contingency": 5,
+      "risk": 16,
+      "contingency": 0,
       "inflation": 3,
-      "riskLevel": "Medium"
+      "riskLevel": "High",
+      "riskCategories": {
+        "DD": {
+          "name": "Design development",
+          "pct": 5.5,
+          "rows": [
+            {
+              "key": "DD_STAGE_0_1",
+              "label": "design at Stage 0–1",
+              "pct": 5
+            },
+            {
+              "key": "DD_AGEING_ME_REPLACED",
+              "label": "ageing M&E (being replaced)",
+              "pct": 0.5
+            }
+          ]
+        },
+        "CR": {
+          "name": "Construction",
+          "pct": 5.5,
+          "rows": [
+            {
+              "key": "CR_EXISTING",
+              "label": "existing building",
+              "pct": 4
+            },
+            {
+              "key": "CR_ASBESTOS_PRICED",
+              "label": "no asbestos R&D survey, removal priced",
+              "pct": 1
+            },
+            {
+              "key": "CR_PRE_1980",
+              "label": "pre-1980 building",
+              "pct": 0.5
+            }
+          ]
+        },
+        "EC": {
+          "name": "Employer change",
+          "pct": 3,
+          "rows": [
+            {
+              "key": "EC_STAGE_0_1",
+              "label": "design at Stage 0–1",
+              "pct": 3
+            }
+          ]
+        },
+        "EO": {
+          "name": "Employer other",
+          "pct": 2,
+          "rows": [
+            {
+              "key": "EO_BASE",
+              "label": "base",
+              "pct": 1
+            },
+            {
+              "key": "EO_GRANT",
+              "label": "grant funding",
+              "pct": 0.5
+            },
+            {
+              "key": "EO_HERITAGE",
+              "label": "listed or conservation area",
+              "pct": 0.5
+            }
+          ]
+        }
+      }
     },
     "breakdown": {
       "prelims": 158000,
       "ohp": 158000,
       "fees": 292000,
       "devCosts": 0,
-      "risk": 169000,
-      "contingency": 106000,
-      "inflation": 72000,
+      "risk": 337000,
+      "contingency": 0,
+      "inflation": 74000,
       "belowLine": 0
     },
     "onCostBasis": "nrm1",
@@ -778,10 +849,16 @@
         "fees": 248000,
         "dev": 0,
         "base": 1799000,
-        "risk": 144000,
-        "cont": 90000,
-        "limit": 2033000,
-        "infl": 61000
+        "risk": 288000,
+        "riskParts": {
+          "DD": 99000,
+          "CR": 99000,
+          "EC": 54000,
+          "EO": 36000
+        },
+        "cont": 0,
+        "limit": 2087000,
+        "infl": 63000
       },
       "mid": {
         "prelims": 158000,
@@ -790,10 +867,16 @@
         "fees": 292000,
         "dev": 0,
         "base": 2115000,
-        "risk": 169000,
-        "cont": 106000,
-        "limit": 2390000,
-        "infl": 72000
+        "risk": 337000,
+        "riskParts": {
+          "DD": 116000,
+          "CR": 116000,
+          "EC": 63000,
+          "EO": 42000
+        },
+        "cont": 0,
+        "limit": 2452000,
+        "infl": 74000
       },
       "high": {
         "prelims": 198000,
@@ -802,35 +885,41 @@
         "fees": 365000,
         "dev": 0,
         "base": 2645000,
-        "risk": 212000,
-        "cont": 132000,
-        "limit": 2989000,
-        "infl": 90000
+        "risk": 422000,
+        "riskParts": {
+          "DD": 145000,
+          "CR": 145000,
+          "EC": 79000,
+          "EO": 53000
+        },
+        "cont": 0,
+        "limit": 3067000,
+        "infl": 92000
       }
     },
     "sensitivity": [
       {
         "label": "All works quantities",
         "change": "+10%",
-        "delta": 246000
+        "delta": 255000
       },
       {
         "label": "M&E (services) works cost",
         "change": "+20%",
-        "delta": 231000
+        "delta": 237000
       },
       {
         "label": "Contractor's preliminaries",
         "change": "+3 points",
-        "delta": 67000
+        "delta": 68000
       },
       {
         "label": "Inflation",
         "change": "+2 points",
-        "delta": 48000
+        "delta": 49000
       },
       {
-        "label": "Risk allowance",
+        "label": "Professional fees",
         "change": "+2 points",
         "delta": 44000
       }
@@ -841,7 +930,7 @@
     },
     "excludedNoQuantity": [],
     "additionalScopeNote": null,
-    "workbookVersion": "NRM1 v5.15 (2026-10-07)",
+    "workbookVersion": "NRM1 v5.16 (2026-10-08)",
     "baseDate": null,
     "rangeApplied": {
       "grade": "C",
@@ -912,32 +1001,60 @@
       "risk": [
         {
           "code": "E",
-          "label": "Baseline 5%",
+          "category": "Design development",
+          "label": "design at Stage 0–1",
           "pct": 5
         },
         {
           "code": "E",
-          "label": "Q3.1 = Asbestos known or suspected",
-          "pct": 1.5
-        },
-        {
-          "code": "E",
-          "label": "Q3.1 = Ageing or inadequate M&E",
+          "category": "Design development",
+          "label": "ageing M&E (being replaced)",
           "pct": 0.5
         },
         {
           "code": "E",
-          "label": "Q4.1 = Hard deadline (specific date given)",
-          "pct": 1
-        }
-      ],
-      "contingency": [
+          "category": "Construction",
+          "label": "existing building",
+          "pct": 4
+        },
         {
-          "code": "H",
-          "label": "ALWAYS 5% — never adjusted. Survey uncertainty sits in E, not here.",
-          "pct": 5
+          "code": "E",
+          "category": "Construction",
+          "label": "no asbestos R&D survey, removal priced",
+          "pct": 1
+        },
+        {
+          "code": "E",
+          "category": "Construction",
+          "label": "pre-1980 building",
+          "pct": 0.5
+        },
+        {
+          "code": "E",
+          "category": "Employer change",
+          "label": "design at Stage 0–1",
+          "pct": 3
+        },
+        {
+          "code": "E",
+          "category": "Employer other",
+          "label": "base",
+          "pct": 1
+        },
+        {
+          "code": "E",
+          "category": "Employer other",
+          "label": "grant funding",
+          "pct": 0.5
+        },
+        {
+          "code": "E",
+          "category": "Employer other",
+          "label": "listed or conservation area",
+          "pct": 0.5
         }
       ],
+      "contingency": [],
       "inflation": [
         {
           "code": "F",
@@ -1377,15 +1494,15 @@
   "budget": {
     "status": "sufficient",
     "budget": 4500000,
-    "grossLow": 2513000,
-    "grossHigh": 3695000,
-    "margin": 805000,
+    "grossLow": 2580000,
+    "grossHigh": 3791000,
+    "margin": 709000,
     "grossFactor": 1.2,
-    "grossMid": 2954000,
-    "headroomMid": 1546000,
-    "headroomHigh": 805000,
+    "grossMid": 3031000,
+    "headroomMid": 1469000,
+    "headroomHigh": 709000,
     "coverage": 1,
-    "note": "The stated budget of £4,500,000 (incl. fees and VAT) is sufficient against the estimated gross range of £2,513,000 – £3,695,000, with headroom of approximately £805,000 above the top of the range."
+    "note": "The stated budget of £4,500,000 (incl. fees and VAT) is sufficient against the estimated gross range of £2,580,000 – £3,791,000, with headroom of approximately £709,000 above the top of the range."
   },
   "confidence": {
     "score": "C",
@@ -1440,54 +1557,49 @@
     ]
   },
   "aiProse": {
-    "executiveSummary": "This feasibility report assesses the refurbishment of Hargreaves Teaching Block, a three-storey 1960s education building at Example University, Birmingham (1200 m² GIFA). The project will replace life-expired heating, ventilation and electrical services, upgrade fire safety, improve thermal performance to support net-zero objectives, and create modern flexible teaching space. The estimated project cost is £2,094,000 to £3,079,000 excluding VAT. The estimate is Grade C (Limited Confidence) due to early design stage and absence of an asbestos refurbishment and demolition survey. The target date of 1 September 2028 is achievable. Asbestos risk and restricted working hours during vacation periods are the most material constraints.",
+    "executiveSummary": "This report assesses the refurbishment of Hargreaves Teaching Block, a three-storey 1960s education building at Example University, Birmingham, totalling 1200 m² GIFA. The project will replace life-expired heating, ventilation and electrical services, upgrade fire safety, and improve thermal performance to support net-zero objectives. The estimated project cost is £2,150,000 to £3,159,000 excluding VAT, with Grade C (Limited Confidence) due to early design stage and absence of an asbestos refurbishment survey. The target date of 1 September 2028 is achievable. The single most material risk is asbestos removal during strip-out, which may extend programme and cost if finds occur.",
     "keyFindings": [
-      "The works cost mid-point is £1,507,000 (range £1,281,000 to £1,884,000), with full systems replacement and complex M&E driving the largest cost elements.",
+      "The works cost mid-point is £1,507,000 (range £1,281,000–£1,884,000), with construction duration of 26 weeks and total programme of 77 weeks including design and surveys.",
       "The target date of 1 September 2028 is achievable from a start of 11 January 2027, with approximately 9 weeks of programme buffer.",
-      "The stated budget of £4,500,000 including fees and VAT is sufficient, with headroom of approximately £805,000 above the top of the estimated range.",
-      "Asbestos is known or suspected in this pre-2000 building; a refurbishment and demolition survey is essential before Stage 2 design to confirm scope and cost.",
-      "Traditional procurement with lump-sum pricing is the preferred option for the client to consider, offering design control and cost certainty where scope can be fully defined."
+      "The stated budget of £4,500,000 including fees and VAT is sufficient against the estimated gross range, with headroom of approximately £709,000 above the top of the range.",
+      "The most significant survey gap is the absence of a refurbishment and demolition asbestos survey; asbestos removal is priced but the scope and cost remain uncertain until survey reports.",
+      "The preferred option for the client to consider is a Traditional procurement route with lump-sum pricing, which offers design control and cost certainty where design can be completed before tender."
     ],
     "scopeAssumptions": [
-      "External plant space for the air source heat pump system is included within the scope and cost estimate.",
-      "The scope includes full replacement of heating, ventilation, electrical, water and drainage systems across the entire 1200 m² building, reflecting the absence of services replacement since original construction.",
-      "Asbestos removal is estimated at 1200 m² GIFA; the actual extent and cost will be confirmed by a refurbishment and demolition survey."
+      "External plant space for the air source heat pump is included within the heating and hot water scope.",
+      "The building has 18 standard WCs and 3 accessible WCs being refurbished as part of the full systems replacement.",
+      "All 20 scope items covering structure, services, finishes and compliance are being costed; no items are excluded or assumed complete."
     ],
-    "costNarrative": "The works cost reflects full systems replacement across heating, ventilation, electrical, water and drainage, combined with structural strip-out, fire safety upgrades, and finishes throughout the 1200 m² building. Contractor preliminaries are elevated due to partial occupation during works, restricted working hours, complex services, and a hard deadline. Professional fees are increased for early design stage and M&E complexity.",
-    "roiNarrative": "The project cost mid-point is £2,462,000, with annual energy and operational savings of £95,000, giving a simple payback of 25.9 years. The key financial risk is that actual energy savings may fall short of projections if building performance does not meet design assumptions or if utility costs remain static.",
+    "costNarrative": "The works cost reflects full replacement of heating, ventilation, electrical and water services across the entire building, together with asbestos removal, strip-out, windows, doors, fire stopping and all finishes. Preliminaries are elevated by partial occupation, restricted working hours, complex services and a hard deadline. Professional fees reflect early design stage and M&E complexity, with a risk allowance of 16% to cover design development, construction uncertainty and the absence of an asbestos survey.",
+    "roiNarrative": "The project cost mid-point is £2,526,000 with an annual operational benefit of £95,000, giving a simple payback of 26.6 years. The key financial risk is that energy savings may not materialise if the building's actual energy performance in use falls short of design assumptions, or if utility costs do not rise as forecast.",
     "constraints": [
       {
         "category": "Programme",
         "title": "Vacation-only working",
-        "text": "Works must be confined to academic vacation and holiday windows, avoiding examination periods in January and May–June, extending the programme."
+        "text": "Works must be confined to academic vacation windows, avoiding examination periods in January and May–June, which constrains programme flexibility and may extend duration."
       },
       {
         "category": "Access",
         "title": "Restricted working hours",
-        "text": "Limited permitted hours during term time and partial occupation throughout will increase labour costs and extend construction duration."
-      },
-      {
-        "category": "Technical",
-        "title": "Asbestos risk",
-        "text": "Asbestos is known or suspected; licensed removal, notification and air testing will add cost and time; finds during strip-out may halt work."
+        "text": "Limited working hours on a single service road in the middle of campus will increase preliminary costs and may require out-of-hours working to maintain programme."
       },
       {
         "category": "Regulatory",
         "title": "Conservation area",
-        "text": "External alterations in a conservation area require full planning consent and enhanced materials, increasing cost and adding regulatory lead time."
+        "text": "The site is in a conservation area; external alterations will likely require full planning consent with enhanced materials and detailing."
       },
       {
         "category": "Technical",
-        "title": "Ageing M&E systems",
-        "text": "Existing mechanical and electrical services are life-expired and inadequately documented; actual replacement scope may exceed current assumptions."
+        "title": "Asbestos uncertainty",
+        "text": "Asbestos is known or suspected; licensed removal, notification and air testing add cost and time, and finds during strip-out may stop work."
       }
     ],
     "nextSteps": [
-      "Commission a refurbishment and demolition asbestos survey immediately to confirm the extent of removal, cost and programme impact before Stage 2 design.",
-      "Obtain pre-application advice from the conservation officer on external materials and detailing to confirm planning requirements and cost assumptions.",
-      "Confirm electrical supply capacity and any DNO upgrade requirements for the air source heat pump system with the utility provider.",
-      "Agree detailed blackout dates and permitted working hours with the university to lock the programme and confirm contractor rates.",
-      "Develop a phasing strategy at Stage 2 to minimise disruption to teaching, confirm zone sequencing, and validate the 26-week construction period."
+      "Commission a refurbishment and demolition asbestos survey immediately to confirm scope and cost of removal before Stage 2 design begins.",
+      "Confirm with the university which academic vacation windows are available for construction, and agree blackout dates to avoid examination periods.",
+      "Engage the conservation officer for pre-application advice on external alterations, materials and detailing to avoid delays at planning.",
+      "Instruct an M&E condition and capacity survey at Stage 2 to verify the scope of service replacement and confirm electrical supply capacity with the DNO.",
+      "Develop a phasing strategy at Stage 2 to minimise disruption to teaching, and confirm whether long-lead procurement of major plant (switchgear, AHUs) is viable to accelerate the critical path."
     ],
     "riskRegister": [
       {
@@ -1543,7 +1655,7 @@
       {
         "ref": "SCOPE-S-0039-1",
         "category": "Technical",
-        "description": "Heating and hot water: electrical capacity and DNO check — raised by the selected scope.",
+        "description": "Heating and hot water: electrical capacity and DNO check required for air source heat pump installation.",
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
@@ -1553,32 +1665,32 @@
       {
         "ref": "DESIGN-STAGE",
         "category": "Cost",
-        "description": "Design at Stage 0–1 with limited information on existing building fabric and services; cost estimate carries a range of −15% to +25%.",
+        "description": "Design at Stage 0–1 introduces uncertainty in specification, buildability and cost; risk allowance of 16% reflects this.",
         "likelihood": "High",
-        "impact": "Medium",
-        "rating": "Medium",
-        "mitigation": "Commission targeted surveys at Stage 2 (asbestos, M&E condition, structural); refine cost plan before tender.",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Progress design rapidly to Stage 2; engage cost consultant and contractor input on buildability and sequencing.",
         "seedRef": "NONE"
       },
       {
         "ref": "PHASING-COMPLEXITY",
         "category": "Programme",
-        "description": "Multiple-phase delivery with partial occupation during works; phasing strategy to be confirmed at Stage 2; risk of coordination delays and disruption.",
+        "description": "Multiple phasing strategy with partial occupation during works increases coordination complexity and risk of disruption.",
         "likelihood": "Medium",
-        "impact": "Medium",
-        "rating": "Medium",
-        "mitigation": "Develop detailed phasing plan at Stage 2 with clear zone boundaries; agree occupation protocols with the client; allocate programme buffer.",
+        "impact": "High",
+        "rating": "High",
+        "mitigation": "Confirm phase split and occupation strategy at Stage 2; agree detailed sequencing and liaison protocols with faculty.",
         "seedRef": "NONE"
       }
     ],
-    "procurementNarrative": "The traditional route with lump-sum pricing and framework direct award suits this project because design can be completed before tender, cost certainty matters to the client, and the framework rules allow direct appointment of a proven contractor. Alternatively, a two-stage approach with selective tender would give early contractor input to sequencing and buildability, which is valuable where occupied and phased work carries complexity and existing information is limited.",
+    "procurementNarrative": "The traditional route with lump-sum pricing and framework direct award suits this project because design can be completed before tender, cost certainty matters to the client, and the framework rules allow direct appointment of a proven contractor. Alternatively, a two-stage approach with selective tender would be better if early contractor input to sequencing and buildability in this occupied, phased building proves essential to managing disruption and risk.",
     "procurementConsiderations": [
-      "Gaps in the design at Stage 0–1 may become variations and claims under lump-sum pricing; ensure full specification and bills of quantities before tender.",
-      "Direct award under framework rules offers speed but less price competition; a strong cost consultant must test the framework price against benchmarks.",
-      "Public body status requires a compliant procurement procedure; framework rules must permit direct award, or selective tender with prequalification is needed."
+      "Gaps in the design at Stage 0–1 may lead to variations and claims; ensure the specification is detailed before tender.",
+      "Direct award to a framework contractor reduces price competition; a strong cost consultant must test the price against benchmarks.",
+      "Scope creep in a two-stage route needs tight control; the alternative requires testing the second-stage price before signing."
     ],
     "procurementConflicts": [
-      "The client's priority for fixed final cost favours lump-sum pricing, but early contractor input under two-stage would reduce design gaps and variation risk."
+      "Traditional lump-sum pricing offers cost certainty but requires design completion before tender, which may delay site start."
     ],
     "confidenceScore": "C",
     "confidenceLabel": "Limited Confidence"
@@ -1665,7 +1777,7 @@
     "q5_2_annualBenefit": "95000",
     "q6_2_instructions": "Write for an estates committee that includes non-technical members."
   },
-  "generatedAt": "2026-10-07T17:45:40.230Z",
+  "generatedAt": "2026-10-07T18:32:33.567Z",
   "reportId": null,
   "sample": true
 }
