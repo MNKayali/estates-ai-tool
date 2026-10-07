@@ -298,6 +298,7 @@ async function generate(request, { user, trialId }, outcome) {
       programme:   progData,
       procurement,
       budget,
+      confidence,
       aiProse,
       answers,
       generatedAt,
