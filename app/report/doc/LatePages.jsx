@@ -31,7 +31,7 @@ function Procurement({ data, ctx, no }) {
   return <>
     <Band no={no} title="Procurement Suggestion" />
     {rows ? <>
-      <p className="r-foot-note r-proc-basis">{procurementBasisSentence(data.procurement)}</p>
+      <p className="r-foot-note r-proc-basis">{procurementBasisSentence(data.procurement, data.aiProse?.riskRegister)}</p>
       <table className="r-t r-proc">
         <Cols widths={TABLES.procurement} />
         <thead><tr><th></th><th>Preferred</th><th>Alternative</th></tr></thead>
