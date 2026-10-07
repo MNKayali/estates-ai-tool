@@ -30,6 +30,19 @@ import {
 } from '@/lib/prose'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 import { loadReport, reportNotFoundResponse, REPORT_ID } from '@/lib/auth'
+import { checkConsistency } from '@/lib/consistency'
+
+// Consistency findings are advisory: a failure inside the check must never lose a finished report.
+function safeConsistency(record, aiProse) {
+  try {
+    const issues = checkConsistency({ programme: record.programme, procurement: record.procurement, aiProse, budget: record.budget })
+    if (issues.length) console.warn('[consistency]', issues.map(i => i.code).join(','))
+    return issues
+  } catch (e) {
+    console.warn('[consistency] check failed:', e.message)
+    return []
+  }
+}
 
 export const maxDuration = 60
 
@@ -138,6 +151,7 @@ export async function POST(request, { params }) {
       ...(record.procurement && { procurement: record.procurement }),
       budget: record.budget,
       aiProse,
+      consistency: safeConsistency(record, aiProse),
       answers: record.answers,
       generatedAt: record.generatedAt,
       ownerId: record.ownerId,

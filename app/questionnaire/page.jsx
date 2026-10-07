@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { areaQuestionLabel, areaHelpText } from '../../lib/labels.js'
 import { SITE_CONTEXT_OPTIONS, SITE_CONTEXT_NONE, isHigherRiskBuilding } from '../../lib/siteContext.js'
-import { outwardCode, matchRegion } from '../../lib/postcodeRegion.js'
+import { outwardCode, matchRegion, validatePostcode } from '../../lib/postcodeRegion.js'
 import { PROJECT_TYPES } from '../../lib/projectTypes.js'
 import {
   buildContext, indexCatalogue, normaliseScopeAnswers, defaultOptionKeys,
@@ -911,6 +911,7 @@ export default function QuestionnairePage() {
     if (sec === 1) {
       if (!answers.q1_0_projectName?.trim()) errs.q1_0_projectName = 'Project name is required'
       if (!answers.q1_1_postcode?.trim()) errs.q1_1_postcode = 'Postcode is required'
+      else { const pv = validatePostcode(answers.q1_1_postcode); if (!pv.ok) errs.q1_1_postcode = pv.reason }
       if (!answers.q1_2_projectType) errs.q1_2_projectType = 'Project type is required'
       // GIFA is the single most load-bearing number in the report — it is linear
       // on most priced rows and selects the programme size band. The old check
@@ -964,7 +965,7 @@ export default function QuestionnairePage() {
     // that is not shown, so this cannot deadlock a section.
     const LABELS = {
       q3_1_knownIssues:       'Known issues',
-      q3_3_surveys:           'Surveys and reports available',
+      q3_3_surveys:           'Surveys carried out in the last 5 years',
       q3_4_planningConsents:  'Planning consent',
       q3_5_accessConstraints: 'Access constraints',
       q3_6_occupation:        'Occupation during works',
@@ -1574,12 +1575,12 @@ export default function QuestionnairePage() {
             )}
 
             <QCard qkey="q3_3_surveys">
-              <Label required>Q3.3 — Surveys and reports available</Label>
+              <Label required>Q3.3 — Surveys carried out in the last 5 years</Label>
               {/* The old copy promised surveys also reduce "survey programme
                   time". They do not: survey activities run parallel to design
                   and surveyWeeks is never added to the total. Only the risk
                   claim is true. */}
-              <HelpText>Select all that apply. Having surveys in hand reduces the risk allowance in the estimate.</HelpText>
+              <HelpText>Select only surveys carried out in the last 5 years — older ones should be treated as out of date and left unticked. Select all that apply. Having current surveys in hand reduces the risk allowance in the estimate.</HelpText>
               <CheckboxGroup options={surveysFor(answers.q1_2_projectType, answers.q1_4_buildingAge)} values={answers.q3_3_surveys}
                 onChange={v => set('q3_3_surveys', applyNoneMutex(answers.q3_3_surveys || [], v, SURVEY_NONE))}
                 describedBy={validationErrors.q3_3_surveys ? 'err-q3_3_surveys' : undefined} />
