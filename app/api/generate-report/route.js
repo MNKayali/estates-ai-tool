@@ -338,6 +338,13 @@ function serializeCost(cost) {
     bandFactor: cost.bandFactor,
     percentages: cost.percentages,
     breakdown: cost.breakdown,
+    // On-cost basis and its per-row amounts (the project cost table prints
+    // these, so it foots), the cost sensitivities and the flagged scope gaps.
+    // Without them a stored report fell back to the old per-row sums.
+    onCostBasis: cost.onCostBasis,
+    onCosts: cost.onCosts,
+    sensitivity: cost.sensitivity,
+    scopeGaps: cost.scopeGaps,
     // Estimate Basis data — keeps the HTML report's basis section in step
     // with the docx builder, which receives the full cost object.
     excludedNoQuantity: cost.excludedNoQuantity,
