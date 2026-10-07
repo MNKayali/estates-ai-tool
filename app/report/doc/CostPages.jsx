@@ -85,7 +85,7 @@ export function CostSummaryPage({ data, ctx, n }) {
         <ul className="r-tight">{pl.map(l => <li key={l.name}><b>{l.name} {l.pct}:</b> {l.text}.</li>)}</ul>
       </>}
       <div className="r-two">
-        <div><h3>Cost assumptions</h3><ul className="r-tight">{costAssumptionLines(cost, answers).map((l, i) => <li key={i}>{l}</li>)}</ul></div>
+        <div><h3>Cost assumptions</h3><ul className="r-tight">{costAssumptionLines(cost, answers, data.confidence).map((l, i) => <li key={i}>{l}</li>)}</ul></div>
         <div><h3>Cost exclusions</h3><ul className="r-tight">{costExclusionLines(cost, answers).map((l, i) => <li key={i}>{l}</li>)}</ul></div>
       </div>
     </BodyPage>

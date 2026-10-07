@@ -21,11 +21,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 23.5,
-        "rateLow": 21.15,
-        "rateHigh": 25.85,
+        "rateLow": 19.97,
+        "rateHigh": 29.38,
         "lineMid": 28200,
-        "lineLow": 25380,
-        "lineHigh": 31020,
+        "lineLow": 23970,
+        "lineHigh": 35250,
         "bcis": [
           {
             "element": "0.1",
@@ -50,11 +50,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 51.7,
-        "rateLow": 46.53,
-        "rateHigh": 56.87,
+        "rateLow": 43.94,
+        "rateHigh": 64.63,
         "lineMid": 62040,
-        "lineLow": 55836,
-        "lineHigh": 68244,
+        "lineLow": 52734,
+        "lineHigh": 77550,
         "bcis": [
           {
             "element": "0.2",
@@ -79,11 +79,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 131.6,
-        "rateLow": 118.44,
-        "rateHigh": 144.76,
+        "rateLow": 111.86,
+        "rateHigh": 164.5,
         "lineMid": 157920,
-        "lineLow": 142128,
-        "lineHigh": 173712,
+        "lineLow": 134232,
+        "lineHigh": 197400,
         "bcis": [
           {
             "element": "2.6",
@@ -108,11 +108,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 94,
-        "rateLow": 84.6,
-        "rateHigh": 103.4,
+        "rateLow": 79.9,
+        "rateHigh": 117.5,
         "lineMid": 112800,
-        "lineLow": 101520,
-        "lineHigh": 124080,
+        "lineLow": 95880,
+        "lineHigh": 141000,
         "bcis": [
           {
             "element": "2.8",
@@ -137,11 +137,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 28.2,
-        "rateLow": 25.38,
-        "rateHigh": 31.02,
+        "rateLow": 23.97,
+        "rateHigh": 35.25,
         "lineMid": 33840,
-        "lineLow": 30456,
-        "lineHigh": 37224,
+        "lineLow": 28764,
+        "lineHigh": 42300,
         "bcis": [
           {
             "element": "2.7",
@@ -166,11 +166,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 70.5,
-        "rateLow": 63.45,
-        "rateHigh": 77.55,
+        "rateLow": 59.93,
+        "rateHigh": 88.13,
         "lineMid": 84600,
-        "lineLow": 76140,
-        "lineHigh": 93060,
+        "lineLow": 71910,
+        "lineHigh": 105750,
         "bcis": [
           {
             "element": "3.1",
@@ -195,11 +195,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 79.9,
-        "rateLow": 71.91,
-        "rateHigh": 87.89,
+        "rateLow": 67.91,
+        "rateHigh": 99.87,
         "lineMid": 95880,
-        "lineLow": 86292,
-        "lineHigh": 105468,
+        "lineLow": 81498,
+        "lineHigh": 119850,
         "bcis": [
           {
             "element": "3.2",
@@ -224,11 +224,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 75.2,
-        "rateLow": 67.68,
-        "rateHigh": 82.72,
+        "rateLow": 63.92,
+        "rateHigh": 94,
         "lineMid": 90240,
-        "lineLow": 81216,
-        "lineHigh": 99264,
+        "lineLow": 76704,
+        "lineHigh": 112800,
         "bcis": [
           {
             "element": "3.3",
@@ -253,11 +253,11 @@
         "ratioEstimate": false,
         "estimate": 12,
         "rate": 3713,
-        "rateLow": 3341.7,
-        "rateHigh": 4084.3,
+        "rateLow": 3156.05,
+        "rateHigh": 4641.25,
         "lineMid": 66834,
-        "lineLow": 60151,
-        "lineHigh": 73517,
+        "lineLow": 56809,
+        "lineHigh": 83543,
         "bcis": [
           {
             "element": "5.1",
@@ -286,11 +286,11 @@
         "ratioEstimate": false,
         "estimate": 3,
         "rate": 5170,
-        "rateLow": 4653,
-        "rateHigh": 5687,
+        "rateLow": 4394.5,
+        "rateHigh": 6462.5,
         "lineMid": 15510,
-        "lineLow": 13959,
-        "lineHigh": 17061,
+        "lineLow": 13184,
+        "lineHigh": 19388,
         "bcis": [
           {
             "element": "5.1",
@@ -319,11 +319,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 42.3,
-        "rateLow": 38.07,
-        "rateHigh": 46.53,
+        "rateLow": 35.96,
+        "rateHigh": 52.88,
         "lineMid": 50760,
-        "lineLow": 45684,
-        "lineHigh": 55836,
+        "lineLow": 43146,
+        "lineHigh": 63450,
         "bcis": [
           {
             "element": "4.1",
@@ -348,11 +348,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 178.6,
-        "rateLow": 160.74,
-        "rateHigh": 196.46,
+        "rateLow": 151.81,
+        "rateHigh": 223.25,
         "lineMid": 214320,
-        "lineLow": 192888,
-        "lineHigh": 235752,
+        "lineLow": 182172,
+        "lineHigh": 267900,
         "bcis": [
           {
             "element": "5.5",
@@ -381,11 +381,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 75.2,
-        "rateLow": 67.68,
-        "rateHigh": 82.72,
+        "rateLow": 63.92,
+        "rateHigh": 94,
         "lineMid": 90240,
-        "lineLow": 81216,
-        "lineHigh": 99264,
+        "lineLow": 76704,
+        "lineHigh": 112800,
         "bcis": [
           {
             "element": "5.3",
@@ -414,11 +414,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 70.5,
-        "rateLow": 63.45,
-        "rateHigh": 77.55,
+        "rateLow": 59.93,
+        "rateHigh": 88.13,
         "lineMid": 84600,
-        "lineLow": 76140,
-        "lineHigh": 93060,
+        "lineLow": 71910,
+        "lineHigh": 105750,
         "bcis": [
           {
             "element": "5.7",
@@ -443,11 +443,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 118.44,
-        "rateLow": 106.6,
-        "rateHigh": 130.28,
+        "rateLow": 100.67,
+        "rateHigh": 148.05,
         "lineMid": 142128,
-        "lineLow": 127915,
-        "lineHigh": 156341,
+        "lineLow": 120809,
+        "lineHigh": 177660,
         "bcis": [
           {
             "element": "5.8",
@@ -472,11 +472,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 75.2,
-        "rateLow": 67.68,
-        "rateHigh": 82.72,
+        "rateLow": 63.92,
+        "rateHigh": 94,
         "lineMid": 90240,
-        "lineLow": 81216,
-        "lineHigh": 99264,
+        "lineLow": 76704,
+        "lineHigh": 112800,
         "bcis": [
           {
             "element": "5.8",
@@ -501,11 +501,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 9.4,
-        "rateLow": 8.46,
-        "rateHigh": 10.34,
+        "rateLow": 7.99,
+        "rateHigh": 11.75,
         "lineMid": 11280,
-        "lineLow": 10152,
-        "lineHigh": 12408,
+        "lineLow": 9588,
+        "lineHigh": 14100,
         "bcis": [
           {
             "element": "5.8",
@@ -530,11 +530,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 32.9,
-        "rateLow": 29.61,
-        "rateHigh": 36.19,
+        "rateLow": 27.96,
+        "rateHigh": 41.13,
         "lineMid": 39480,
-        "lineLow": 35532,
-        "lineHigh": 43428,
+        "lineLow": 33558,
+        "lineHigh": 49350,
         "bcis": [
           {
             "element": "5.12",
@@ -559,11 +559,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 18.8,
-        "rateLow": 16.92,
-        "rateHigh": 20.68,
+        "rateLow": 15.98,
+        "rateHigh": 23.5,
         "lineMid": 22560,
-        "lineLow": 20304,
-        "lineHigh": 24816,
+        "lineLow": 19176,
+        "lineHigh": 28200,
         "bcis": [
           {
             "element": "5.12",
@@ -588,11 +588,11 @@
         "ratioEstimate": false,
         "estimate": 1200,
         "rate": 11.28,
-        "rateLow": 10.15,
-        "rateHigh": 12.41,
+        "rateLow": 9.59,
+        "rateHigh": 14.1,
         "lineMid": 13536,
-        "lineLow": 12182,
-        "lineHigh": 14890,
+        "lineLow": 11506,
+        "lineHigh": 16920,
         "bcis": [
           {
             "element": "5.14",
@@ -728,18 +728,18 @@
     },
     "works": {
       "mid": 1507000,
-      "low": 1356000,
-      "high": 1658000
+      "low": 1281000,
+      "high": 1884000
     },
     "construction": {
       "mid": 1823000,
-      "low": 1640000,
-      "high": 2006000
+      "low": 1551000,
+      "high": 2280000
     },
     "total": {
       "mid": 2462000,
-      "low": 2213000,
-      "high": 2708000
+      "low": 2094000,
+      "high": 3079000
     },
     "vat": 492000,
     "bcisFactor": 0.94,
@@ -772,16 +772,16 @@
     "onCostBasis": "nrm1",
     "onCosts": {
       "low": {
-        "prelims": 142000,
-        "ohp": 142000,
-        "con": 1640000,
-        "fees": 262000,
+        "prelims": 135000,
+        "ohp": 135000,
+        "con": 1551000,
+        "fees": 248000,
         "dev": 0,
-        "base": 1902000,
-        "risk": 152000,
-        "cont": 95000,
-        "limit": 2149000,
-        "infl": 64000
+        "base": 1799000,
+        "risk": 144000,
+        "cont": 90000,
+        "limit": 2033000,
+        "infl": 61000
       },
       "mid": {
         "prelims": 158000,
@@ -796,16 +796,16 @@
         "infl": 72000
       },
       "high": {
-        "prelims": 174000,
-        "ohp": 174000,
-        "con": 2006000,
-        "fees": 321000,
+        "prelims": 198000,
+        "ohp": 198000,
+        "con": 2280000,
+        "fees": 365000,
         "dev": 0,
-        "base": 2327000,
-        "risk": 186000,
-        "cont": 116000,
-        "limit": 2629000,
-        "infl": 79000
+        "base": 2645000,
+        "risk": 212000,
+        "cont": 132000,
+        "limit": 2989000,
+        "infl": 90000
       }
     },
     "sensitivity": [
@@ -841,12 +841,12 @@
     },
     "excludedNoQuantity": [],
     "additionalScopeNote": null,
-    "workbookVersion": "NRM1 v5.14 (2026-10-06)",
+    "workbookVersion": "NRM1 v5.15 (2026-10-07)",
     "baseDate": null,
     "rangeApplied": {
-      "grade": "A",
-      "low": 0.9,
-      "high": 1.1,
+      "grade": "C",
+      "low": 0.85,
+      "high": 1.25,
       "fromWorkbook": true
     },
     "vatPct": 20,
@@ -1377,65 +1377,117 @@
   "budget": {
     "status": "sufficient",
     "budget": 4500000,
-    "grossLow": 2656000,
-    "grossHigh": 3250000,
-    "margin": 1250000,
+    "grossLow": 2513000,
+    "grossHigh": 3695000,
+    "margin": 805000,
     "grossFactor": 1.2,
     "grossMid": 2954000,
     "headroomMid": 1546000,
-    "headroomHigh": 1250000,
+    "headroomHigh": 805000,
     "coverage": 1,
-    "note": "The stated budget of £4,500,000 (incl. fees and VAT) is sufficient against the estimated gross range of £2,656,000 – £3,250,000, with headroom of approximately £1,250,000 above the top of the range."
+    "note": "The stated budget of £4,500,000 (incl. fees and VAT) is sufficient against the estimated gross range of £2,513,000 – £3,695,000, with headroom of approximately £805,000 above the top of the range."
+  },
+  "confidence": {
+    "score": "C",
+    "label": "Limited Confidence",
+    "points": 5.5,
+    "cappedBy": null,
+    "factors": [
+      {
+        "key": "STAGE_0_1",
+        "label": "design at Stage 0–1",
+        "points": 1
+      },
+      {
+        "key": "NO_RD_SURVEY",
+        "label": "no asbestos R&D survey (pre-2000 building)",
+        "points": 1
+      },
+      {
+        "key": "EXISTING_BUILDING",
+        "label": "existing building",
+        "points": 1
+      },
+      {
+        "key": "AGE_PRE_1980",
+        "label": "built before 1980",
+        "points": 0.5
+      },
+      {
+        "key": "OCCUPIED_PARTIAL",
+        "label": "partly occupied during works",
+        "points": 0.5
+      },
+      {
+        "key": "HIGH_RISKS",
+        "label": "risks rated High (Threshold = how many)",
+        "points": 1
+      },
+      {
+        "key": "CLIENT_SHARE_LOW",
+        "label": "few client-confirmed quantities (Threshold = share of works cost below which it applies)",
+        "points": 0.5
+      }
+    ],
+    "reasons": [
+      "design at Stage 0–1",
+      "no asbestos R&D survey (pre-2000 building)",
+      "existing building",
+      "built before 1980",
+      "partly occupied during works",
+      "risks rated High (Threshold = how many)",
+      "few client-confirmed quantities (Threshold = share of works cost below which it applies)"
+    ]
   },
   "aiProse": {
-    "executiveSummary": "This feasibility study examines the refurbishment of Hargreaves Teaching Block, a three-storey 1960s education building at Example University, Birmingham (1200 m² GIFA). The project will replace life-expired mechanical, electrical and plumbing services, upgrade fire safety, improve thermal performance, and deliver modern flexible teaching space to support the university's net-zero plan. The estimated project cost is £2,213,000 to £2,708,000 (excluding VAT), with Grade A confidence. The target date of 1 September 2028 is achievable. The principal risk is asbestos removal and the constraint of vacation-only working.",
+    "executiveSummary": "This feasibility report assesses the refurbishment of Hargreaves Teaching Block, a three-storey 1960s education building at Example University, Birmingham (1200 m² GIFA). The project will replace life-expired heating, ventilation and electrical services, upgrade fire safety, improve thermal performance to support net-zero objectives, and create modern flexible teaching space. The estimated project cost is £2,094,000 to £3,079,000 excluding VAT. The estimate is Grade C (Limited Confidence) due to early design stage and absence of an asbestos refurbishment and demolition survey. The target date of 1 September 2028 is achievable. Asbestos risk and restricted working hours during vacation periods are the most material constraints.",
     "keyFindings": [
-      "The works cost mid-point is £1,507,000 (range £1,356,000–£1,658,000), driven by full systems replacement, asbestos removal, and complex mechanical and electrical installations across the entire building.",
-      "The target date of 1 September 2028 is achievable from a start of 11 January 2027, with a programme buffer of approximately 9 weeks.",
-      "The stated budget of £4,500,000 (including fees and VAT) is sufficient against the estimated gross range, with headroom of approximately £1,250,000 above the top of the range.",
-      "Asbestos is known or suspected in the building; a refurbishment and demolition survey must be commissioned before Stage 2 design to confirm scope and cost.",
-      "The preferred procurement option is Traditional with Lump sum, which offers design control and cost certainty, favoured by the client's priority for fixed final cost."
+      "The works cost mid-point is £1,507,000 (range £1,281,000 to £1,884,000), with full systems replacement and complex M&E driving the largest cost elements.",
+      "The target date of 1 September 2028 is achievable from a start of 11 January 2027, with approximately 9 weeks of programme buffer.",
+      "The stated budget of £4,500,000 including fees and VAT is sufficient, with headroom of approximately £805,000 above the top of the estimated range.",
+      "Asbestos is known or suspected in this pre-2000 building; a refurbishment and demolition survey is essential before Stage 2 design to confirm scope and cost.",
+      "Traditional procurement with lump-sum pricing is the preferred option for the client to consider, offering design control and cost certainty where scope can be fully defined."
     ],
     "scopeAssumptions": [
-      "External plant space for the air source heat pump is included within the scope and cost estimate.",
-      "The scope includes full replacement of heating, ventilation, electrical, water, drainage and data systems across the entire 1200 m² building, reflecting the absence of services replacement since original construction.",
-      "Provision is made for 18 standard WCs and 3 accessible WCs as specified by the client."
+      "External plant space for the air source heat pump system is included within the scope and cost estimate.",
+      "The scope includes full replacement of heating, ventilation, electrical, water and drainage systems across the entire 1200 m² building, reflecting the absence of services replacement since original construction.",
+      "Asbestos removal is estimated at 1200 m² GIFA; the actual extent and cost will be confirmed by a refurbishment and demolition survey."
     ],
-    "costNarrative": "The works cost reflects full systems replacement in a three-storey building with complex mechanical, electrical and plumbing installations, asbestos removal, and comprehensive strip-out and finishes. Preliminaries are elevated by partial occupation, restricted working hours, term-time constraints, and a hard deadline. Professional fees account for the M&E complexity and BREEAM compliance requirements.",
-    "roiNarrative": "The project cost mid-point is £2,462,000, generating annual energy and operational savings of £95,000, equivalent to a simple payback of 25.9 years. The key financial risk is that actual energy savings may fall short of forecast if building performance in use does not match design assumptions or if utility price inflation diverges from projections.",
+    "costNarrative": "The works cost reflects full systems replacement across heating, ventilation, electrical, water and drainage, combined with structural strip-out, fire safety upgrades, and finishes throughout the 1200 m² building. Contractor preliminaries are elevated due to partial occupation during works, restricted working hours, complex services, and a hard deadline. Professional fees are increased for early design stage and M&E complexity.",
+    "roiNarrative": "The project cost mid-point is £2,462,000, with annual energy and operational savings of £95,000, giving a simple payback of 25.9 years. The key financial risk is that actual energy savings may fall short of projections if building performance does not meet design assumptions or if utility costs remain static.",
     "constraints": [
       {
         "category": "Programme",
         "title": "Vacation-only working",
-        "text": "Works must be confined to academic vacation windows, avoiding examination periods in January and May–June, extending the programme and limiting flexibility."
+        "text": "Works must be confined to academic vacation and holiday windows, avoiding examination periods in January and May–June, extending the programme."
       },
       {
         "category": "Access",
         "title": "Restricted working hours",
-        "text": "Permitted hours are constrained by campus operations, increasing labour costs and potentially extending the construction duration."
+        "text": "Limited permitted hours during term time and partial occupation throughout will increase labour costs and extend construction duration."
+      },
+      {
+        "category": "Technical",
+        "title": "Asbestos risk",
+        "text": "Asbestos is known or suspected; licensed removal, notification and air testing will add cost and time; finds during strip-out may halt work."
       },
       {
         "category": "Regulatory",
         "title": "Conservation area",
-        "text": "External alterations require full planning consent with enhanced materials and detailing, adding cost and approval time."
+        "text": "External alterations in a conservation area require full planning consent and enhanced materials, increasing cost and adding regulatory lead time."
       },
       {
         "category": "Technical",
-        "title": "Asbestos presence",
-        "text": "Licensed removal, notification and air testing are required; finds during strip-out can halt work and increase cost."
-      },
-      {
-        "category": "Technical",
-        "title": "Ageing M&E services",
-        "text": "Existing plant capacity and condition are uncertain; replacement scope may exceed current assumptions, affecting cost and programme."
+        "title": "Ageing M&E systems",
+        "text": "Existing mechanical and electrical services are life-expired and inadequately documented; actual replacement scope may exceed current assumptions."
       }
     ],
     "nextSteps": [
-      "Commission a refurbishment and demolition asbestos survey immediately to confirm scope, cost and programme impact before Stage 2 design begins.",
-      "Obtain pre-application advice from the conservation officer on external alterations, materials and detailing to confirm planning requirements and cost assumptions.",
-      "Confirm electrical supply capacity with the utility and commission an M&E condition and capacity survey at Stage 2 to validate the replacement scope.",
-      "Agree blackout dates and permitted working hours with the university; build detailed phase plans to fit vacation windows and confirm out-of-hours premium rates.",
-      "Prepare a detailed cost plan and risk register at Stage 2, incorporating survey findings and confirming the procurement route and contract form with the client's advisers."
+      "Commission a refurbishment and demolition asbestos survey immediately to confirm the extent of removal, cost and programme impact before Stage 2 design.",
+      "Obtain pre-application advice from the conservation officer on external materials and detailing to confirm planning requirements and cost assumptions.",
+      "Confirm electrical supply capacity and any DNO upgrade requirements for the air source heat pump system with the utility provider.",
+      "Agree detailed blackout dates and permitted working hours with the university to lock the programme and confirm contractor rates.",
+      "Develop a phasing strategy at Stage 2 to minimise disruption to teaching, confirm zone sequencing, and validate the 26-week construction period."
     ],
     "riskRegister": [
       {
@@ -1499,37 +1551,37 @@
         "seedRef": "SCOPE-S-0039-1"
       },
       {
-        "ref": "PHASE-DELIVERY",
-        "category": "Programme",
-        "description": "Multiple-phase delivery requires careful sequencing and coordination to avoid disruption to occupied areas and maintain teaching continuity.",
-        "likelihood": "Medium",
-        "impact": "High",
-        "rating": "High",
-        "mitigation": "Confirm phase split and occupation strategy at Stage 2; establish clear handover protocols between phases; maintain liaison with faculty.",
+        "ref": "DESIGN-STAGE",
+        "category": "Cost",
+        "description": "Design at Stage 0–1 with limited information on existing building fabric and services; cost estimate carries a range of −15% to +25%.",
+        "likelihood": "High",
+        "impact": "Medium",
+        "rating": "Medium",
+        "mitigation": "Commission targeted surveys at Stage 2 (asbestos, M&E condition, structural); refine cost plan before tender.",
         "seedRef": "NONE"
       },
       {
-        "ref": "DESIGN-COMPLETION",
+        "ref": "PHASING-COMPLEXITY",
         "category": "Programme",
-        "description": "Design must be completed to tender standard within 32 weeks to meet the 77-week programme and 2028 target date.",
+        "description": "Multiple-phase delivery with partial occupation during works; phasing strategy to be confirmed at Stage 2; risk of coordination delays and disruption.",
         "likelihood": "Medium",
-        "impact": "High",
-        "rating": "High",
-        "mitigation": "Establish a robust design programme with clear milestones; allocate resources early; manage scope changes tightly to avoid delays.",
+        "impact": "Medium",
+        "rating": "Medium",
+        "mitigation": "Develop detailed phasing plan at Stage 2 with clear zone boundaries; agree occupation protocols with the client; allocate programme buffer.",
         "seedRef": "NONE"
       }
     ],
-    "procurementNarrative": "The traditional route with lump-sum pricing and framework direct award suits this project because the design can be completed before tender, cost certainty is a priority, and the client is a public body eligible for framework appointment. The alternative two-stage route would be preferable if early contractor input to sequencing and buildability in this occupied, phased building would justify accepting less price competition at the second stage.",
+    "procurementNarrative": "The traditional route with lump-sum pricing and framework direct award suits this project because design can be completed before tender, cost certainty matters to the client, and the framework rules allow direct appointment of a proven contractor. Alternatively, a two-stage approach with selective tender would give early contractor input to sequencing and buildability, which is valuable where occupied and phased work carries complexity and existing information is limited.",
     "procurementConsiderations": [
-      "Gaps in the design become client variations under traditional lump-sum delivery; ensure the specification and bills of quantities are complete before tender.",
-      "Framework direct award offers less price competition than selective tender; a strong cost consultant should test the appointed contractor's rates against benchmarks.",
-      "Public bodies must follow the framework's award rules; confirm that direct appointment is permitted under the selected framework's terms."
+      "Gaps in the design at Stage 0–1 may become variations and claims under lump-sum pricing; ensure full specification and bills of quantities before tender.",
+      "Direct award under framework rules offers speed but less price competition; a strong cost consultant must test the framework price against benchmarks.",
+      "Public body status requires a compliant procurement procedure; framework rules must permit direct award, or selective tender with prequalification is needed."
     ],
     "procurementConflicts": [
-      "Traditional lump-sum delivery is slower to site than two-stage; the client's priority to minimise disruption may favour early contractor engagement despite less price certainty."
+      "The client's priority for fixed final cost favours lump-sum pricing, but early contractor input under two-stage would reduce design gaps and variation risk."
     ],
-    "confidenceScore": "A",
-    "confidenceLabel": "High Confidence"
+    "confidenceScore": "C",
+    "confidenceLabel": "Limited Confidence"
   },
   "answers": {
     "q1_0_projectName": "Refurbishment — Hargreaves Teaching Block, Example University, Birmingham",
@@ -1613,7 +1665,7 @@
     "q5_2_annualBenefit": "95000",
     "q6_2_instructions": "Write for an estates committee that includes non-technical members."
   },
-  "generatedAt": "2026-10-07T17:34:35.161Z",
+  "generatedAt": "2026-10-07T17:45:40.230Z",
   "reportId": null,
   "sample": true
 }
