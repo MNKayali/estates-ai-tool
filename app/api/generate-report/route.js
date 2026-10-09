@@ -298,6 +298,7 @@ async function generate(request, { user, trialId }, outcome) {
       programme:   progData,
       procurement,
       budget,
+      confidence,
       aiProse,
       answers,
       generatedAt,
@@ -351,6 +352,7 @@ function serializeCost(cost) {
     additionalScopeNote: cost.additionalScopeNote,
     workbookVersion: cost.workbookVersion,
     baseDate: cost.baseDate,
+    inflationBasis: cost.inflationBasis,
     rangeApplied: cost.rangeApplied,
     vatPct: cost.vatPct,
     // Percentage build-up — which Tab 3 rules fired for each addition.

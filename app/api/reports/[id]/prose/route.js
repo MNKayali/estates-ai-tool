@@ -150,6 +150,8 @@ export async function POST(request, { params }) {
       programme: record.programme,
       ...(record.procurement && { procurement: record.procurement }),
       budget: record.budget,
+      // The grade and the factors that set it (the cost page prints them).
+      ...(record.confidence && { confidence: record.confidence }),
       aiProse,
       consistency: safeConsistency(record, aiProse),
       answers: record.answers,

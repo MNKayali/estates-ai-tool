@@ -209,6 +209,7 @@ function ReportsTable({ reports, kvOn, users = [] }) {
             <th style={{ textAlign: 'left' }}>Generated</th>
             <th style={{ textAlign: 'right' }}>Cost range (excl. VAT)</th>
             <th style={{ textAlign: 'right' }}>Weeks</th>
+            <th style={{ textAlign: 'left' }}>Checks</th>
             <th style={{ textAlign: 'right' }}>Report</th>
           </tr>
         </thead>
@@ -220,6 +221,7 @@ function ReportsTable({ reports, kvOn, users = [] }) {
               <td style={{ whiteSpace: 'nowrap', color: 'var(--text-mid)' }}>{fmtDate(r.generatedAt)}</td>
               <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{f1k(r.totalLow)} – {f1k(r.totalHigh)}</td>
               <td style={{ textAlign: 'right' }}>{r.totalWeeks ?? '—'}</td>
+              <td style={{ fontSize: 13 }}><Checks checks={r.checks} /></td>
               <td style={{ textAlign: 'right' }}>
                 {r.reportId
                   ? <a className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: 12 }} href={`/report/${r.reportId}`} target="_blank" rel="noopener noreferrer">View ↗</a>
@@ -230,6 +232,24 @@ function ReportsTable({ reports, kvOn, users = [] }) {
         </tbody>
       </table>
     </div>
+  )
+}
+
+// The report's own consistency checks (lib/consistency.js): text that
+// contradicts the register, programme or budget. Advisory — nothing blocks a
+// report — so they are listed here for whoever reviews reports.
+function Checks({ checks }) {
+  if (!Array.isArray(checks)) return <span style={{ color: 'var(--text-mid)' }}>—</span>
+  if (checks.length === 0) return <span style={{ color: 'var(--text-mid)' }}>No issues</span>
+  return (
+    <details>
+      <summary style={{ cursor: 'pointer', color: 'var(--warn)', fontWeight: 600 }}>
+        {checks.length} {checks.length === 1 ? 'warning' : 'warnings'}
+      </summary>
+      <ul style={{ margin: '6px 0 0', paddingLeft: 16, maxWidth: 360 }}>
+        {checks.map((c, i) => <li key={i} style={{ marginBottom: 4 }}>{c.message}</li>)}
+      </ul>
+    </details>
   )
 }
 
