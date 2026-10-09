@@ -753,6 +753,7 @@
       "prelims": 10.5,
       "ohp": 9.5,
       "fees": 16,
+      "contractorDesign": 0,
       "devCosts": 0,
       "risk": 16,
       "contingency": 0,
@@ -835,6 +836,7 @@
       "ohp": 158000,
       "fees": 292000,
       "devCosts": 0,
+      "contractorDesign": 0,
       "risk": 337000,
       "contingency": 0,
       "inflation": 128000,
@@ -848,6 +850,7 @@
         "con": 1551000,
         "fees": 248000,
         "dev": 0,
+        "design": 0,
         "base": 1799000,
         "risk": 288000,
         "riskParts": {
@@ -866,6 +869,7 @@
         "con": 1823000,
         "fees": 292000,
         "dev": 0,
+        "design": 0,
         "base": 2115000,
         "risk": 337000,
         "riskParts": {
@@ -884,6 +888,7 @@
         "con": 2280000,
         "fees": 365000,
         "dev": 0,
+        "design": 0,
         "base": 2645000,
         "risk": 422000,
         "riskParts": {
@@ -930,7 +935,7 @@
     },
     "excludedNoQuantity": [],
     "additionalScopeNote": null,
-    "workbookVersion": "NRM1 v5.17 (2026-10-08)",
+    "workbookVersion": "NRM1 v5.18 (2026-10-08)",
     "baseDate": "Q3 2026",
     "inflationBasis": {
       "baseDate": "2026-08-15",
@@ -1560,21 +1565,21 @@
     ]
   },
   "aiProse": {
-    "executiveSummary": "This feasibility study examines the refurbishment of Hargreaves Teaching Block, a 1200 m² three-storey 1960s teaching building at Example University, Birmingham. The project will replace life-expired services, upgrade fire safety and thermal performance to support net-zero objectives, and provide modern flexible teaching space. The estimated project cost is £2,196,000 to £3,226,000 (excluding VAT), with a Grade C confidence level due to early design stage and limited survey data. The target date of 1 September 2028 is achievable, though asbestos risk and term-time working constraints present material challenges.",
+    "executiveSummary": "This feasibility study examines the refurbishment of Hargreaves Teaching Block, a three-storey 1960s building at Example University in Birmingham (1200 m² GIFA). The project will replace life-expired heating, ventilation and electrical services, upgrade fire safety, improve thermal performance to support net-zero targets, and create flexible teaching space. The estimated project cost is £2,196,000 to £3,226,000 (excluding VAT), with a Grade C confidence level due to early design stage and limited survey data. The target completion date of 1 September 2028 is achievable, though asbestos risk and term-time working constraints present significant challenges.",
     "keyFindings": [
-      "The works cost mid-point is £1,507,000 (range £1,281,000–£1,884,000), driven by full systems replacement across mechanical, electrical, ventilation and building fabric.",
-      "The target date of 1 September 2028 is achievable from a January 2027 start, with approximately 9 weeks of programme buffer.",
+      "The works cost mid-point is £1,507,000 (range £1,281,000 to £1,884,000), driven by full systems replacement across mechanical, electrical and building fabric elements.",
+      "The target date of 1 September 2028 is achievable from a start of 11 January 2027, with approximately 9 weeks of programme buffer.",
       "The stated budget of £4,500,000 (including fees and VAT) is sufficient, with headroom of approximately £629,000 above the top of the estimated range.",
-      "Asbestos is known or suspected in this pre-1980 building; a refurbishment and demolition survey is essential before Stage 2 design to confirm scope and cost.",
+      "Asbestos is known or suspected in this pre-1980 building; a refurbishment and demolition survey is essential before Stage 2 design to avoid cost and programme shock.",
       "The Traditional procurement route with lump-sum pricing is the preferred option for the client to consider, offering design control and cost certainty."
     ],
     "scopeAssumptions": [
-      "External plant space for the air source heat pump system is included within the scope and cost estimate.",
-      "The building has been partially occupied; no prior service replacements have been made since original construction in the 1960s.",
-      "All 21 WCs (18 standard and 3 accessible) are included in the scope and cost."
+      "External plant space for the air source heat pump system is included within the heating and hot water scope.",
+      "The building has been partially occupied throughout its life; no prior major services replacement has occurred since original construction in the 1960s.",
+      "All 20 WCs (18 standard and 3 accessible) are new installations within the refurbished building."
     ],
-    "costNarrative": "The works cost reflects full replacement of mechanical, electrical, ventilation and building services across 1200 m² GIFA, plus asbestos removal, strip-out and comprehensive finishes. Preliminaries are elevated by partial occupation, restricted working hours, complex services and a hard deadline. Professional fees reflect early design stage and M&E complexity; risk allowance is substantial due to design uncertainty and pre-1980 building condition.",
-    "roiNarrative": "The project cost mid-point is £2,580,000, generating annual energy and operational savings of £95,000, giving a simple payback of 27.2 years. The key financial risk is that actual savings may fall short if building performance in use does not match design assumptions or if utility costs do not rise as forecast.",
+    "costNarrative": "The works cost reflects full replacement of mechanical, electrical and building services across the entire 1200 m² building, combined with asbestos removal, strip-out, and comprehensive upgrades to fabric, finishes and fire safety. Preliminaries are elevated by partial occupation, restricted working hours, complex services and a hard deadline. Professional fees reflect the early design stage and M&E-heavy specification, with risk allowance accounting for design uncertainty and the absence of an asbestos refurbishment survey.",
+    "roiNarrative": "The project is expected to deliver annual energy and operational cost savings of £95,000, giving a simple payback period of 27.2 years against the mid-point project cost of £2,580,000. The key financial risk is that actual savings may fall short of forecast if building performance in use differs from design assumptions or if utility costs do not rise as anticipated.",
     "constraints": [
       {
         "category": "Programme",
@@ -1584,30 +1589,30 @@
       {
         "category": "Access",
         "title": "Restricted working hours",
-        "text": "Limited access hours increase construction duration and may attract premium rates, reflected in preliminaries."
-      },
-      {
-        "category": "Regulatory",
-        "title": "Conservation area location",
-        "text": "External alterations require full planning consent with enhanced materials and detailing; pre-application advice from the conservation officer is recommended."
+        "text": "Limited access hours on a single service road in the middle of campus will increase construction duration and may attract premium rates."
       },
       {
         "category": "Technical",
         "title": "Asbestos risk",
-        "text": "Known or suspected asbestos requires licensed removal, notification and air testing; finds during strip-out can delay work."
+        "text": "Asbestos is known or suspected; licensed removal, notification and air testing add cost and time, and finds during strip-out can halt work."
+      },
+      {
+        "category": "Regulatory",
+        "title": "Conservation area",
+        "text": "The site lies in a conservation area; external alterations will likely require full planning with enhanced materials and detailing."
       },
       {
         "category": "Financial",
         "title": "Design stage uncertainty",
-        "text": "Concept-stage design and limited surveys create cost uncertainty; the range spans £1,281,000–£1,884,000 for works alone."
+        "text": "Design is at concept stage only; incomplete information on existing conditions and final specifications creates cost and programme risk."
       }
     ],
     "nextSteps": [
-      "Commission a refurbishment and demolition asbestos survey immediately to confirm scope, cost and programme impact before Stage 2 design begins.",
-      "Obtain pre-application advice from the conservation officer on external alterations, materials and detailing to avoid delays at planning.",
-      "Confirm permitted working hours, blackout dates and out-of-hours rates with the client and facilities team to lock the programme.",
-      "Instruct an M&E condition and capacity survey at Stage 2 to validate the replacement scope and confirm electrical supply capacity with the DNO.",
-      "Develop a detailed phasing and sequencing plan with the contractor at Stage 2 to minimise disruption and optimise the vacation window schedule."
+      "Commission a refurbishment and demolition asbestos survey immediately to replace the management survey and unlock design certainty and cost control.",
+      "Confirm the preferred procurement route (Traditional with lump-sum contract) with the client and their legal advisers, and begin pre-tender design development.",
+      "Engage with the conservation officer for pre-application advice on external alterations, materials and detailing to avoid planning delays.",
+      "Obtain confirmation of electrical supply capacity and DNO requirements for the air source heat pump system during Stage 2 design.",
+      "Agree detailed blackout dates and permitted working hours with the university, and build these into the Stage 2 programme and cost plan."
     ],
     "riskRegister": [
       {
@@ -1667,48 +1672,38 @@
         "likelihood": "Medium",
         "impact": "Medium",
         "rating": "Medium",
-        "mitigation": "Investigate and confirm during Stage 2 design; carry the outcome into the cost plan.",
+        "mitigation": "Investigate and confirm during Stage 2 design, and carry the outcome into the cost plan.",
         "seedRef": "SCOPE-S-0039-1"
       },
       {
         "ref": "DESIGN-STAGE",
         "category": "Cost",
-        "description": "Design is at concept stage only; significant detail and specification remain to be developed, increasing cost uncertainty.",
+        "description": "Design at Stage 0–1 means specification and quantities are not yet fixed; cost estimate carries 16% risk allowance and wide range.",
         "likelihood": "High",
         "impact": "Medium",
         "rating": "High",
-        "mitigation": "Progress design to Stage 2 before tender; commission specialist surveys to reduce unknowns; maintain risk allowance in cost plan.",
-        "seedRef": "NONE"
-      },
-      {
-        "ref": "ASBESTOS-SURVEY",
-        "category": "Health & Safety",
-        "description": "No refurbishment and demolition asbestos survey has been commissioned; pre-2000 building with unknown asbestos presence.",
-        "likelihood": "High",
-        "impact": "High",
-        "rating": "High",
-        "mitigation": "Commission a full R&D asbestos survey immediately; establish a register and carry provisional sum for licensed removal.",
+        "mitigation": "Progress design to Stage 2 before tender; commission detailed surveys to reduce uncertainty; review cost plan at each design stage.",
         "seedRef": "NONE"
       },
       {
         "ref": "PHASING-COMPLEXITY",
         "category": "Programme",
-        "description": "Multiple-phase delivery during partial occupation increases coordination complexity and extends programme exposure to term-time constraints.",
+        "description": "Multiple phases with partial occupation during works increases sequencing complexity and coordination overhead.",
         "likelihood": "Medium",
-        "impact": "High",
-        "rating": "High",
-        "mitigation": "Confirm phase split and sequencing at Stage 2; agree occupation protocols with the client; build contingency into each phase.",
+        "impact": "Medium",
+        "rating": "Medium",
+        "mitigation": "Confirm phase split and occupation strategy at Stage 2; agree detailed sequencing with the client and occupants; plan logistics early.",
         "seedRef": "NONE"
       }
     ],
-    "procurementNarrative": "The traditional route with lump-sum pricing suits this project because design can be completed before tender, cost certainty is a priority, and the client values design control. The two-stage alternative would be preferable if early contractor input to sequencing and buildability in this occupied, phased refurbishment could offset the reduced price competition at the second stage.",
+    "procurementNarrative": "The traditional route with lump-sum pricing suits this project because design can be completed before tender, cost certainty and design quality matter more than speed, and the client is a public body requiring formal competitive procurement. The two-stage alternative would be better if early contractor input to sequencing and buildability in this complex, occupied, phased refurbishment proved more valuable than price competition.",
     "procurementConsiderations": [
-      "Gaps in the design at tender will become client variations; ensure design is substantially complete before inviting bids to protect the lump-sum price.",
-      "Contractors will add risk allowances where information is poor; commission the asbestos R&D survey and M&E condition survey before tender to reduce their contingencies.",
-      "Public funding requires formal competitive procurement; allow adequate time for prequalification and tender evaluation, and follow the framework's award rules if using direct appointment."
+      "Gaps in the design at Stage 0–1 will become client variations unless the design is completed to full specification before tender; allow time and budget for Stage 2 and detailed design.",
+      "Contractors will add risk allowances to their prices where information is poor; a strong cost consultant should test the tender returns against the cost plan and challenge outliers.",
+      "Public bodies above the threshold must follow a compliant procedure; confirm that the formal competitive procurement route meets the client's governance and funding rules."
     ],
     "procurementConflicts": [
-      "Traditional lump-sum procurement offers cost certainty at award, but design completion before tender will extend the overall programme timeline, potentially conflicting with the target date if design slips."
+      "The traditional route is the slowest to site; if the client's priority to minimise disruption requires early start on site, two-stage procurement with early contractor engagement may be preferable despite less price competition."
     ],
     "confidenceScore": "C",
     "confidenceLabel": "Limited Confidence"
@@ -1795,7 +1790,7 @@
     "q5_2_annualBenefit": "95000",
     "q6_2_instructions": "Write for an estates committee that includes non-technical members."
   },
-  "generatedAt": "2026-10-07T18:46:03.861Z",
+  "generatedAt": "2026-10-07T19:27:56.672Z",
   "reportId": null,
   "sample": true
 }
