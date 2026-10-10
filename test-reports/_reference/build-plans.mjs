@@ -30,6 +30,7 @@ const LISTS = {
   'Q4.5': ['Concept only (Stage 0–1)', 'Concept complete (Stage 2)', 'Developed design (Stage 3)', 'Technical complete (Stage 4)'],
   'Q4.6': ['Single phase', 'Multiple phases'],
   'Q4.7': ['Internal / commercial', 'Grant or public funding', 'Not yet confirmed'],
+  'Q4.8': ['Yes', 'No'],
   'Q5.1': ['Energy or operational cost savings', 'Rental or commercial income', 'Grant or funding unlock', 'Avoidance of compliance cost or penalty', 'Increased asset value', 'No direct financial return — strategic or compliance project'],
 }
 const MULTI = new Set(['Q2.5', 'Q3.1', 'Q3.3', 'Q3.5', 'Q3.8', 'Q4.4', 'Q5.1'])
@@ -53,7 +54,7 @@ function parse(md) {
   let cur = null, sub = null
   for (const raw of body.split(/\r?\n/)) {
     if (/^- Q/.test(raw)) {
-      const m = raw.match(/^- (Q\d\.\d+a?)\b([^:]*):\s*(.*)$/) || raw.match(/^- (Q\d\.\d+a?)\b(.*)$/)
+      const m = raw.match(/^- (Q\d\.\d+[a-z]?)\b([^:]*):\s*(.*)$/) || raw.match(/^- (Q\d\.\d+[a-z]?)\b(.*)$/)
       cur = { q: m[1], label: m[2].trim(), value: (m[3] || '').trim(), subs: [] }; sub = null; items.push(cur)
     } else if (/^\s{2,3}- /.test(raw) && cur) {
       const m = raw.trim().slice(2).match(/^([^:]+):\s*(.*)$/)
@@ -133,6 +134,8 @@ function build(id) {
     if (it.q === 'Q4.1' && value !== 'No specific deadline') value = date(value, problems, it.q)
     if (it.q === 'Q4.2') value = date(value, problems, it.q)
     if (it.q === 'Q1.2a') value = /7/.test(value) ? '7' : value.replace(/\D/g, '')
+    if (it.q === 'Q4.4' && value.length > 3) problems.push('Q4.4: at most three priorities')
+    if ((it.q === 'Q4.6a' || it.q === 'Q4.6b') && !/^\d+$/.test(value)) problems.push(`${it.q}: "${value}" is not a whole number`)
     if (it.q === 'Q4.3' || it.q === 'Q5.2' || it.q === 'Q1.5') value = value.replace(/[£,\s]/g, '')
     const step = { q: it.q, value }
     if (it.q === 'Q1.3') { const other = it.subs.find(x => /describe/i.test(x.key)); if (other) step.other = other.value }
@@ -145,6 +148,8 @@ function build(id) {
   }
   if (ptRow.usesLevel && !get('Q2.2')) problems.push('Q2.2: level of intervention is required for this type')
   if (!scope) problems.push('Q2.3: no scope given')
+  if (!get('Q4.8')) problems.push('Q4.8: public client (Yes / No) is required')
+  if (get('Q4.6')?.value === 'Multiple phases' && (!get('Q4.6a') || !get('Q4.6b'))) problems.push('Q4.6a / Q4.6b: phase count and gap are required when phased')
   return { problems, notes, plan: { id, projectType: pt, sections, scope } }
 }
 

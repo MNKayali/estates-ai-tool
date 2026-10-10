@@ -1,0 +1,220 @@
+{
+ "id": "OM-9-industrial",
+ "projectType": "Other or mixed",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] Chilled food factory upgrade and extension"
+   },
+   {
+    "q": "Q1.1",
+    "value": "PE2"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Other or mixed"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Industrial / warehouse"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1980–1999"
+   },
+   {
+    "q": "Q1.5",
+    "value": "3000"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Refurbish 2,200 m² of production space to high-care food hygiene standard and build an 800 m² production extension, delivered in two phases while the factory keeps running. Includes hygienic panels and resin floors, process drainage, cooling, positive-pressure ventilation, compressed air and a power supply upgrade."
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "Food hygiene",
+     "DNO"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Drainage issues",
+     "Ageing or inadequate M&E",
+     "Asbestos known or suspected"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Roof overclad 2012."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos management survey",
+     "Ground investigation",
+     "Condition"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers",
+     "Restricted working hours"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "24/7 production; hygiene barriers between works and live lines; retailer audit before handover."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2028-06-30"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-16"
+   },
+   {
+    "q": "Q4.3",
+    "value": "7500000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Minimise disruption",
+     "Speed"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.6a",
+    "value": "2"
+   },
+   {
+    "q": "Q4.6b",
+    "value": "3"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q4.8",
+    "value": "No"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Energy or operational cost savings",
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "1200000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": false,
+  "add": [
+   "S-0003",
+   "S-0008",
+   "S-0009",
+   "S-0011",
+   "S-0015",
+   "S-0016",
+   "S-0018",
+   "S-0019",
+   "S-0021",
+   "S-0022",
+   "S-0023",
+   "S-0040",
+   "S-0041",
+   "S-0042",
+   "S-0043",
+   "S-0044",
+   "S-0045",
+   "S-0046",
+   "S-0049",
+   "S-0058",
+   "S-0060",
+   "S-0068",
+   "S-0065"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0044",
+    "name": "Electricity supply upgrade",
+    "pick": "One",
+    "key": "S-0044-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   },
+   {
+    "id": "S-0058",
+    "name": "Compressed air",
+    "pick": "One",
+    "key": "S-0058-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0060",
+    "name": "Process drainage",
+    "pick": "One",
+    "key": "S-0060-01",
+    "label": "Standard",
+    "qty": "1800"
+   }
+  ],
+  "method": null
+ }
+}

@@ -1,0 +1,188 @@
+{
+ "id": "EX-8-education",
+ "projectType": "Extension",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] Engineering teaching wing extension"
+   },
+   {
+    "q": "Q1.1",
+    "value": "LS2"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Extension"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "3"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Education"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1980–1999"
+   },
+   {
+    "q": "Q1.5",
+    "value": "1800"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Add a three-storey teaching and laboratory wing (two large flat-floor teaching rooms, four teaching labs, study space) linked at every level to the existing engineering building. Must meet the university design guide and BREEAM Excellent, with fume extraction for the labs and a passenger lift."
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "BREEAM",
+     "University design guide"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Underground services or obstructions",
+     "Made ground or fill"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Existing building completed 1994; plant replaced 2018."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Topographic",
+     "Ground investigation",
+     "Utilities / statutory services search"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Term-time only working",
+     "Shared access with other occupiers"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Culverted beck runs under part of the footprint; Coal Authority mapping shows shallow workings nearby."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2029-08-31"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-01-11"
+   },
+   {
+    "q": "Q4.3",
+    "value": "12000000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Design quality",
+     "Minimise disruption",
+     "Fixed / certain final cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.6a",
+    "value": "2"
+   },
+   {
+    "q": "Q4.6b",
+    "value": "8"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q4.8",
+    "value": "Yes"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0033",
+   "S-0059",
+   "S-0054",
+   "S-0052",
+   "S-0030",
+   "S-0043",
+   "S-0053",
+   "S-0065",
+   "S-0020"
+  ],
+  "remove": [
+   "S-0027"
+  ],
+  "options": [
+   {
+    "id": "S-0008",
+    "name": "Foundations",
+    "pick": "One",
+    "key": "S-0008-02",
+    "label": "Type: Piled",
+    "dims": [
+     {
+      "dim": "Type",
+      "value": "Piled"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0054",
+    "name": "Lifts",
+    "pick": "Several",
+    "key": "S-0054-01",
+    "label": "Type: Passenger",
+    "qty": "1"
+   }
+  ],
+  "method": null
+ }
+}

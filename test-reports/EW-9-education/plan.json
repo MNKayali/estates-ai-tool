@@ -1,0 +1,127 @@
+{
+ "id": "EW-9-education",
+ "projectType": "External works only",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] School playground and MUGA renewal"
+   },
+   {
+    "q": "Q1.1",
+    "value": "SA2"
+   },
+   {
+    "q": "Q1.2",
+    "value": "External works only"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Education"
+   },
+   {
+    "q": "Q1.5",
+    "value": "1200"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Resurface the 1,200 m² playground, add a fenced MUGA, new surface water drainage to soakaways, perimeter fencing and an outdoor classroom with planting, all within the 2027 summer holiday."
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Existing hardstanding to break out",
+     "Unsure — surveys needed"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Topographic",
+     "Drainage / percolation testing"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Permitted development"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Term-time only working"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Works must fit in the summer holiday (late July to early September 2027)."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-09-01"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-03-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "220000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Lowest cost",
+     "Speed"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q4.8",
+    "value": "Yes"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "No direct financial return — strategic or compliance project"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [],
+  "remove": [
+   "S-0067"
+  ],
+  "options": [],
+  "quantities": [],
+  "method": null
+ }
+}

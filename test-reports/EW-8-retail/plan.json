@@ -1,0 +1,156 @@
+{
+ "id": "EW-8-retail",
+ "projectType": "External works only",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] Retail park public realm upgrade"
+   },
+   {
+    "q": "Q1.1",
+    "value": "SO16"
+   },
+   {
+    "q": "Q1.2",
+    "value": "External works only"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Retail"
+   },
+   {
+    "q": "Q1.5",
+    "value": "3000"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Upgrade 3,000 m² of the retail park frontage: break out and relay the pedestrian walkway, raised crossings, LED lighting, planting beds and new trees, a 40-space cycle shelter and a widened access junction, phased so all shops keep trading."
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "Highways"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Existing hardstanding to break out",
+     "Underground services or obstructions"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Topographic",
+     "Utilities / statutory services search"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Permitted development"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers",
+     "Restricted working hours"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "No works allowed in the Christmas trading period (mid-November to early January)."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-01-11"
+   },
+   {
+    "q": "Q4.3",
+    "value": "650000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Minimise disruption",
+     "Lowest cost",
+     "Flexibility"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.6a",
+    "value": "3"
+   },
+   {
+    "q": "Q4.6b",
+    "value": "0"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q4.8",
+    "value": "No"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Increased asset value"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0080",
+   "S-0081",
+   "S-0071"
+  ],
+  "remove": [
+   "S-0079"
+  ],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "40"
+   }
+  ],
+  "method": null
+ }
+}
