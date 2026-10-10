@@ -24,6 +24,7 @@ import {
   sectionCounts, unansweredRequired, progressPercent, QUESTIONS_BY_SECTION,
   PRIORITY_OPTIONS, PRIORITY_MAX, PUBLIC_CLIENT_OPTIONS,
   isPhased, PHASE_COUNT_MIN, PHASE_COUNT_MAX, PHASE_GAP_MAX, STOREYS_MAX,
+  asksOfficeSplit, MAIN_SPACE_OPTIONS,
   VAT_RECOVERY_OPTIONS, isZeroRatedNewBuild,
   ACCESS_OPTIONS, ACCESS_NONE, migrateAccessAnswers, accessFlags,
   WORK_WINDOW, WORK_WINDOW_OPTIONS, WORK_PERIODS_MAX,
@@ -949,6 +950,11 @@ export default function QuestionnairePage() {
       // prices at a building-use rate), AND senseCheck finds no ▶ benchmarks band, so the COST_LOW / COST_HIGH checks — the main
       // guard against a mispriced estimate — silently never run.
       if (!answers.q1_3_buildingUse) errs.q1_3_buildingUse = 'Building use is required'
+      if (asksOfficeSplit(answers)) {
+        const v = answers.q1_3a_officeShare
+        if (String(v ?? '').trim() !== '' && !(Number(v) >= 0 && Number(v) <= 100)) errs.q1_3a_officeShare = 'Enter a share from 0 to 100%'
+        if (!answers.q1_3b_mainSpace) errs.q1_3b_mainSpace = 'Say what the rest of the building is'
+      }
     }
     if (sec === 2) {
       if (!answers.q2_1_objective?.trim()) errs.q2_1_objective = 'Project objective is required'
@@ -1365,6 +1371,32 @@ export default function QuestionnairePage() {
                   <TextInput value={answers.q1_3_buildingUseOther} onChange={v => set('q1_3_buildingUseOther', v)} placeholder="Please describe the building use" />
                 </div>
               )}
+              {/* Industrial / warehouse new build and extensions (October 2026):
+                  fit-out items are priced on the offices share only, services
+                  also on a production floor. The suggestion is the NRM1
+                  workbook's office_share ratio; blank = that suggestion. */}
+              {asksOfficeSplit(answers) && (() => {
+                const suggested = Math.round(((catalogue?.settings.ratios || []).find(r => r.key === 'office_share' && r.use === 'ALL')?.value ?? 0) * 100)
+                return (
+                  <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+                    <Label>Q1.3a — Offices, welfare and staff areas</Label>
+                    <HelpText>About what share of the floor is offices, welfare and staff areas? They are priced with full fit-out; the rest of the building is not.{suggested ? ` Suggested: ${suggested}% — leave it blank to use the suggestion, or change it if you know.` : ''}</HelpText>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, maxWidth: 200 }}>
+                      <input type="number" inputMode="decimal" min={0} max={100} step={1} aria-label="Offices share of the floor, per cent"
+                        value={answers.q1_3a_officeShare ?? ''} placeholder={suggested ? String(suggested) : ''}
+                        onChange={e => set('q1_3a_officeShare', e.target.value)}
+                        className="w-full rounded-xl border px-4 py-3" style={{ borderColor: 'var(--border)' }} />
+                      <span aria-hidden="true">%</span>
+                    </div>
+                    {validationErrors.q1_3a_officeShare && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_3a_officeShare}</p>}
+                    <div style={{ marginTop: 16 }}>
+                      <Label required>Q1.3b — The rest of the building is mainly</Label>
+                      <RadioGroup options={MAIN_SPACE_OPTIONS} value={answers.q1_3b_mainSpace} onChange={v => set('q1_3b_mainSpace', v)} ariaLabel="The rest of the building is mainly" />
+                      {validationErrors.q1_3b_mainSpace && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_3b_mainSpace}</p>}
+                    </div>
+                  </div>
+                )
+              })()}
             </QCard>
 
             {isQuestionShown('q1_4_buildingAge', answers.q1_2_projectType) && (
