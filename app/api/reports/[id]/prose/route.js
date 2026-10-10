@@ -25,7 +25,7 @@ import {
   claimLock, releaseLock, finaliseReport,
 } from '@/lib/kv'
 import {
-  PROSE_ORDER, PROSE_HALVES, requestProseHalf,
+  PROSE_ORDER, PROSE_HALVES, requestProseHalf, vatGuardFor,
   buildProsePrompts, finaliseProse, scrubAnswers,
 } from '@/lib/prose'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
@@ -119,6 +119,7 @@ export async function POST(request, { params }) {
         // Kept and trimmed, never failed — but worth knowing how often the model misses the shape.
         onShapeMiss: (h, message) => Sentry.captureMessage(`[prose] shape miss (${h}): ${message}`, 'warning'),
         procurement: record.procurement || null,
+        vatGuard: vatGuardFor(record.answers, record.cost, senseCheck),
       })
       await saveProseHalf(id, half, out)
       madeProgress = true
