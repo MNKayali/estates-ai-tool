@@ -54,15 +54,8 @@ function benchmark(md) {
 
 const args = process.argv.slice(2)
 const flag = n => { const i = args.indexOf(n); if (i < 0) return null; const v = args[i + 1]; args.splice(i, 2); return v }
-const liveDir = flag('--live'), jsonOut = flag('--json'), proposal = flag('--proposal'), overlayFile = flag('--overlay')
+const liveDir = flag('--live'), jsonOut = flag('--json'), overlayFile = flag('--overlay')
 const overlay = overlayFile ? JSON.parse(fs.readFileSync(overlayFile, 'utf8')) : {}
-if (proposal) {
-  // Price with the owner proposal applied in memory (proposal-elemental.mjs).
-  const { loadNrmWorkbook } = await import('../../lib/nrmWorkbook.js')
-  const file = proposal.startsWith('file:') ? proposal.slice(5) : './proposal-elemental.mjs'
-  const { applyProposal } = await import(file)
-  applyProposal(await loadNrmWorkbook(), proposal.split(','))
-}
 const ids = args.length ? args : fs.readdirSync(ROOT).filter(d => /^[A-Z]{2}-[789]-/.test(d)).sort()
 const k = n => n == null ? '–' : `£${Math.round(n / 1000).toLocaleString('en-GB')}k`
 const rows = [], full = []
