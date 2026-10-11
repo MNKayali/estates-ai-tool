@@ -1,0 +1,362 @@
+[
+ {
+  "id": "RES-1",
+  "problems": [],
+  "enter": [],
+  "construction": 2617000,
+  "total": [
+   3123000,
+   4166000
+  ],
+  "weeks": 89,
+  "grade": "B"
+ },
+ {
+  "id": "RES-2",
+  "problems": [],
+  "enter": [],
+  "construction": 2421000,
+  "total": [
+   2914000,
+   4279000
+  ],
+  "weeks": 112,
+  "grade": "C"
+ },
+ {
+  "id": "RES-3",
+  "problems": [],
+  "enter": [],
+  "construction": 322000,
+  "total": [
+   364000,
+   486000
+  ],
+  "weeks": 62,
+  "grade": "B"
+ },
+ {
+  "id": "STU-1",
+  "problems": [],
+  "enter": [],
+  "construction": 15296000,
+  "total": [
+   18302000,
+   26919000
+  ],
+  "weeks": 163,
+  "grade": "C"
+ },
+ {
+  "id": "STU-2",
+  "problems": [],
+  "enter": [],
+  "construction": 1211000,
+  "total": [
+   1287000,
+   1895000
+  ],
+  "weeks": 42,
+  "grade": "C"
+ },
+ {
+  "id": "STU-3",
+  "problems": [],
+  "enter": [],
+  "construction": 1369000,
+  "total": [
+   1585000,
+   2674000
+  ],
+  "weeks": 81,
+  "grade": "D"
+ },
+ {
+  "id": "OFF-1",
+  "problems": [],
+  "enter": [],
+  "construction": 1515000,
+  "total": [
+   1685000,
+   2249000
+  ],
+  "weeks": 42,
+  "grade": "B"
+ },
+ {
+  "id": "OFF-2",
+  "problems": [],
+  "enter": [],
+  "construction": 2684000,
+  "total": [
+   3263000,
+   4349000
+  ],
+  "weeks": 83,
+  "grade": "B"
+ },
+ {
+  "id": "OFF-3",
+  "problems": [],
+  "enter": [],
+  "construction": 1974000,
+  "total": [
+   2494000,
+   3327000
+  ],
+  "weeks": 94,
+  "grade": "B"
+ },
+ {
+  "id": "EDU-1",
+  "problems": [],
+  "enter": [],
+  "construction": 771000,
+  "total": [
+   892000,
+   1507000
+  ],
+  "weeks": 59,
+  "grade": "D"
+ },
+ {
+  "id": "EDU-2",
+  "problems": [],
+  "enter": [],
+  "construction": 438000,
+  "total": [
+   463000,
+   780000
+  ],
+  "weeks": 114,
+  "grade": "D"
+ },
+ {
+  "id": "EDU-3",
+  "problems": [],
+  "enter": [],
+  "construction": 1304000,
+  "total": [
+   1455000,
+   2139000
+  ],
+  "weeks": 64,
+  "grade": "C"
+ },
+ {
+  "id": "HEA-1",
+  "problems": [],
+  "enter": [],
+  "construction": 2522000,
+  "total": [
+   3021000,
+   4029000
+  ],
+  "weeks": 101,
+  "grade": "B"
+ },
+ {
+  "id": "HEA-2",
+  "problems": [],
+  "enter": [],
+  "construction": 296000,
+  "total": [
+   343000,
+   575000
+  ],
+  "weeks": 65,
+  "grade": "D"
+ },
+ {
+  "id": "HEA-3",
+  "problems": [],
+  "enter": [],
+  "construction": 5946000,
+  "total": [
+   6645000,
+   11207000
+  ],
+  "weeks": 96,
+  "grade": "D"
+ },
+ {
+  "id": "RET-1",
+  "problems": [],
+  "enter": [],
+  "construction": 131000,
+  "total": [
+   152000,
+   204000
+  ],
+  "weeks": 19,
+  "grade": "B"
+ },
+ {
+  "id": "RET-2",
+  "problems": [],
+  "enter": [],
+  "construction": 1768000,
+  "total": [
+   2186000,
+   3214000
+  ],
+  "weeks": 106,
+  "grade": "C"
+ },
+ {
+  "id": "RET-3",
+  "problems": [],
+  "enter": [],
+  "construction": 216000,
+  "total": [
+   254000,
+   340000
+  ],
+  "weeks": 41,
+  "grade": "B"
+ },
+ {
+  "id": "IND-1",
+  "problems": [],
+  "enter": [],
+  "construction": 8721000,
+  "total": [
+   10648000,
+   14198000
+  ],
+  "weeks": 122,
+  "grade": "B"
+ },
+ {
+  "id": "IND-2",
+  "problems": [],
+  "enter": [],
+  "construction": 1957000,
+  "total": [
+   2252000,
+   3802000
+  ],
+  "weeks": 87,
+  "grade": "D"
+ },
+ {
+  "id": "IND-3",
+  "problems": [],
+  "enter": [],
+  "construction": 763000,
+  "total": [
+   896000,
+   1193000
+  ],
+  "weeks": 75,
+  "grade": "B"
+ },
+ {
+  "id": "HOS-1",
+  "problems": [],
+  "enter": [],
+  "construction": 766000,
+  "total": [
+   896000,
+   1318000
+  ],
+  "weeks": 45,
+  "grade": "C"
+ },
+ {
+  "id": "HOS-2",
+  "problems": [],
+  "enter": [],
+  "construction": 1891000,
+  "total": [
+   1952000,
+   3294000
+  ],
+  "weeks": 63,
+  "grade": "D"
+ },
+ {
+  "id": "HOS-3",
+  "problems": [],
+  "enter": [],
+  "construction": 7863000,
+  "total": [
+   9768000,
+   13024000
+  ],
+  "weeks": 117,
+  "grade": "B"
+ },
+ {
+  "id": "MIX-1",
+  "problems": [],
+  "enter": [],
+  "construction": 1893000,
+  "total": [
+   2239000,
+   3782000
+  ],
+  "weeks": 80,
+  "grade": "D"
+ },
+ {
+  "id": "MIX-2",
+  "problems": [],
+  "enter": [],
+  "construction": 9853000,
+  "total": [
+   10703000,
+   15743000
+  ],
+  "weeks": 122,
+  "grade": "C"
+ },
+ {
+  "id": "MIX-3",
+  "problems": [],
+  "enter": [],
+  "construction": 453000,
+  "total": [
+   537000,
+   791000
+  ],
+  "weeks": 56,
+  "grade": "C"
+ },
+ {
+  "id": "OTH-1",
+  "problems": [],
+  "enter": [],
+  "construction": 1249000,
+  "total": [
+   1457000,
+   2140000
+  ],
+  "weeks": 74,
+  "grade": "C"
+ },
+ {
+  "id": "OTH-2",
+  "problems": [],
+  "enter": [],
+  "construction": 307000,
+  "total": [
+   380000,
+   561000
+  ],
+  "weeks": 66,
+  "grade": "C"
+ },
+ {
+  "id": "OTH-3",
+  "problems": [],
+  "enter": [],
+  "construction": 310000,
+  "total": [
+   373000,
+   496000
+  ],
+  "weeks": 46,
+  "grade": "B"
+ }
+]
