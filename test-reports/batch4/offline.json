@@ -1,7 +1,9 @@
 [
  {
   "id": "RES-1",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 2617000,
   "total": [
@@ -13,7 +15,9 @@
  },
  {
   "id": "RES-2",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 2421000,
   "total": [
@@ -25,7 +29,9 @@
  },
  {
   "id": "RES-3",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 322000,
   "total": [
@@ -37,7 +43,9 @@
  },
  {
   "id": "STU-1",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 15296000,
   "total": [
@@ -49,7 +57,10 @@
  },
  {
   "id": "STU-2",
-  "problems": [],
+  "problems": [
+   "Q3.5 \"Works limited to certain periods (holidays, seasons or blackout dates)\"",
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 1211000,
   "total": [
@@ -61,7 +72,9 @@
  },
  {
   "id": "STU-3",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 1362000,
   "total": [
@@ -73,7 +86,9 @@
  },
  {
   "id": "OFF-1",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 1515000,
   "total": [
@@ -85,7 +100,9 @@
  },
  {
   "id": "OFF-2",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 2684000,
   "total": [
@@ -97,7 +114,9 @@
  },
  {
   "id": "OFF-3",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 1974000,
   "total": [
@@ -109,7 +128,9 @@
  },
  {
   "id": "EDU-1",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 771000,
   "total": [
@@ -121,7 +142,10 @@
  },
  {
   "id": "EDU-2",
-  "problems": [],
+  "problems": [
+   "Q3.5 \"Works limited to certain periods (holidays, seasons or blackout dates)\"",
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 438000,
   "total": [
@@ -133,7 +157,9 @@
  },
  {
   "id": "EDU-3",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 1304000,
   "total": [
@@ -145,7 +171,9 @@
  },
  {
   "id": "HEA-1",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 2522000,
   "total": [
@@ -157,7 +185,9 @@
  },
  {
   "id": "HEA-2",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 296000,
   "total": [
@@ -169,7 +199,9 @@
  },
  {
   "id": "HEA-3",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 5946000,
   "total": [
@@ -181,7 +213,9 @@
  },
  {
   "id": "RET-1",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 131000,
   "total": [
@@ -193,7 +227,9 @@
  },
  {
   "id": "RET-2",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 1768000,
   "total": [
@@ -205,7 +241,9 @@
  },
  {
   "id": "RET-3",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 216000,
   "total": [
@@ -217,7 +255,9 @@
  },
  {
   "id": "IND-1",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 8721000,
   "total": [
@@ -229,7 +269,9 @@
  },
  {
   "id": "IND-2",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 1957000,
   "total": [
@@ -241,7 +283,9 @@
  },
  {
   "id": "IND-3",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 763000,
   "total": [
@@ -253,7 +297,9 @@
  },
  {
   "id": "HOS-1",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 766000,
   "total": [
@@ -265,7 +311,9 @@
  },
  {
   "id": "HOS-2",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 1891000,
   "total": [
@@ -277,7 +325,9 @@
  },
  {
   "id": "HOS-3",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 7863000,
   "total": [
@@ -289,7 +339,9 @@
  },
  {
   "id": "MIX-1",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 1884000,
   "total": [
@@ -301,7 +353,9 @@
  },
  {
   "id": "MIX-2",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 9853000,
   "total": [
@@ -313,7 +367,9 @@
  },
  {
   "id": "MIX-3",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 453000,
   "total": [
@@ -325,7 +381,9 @@
  },
  {
   "id": "OTH-1",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 1249000,
   "total": [
@@ -337,7 +395,9 @@
  },
  {
   "id": "OTH-2",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 307000,
   "total": [
@@ -349,7 +409,9 @@
  },
  {
   "id": "OTH-3",
-  "problems": [],
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
   "enter": [],
   "construction": 310000,
   "total": [
