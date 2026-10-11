@@ -26,8 +26,9 @@ import {
   isPhased, PHASE_COUNT_MIN, PHASE_COUNT_MAX, PHASE_GAP_MAX, STOREYS_MAX,
   asksOfficeSplit, MAIN_SPACE_OPTIONS,
   VAT_RECOVERY_OPTIONS, isZeroRatedNewBuild,
-  ACCESS_OPTIONS, ACCESS_NONE, migrateAccessAnswers, accessFlags,
-  WORK_WINDOW, WORK_WINDOW_OPTIONS, WORK_PERIODS_MAX,
+  ACCESS_OPTIONS, ACCESS_NONE, migrateAccessAnswers,
+  ACCESS, WORK_WINDOW,
+  BLACKOUT, BLACKOUT_OPTIONS, BLACKOUT_DATES, BLACKOUT_DATES_MAX, blackoutOptionsFor,
 } from '../../lib/questionSets.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
@@ -723,11 +724,20 @@ export default function QuestionnairePage() {
         // Q3.5 was reworded in October 2026; old ticks are translated, and an
         // old "Term-time only working" becomes the holidays-only window.
         const a = parsed.answers
-        const termTime = Array.isArray(a.q3_5_accessConstraints) && a.q3_5_accessConstraints.includes('Term-time only working')
+        // Since the construction-blackout question (Q4.2a), "Works limited to
+        // certain periods" is not offered in Q3.5: it is taken out of a draft,
+        // and its stop dates (Q3.5b "any time except") carry over as specific
+        // dates. Other windows are dropped; Q4.2a is required, so the user
+        // answers it again rather than keep an answer they cannot see.
+        const access = Array.isArray(a.q3_5_accessConstraints) ? migrateAccessAnswers(a.q3_5_accessConstraints) : a.q3_5_accessConstraints
+        const stopDates = a.q3_5a_workWindow === WORK_WINDOW.except && Array.isArray(a.q3_5b_workPeriods) && a.q3_5b_workPeriods.length
+        const rest = { ...a }
+        delete rest.q3_5a_workWindow
+        delete rest.q3_5b_workPeriods
         setAnswers({
-          ...a,
-          ...(Array.isArray(a.q3_5_accessConstraints) && { q3_5_accessConstraints: migrateAccessAnswers(a.q3_5_accessConstraints) }),
-          ...(termTime && !a.q3_5a_workWindow && { q3_5a_workWindow: WORK_WINDOW.holidays }),
+          ...rest,
+          ...(Array.isArray(access) && { q3_5_accessConstraints: access.filter(x => x !== ACCESS.periods) }),
+          ...(stopDates && !a.q4_2a_blackout && { q4_2a_blackout: BLACKOUT.yes, q4_2b_blackouts: [BLACKOUT_DATES], q4_2c_blackoutDates: a.q3_5b_workPeriods }),
         })
       } else {
         localStorage.removeItem(STORAGE_KEY)
@@ -985,22 +995,32 @@ export default function QuestionnairePage() {
       q3_3_surveys:           'Surveys carried out in the last 5 years',
       q3_4_planningConsents:  'Planning consent',
       q3_5_accessConstraints: 'Access constraints',
-      q3_5a_workWindow:       'When construction can take place',
       q3_6_occupation:        'Occupation during works',
       q3_8_siteContext:       'Site and building context',
       q4_5_designStage:       'Design stage already reached',
+      q4_2a_blackout:         'Restricted periods for site works',
+      q4_2b_blackouts:        'Restricted periods',
     }
     // The client-type question has no "None" option to point at.
     const PLAIN = {
       q4_8_publicClient: 'Say whether the client is a public-sector body — Yes or No',
       q4_6a_phaseCount: `Enter the number of phases (${PHASE_COUNT_MIN}–${PHASE_COUNT_MAX})`,
       q4_6b_phaseGapWeeks: 'Enter the gap between phases in weeks — 0 if the next phase starts straight away',
-      q3_5b_workPeriods: 'Enter at least one period (from and to dates)',
+      q4_2c_blackoutDates: 'Enter at least one period (from and to dates)',
     }
-    // Work periods: every row that has been started must be a complete, ordered range.
-    if (sec === 3 && accessFlags(answers).periods && Array.isArray(answers.q3_5b_workPeriods)) {
-      const bad = answers.q3_5b_workPeriods.some(p => (p?.from || p?.to) && !(p?.from && p?.to && p.from <= p.to))
-      if (bad) errs.q3_5b_workPeriods = 'Each period needs a from date and a to date, with the to date not before the from date'
+    // Construction blackouts: a tick must be one this building use is offered
+    // (a building-use change can leave a stale one), and every date row that
+    // has been started must be a complete, ordered range.
+    if (sec === 4 && answers.q4_2a_blackout === BLACKOUT.yes) {
+      const offered = [...blackoutOptionsFor(scopeData?.blackouts, answers.q1_3_buildingUse).map(o => o.label), BLACKOUT_DATES]
+      const ticked = (answers.q4_2b_blackouts || []).filter(v => offered.includes(v))
+      if (!ticked.length) errs.q4_2b_blackouts = 'Tick at least one restricted period, or answer No above'
+      const dates = Array.isArray(answers.q4_2c_blackoutDates) ? answers.q4_2c_blackoutDates : []
+      if (ticked.includes(BLACKOUT_DATES)) {
+        if (dates.some(p => (p?.from || p?.to) && !(p?.from && p?.to && p.from <= p.to))) {
+          errs.q4_2c_blackoutDates = 'Each period needs a from date and a to date, with the to date not before the from date'
+        } else if (!dates.some(p => p?.from && p?.to)) errs.q4_2c_blackoutDates = 'Enter at least one period (from and to dates)'
+      }
     }
     // Phased construction: answered is not enough, the figures must be usable.
     if (sec === 4 && isPhased(answers)) {
@@ -1666,46 +1686,6 @@ export default function QuestionnairePage() {
               {validationErrors.q3_5_accessConstraints && <p id="err-q3_5_accessConstraints" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_5_accessConstraints}</p>}
             </QCard>
 
-            {accessFlags(answers).periods && (
-              <QCard qkey="q3_5a_workWindow">
-                <Label required>Q3.5a — When can construction take place?</Label>
-                <HelpText>The programme fits the construction into these windows, so a long build can take several holidays or seasons.</HelpText>
-                <RadioGroup options={WORK_WINDOW_OPTIONS} value={answers.q3_5a_workWindow} onChange={v => set('q3_5a_workWindow', v)}
-                  required describedBy={validationErrors.q3_5a_workWindow ? 'err-q3_5a_workWindow' : undefined} />
-                {validationErrors.q3_5a_workWindow && <p id="err-q3_5a_workWindow" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_5a_workWindow}</p>}
-                {answers.q3_5a_workWindow === WORK_WINDOW.holidays && (
-                  <p className="mt-3 text-sm" style={{ color: 'var(--text-mid)' }}>Uses the typical school holidays: summer, Christmas, Easter and the three half-terms.</p>
-                )}
-                {[WORK_WINDOW.except, WORK_WINDOW.only].includes(answers.q3_5a_workWindow) && (
-                  <div className="mt-4" data-qkey="q3_5b_workPeriods">
-                    <p className="text-sm" style={{ color: 'var(--text-mid)', marginBottom: 8 }}>
-                      {answers.q3_5a_workWindow === WORK_WINDOW.except ? 'Periods when works must stop (e.g. Christmas trading, exams):' : 'Periods when works can happen (e.g. a summer shutdown):'}
-                    </p>
-                    {Array.from({ length: WORK_PERIODS_MAX }, (_, i) => {
-                      const periods = Array.isArray(answers.q3_5b_workPeriods) ? answers.q3_5b_workPeriods : []
-                      const p = periods[i] || {}
-                      const update = (field, value) => {
-                        const next = Array.from({ length: WORK_PERIODS_MAX }, (_, j) => ({ ...(periods[j] || {}) }))
-                        next[i][field] = value
-                        set('q3_5b_workPeriods', next.filter(x => x.from || x.to))
-                      }
-                      return (
-                        <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 6 }}>
-                          <span className="text-sm" style={{ width: 70 }}>Period {i + 1}</span>
-                          <input type="date" aria-label={`Period ${i + 1} from`} value={p.from || ''} onChange={e => update('from', e.target.value)}
-                            className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: 'var(--border)' }} />
-                          <span className="text-sm">to</span>
-                          <input type="date" aria-label={`Period ${i + 1} to`} value={p.to || ''} onChange={e => update('to', e.target.value)}
-                            className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: 'var(--border)' }} />
-                        </div>
-                      )
-                    })}
-                    {validationErrors.q3_5b_workPeriods && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q3_5b_workPeriods}</p>}
-                  </div>
-                )}
-              </QCard>
-            )}
-
             <QCard qkey="q3_6_occupation">
               <Label required>{occupationCopyFor(answers.q1_2_projectType).label}</Label>
               <HelpText>{occupationCopyFor(answers.q1_2_projectType).help}</HelpText>
@@ -1784,6 +1764,53 @@ export default function QuestionnairePage() {
                 aria-label="Expected project start date"
                 className="w-full rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--navy)]"
                 style={{ border: '1.5px solid var(--border)', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF', boxSizing: 'border-box' }} />
+            </QCard>
+
+            {/* Construction blackouts (October 2026, owner's design): one yes /
+                no, then tick the periods. The building-use options come from
+                the Programme workbook (sheet Restrictions); specific dates are
+                always offered. Replaces Q3.5 "Works limited to certain periods". */}
+            <QCard qkey="q4_2a_blackout">
+              <Label required>Q4.2a — Are site works restricted at certain times of year?</Label>
+              <HelpText>For example term time, exams or Christmas trading. The programme is planned around them.</HelpText>
+              <RadioGroup options={BLACKOUT_OPTIONS} value={answers.q4_2a_blackout} onChange={v => set('q4_2a_blackout', v)}
+                required describedBy={validationErrors.q4_2a_blackout ? 'err-q4_2a_blackout' : undefined} />
+              {validationErrors.q4_2a_blackout && <p id="err-q4_2a_blackout" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_2a_blackout}</p>}
+              {answers.q4_2a_blackout === BLACKOUT.yes && (
+                <div className="mt-4" data-qkey="q4_2b_blackouts">
+                  <Label required>Q4.2b — Which periods are restricted?</Label>
+                  <HelpText>Tick all that apply. Dates are typical; use Specific dates for anything else.</HelpText>
+                  <CheckboxGroup
+                    options={[...blackoutOptionsFor(scopeData?.blackouts, answers.q1_3_buildingUse).map(o => o.label), BLACKOUT_DATES]}
+                    values={answers.q4_2b_blackouts} onChange={v => set('q4_2b_blackouts', v)}
+                    describedBy={validationErrors.q4_2b_blackouts ? 'err-q4_2b_blackouts' : undefined} />
+                  {validationErrors.q4_2b_blackouts && <p id="err-q4_2b_blackouts" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_2b_blackouts}</p>}
+                  {(answers.q4_2b_blackouts || []).includes(BLACKOUT_DATES) && (
+                    <div className="mt-4" data-qkey="q4_2c_blackoutDates">
+                      {Array.from({ length: BLACKOUT_DATES_MAX }, (_, i) => {
+                        const periods = Array.isArray(answers.q4_2c_blackoutDates) ? answers.q4_2c_blackoutDates : []
+                        const p = periods[i] || {}
+                        const update = (field, value) => {
+                          const next = Array.from({ length: BLACKOUT_DATES_MAX }, (_, j) => ({ ...(periods[j] || {}) }))
+                          next[i][field] = value
+                          set('q4_2c_blackoutDates', next.filter(x => x.from || x.to))
+                        }
+                        return (
+                          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 6 }}>
+                            <span className="text-sm" style={{ width: 70 }}>Period {i + 1}</span>
+                            <input type="date" aria-label={`No work from, period ${i + 1}`} value={p.from || ''} onChange={e => update('from', e.target.value)}
+                              className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: 'var(--border)' }} />
+                            <span className="text-sm">to</span>
+                            <input type="date" aria-label={`No work to, period ${i + 1}`} value={p.to || ''} onChange={e => update('to', e.target.value)}
+                              className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: 'var(--border)' }} />
+                          </div>
+                        )
+                      })}
+                      {validationErrors.q4_2c_blackoutDates && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_2c_blackoutDates}</p>}
+                    </div>
+                  )}
+                </div>
+              )}
             </QCard>
 
             {/* The old "Do you have a budget figure?" gate (q4_2_budgetKnown) is
