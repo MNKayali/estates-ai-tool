@@ -1,6 +1,6 @@
 # Procurement and the programme — brief for the engine
 
-*11 October 2026 · follows the RIBA Plan of Work 2020 · owner's decisions of 11 Oct included · not built yet*
+*11 October 2026 · follows the RIBA Plan of Work 2020 · owner decisions of 11 Oct included · built 11 Oct 2026 (Programme v4.11, Procurement Reference v2.3, NRM1 v5.24)*
 
 ## 1. The principle
 
