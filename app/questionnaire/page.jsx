@@ -998,8 +998,8 @@ export default function QuestionnairePage() {
       q3_6_occupation:        'Occupation during works',
       q3_8_siteContext:       'Site and building context',
       q4_5_designStage:       'Design stage already reached',
-      q4_2a_blackout:         'Periods when construction cannot take place',
-      q4_2b_blackouts:        'When work cannot take place',
+      q4_2a_blackout:         'Restricted periods for site works',
+      q4_2b_blackouts:        'Restricted periods',
     }
     // The client-type question has no "None" option to point at.
     const PLAIN = {
@@ -1014,7 +1014,7 @@ export default function QuestionnairePage() {
     if (sec === 4 && answers.q4_2a_blackout === BLACKOUT.yes) {
       const offered = [...blackoutOptionsFor(scopeData?.blackouts, answers.q1_3_buildingUse).map(o => o.label), BLACKOUT_DATES]
       const ticked = (answers.q4_2b_blackouts || []).filter(v => offered.includes(v))
-      if (!ticked.length) errs.q4_2b_blackouts = 'Tick at least one period when work cannot take place, or answer No above'
+      if (!ticked.length) errs.q4_2b_blackouts = 'Tick at least one restricted period, or answer No above'
       const dates = Array.isArray(answers.q4_2c_blackoutDates) ? answers.q4_2c_blackoutDates : []
       if (ticked.includes(BLACKOUT_DATES)) {
         if (dates.some(p => (p?.from || p?.to) && !(p?.from && p?.to && p.from <= p.to))) {
@@ -1768,18 +1768,18 @@ export default function QuestionnairePage() {
 
             {/* Construction blackouts (October 2026, owner's design): one yes /
                 no, then tick the periods. The building-use options come from
-                the Programme workbook (Modifiers BLK-*); specific dates are
+                the Programme workbook (sheet Restrictions); specific dates are
                 always offered. Replaces Q3.5 "Works limited to certain periods". */}
             <QCard qkey="q4_2a_blackout">
-              <Label required>Q4.2a — Are there periods when construction work cannot take place on site?</Label>
-              <HelpText>For example school term time, Christmas trading or a planned event. The programme fits construction around these periods.</HelpText>
+              <Label required>Q4.2a — Are site works restricted at certain times of year?</Label>
+              <HelpText>For example term time, exams or Christmas trading. The programme is planned around them.</HelpText>
               <RadioGroup options={BLACKOUT_OPTIONS} value={answers.q4_2a_blackout} onChange={v => set('q4_2a_blackout', v)}
                 required describedBy={validationErrors.q4_2a_blackout ? 'err-q4_2a_blackout' : undefined} />
               {validationErrors.q4_2a_blackout && <p id="err-q4_2a_blackout" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_2a_blackout}</p>}
               {answers.q4_2a_blackout === BLACKOUT.yes && (
                 <div className="mt-4" data-qkey="q4_2b_blackouts">
-                  <Label required>Q4.2b — When can work not take place?</Label>
-                  <HelpText>Tick all that apply.</HelpText>
+                  <Label required>Q4.2b — Which periods are restricted?</Label>
+                  <HelpText>Tick all that apply. Dates are typical; use Specific dates for anything else.</HelpText>
                   <CheckboxGroup
                     options={[...blackoutOptionsFor(scopeData?.blackouts, answers.q1_3_buildingUse).map(o => o.label), BLACKOUT_DATES]}
                     values={answers.q4_2b_blackouts} onChange={v => set('q4_2b_blackouts', v)}
