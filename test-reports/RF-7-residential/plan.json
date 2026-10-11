@@ -1,0 +1,198 @@
+{
+ "id": "RF-7-residential",
+ "projectType": "Refurbishment",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] Ladywood tower block retrofit"
+   },
+   {
+    "q": "Q1.1",
+    "value": "B16"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Refurbishment"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "7"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Residential"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1900–1979"
+   },
+   {
+    "q": "Q1.6",
+    "value": "Yes"
+   },
+   {
+    "q": "Q1.5",
+    "value": "6500"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Deep retrofit of an occupied 13-storey tower block: non-combustible external wall insulation and new windows, communal air source heat pump heating replacing gas, new fire alarm, emergency lighting and fire stopping, and asbestos removal. Residents remain in occupation throughout."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Full systems replacement"
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "PAS 2035",
+     "Net zero"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Fire safety deficiencies",
+     "Ageing or inadequate M&E",
+     "Structural concerns"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Over-cladding of the 1990s removed in 2021; temporary waking watch until 2023."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos refurbishment & demolition survey",
+     "Structural",
+     "Fire risk assessment",
+     "Condition"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers",
+     "Restricted working hours",
+     "Scaffold licence or highway encroachment required"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Large-panel concrete details need checking; residents include vulnerable tenants."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2029-03-31"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-30"
+   },
+   {
+    "q": "Q4.3",
+    "value": "14000000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Funder / compliance requirement",
+     "Minimise disruption",
+     "Fixed / certain final cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Multiple phases"
+   },
+   {
+    "q": "Q4.6a",
+    "value": "4"
+   },
+   {
+    "q": "Q4.6b",
+    "value": "2"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q4.8",
+    "value": "Yes"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Energy or operational cost savings"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "140000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0016",
+   "S-0017",
+   "S-0051",
+   "S-0064"
+  ],
+  "remove": [
+   "S-0021",
+   "S-0022",
+   "S-0023"
+  ],
+  "options": [
+   {
+    "id": "S-0064",
+    "name": "Repairs",
+    "pick": "One",
+    "key": "S-0064-03",
+    "label": "Condition: Poor",
+    "dims": [
+     {
+      "dim": "Condition",
+      "value": "Poor"
+     }
+    ]
+   }
+  ],
+  "quantities": [],
+  "method": null
+ }
+}

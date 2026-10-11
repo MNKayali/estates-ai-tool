@@ -1,0 +1,185 @@
+{
+ "id": "RF-8-education",
+ "projectType": "Refurbishment",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] Board School classroom refurbishment"
+   },
+   {
+    "q": "Q1.1",
+    "value": "BA2"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Refurbishment"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "2"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Education"
+   },
+   {
+    "q": "Q1.4",
+    "value": "Pre-1900"
+   },
+   {
+    "q": "Q1.5",
+    "value": "1150"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Refresh classroom finishes, replace all lighting with LED, renew heating distribution and controls, and treat rising damp in the ground floor of a Grade II listed school, working mainly in the summer holiday."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Finishes with minor services"
+   },
+   {
+    "q": "Q2.4",
+    "value": "Basic"
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Damp or water ingress",
+     "Asbestos known or suspected",
+     "Ageing or inadequate M&E"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Roof re-slated 2019."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos management survey",
+     "Condition"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning + Listed Building Consent"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Term-time only working"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Grade II listed; original timber floors and plaster cornices to be retained."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Conservation area or Article 4 direction"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-09-01"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-09"
+   },
+   {
+    "q": "Q4.3",
+    "value": "1100000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Lowest cost",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q4.8",
+    "value": "Yes"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Energy or operational cost savings"
+    ]
+   },
+   {
+    "q": "Q6.1",
+    "value": "Keep the language simple for school governors."
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0066"
+  ],
+  "remove": [
+   "S-0040"
+  ],
+  "options": [
+   {
+    "id": "S-0039",
+    "name": "Heating and hot water",
+    "pick": "One",
+    "key": "S-0039-07",
+    "label": "System: Gas boiler · Scope: Radiators and controls only",
+    "dims": [
+     {
+      "dim": "System",
+      "value": "Gas boiler"
+     },
+     {
+      "dim": "Scope",
+      "value": "Radiators and controls only"
+     }
+    ]
+   },
+   {
+    "id": "S-0046",
+    "name": "Lighting",
+    "pick": "One",
+    "key": "S-0046-02",
+    "label": "Scope: Replace fittings only",
+    "dims": [
+     {
+      "dim": "Scope",
+      "value": "Replace fittings only"
+     }
+    ]
+   }
+  ],
+  "quantities": [],
+  "method": null
+ }
+}

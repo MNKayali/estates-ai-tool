@@ -20,10 +20,9 @@
  */
 import * as XLSX from 'xlsx'
 import { loadNrmWorkbook, workbookStatus, columnsFor } from '@/lib/nrmWorkbook'
-import { fetchProgrammeWorkbook, parseWorkbookVersion } from '@/lib/programmeCalculator'
+import { fetchProgrammeWorkbook, parseWorkbookVersion, programmeWorkbookSummary } from '@/lib/programmeCalculator'
 import { fetchProcurementWorkbook, parseProcurementWorkbook } from '@/lib/procurementCalculator'
 
-const PROGRAMME_SIZE_BANDS = ['S1 (<150)', 'S2 (≤250)', 'S3 (≤500)', 'S4 (≤1500)', 'S5 (≤3000)', 'S6 (≤10000)', 'S7 (>10000)']
 // One representative line whose rate proves '2. Rates' and '4. Scope rules' parsed and joined.
 const SAMPLE_ITEM = 'Wall finishes'
 
@@ -53,17 +52,15 @@ export async function GET() {
     itemCount: 0,
     optionCount: 0,
     sampleRate: null,             // { item, rateKey, column, rate }
-    programmeSizeBands:   PROGRAMME_SIZE_BANDS,
+    programmeSizeBands:   null,   // from Modifiers SB-S1…SB-S7 (Programme v4.7)
     sampleDuration_DS2_S3_mid: null,
     programmeVersion: null,       // "Programme v4.4 (September 2026)", from its README sheet
     // Data the engine works around rather than inventing numbers for.
     gaps: {
       shownWithoutRate: [],       // items 'Shown on' a project type with no rate in its columns
       noTypicalScope: [],         // project types no item is 'Pre-ticked on' (and that don't use level of intervention)
-      rangeWidthsTable: false,    // '3. Settings' ▶ range_widths (optional; legacy ±11% applies without it)
       baseDate: null,             // v5.2 has no rate base date; reports say "the workbook issue date"
     },
-    procurementSheet: false,      // Programme sheet "Procurement" (superseded by the Procurement Reference)
     procurementOk: false,
     // Procurement Reference: option and contract-row counts and the driver
     // weights, which prove the three sheets parsed (v2.0: 15, 11, 1/1/1/2).
@@ -97,7 +94,6 @@ export async function GET() {
     for (const p of s.projectTypes) {
       if (!p.usesLevel && !model.items.some(it => it.preOn.includes(p.code))) result.gaps.noTypicalScope.push(`${p.code} ${p.label}`)
     }
-    result.gaps.rangeWidthsTable = !!s.rangeWidths
   } catch (e) {
     result.errors.push('NRM1 workbook: ' + e.message)
     if (e.problems) result.errors.push(...e.problems.slice(0, 25).map(p => '  · ' + p))
@@ -120,7 +116,7 @@ export async function GET() {
       result.errors.push(`Programme workbook missing "Modifiers" sheet. Sheets found: ${sheetNames.join(', ')}`)
     } else {
       const durTab = parseDurationsTab(wb)
-      result.procurementSheet = sheetNames.includes('Procurement')
+      result.programmeSizeBands = programmeWorkbookSummary(wb).sizeBands
       result.newDurationRows = { SV7: !!durTab?.['SV7'], BS1: !!durTab?.['BS1'] }
       const ds2 = durTab?.['DS2']
       if (ds2 && ds2.activity && (ds2.S3.lo || ds2.S3.hi)) {

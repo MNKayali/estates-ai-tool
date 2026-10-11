@@ -1,0 +1,197 @@
+{
+ "id": "EW-7-healthcare",
+ "projectType": "External works only",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] Hospital staff car park extension"
+   },
+   {
+    "q": "Q1.1",
+    "value": "NG7"
+   },
+   {
+    "q": "Q1.2",
+    "value": "External works only"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Healthcare"
+   },
+   {
+    "q": "Q1.5",
+    "value": "6500"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Create 180 new staff car parking spaces on former garden land with 20 EV chargers, LED column lighting, permeable paving and SuDS attenuation, barrier access and replacement tree planting, while keeping the hospital's internal road open."
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "Highways",
+     "DNO"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Trees or hedgerow on site",
+     "Underground services or obstructions"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Topographic",
+     "Arboricultural survey (BS5837)",
+     "Utilities / statutory services search"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Hospital internal road and ambulance route must stay open 24/7."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Ecological features — roof voids, mature trees, water bodies, bat roost potential"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-10-31"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-23"
+   },
+   {
+    "q": "Q4.3",
+    "value": "1600000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Minimise disruption",
+     "Lowest cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q4.8",
+    "value": "Yes"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "95000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0074",
+   "S-0057",
+   "S-0080",
+   "S-0006",
+   "S-0044",
+   "S-0071",
+   "S-0078"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0071",
+    "name": "Highways and site access",
+    "pick": "One",
+    "key": "S-0071-01",
+    "label": "Size: Small",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Small"
+     }
+    ]
+   },
+   {
+    "id": "S-0078",
+    "name": "Biodiversity net gain",
+    "pick": "One",
+    "key": "S-0078-01",
+    "label": "Size: Small",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Small"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0074",
+    "name": "Car parking",
+    "pick": "One",
+    "key": "S-0074-01",
+    "label": "Standard",
+    "qty": "180"
+   },
+   {
+    "id": "S-0006",
+    "name": "Tree removal",
+    "pick": "One",
+    "key": "S-0006-01",
+    "label": "Standard",
+    "qty": "14"
+   },
+   {
+    "id": "S-0057",
+    "name": "EV charging",
+    "pick": "One",
+    "key": "S-0057-01",
+    "label": "Standard",
+    "qty": "20"
+   }
+  ],
+  "method": null
+ }
+}

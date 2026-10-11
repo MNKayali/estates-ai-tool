@@ -1,0 +1,129 @@
+{
+ "id": "DM-9-education",
+ "projectType": "Demolition only",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] CLASP classroom block removal"
+   },
+   {
+    "q": "Q1.1",
+    "value": "CM1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Demolition only"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Education"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1900–1979"
+   },
+   {
+    "q": "Q1.5",
+    "value": "420"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Remove all asbestos and demolish a single-storey CLASP classroom block, grub up the slab and foundations, cap services, and reinstate the area as grass, all in the 2027 summer holiday."
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Structural concerns"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Block closed in 2025 after a structural survey."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos refurbishment & demolition survey",
+     "Structural"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Prior approval"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Term-time only working"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "2 m from the occupied sports hall; school site open all year for lettings."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Attached to or within 3 m of a neighbouring building (party wall)"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-09-01"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-02-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "150000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Lowest cost",
+     "Minimise disruption"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q4.8",
+    "value": "Yes"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0067"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [],
+  "method": null
+ }
+}

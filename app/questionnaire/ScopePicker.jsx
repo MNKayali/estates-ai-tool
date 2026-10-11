@@ -242,7 +242,13 @@ export default function ScopePicker({ catalogue, answers, setAnswers, suggestBar
               <div key={o.key} style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                 <label style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minWidth: 180, opacity: avail ? 1 : 0.5 }}>
                   <input type="checkbox" style={S.check} checked={on} disabled={!avail || (on && chosen.size === 1)}
-                    onChange={() => setOptions(item.id, on ? c.optionKeys.filter(k => k !== o.key) : [...c.optionKeys, o.key])} />
+                    onChange={() => setOptions(item.id, on ? c.optionKeys.filter(k => k !== o.key)
+                      // Options that are alternative types (Lifts — Type: Passenger / Platform /
+                      // Goods): the first type the user picks replaces the untouched default,
+                      // instead of pricing both (test batch 3, NB-8). Additive items such as
+                      // toilets (Standard + Accessible) keep adding.
+                      : !c.explicitOptions && offeredOpts.every(x => /^Type:/.test(x.label)) ? [o.key]
+                      : [...c.optionKeys, o.key])} />
                   <span style={{ fontSize: 13, color: 'var(--ink)' }}>{o.label}</span>
                 </label>
                 {on && (

@@ -1,0 +1,135 @@
+{
+ "id": "DM-8-residential",
+ "projectType": "Demolition only",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] Walton void houses clearance"
+   },
+   {
+    "q": "Q1.1",
+    "value": "L4"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Demolition only"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Residential"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1900–1979"
+   },
+   {
+    "q": "Q1.5",
+    "value": "1100"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Remove asbestos and demolish twelve void semi-detached houses, separate and make good the party wall to the occupied neighbour, grub up foundations, cap services, and leave the site level and fenced for the new-build contractor."
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Structures attached to neighbouring buildings"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Houses boarded up since 2024; services disconnected."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos refurbishment & demolition survey"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Prior approval"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Restricted working hours"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "One occupied neighbour attached to the end pair."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Attached to or within 3 m of a neighbouring building (party wall)"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-01-04"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Lowest cost",
+     "Speed"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q4.8",
+    "value": "Yes"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0067",
+   "S-0079",
+   "S-0006"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0006",
+    "name": "Tree removal",
+    "pick": "One",
+    "key": "S-0006-01",
+    "label": "Standard",
+    "qty": "5"
+   }
+  ],
+  "method": null
+ }
+}

@@ -1,0 +1,173 @@
+{
+ "id": "FO-9-hospitality",
+ "projectType": "Fit-out",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] Belfast bank restaurant and bar"
+   },
+   {
+    "q": "Q1.1",
+    "value": "BT1"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Fit-out"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Hospitality / leisure"
+   },
+   {
+    "q": "Q1.4",
+    "value": "Pre-1900"
+   },
+   {
+    "q": "Q1.5",
+    "value": "380"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Full fit-out of the ground floor and basement of a listed former bank as a 140-cover restaurant and bar with an open catering kitchen, bespoke bar joinery, new WCs, cooling and kitchen extract to roof, and restoration of the banking hall ceiling."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Reconfiguration or full redesign"
+   },
+   {
+    "q": "Q2.4",
+    "value": "High"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "Food hygiene",
+     "Acoustic"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Damp or water ingress",
+     "Drainage issues"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Bank closed 2019; vacant since."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos refurbishment & demolition survey",
+     "Condition"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning + Listed Building Consent"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "No vehicle access or restricted deliveries",
+     "Shared access with other occupiers"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Offices above are occupied by another tenant; extract must run through their riser."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Conservation area or Article 4 direction"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-11-30"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-16"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Speed",
+     "Design quality"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept only (Stage 0–1)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Not yet confirmed"
+   },
+   {
+    "q": "Q4.8",
+    "value": "No"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0032",
+   "S-0024",
+   "S-0028",
+   "S-0042",
+   "S-0029",
+   "S-0030",
+   "S-0031",
+   "S-0052",
+   "S-0053"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0024",
+    "name": "Toilets",
+    "pick": "Several",
+    "key": "S-0024-01",
+    "label": "Standard",
+    "qty": "6"
+   },
+   {
+    "id": "S-0024",
+    "name": "Toilets",
+    "pick": "Several",
+    "key": "S-0024-04",
+    "label": "Accessible",
+    "qty": "1"
+   }
+  ],
+  "method": null
+ }
+}
