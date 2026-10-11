@@ -1,0 +1,166 @@
+{
+  "_note": "Answers the new questionnaire (fix/prelaunch) would collect for batch 3: exact storeys, new Q3.5 labels with Q3.5a/b work windows, Q4.3a VAT recovery (from each scenario.md).",
+  "DM-7-healthcare": {
+    "q1_2_storeys": "3",
+    "q3_5_accessConstraints": [
+      "Access routes shared with occupiers, neighbours or the public",
+      "Restricted deliveries or no vehicle access"
+    ],
+    "q4_3a_vatRecovery": "Partly"
+  },
+  "DM-8-residential": {
+    "q1_2_storeys": "2",
+    "q3_5_accessConstraints": [
+      "Restricted working hours (no noisy work, no weekends)"
+    ]
+  },
+  "DM-9-education": {
+    "q1_2_storeys": "1",
+    "q3_5_accessConstraints": [
+      "Works limited to certain periods (holidays, seasons or blackout dates)"
+    ],
+    "q3_5a_workWindow": "School / university holidays only",
+    "q4_3a_vatRecovery": "Yes — fully"
+  },
+  "EW-7-healthcare": {
+    "q3_5_accessConstraints": [
+      "Access routes shared with occupiers, neighbours or the public"
+    ],
+    "q4_3a_vatRecovery": "Partly"
+  },
+  "EW-8-retail": {
+    "q3_5_accessConstraints": [
+      "Access routes shared with occupiers, neighbours or the public",
+      "Restricted working hours (no noisy work, no weekends)",
+      "Works limited to certain periods (holidays, seasons or blackout dates)"
+    ],
+    "q3_5a_workWindow": "Any time except set dates",
+    "q3_5b_workPeriods": [
+      {
+        "from": "2027-11-15",
+        "to": "2028-01-05"
+      },
+      {
+        "from": "2028-11-15",
+        "to": "2029-01-05"
+      }
+    ],
+    "q4_3a_vatRecovery": "Yes — fully"
+  },
+  "EW-9-education": {
+    "q3_5_accessConstraints": [
+      "Works limited to certain periods (holidays, seasons or blackout dates)"
+    ],
+    "q3_5a_workWindow": "School / university holidays only",
+    "q4_3a_vatRecovery": "Yes — fully"
+  },
+  "EX-7-healthcare": {
+    "q3_5_accessConstraints": [
+      "Access routes shared with occupiers, neighbours or the public",
+      "Restricted working hours (no noisy work, no weekends)"
+    ],
+    "q4_3a_vatRecovery": "No"
+  },
+  "EX-8-education": {
+    "q3_5_accessConstraints": [
+      "Restricted working hours (no noisy work, no weekends)",
+      "Access routes shared with occupiers, neighbours or the public"
+    ],
+    "q4_3a_vatRecovery": "Partly"
+  },
+  "EX-9-hospitality": {
+    "q3_5_accessConstraints": [
+      "Restricted deliveries or no vehicle access",
+      "Restricted working hours (no noisy work, no weekends)",
+      "Site fronts a public road or pavement (hoarding, scaffold or crane licence)"
+    ]
+  },
+  "FO-7-healthcare": {
+    "q3_5_accessConstraints": [
+      "Restricted working hours (no noisy work, no weekends)",
+      "Restricted deliveries or no vehicle access"
+    ],
+    "q4_3a_vatRecovery": "No"
+  },
+  "FO-8-offices": {
+    "q3_5_accessConstraints": [
+      "Access routes shared with occupiers, neighbours or the public"
+    ],
+    "q4_3a_vatRecovery": "Yes — fully"
+  },
+  "FO-9-hospitality": {
+    "q3_5_accessConstraints": [
+      "Restricted deliveries or no vehicle access",
+      "Access routes shared with occupiers, neighbours or the public"
+    ]
+  },
+  "NB-7-residential": {
+    "q1_2_storeys": "7",
+    "q3_5_accessConstraints": [
+      "Restricted deliveries or no vehicle access",
+      "Tight site: little storage space, headroom or weight limits",
+      "Site fronts a public road or pavement (hoarding, scaffold or crane licence)"
+    ]
+  },
+  "NB-8-education": {
+    "q3_5_accessConstraints": [
+      "No access constraints"
+    ],
+    "q4_3a_vatRecovery": "Yes — fully"
+  },
+  "NB-9-industrial": {
+    "q3_5_accessConstraints": [
+      "No access constraints"
+    ],
+    "q1_3b_mainSpace": "Storage / warehouse"
+  },
+  "OM-7-mixed": {
+    "q1_2_storeys": "5",
+    "q3_5_accessConstraints": [
+      "Restricted deliveries or no vehicle access",
+      "Site fronts a public road or pavement (hoarding, scaffold or crane licence)"
+    ],
+    "q4_3a_vatRecovery": "Not sure"
+  },
+  "OM-8-other": {
+    "q1_2_storeys": "1",
+    "q3_5_accessConstraints": [
+      "No access constraints"
+    ],
+    "q4_3a_vatRecovery": "Partly"
+  },
+  "OM-9-industrial": {
+    "q1_2_storeys": "1",
+    "q3_5_accessConstraints": [
+      "Access routes shared with occupiers, neighbours or the public",
+      "Restricted working hours (no noisy work, no weekends)"
+    ],
+    "q4_3a_vatRecovery": "Yes — fully"
+  },
+  "RF-7-residential": {
+    "q1_2_storeys": "13",
+    "q3_5_accessConstraints": [
+      "Access routes shared with occupiers, neighbours or the public",
+      "Restricted working hours (no noisy work, no weekends)",
+      "Site fronts a public road or pavement (hoarding, scaffold or crane licence)"
+    ],
+    "q4_3a_vatRecovery": "Partly"
+  },
+  "RF-8-education": {
+    "q1_2_storeys": "2",
+    "q3_5_accessConstraints": [
+      "Works limited to certain periods (holidays, seasons or blackout dates)"
+    ],
+    "q3_5a_workWindow": "School / university holidays only",
+    "q4_3a_vatRecovery": "Yes — fully"
+  },
+  "RF-9-offices": {
+    "q1_2_storeys": "7",
+    "q3_5_accessConstraints": [
+      "Restricted deliveries or no vehicle access",
+      "Site fronts a public road or pavement (hoarding, scaffold or crane licence)",
+      "Restricted working hours (no noisy work, no weekends)"
+    ],
+    "q4_3a_vatRecovery": "Yes — fully"
+  }
+}

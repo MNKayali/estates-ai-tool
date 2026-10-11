@@ -1,0 +1,180 @@
+{
+ "id": "NB-7-residential",
+ "projectType": "New Build",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] Ordsall Lane affordable housing block"
+   },
+   {
+    "q": "Q1.1",
+    "value": "M5"
+   },
+   {
+    "q": "Q1.2",
+    "value": "New Build"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "7"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Residential"
+   },
+   {
+    "q": "Q1.6",
+    "value": "Yes"
+   },
+   {
+    "q": "Q1.5",
+    "value": "4200"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Build a seven-storey block of 56 affordable flats for social rent with a ground-floor bin and cycle store. Homes must meet the Future Homes Standard with air source heat pumps and solar PV on the roof. A sprinkler system and smoke ventilation are required for a building of this height."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "Net zero",
+     "MCS"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Made ground or fill",
+     "Underground services or obstructions"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Topographic",
+     "Ground investigation",
+     "Utilities / statutory services search"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "No vehicle access or restricted deliveries"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Tight urban site bounded by a road on two sides and existing flats on one side. A crane oversail licence will be needed."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Attached to or within 3 m of a neighbouring building (party wall)"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-12-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "14500000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Fixed / certain final cost",
+     "Funder / compliance requirement",
+     "Lowest cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q4.8",
+    "value": "Yes"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "520000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0050",
+   "S-0051",
+   "S-0054",
+   "S-0055",
+   "S-0081",
+   "S-0053"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0008",
+    "name": "Foundations",
+    "pick": "One",
+    "key": "S-0008-02",
+    "label": "Type: Piled",
+    "dims": [
+     {
+      "dim": "Type",
+      "value": "Piled"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0081",
+    "name": "Cycle storage",
+    "pick": "One",
+    "key": "S-0081-01",
+    "label": "Standard",
+    "qty": "60"
+   }
+  ],
+  "method": null
+ }
+}

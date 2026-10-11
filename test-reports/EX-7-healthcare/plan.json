@@ -1,0 +1,167 @@
+{
+ "id": "EX-7-healthcare",
+ "projectType": "Extension",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] Llanishen surgery consulting room extension"
+   },
+   {
+    "q": "Q1.1",
+    "value": "CF14"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Extension"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "1"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Healthcare"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1900–1979"
+   },
+   {
+    "q": "Q1.5",
+    "value": "180"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Add a 180 m² single-storey extension with four consulting rooms, two treatment rooms, an accessible WC and a staff room, linked to the existing surgery. Clinical rooms to HTM / HBN standards with clinical sinks and good ventilation, and air source heat pump heating."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "NHS design guide"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Damp or water ingress"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Roof patch-repaired in 2015; ceiling tiles in the corridor never sampled."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos management survey",
+     "Topographic"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers",
+     "Restricted working hours"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Fully occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Losing eight staff parking spaces to the extension; patients must keep a safe route to the entrance."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-12-17"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-16"
+   },
+   {
+    "q": "Q4.3",
+    "value": "850000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Minimise disruption",
+     "Fixed / certain final cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q4.8",
+    "value": "Yes"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Grant or funding unlock"
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0034",
+   "S-0001",
+   "S-0020",
+   "S-0065",
+   "S-0052",
+   "S-0053",
+   "S-0062"
+  ],
+  "remove": [
+   "S-0027"
+  ],
+  "options": [],
+  "quantities": [
+   {
+    "id": "S-0024",
+    "name": "Toilets",
+    "pick": "Several",
+    "key": "S-0024-04",
+    "label": "Accessible",
+    "qty": "1"
+   }
+  ],
+  "method": null
+ }
+}

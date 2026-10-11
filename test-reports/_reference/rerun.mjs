@@ -8,6 +8,7 @@ import path from 'node:path'
 
 process.env.RATES_FILE_URL ||= 'NRM1_Cost_Estimate_Tool_v5_2.xlsx'
 process.env.PROGRAMME_FILE_URL ||= 'Estates_AI_Programme_v4_3.xlsx'
+process.env.PROCUREMENT_FILE_URL ||= 'Projento_Procurement_Reference.xlsx'
 const { runDeterministicPipeline } = await import('../../lib/pipeline.js')
 const { getScopeCatalogue } = await import('../../lib/costCalculator.js')
 const { buildContext, typicalItemIds } = await import('../../lib/scopeEngine.js')
@@ -24,6 +25,7 @@ const KEY = {
   'Q4.1': 'q4_1_targetDate', 'Q4.2': 'q4_0_startDate', 'Q4.3': 'q4_3_budget', 'Q4.4': 'q4_4_priorities',
   'Q4.5': 'q4_5_designStage', 'Q4.6': 'q4_6_phasing', 'Q4.7': 'q4_7_funding', 'Q5.1': 'q5_1_financialBenefit',
   'Q5.2': 'q5_2_annualBenefit', 'Q6.1': 'q6_2_instructions',
+  'Q4.6a': 'q4_6a_phaseCount', 'Q4.6b': 'q4_6b_phaseGapWeeks', 'Q4.8': 'q4_8_publicClient',
 }
 
 export async function answersFor(plan) {

@@ -1,4 +1,4 @@
-import { cleanReportText, vatPct } from '@/lib/reportContent'
+import { cleanReportText, vatSubline } from '@/lib/reportContent'
 import { BodyPage, Band, Pending } from './parts'
 
 const BUDGET = { sufficient: ['r-callout-ok', 'sufficient'], tight: ['r-callout-warn', 'tight'], insufficient: ['r-callout-bad', 'shortfall'] }
@@ -10,7 +10,7 @@ export default function SummaryPage({ data, ctx, n }) {
   return (
     <BodyPage ctx={ctx} page={n}>
       <div className="r-strip">
-        <div><div className="r-lbl">Total project cost</div><div className="v">{m(cost?.total?.low)} – {m(cost?.total?.high)}</div><div className="s">Excl. VAT · {m(cost?.vat)} VAT at {vatPct(cost)}% (mid-point, for reference)</div></div>
+        <div><div className="r-lbl">Total project cost</div><div className="v">{m(cost?.total?.low)} – {m(cost?.total?.high)}</div><div className="s">{vatSubline(cost, m)}</div></div>
         <div><div className="r-lbl">Programme</div><div className="v">{programme?.totalWeeks} weeks</div><div className="s">{programme?.floatWeeks > 0 ? `Incl. ${programme.floatWeeks} weeks float · best case ${programme.totalWeeksBestCase} weeks` : 'Critical path, no float'}</div></div>
         <div><div className="r-lbl">BCIS region</div><div className="v">{cost?.bcisRegion || '—'}</div><div className="s">Location factor {cost?.bcisFactor}</div></div>
       </div>

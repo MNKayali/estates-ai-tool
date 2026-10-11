@@ -317,6 +317,7 @@ async function generate(request, { user, trialId }, outcome) {
 // Fix 1: include lineItems and stages so the HTML report page has all data
 function serializeCost(cost) {
   return {
+    officeSplit: cost.officeSplit || null,
     lineItems: cost.lineItems,          // Fix 2: needed by scope section in HTML
     // NRM1 v5.2: BCIS 12 lines printed below the construction total, works by
     // BCIS element, the worked-out quantity inputs, the Group 2 construction
