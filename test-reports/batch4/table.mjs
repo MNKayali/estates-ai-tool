@@ -7,6 +7,7 @@ import XLSX from 'xlsx'
 const { SCENARIOS } = await import('./scenarios.mjs')
 const DIR = 'test-reports/batch4'
 const live = JSON.parse(fs.readFileSync(`${DIR}/live.json`, 'utf8'))
+const v48 = Object.fromEntries(JSON.parse(fs.readFileSync(`${DIR}/offline.json`, 'utf8')).map(o => [o.id, o.weeks]))
 const revised = JSON.parse(fs.readFileSync(`${DIR}/revised.json`, 'utf8'))
 const changes = fs.existsSync(`${DIR}/changes.json`) ? JSON.parse(fs.readFileSync(`${DIR}/changes.json`, 'utf8')) : {}
 const k = n => n == null ? '' : `£${Math.round(n / 1000).toLocaleString('en-GB')}k`
@@ -23,7 +24,7 @@ const rows = SCENARIOS.map(s => {
     'My construction': rng(e.cLo, e.cHi), 'Projento construction (mid)': k(L.constructionMid), 'Diff % vs my mid': pct(L.constructionMid, e.cLo, e.cHi),
     'My total': rng(e.tLo, e.tHi), 'Projento total': L.total ? rng(L.total[0], L.total[2]) : '', 'Total diff % (mid)': L.total ? pct(L.total[1], e.tLo, e.tHi) : '',
     'My construction weeks': `${e.wLo}–${e.wHi}`, 'Projento construction weeks': L.constructionWeeks ?? '',
-    'My programme weeks': `${e.pLo}–${e.pHi}`, 'Projento programme weeks': L.totalWeeks ?? '', 'Programme diff % (mid)': pct(L.totalWeeks, e.pLo, e.pHi),
+    'My programme weeks': `${e.pLo}–${e.pHi}`, 'Projento programme weeks': L.totalWeeks ?? '', 'Programme diff % (mid)': pct(L.totalWeeks, e.pLo, e.pHi), 'Programme weeks on v4.8 (offline)': v48[s.id] ?? '', 'v4.8 diff % (mid)': pct(v48[s.id], e.pLo, e.pHi),
     'Confidence': L.grade || '', 'Budget verdict': L.budget || '', 'Risk level': L.riskLevel || '', 'Procurement (preferred)': L.procurement || '',
     'Report status': L.status || 'not run', 'Report link': L.reportId ? `https://www.projento.co.uk/report/${L.reportId}` : '',
     'What needs changing': changes[s.id] || '',
