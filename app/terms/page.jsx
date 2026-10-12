@@ -154,7 +154,7 @@ export default function TermsPage() {
           </ul>
           <p style={body}>
             If, despite the above, we are found liable to you, our total liability for all claims arising
-            from or in connection with {BRAND.name} and its reports is limited to £100.
+            from or in connection with {BRAND.name} and its reports is limited to £20.
           </p>
           <p style={body}>
             Nothing in these terms excludes or limits liability for death or personal injury caused by
