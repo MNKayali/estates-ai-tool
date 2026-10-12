@@ -2069,6 +2069,8 @@ export default function QuestionnairePage() {
         {section === SECTIONS.length && (
           <p className="mt-4 text-center text-xs" style={{ color: 'var(--text-mute)', lineHeight: 1.6 }}>
             By generating a report you agree to our{' '}
+            <Link href="/terms" target="_blank" style={{ color: 'var(--navy)', textDecoration: 'underline' }}>Terms of Use</Link>
+            {' '}and{' '}
             <Link href={DATA_PAGE.href} target="_blank" style={{ color: 'var(--navy)', textDecoration: 'underline' }}>{DATA_PAGE.label}</Link>
             {' '}{ENTRY_NOTICE_TAIL}
           </p>

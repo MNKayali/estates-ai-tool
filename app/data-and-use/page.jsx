@@ -109,7 +109,7 @@ export default function DataAndUsePage() {
         <Section title="Liability">
           <p style={body}>
             {BRAND.name} is provided &ldquo;as is&rdquo;. To the fullest extent permitted by law, we accept no
-            liability for any loss arising from use of, or reliance on, the tool or its reports. This page
+            liability for any loss arising from use of, or reliance on, the tool or its reports, and any liability we cannot exclude is limited as set out in the Terms of Use. This page
             forms part of our <Link href="/terms" style={link}>Terms of Use</Link>.
           </p>
         </Section>
