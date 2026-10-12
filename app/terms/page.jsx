@@ -1,7 +1,7 @@
 /**
  * /terms — Terms of Use
  * Operator: Projento
- * Last reviewed: 29 September 2026
+ * Last reviewed: 12 October 2026
  * Governing law: England and Wales
  */
 import Link from 'next/link'
@@ -46,7 +46,7 @@ export default function TermsPage() {
           Terms of Use
         </h1>
         <p style={{ ...body, color: '#666', marginBottom: '32px' }}>
-          Last reviewed: 29 September 2026 &nbsp;|&nbsp; Governing law: England and Wales
+          Last reviewed: 12 October 2026 &nbsp;|&nbsp; Governing law: England and Wales
         </p>
 
         <Section title="1. About this tool">
@@ -62,8 +62,14 @@ export default function TermsPage() {
             <a href={DATA_PAGE.href} style={{ color: BLUE }}>{DATA_PAGE.label}</a> page.
           </p>
           <p style={body}>
-            {BRAND.name} is a research and development tool. Features, rates, methods and outputs may change
-            or be withdrawn without notice.
+            {BRAND.name} is a free, non-commercial research and development project, run from England.
+            &ldquo;We&rdquo; and &ldquo;us&rdquo; in these terms mean the operator of {BRAND.name}, who can be
+            contacted at <a href={`mailto:${BRAND.email}`} style={{ color: BLUE }}>{BRAND.email}</a>.
+            Features, rates, methods and outputs may change or be withdrawn without notice.
+          </p>
+          <p style={body}>
+            {BRAND.name} is intended for people aged 18 or over who use it for their work, business or
+            organisation. If you use it on behalf of an organisation, you confirm you are allowed to do so.
           </p>
         </Section>
 
@@ -91,53 +97,70 @@ export default function TermsPage() {
           </p>
         </Section>
 
-        <Section title="3. Professional indemnity position">
+        <Section title="3. Sharing reports with others">
           <p style={body}>
-            This tool is an internal aide, not a regulated professional service. Its outputs are analogous
-            to a benchmark spreadsheet or early-stage desk study — useful for framing a conversation,
-            not for signing off a budget.
+            {BRAND.name} is not a regulated professional service and we do not hold professional indemnity
+            insurance for its outputs. A report is comparable to a benchmark spreadsheet or early desk
+            study — useful for framing a conversation, not for signing off a budget.
           </p>
           <p style={{ ...body, background: '#F8F1E2', border: `1px solid ${BLUE}`, borderRadius: '4px', padding: '12px 14px' }}>
-            <strong>What this means in practice:</strong> If you are using this tool for your own
-            organisation&apos;s internal planning, no additional PI insurance is required beyond your
-            organisation&apos;s existing professional liability cover. If you intend to present a report
-            to an external party (client, funder, board outside the organisation) as a professional output,
-            you must ensure that either (a) the recipient clearly understands its indicative nature and the
-            disclaimer is visible in the report, or (b) the report has been independently reviewed and
-            signed off by a qualified professional who carries appropriate PI cover.
+            <strong>What this means in practice:</strong> if you show or pass a report to anyone else (a
+            client, funder, board or colleague), share it in full, including its Important Notice, and make
+            sure they understand it is indicative. If a report is to be presented as a professional output,
+            it should first be reviewed and adopted by a suitably qualified professional who carries their
+            own professional indemnity cover. Anyone you share a report with has no rights against us under
+            these terms.
           </p>
         </Section>
 
-        <Section title="4. Authorised use">
-          <p style={body}>You agree to use this tool solely for internal pre-design planning purposes and to:</p>
+        <Section title="4. Acceptable use">
+          <p style={body}>You agree to use this tool only for early-stage, pre-design planning and to:</p>
           <ul style={{ paddingLeft: '20px', margin: '0 0 10px' }}>
             <li style={li}>keep your password confidential, not share your account, and tell us straight away if you think someone else has used it;</li>
             <li style={li}>treat all outputs as indicative and subject to professional review;</li>
             <li style={li}>not enter personal data about individuals into the questionnaire fields
               (the tool is designed for project-level data — building type, size, location — not personal records);</li>
             <li style={li}>not use the tool to generate reports intended to deceive or mislead any party about
-              project costs or feasibility.</li>
+              project costs or feasibility;</li>
+            <li style={li}>not try to break, overload, scrape or get around the tool&apos;s limits or security,
+              including by creating accounts or clearing cookies to get more free reports.</li>
           </ul>
+          <p style={body}>
+            We may suspend or close an account, or refuse access, if these terms are broken, and we may
+            change, pause or withdraw the tool at any time.
+          </p>
         </Section>
 
         <Section title="5. Limitation of liability">
           <p style={body}>
-            To the fullest extent permitted by law, the operator of this tool excludes all liability for:
+            {BRAND.name} is provided free of charge and &ldquo;as is&rdquo;, without any promise that it is
+            accurate, complete, suitable for a particular purpose or always available. To the fullest extent
+            permitted by law, we exclude all liability, whether in contract, tort (including negligence) or
+            otherwise, for:
           </p>
           <ul style={{ paddingLeft: '20px', margin: '0 0 10px' }}>
             <li style={li}>any loss, damage, cost or expense arising from any use of, or reliance on, cost
               estimates, programme durations, risks, procurement suggestions or any other output, whether by
               you or by any third party to whom a report is shown or passed;</li>
             <li style={li}>errors or omissions in the information you provide, on which every report is based;</li>
-            <li style={li}>errors, omissions, or inaccuracies in the underlying benchmark data (BCIS/RICS);</li>
+            <li style={li}>errors, omissions or inaccuracies in the benchmark rates, durations, factors and
+              other reference data the tool uses;</li>
+            <li style={li}>any loss of profit, revenue, business, contract, opportunity or anticipated savings,
+              and any indirect or consequential loss;</li>
             <li style={li}>temporary unavailability due to maintenance, Vercel infrastructure outages,
               or third-party service downtime;</li>
             <li style={li}>loss of report data, including reports you delete and reports removed under the
               retention periods in our Privacy Notice.</li>
           </ul>
           <p style={body}>
-            Nothing in these terms excludes liability for death or personal injury caused by negligence,
-            or for fraudulent misrepresentation.
+            If, despite the above, we are found liable to you, our total liability for all claims arising
+            from or in connection with {BRAND.name} and its reports is limited to £20.
+          </p>
+          <p style={body}>
+            Nothing in these terms excludes or limits liability for death or personal injury caused by
+            negligence, for fraud or fraudulent misrepresentation, or for anything else that cannot be
+            excluded or limited by law. If you use {BRAND.name} as a consumer, nothing in these terms
+            affects your statutory rights.
           </p>
         </Section>
 
@@ -163,15 +186,27 @@ export default function TermsPage() {
 
         <Section title="8. Changes to these terms">
           <p style={body}>
-            These terms may be updated at any time. The current version is always available at{' '}
-            <code>/terms</code>. Continued use after a revision constitutes acceptance.
+            These terms may be updated from time to time. The current version is always available at{' '}
+            <code>/terms</code>, with its date at the top. We will email account holders about a significant
+            change before it takes effect. Using the tool after a change takes effect means you accept it;
+            if you do not, you can stop using it and ask us to close your account.
           </p>
         </Section>
 
-        <Section title="9. Governing law">
+        <Section title="9. General">
+          <p style={body}>
+            These terms, with the pages they refer to, are the whole agreement between you and us about{' '}
+            {BRAND.name}. No one other than you and us has any right to enforce them under the Contracts
+            (Rights of Third Parties) Act 1999. If any part of them is found unenforceable, the rest still
+            applies.
+          </p>
+        </Section>
+
+        <Section title="10. Governing law">
           <p style={body}>
             These terms are governed by the laws of England and Wales. Any dispute shall be subject
-            to the exclusive jurisdiction of the courts of England and Wales.
+            to the exclusive jurisdiction of the courts of England and Wales, unless you are a consumer
+            living elsewhere in the UK, in which case you may also bring proceedings in your local courts.
           </p>
         </Section>
 
@@ -185,7 +220,7 @@ export default function TermsPage() {
           <a href="/privacy" style={{ color: BLUE }}>Privacy Notice</a>
           &nbsp;·&nbsp;
           <a href="/reports" style={{ color: BLUE }}>Return to tool</a>
-          &nbsp;·&nbsp; Last reviewed 29 September 2026
+          &nbsp;·&nbsp; Last reviewed 12 October 2026
         </p>
       </footer>
 

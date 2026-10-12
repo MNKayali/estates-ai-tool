@@ -1,7 +1,7 @@
 /**
  * /privacy — Privacy Notice (UK GDPR / Data Protection Act 2018)
  * Operator: Projento
- * Last reviewed: 29 September 2026
+ * Last reviewed: 12 October 2026
  * Contact email: BRAND.email (lib/brand.js), the same address the report's contact card shows.
  */
 import Link from 'next/link'
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
           Privacy Notice
         </h1>
         <p style={{ ...body, color: '#666', marginBottom: '32px' }}>
-          Last reviewed: 29 September 2026 &nbsp;|&nbsp; This notice applies to everyone who uses {BRAND.name}: visitors trying it free, and account holders.
+          Last reviewed: 12 October 2026 &nbsp;|&nbsp; This notice applies to everyone who uses {BRAND.name}: visitors trying it free, and account holders.
         </p>
         <p style={{ ...body, background: '#F8F1E2', border: `1px solid ${BLUE}`, borderRadius: '4px', padding: '12px 14px', marginBottom: '32px' }}>
           {BRAND.name} is in research and development. The information you enter and the reports you create are
@@ -82,16 +82,15 @@ export default function PrivacyPage() {
 
         <Section title="1. Who processes your data">
           <p style={body}>
-            {BRAND.name} is a feasibility-reporting tool for capital projects. You can try it free without
-            an account, and anyone can create a free account. The <strong>data controller</strong> is the
-            operator of {BRAND.name}.
+            {BRAND.name} is a free, non-commercial feasibility-reporting tool for capital projects, run from
+            England as a research and development project. You can try it free without an account, and
+            anyone aged 18 or over can create a free account.
           </p>
           <p style={body}>
-            If your organisation is subject to UK GDPR (as most UK-based organisations are), the controller
-            should be registered with the Information Commissioner&apos;s Office (ICO). Most organisations
-            are already registered for their core activities — this tool falls within that scope. You can
-            check registration requirements at{' '}
-            <a href="https://ico.org.uk/registration" target="_blank" rel="noopener noreferrer" style={{ color: BLUE }}>ico.org.uk/registration</a>.
+            The <strong>data controller</strong> is the operator of {BRAND.name} (&ldquo;we&rdquo;,
+            &ldquo;us&rdquo;). For anything about your data, contact us at{' '}
+            <a href={`mailto:${BRAND.email}`} style={{ color: NAVY, fontWeight: 600 }}>{BRAND.email}</a>.
+            We do not have a data protection officer; questions are answered directly by the operator.
           </p>
         </Section>
 
@@ -101,11 +100,11 @@ export default function PrivacyPage() {
             [
               'Project questionnaire answers — project name, location, building type, size, budget range, programme constraints, scope description',
               'These drive the cost and programme calculations, and are passed to our text-drafting service provider (see §3) to draft the written sections of the report. Without them the tool cannot function.',
-              'Legitimate interests: supporting internal estates planning and capital investment appraisal',
+              'Contract: producing the report you ask for. Legitimate interests (free-trial visitors): providing the report requested',
             ],
             [
               'Account details — your email address (your login), your name if you give it, a one-way hash of your password (not the password itself), account status and tier, and the dates you joined, last signed in and last generated a report',
-              'Creating your account, signing you in, showing you your own reports, and (if enabled) sending password-reset emails.',
+              'Creating your account, signing you in, showing you your own reports, sending account emails (such as invitations and password resets) and telling you about significant changes to our terms.',
               'Contract: providing the account you asked for. Legitimate interests: security and access control',
             ],
             [
@@ -167,31 +166,31 @@ export default function PrivacyPage() {
               'Anthropic PBC — drafting of the report\'s written sections',
               'Your project questionnaire answers are sent to Anthropic\'s API to generate the text sections of the report (executive summary, risk commentary, procurement suggestion). No personal data should be included — see §2.',
               'United States',
-              'UK International Data Transfer Agreement (IDTA) / Standard Contractual Clauses. Anthropic\'s data processing terms apply.',
+              'Standard Contractual Clauses with the UK Addendum, under Anthropic\'s Data Processing Addendum. Under Anthropic\'s commercial terms, data sent through its API is not used to train its models.',
             ],
             [
               'Vercel Inc. — hosting, edge functions, and analytics',
-              'All HTTP requests pass through Vercel\'s infrastructure. Vercel Analytics receives anonymised, aggregated event counts — no IP addresses are stored, no cookies are set.',
-              'Global CDN; primary compute in EU/UK regions',
-              'EU–US Data Privacy Framework. Vercel\'s DPA applies.',
+              'All requests pass through Vercel\'s infrastructure, including your questionnaire answers while a report is produced. Vercel Analytics receives anonymised, aggregated event counts — no cookies are set.',
+              'Global network; server processing may take place in the United States',
+              'EU–US Data Privacy Framework (UK Extension) and Standard Contractual Clauses with the UK Addendum. Vercel\'s DPA applies.',
             ],
             [
               'Upstash Inc. (via Vercel KV) — report storage',
               'Your account details, your generated reports (cost figures, programme, questionnaire answers), the free-trial counts and the weekly usage counts are stored in an Upstash Redis database.',
-              'EU-West, London (lhr1) — data does not leave the UK/EU',
-              'No international transfer — data held in UK/EU region.',
+              'The data region chosen for our database; Upstash may access it from the United States for support',
+              'Standard Contractual Clauses with the UK Addendum. Upstash\'s DPA applies.',
             ],
             [
-              'Resend Inc. — account emails (only when enabled)',
+              'Resend Inc. — account emails',
               'Your name, your email address, and the text of the invitation or password-reset email sent to you.',
               'United States',
               'UK IDTA / Standard Contractual Clauses. Resend\'s DPA applies.',
             ],
             [
               'Sentry Inc. — error monitoring',
-              'When an error occurs, Sentry receives the error message, a stack trace, the page URL, and your browser type. Session replay is enabled on errors only; all text fields are masked before transmission — Sentry does not see what you typed.',
-              'United States',
-              'UK IDTA / Standard Contractual Clauses. Sentry\'s DPA applies.',
+              'When an error occurs, Sentry receives the error message, a stack trace, the page URL, and your browser type. Session replay is enabled on errors only; all text fields are masked before transmission — Sentry does not see what you typed. Passwords, email addresses and questionnaire answers are removed before an error is sent.',
+              'European Union (Sentry\'s EU data region)',
+              'Stored in the EU. Any access from the United States is covered by Sentry\'s DPA and Standard Contractual Clauses with the UK Addendum.',
             ],
           ]} />
         </Section>
@@ -235,8 +234,13 @@ export default function PrivacyPage() {
             <li style={li}><strong>Erasure</strong> — delete any of your reports yourself from “My reports”, or ask us to close your account and delete everything linked to it (account deletion is handled by us on request for now).</li>
             <li style={li}><strong>Rectification</strong> — ask us to correct inaccurate data.</li>
             <li style={li}><strong>Restriction</strong> — ask us to pause processing while a query is resolved.</li>
-            <li style={li}><strong>Object</strong> — object to processing based on legitimate interests.</li>
+            <li style={li}><strong>Object</strong> — object to processing based on legitimate interests, including the use of anonymised information to improve the tool.</li>
+            <li style={li}><strong>Portability</strong> — receive the data you gave us in a commonly used, machine-readable format.</li>
           </ul>
+          <p style={body}>
+            We will reply within one month. {BRAND.name} does not make decisions about you by automated
+            means that have legal or similarly significant effects; reports are about projects, not people.
+          </p>
           <p style={body}>
             To exercise any right, including closing your account, contact us from the email address your account uses.
           </p>
@@ -252,7 +256,18 @@ export default function PrivacyPage() {
           </p>
         </Section>
 
-        <Section title="7. Changes to this notice">
+        <Section title="7. Security and age">
+          <p style={body}>
+            Passwords are stored only as one-way hashes, connections are encrypted, and reports can be opened
+            only by their owner and the administrator. No online service can be guaranteed completely secure;
+            if a breach put your data at risk we would tell you and, where required, the ICO.
+          </p>
+          <p style={body}>
+            {BRAND.name} is not intended for anyone under 18, and we do not knowingly collect their data.
+          </p>
+        </Section>
+
+        <Section title="8. Changes to this notice">
           <p style={body}>
             This notice will be updated when data practices change. The current version is always
             at <code>/privacy</code>. The &ldquo;last reviewed&rdquo; date at the top of the page
@@ -270,7 +285,7 @@ export default function PrivacyPage() {
           <a href="/terms" style={{ color: BLUE }}>Terms of Use</a>
           &nbsp;·&nbsp;
           <a href="/reports" style={{ color: BLUE }}>Return to tool</a>
-          &nbsp;·&nbsp; Last reviewed 29 September 2026
+          &nbsp;·&nbsp; Last reviewed 12 October 2026
         </p>
       </footer>
 
