@@ -24,15 +24,23 @@ import { reportReference } from '@/lib/reportContent'
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
-// Launch Chromium — full puppeteer locally, @sparticuz/chromium on Vercel.
+// The browser itself is not bundled: @sparticuz/chromium-min downloads this pack
+// on a cold start and keeps it in /tmp while the instance is warm. Bundling it
+// (@sparticuz/chromium, Sep–Oct 2026) stored ~70 MB with every deployment and
+// filled the Hobby plan's 10 GB of function storage. The pack's version must
+// match the package's (pinned in package.json); CHROMIUM_PACK_URL overrides it.
+const CHROMIUM_PACK_URL = process.env.CHROMIUM_PACK_URL
+  || 'https://github.com/Sparticuz/chromium/releases/download/v149.0.0/chromium-v149.0.0-pack.x64.tar'
+
+// Launch Chromium — full puppeteer locally, @sparticuz/chromium-min on Vercel.
 async function launchBrowser() {
   if (process.env.VERCEL) {
-    const chromium = (await import('@sparticuz/chromium')).default
+    const chromium = (await import('@sparticuz/chromium-min')).default
     const puppeteer = await import('puppeteer-core')
     return puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
+      executablePath: await chromium.executablePath(CHROMIUM_PACK_URL),
       headless: true,
     })
   }
