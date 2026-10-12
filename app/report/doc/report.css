@@ -108,6 +108,8 @@
 .r-t .r-code { font-family: var(--r-mono); font-size: var(--r-fs-small); color: var(--r-code); white-space: nowrap; }
 .r-t .r-rate { color: var(--r-grey); white-space: nowrap; }
 .r-foot-note { font-size: var(--r-fs-small); color: var(--r-grey-mute); margin: 6px 0 0; }
+/* the caveat line under every section heading (SECTION_CAVEATS, lib/reportContent.js) */
+.r-caveat { font-size: var(--r-fs-small); color: var(--r-grey-mute); line-height: 1.35; margin: 4px 0 6px; }
 /* procurement: Preferred / Alternative table (lib/reportContent.js procurementTable) */
 .r-proc-basis { margin: 0 0 8px; }
 .r-t.r-proc { margin-bottom: 12px; }

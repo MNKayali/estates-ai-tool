@@ -2,7 +2,7 @@ import { TABLES } from '@/lib/reportStyle'
 import { UNVERIFIED_MARK } from '@/lib/reportShared'
 import {
   cleanReportText, costIntroText, worksRows, worksTableMode, worksGroupRows, lineQty, lineBasisWord,
-  projectCostRows, percentageLines, costAssumptionLines, costExclusionLines,
+  projectCostRows, percentageLines, costAssumptionLines, costExclusionLines, SECTION_CAVEATS,
 } from '@/lib/reportContent'
 import { BodyPage, Band, Cols } from './parts'
 
@@ -37,7 +37,7 @@ export function CostWorksPage({ data, ctx, n }) {
   const unverified = (cost?.lineItems || []).some(l => l.aiEstimate)
   return (
     <BodyPage ctx={ctx} page={n}>
-      <Band no={5} title="Order of Cost Estimate" note="1 of 2 · Works cost" />
+      <Band no={5} title="Order of Cost Estimate" note="1 of 2 · Works cost" caveat={SECTION_CAVEATS.cost} />
       <p className="r-lead">{aiProse?.costNarrative ? cleanReportText(aiProse.costNarrative) : costIntroText(cost, data.answers)}</p>
       {mode === 'lines'
         ? <LinesTable rows={worksRows(cost)} total={cost?.works} m={m} />
@@ -68,7 +68,7 @@ export function CostSummaryPage({ data, ctx, n }) {
   const pl = percentageLines(cost)
   return (
     <BodyPage ctx={ctx} page={n}>
-      <Band no={5} title="Order of Cost Estimate" note="2 of 2 · Project cost" />
+      <Band no={5} title="Order of Cost Estimate" note="2 of 2 · Project cost" caveat={SECTION_CAVEATS.cost} />
       <table className="r-t">
         <Cols widths={TABLES.projectCost} />
         <thead><tr><th>Item</th><th>Rate</th><th className="r-num">Low £</th><th className="r-num">High £</th></tr></thead>
@@ -96,7 +96,7 @@ export function AppendixPage({ data, ctx, n, page }) {
   const last = page.part === page.parts
   return (
     <BodyPage ctx={ctx} page={n}>
-      <Band no="A" title="Appendix A · Works cost, line by line" note={`Part ${page.part} of ${page.parts}`} />
+      <Band no="A" title="Appendix A · Works cost, line by line" note={`Part ${page.part} of ${page.parts}`} caveat={SECTION_CAVEATS.cost} />
       <LinesTable rows={page.rows} total={last ? data.cost?.works : null} m={ctx.money} />
     </BodyPage>
   )
