@@ -1,0 +1,196 @@
+{
+ "id": "FO-8-offices",
+ "projectType": "Fit-out",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] First Street Cat B office fit-out"
+   },
+   {
+    "q": "Q1.1",
+    "value": "M15"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Fit-out"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Commercial offices"
+   },
+   {
+    "q": "Q1.4",
+    "value": "Post-2000"
+   },
+   {
+    "q": "Q1.5",
+    "value": "2400"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Cat B fit-out of two floors of a new Cat A office: meeting rooms and client suite, staff café, focus rooms, AV and IT, new lighting scenes, and loose furniture for 280 staff. Minor adaptation of the landlord's services to suit the new layout."
+   },
+   {
+    "q": "Q2.2",
+    "value": "Reconfiguration or full redesign"
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "None identified"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "New building, Cat A completed 2026."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "None"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "No consent required"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Goods lift booking shared with two other tenants."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-09-30"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-12-01"
+   },
+   {
+    "q": "Q4.3",
+    "value": "3600000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Fixed / certain final cost",
+     "Speed"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q4.8",
+    "value": "No"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0027",
+   "S-0028",
+   "S-0030",
+   "S-0031",
+   "S-0052",
+   "S-0053",
+   "S-0029",
+   "S-0063"
+  ],
+  "remove": [
+   "S-0001",
+   "S-0003",
+   "S-0039",
+   "S-0041"
+  ],
+  "options": [
+   {
+    "id": "S-0045",
+    "name": "Power",
+    "pick": "One",
+    "key": "S-0045-03",
+    "label": "Scope: Second fix only",
+    "dims": [
+     {
+      "dim": "Scope",
+      "value": "Second fix only"
+     }
+    ]
+   },
+   {
+    "id": "S-0046",
+    "name": "Lighting",
+    "pick": "One",
+    "key": "S-0046-02",
+    "label": "Scope: Replace fittings only",
+    "dims": [
+     {
+      "dim": "Scope",
+      "value": "Replace fittings only"
+     }
+    ]
+   },
+   {
+    "id": "S-0063",
+    "name": "Server room cooling",
+    "pick": "One",
+    "key": "S-0063-01",
+    "label": "Size: Small",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Small"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0027",
+    "name": "Kitchens",
+    "pick": "One",
+    "key": "S-0027-02",
+    "label": "Type: Staff kitchenette (non-domestic)",
+    "qty": "3"
+   }
+  ],
+  "method": null
+ }
+}

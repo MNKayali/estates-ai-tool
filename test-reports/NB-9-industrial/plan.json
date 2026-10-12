@@ -1,0 +1,221 @@
+{
+ "id": "NB-9-industrial",
+ "projectType": "New Build",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] Doncaster M18 distribution warehouse"
+   },
+   {
+    "q": "Q1.1",
+    "value": "DN4"
+   },
+   {
+    "q": "Q1.2",
+    "value": "New Build"
+   },
+   {
+    "q": "Q1.2a",
+    "value": "1"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Industrial / warehouse"
+   },
+   {
+    "q": "Q1.5",
+    "value": "12500"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Construct a 12,500 m² speculative distribution warehouse with integral two-storey offices, dock levellers, HGV yard and car parking, to BREEAM Very Good and EPC A. Shell to a lettable standard with LED lighting and rooftop PV."
+   },
+   {
+    "q": "Q2.4",
+    "value": "Standard"
+   },
+   {
+    "q": "Q2.5",
+    "value": [
+     "BREEAM",
+     "DNO",
+     "Highways"
+    ]
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Made ground or fill",
+     "High water table",
+     "Contaminated land"
+    ]
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Topographic",
+     "Ground investigation",
+     "Contamination survey (Phase 1 / Phase 2)",
+     "Flood risk assessment"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Full planning"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "No access constraints"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Vacant or decanted"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Former colliery spoil; outline consent for B8 exists, reserved matters needed."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "None of these"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "No specific deadline"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2027-02-01"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Speed",
+     "Lowest cost"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Developed design (Stage 3)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Internal / commercial"
+   },
+   {
+    "q": "Q4.8",
+    "value": "No"
+   },
+   {
+    "q": "Q5.1",
+    "value": [
+     "Rental or commercial income"
+    ]
+   },
+   {
+    "q": "Q5.2",
+    "value": "1150000"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0036",
+   "S-0075",
+   "S-0074",
+   "S-0005",
+   "S-0055",
+   "S-0044",
+   "S-0071",
+   "S-0079",
+   "S-0080",
+   "S-0057",
+   "S-0078"
+  ],
+  "remove": [],
+  "options": [
+   {
+    "id": "S-0008",
+    "name": "Foundations",
+    "pick": "One",
+    "key": "S-0008-02",
+    "label": "Type: Piled",
+    "dims": [
+     {
+      "dim": "Type",
+      "value": "Piled"
+     }
+    ]
+   },
+   {
+    "id": "S-0044",
+    "name": "Electricity supply upgrade",
+    "pick": "One",
+    "key": "S-0044-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   },
+   {
+    "id": "S-0071",
+    "name": "Highways and site access",
+    "pick": "One",
+    "key": "S-0071-03",
+    "label": "Size: Large",
+    "dims": [
+     {
+      "dim": "Size",
+      "value": "Large"
+     }
+    ]
+   }
+  ],
+  "quantities": [
+   {
+    "id": "S-0036",
+    "name": "Warehouse",
+    "pick": "One",
+    "key": "S-0036-01",
+    "label": "Standard",
+    "qty": "11900"
+   },
+   {
+    "id": "S-0075",
+    "name": "HGV yard",
+    "pick": "One",
+    "key": "S-0075-01",
+    "label": "Standard",
+    "qty": "9000"
+   },
+   {
+    "id": "S-0074",
+    "name": "Car parking",
+    "pick": "One",
+    "key": "S-0074-01",
+    "label": "Standard",
+    "qty": "120"
+   }
+  ],
+  "method": null
+ }
+}

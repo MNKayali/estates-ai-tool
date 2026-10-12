@@ -20,155 +20,155 @@ uses = building-use codes the item is tagged for (others see it under "More item
 
 
 ### Group 0 — Facilitating works
-- **S-0001 Asbestos removal** — null; unit m²; pick One; uses ALL; qty estimated
-  - includes: Removal of asbestos and other hazardous materials in the building
+- **S-0001 Asbestos removal** — null; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Survey-led removal and disposal of asbestos and other hazardous materials from the building worked on (on New build: the building being demolished), incl. enclosures, air testing and licensed disposal
   - options: S-0001-01 "Standard" [default]
-- **S-0003 Strip-out** — null; unit m²; pick One; uses ALL; qty estimated
-  - includes: Removal of existing finishes, fittings and redundant services
+- **S-0003 Strip-out** — null; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Removal of existing finishes, ceilings, non-structural partitions, fittings and redundant services back to shell, incl. disposal
   - options: S-0003-01 "Standard" [default]
 
 ### Group 2 — Superstructure and envelope
 - **S-0014 Mezzanine floor** — Structure; unit m² mezzanine; pick One; uses OFF/EDU/RET/IND; qty ENTER
-  - includes: Free-standing mezzanine
+  - includes: Free-standing steel mezzanine floor with deck, access stair, balustrade and fire protection
   - options: S-0014-01 "Standard" (from level 4) [default]
-- **S-0018 Internal walls** — Internal walls and doors; unit m²; pick One; uses ALL; qty estimated
-  - includes: Walls and partitions
+- **S-0018 Internal walls** — Internal walls and doors; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Internal walls and partitions (stud or block), incl. acoustic and fire-rated partitions, and toilet IPS panels
   - options: S-0018-01 "Standard" (from level 4) [default]
-- **S-0019 Internal doors** — Internal walls and doors; unit m²; pick One; uses ALL; qty estimated
-  - includes: Doors and ironmongery, incl. fire doors
+- **S-0019 Internal doors** — Internal walls and doors; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Internal doorsets (frame, leaf, ironmongery, decoration), incl. fire doors
   - options: S-0019-01 "Standard" [default]
-- **S-0020 Fire stopping** — Internal walls and doors; unit m²; pick One; uses ALL; qty estimated
-  - includes: Fire stopping and compartmentation upgrade
+- **S-0020 Fire stopping** — Internal walls and doors; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Upgrading fire stopping and compartmentation in an existing building: sealing service penetrations, fire barriers in voids and cavities
   - options: S-0020-01 "Standard" [default]
 
 ### Group 3 — Internal finishes
-- **S-0021 Wall finishes** — null; unit m²; pick One; uses ALL; qty estimated
-  - includes: Plaster, paint and tiling, incl. tanking in wet areas
+- **S-0021 Wall finishes** — null; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Plaster or dry lining, decoration and wall tiling, incl. tanking in wet areas
   - options: S-0021-01 "Standard" [default]
-- **S-0022 Floor finishes** — null; unit m²; pick One; uses ALL; qty estimated
-  - includes: Screed and floor coverings, incl. tanking in wet areas
+- **S-0022 Floor finishes** — null; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Screed and floor coverings (carpet, vinyl, tiles, timber), skirtings and entrance matting, incl. tanking in wet areas
   - options: S-0022-01 "Raised access floor: No" [default]; S-0022-02 "Raised access floor: Yes"
-- **S-0023 Ceiling finishes** — null; unit m²; pick One; uses ALL; qty estimated
-  - includes: Plasterboard or suspended ceilings
+- **S-0023 Ceiling finishes** — null; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Suspended or plasterboard ceilings with decoration, incl. access panels and bulkheads
   - options: S-0023-01 "Standard" [default]
 
 ### Group 4 — Toilets, kitchens and fittings
-- **S-0024 Toilets** — Toilets, bathrooms and kitchens; unit nr; pick Several; uses OFF/EDU/HEA/RET/IND/HOS; qty estimated
-  - includes: WC pans, basins, cubicles, vanity, dryers and accessories. Pipework is in Water and drainage, tiling in Group 3
-  - options: S-0024-01 "Standard" (from level 2) [default]; S-0024-04 "Accessible" (from level 2) [default]; S-0024-05 "Changing Places" (from level 2)
-- **S-0025 Bathrooms and en-suites** — Toilets, bathrooms and kitchens; unit Nr; pick One; uses RES/STU/HOS; qty estimated
-  - includes: Bath or shower, WC, basin and accessories
-  - options: S-0025-01 "Built in" (from level 2) [default]; S-0025-03 "Pods" (from level 2)
-- **S-0026 Showers** — Toilets, bathrooms and kitchens; unit nr; pick One; uses OFF/EDU/HEA/RET/IND/HOS; qty ENTER
-  - includes: Showers and changing (non-residential)
+- **S-0024 Toilets** — Toilets, bathrooms and kitchens; unit nr WCs; pick Several; uses OFF/EDU/HEA/RET/IND/HOS; qty estimated
+  - includes: Per WC: WC pan, wash basin and taps, cubicle, hand dryer and a share of vanity units and accessories, fitted
+  - options: S-0024-01 "Standard" (from level 2) [default]; S-0024-04 "Accessible" (from level 2) [default]; S-0024-05 "Changing Places (hoist, adult changing bench)" (from level 2)
+- **S-0025 Bathrooms and en-suites** — Toilets, bathrooms and kitchens; unit nr bathrooms; pick One; uses RES/STU/HOS; qty estimated
+  - includes: Per bathroom: bath or shower tray and screen, WC, basin, taps, mirror and accessories, fitted
+  - options: S-0025-01 "Standard" (from level 2) [default]
+- **S-0026 Showers** — Toilets, bathrooms and kitchens; unit nr showers; pick One; uses OFF/EDU/HEA/RET/IND/HOS; qty ENTER
+  - includes: Per shower: tray, screen or curtain, thermostatic valve and head, fitted
   - options: S-0026-01 "Standard" (from level 2) [default]
-- **S-0027 Kitchens** — Toilets, bathrooms and kitchens; unit Nr; pick One; uses ALL; qty estimated
-  - includes: Domestic kitchens or staff tea points
-  - options: S-0027-01 "Type: Domestic kitchen" (from level 2) [default]; S-0027-02 "Type: Tea point" (from level 2)
-- **S-0028 Fixed joinery** — Fittings and furniture; unit m²; pick One; uses ALL; qty estimated
-  - includes: Reception desks, built-in storage and fitted furniture
+- **S-0027 Kitchens** — Toilets, bathrooms and kitchens; unit nr kitchens; pick One; uses ALL; qty estimated
+  - includes: Per kitchen: base and wall units, worktop, sink and taps, fitted
+  - options: S-0027-01 "Type: Domestic kitchen" (from level 2); S-0027-02 "Type: Staff kitchenette (non-domestic)" (from level 2) [default]
+- **S-0028 Fixed joinery** — Fittings and furniture; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Built-in, made-to-fit items: reception desks, fitted storage and shelving, lockers, fitted benches, wall panelling
   - options: S-0028-01 "Standard" [default]
-- **S-0029 Signage** — Fittings and furniture; unit m²; pick One; uses ALL; qty estimated
-  - includes: Wayfinding and statutory signs
+- **S-0029 Signage** — Fittings and furniture; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Statutory safety signs (fire exits, fire equipment, accessible WCs, room signs) and internal wayfinding
   - options: S-0029-01 "Standard" [default]
-- **S-0030 AV equipment** — Fittings and furniture; unit m²; pick One; uses OFF/EDU/HEA/HOS; qty estimated
-  - includes: Screens, projectors and audio in meeting and teaching rooms
+- **S-0030 AV equipment** — Fittings and furniture; unit m² GIFA; pick One; uses OFF/EDU/HEA/HOS; qty estimated
+  - includes: Screens, projectors, audio, and room booking panels in meeting and teaching rooms, installed
   - options: S-0030-01 "Standard" (from level 2) [default]
-- **S-0031 Loose furniture** — Fittings and furniture; unit m²; pick One; uses ALL; qty estimated
-  - includes: Desks, chairs, beds and white goods
+- **S-0031 Loose furniture** — Fittings and furniture; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Loose furniture and equipment: desks, chairs, tables, beds, white goods
   - options: S-0031-01 "Standard" [default]
-- **S-0032 Catering kitchen** — Specialist equipment; unit m² kitchen and servery; pick One; uses STU/OFF/EDU/HEA/RET/IND/HOS; qty estimated
-  - includes: Commercial kitchen equipment, bar and servery counters, extract canopy and grease trap
+- **S-0032 Catering kitchen** — Specialist equipment; unit m² kitchen; pick One; uses STU/OFF/EDU/HEA/RET/IND/HOS; qty estimated
+  - includes: Commercial kitchen: cooking equipment, stainless steel benching, servery and bar counters, extract canopy and grease trap
   - options: S-0032-01 "Standard" (from level 3) [default]
 - **S-0033 Laboratory** — Specialist equipment; unit m² lab; pick One; uses EDU/HEA/IND; qty estimated
-  - includes: Lab benching and fume cupboards
+  - includes: Laboratory benching, sinks, storage and fume cupboards
   - options: S-0033-01 "Standard" [default]
 - **S-0034 Clinical** — Specialist equipment; unit m² clinical; pick One; uses HEA; qty estimated
-  - includes: Clinical fittings and equipment
+  - includes: Clinical fittings and fixed equipment: couches, clinical sinks, pendants, clinical storage
   - options: S-0034-01 "Standard" [default]
 - **S-0035 Retail** — Specialist equipment; unit m² sales area; pick One; uses RET; qty ENTER
-  - includes: Display units, counters and fitting rooms
+  - includes: Shop fit-out fixtures: display units, counters and tills, fitting rooms, security tags
   - options: S-0035-01 "Standard" [default]
-- **S-0036 Warehouse** — Specialist equipment; unit m²; pick One; uses IND; qty ENTER
-  - includes: Racking, dock levellers and loading doors. Cranes: use Other / specialist scope
+- **S-0036 Warehouse** — Specialist equipment; unit m² warehouse; pick One; uses IND; qty ENTER
+  - includes: Pallet racking, dock levellers and loading doors
   - options: S-0036-01 "Standard" [default]
 - **S-0037 Sports** — Specialist equipment; unit m² sports area; pick One; uses EDU/HOS; qty ENTER
-  - includes: Gym equipment and changing lockers. Spectator seating: use Other / specialist scope
+  - includes: Gym and fitness equipment, changing room lockers and benches
   - options: S-0037-01 "Standard" [default]
 - **S-0038 Cleanroom** — Specialist equipment; unit m² cleanroom; pick One; uses EDU/HEA/IND; qty ENTER
-  - includes: Cleanroom enclosure and fit-out
+  - includes: Cleanroom enclosure, ceiling, filtered air supply and validation
   - options: S-0038-01 "Standard" (from level 4) [default]
 
 ### Group 5 — Services
-- **S-0039 Heating and hot water** — Mechanical; unit m²; pick One; uses ALL; qty estimated
-  - includes: Heat source, pipework, radiators or underfloor heating, and hot water
+- **S-0039 Heating and hot water** — Mechanical; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Full system: heat source, pipework, radiators or underfloor heating, controls, and hot water generation
   - options: S-0039-01 "System: Gas boiler · Scope: Full system" (from level 3); S-0039-02 "System: Air source heat pump · Scope: Full system" (from level 3) [default]; S-0039-03 "System: Ground source heat pump · Scope: Full system" (from level 3); S-0039-04 "System: District heating · Scope: Full system" (from level 3); S-0039-05 "System: Electric · Scope: Full system" (from level 3); S-0039-06 "System: Gas boiler · Scope: Plant only" (from level 2); S-0039-07 "System: Gas boiler · Scope: Radiators and controls only" (from level 2); S-0039-08 "System: Air source heat pump · Scope: Plant only" (from level 2); S-0039-09 "System: Air source heat pump · Scope: Radiators and controls only" (from level 2); S-0039-10 "System: Ground source heat pump · Scope: Plant only" (from level 2); S-0039-11 "System: Ground source heat pump · Scope: Radiators and controls only" (from level 2); S-0039-12 "System: District heating · Scope: Plant only" (from level 2); S-0039-13 "System: District heating · Scope: Radiators and controls only" (from level 2); S-0039-14 "System: Electric · Scope: Plant only" (from level 2); S-0039-15 "System: Electric · Scope: Radiators and controls only" (from level 2)
-- **S-0040 Water and drainage** — Mechanical; unit m²; pick One; uses ALL; qty estimated
-  - includes: Hot and cold water pipework and above-ground drainage
+- **S-0040 Water and drainage** — Mechanical; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Full installation: cold and hot water distribution pipework, above-ground soil, waste and rainwater pipework, and the connections to sanitary fittings
   - options: S-0040-01 "Scope: Full installation" (from level 2) [default]; S-0040-02 "Scope: Visible fittings only" (from level 2)
-- **S-0041 Ventilation** — Mechanical; unit m²; pick One; uses ALL; qty estimated
-  - includes: Extract and mechanical ventilation
-  - options: S-0041-01 "Standard" (from level 3) [default]
-- **S-0042 Cooling** — Mechanical; unit m²; pick One; uses ALL; qty estimated
-  - includes: Air conditioning and comfort cooling
+- **S-0041 Ventilation** — Mechanical; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Mechanical ventilation and extract: fans, AHUs or MVHR units, ductwork, grilles and controls
+  - options: S-0041-01 "Scope: Full system" (from level 3) [default]; S-0041-02 "Scope: Extract fans only" (from level 2)
+- **S-0042 Cooling** — Mechanical; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Air conditioning or comfort cooling: VRF / split units or chilled water, pipework and controls
   - options: S-0042-01 "Standard" (from level 3) [default]
-- **S-0043 Controls and BMS** — Mechanical; unit m²; pick One; uses ALL; qty estimated
-  - includes: Building management system and controls
+- **S-0043 Controls and BMS** — Mechanical; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Building management system: controllers, sensors, meters and software for heating, cooling and ventilation
   - options: S-0043-01 "Standard" (from level 3) [default]
 - **S-0044 Electricity supply upgrade** — Electrical; unit band; pick One; uses ALL; qty estimated
-  - includes: New or upgraded supply from the DNO, incl. substation
+  - includes: New or upgraded electricity supply from the network, priced as a lump sum by size. Small: capacity increase on the existing supply — new meter, cut-out and incoming cable, no DNO network works
   - options: S-0044-01 "Size: Small" (from level 3); S-0044-02 "Size: Medium" (from level 3) [default]; S-0044-03 "Size: Large" (from level 3)
-- **S-0045 Power** — Electrical; unit m²; pick One; uses ALL; qty estimated
-  - includes: Switchgear, distribution boards, all wiring (power and lighting circuits) and sockets
+- **S-0045 Power** — Electrical; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Full installation: main switchgear, distribution boards, containment, all wiring for power and lighting circuits, sockets and switches
   - options: S-0045-01 "Scope: Full installation" (from level 3) [default]; S-0045-03 "Scope: Second fix only" (from level 2)
-- **S-0046 Lighting** — Electrical; unit m²; pick One; uses ALL; qty estimated
-  - includes: Light fittings, controls and external lights on the building (wiring is in Power)
+- **S-0046 Lighting** — Electrical; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Full installation: light fittings (LED), lighting controls and external lights fixed to the building
   - options: S-0046-01 "Scope: Full installation" (from level 2) [default]; S-0046-02 "Scope: Replace fittings only" (from level 2)
-- **S-0047 Emergency lighting** — Electrical; unit m²; pick One; uses ALL; qty estimated
-  - includes: Emergency and exit lighting
+- **S-0047 Emergency lighting** — Electrical; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Emergency and exit lighting with testing system
   - options: S-0047-01 "Standard" (from level 3) [default]
 - **S-0048 Standby power** — Electrical; unit band; pick Several; uses OFF/EDU/HEA/RET/IND/HOS; qty estimated
-  - includes: Generator or UPS
+  - includes: Standby power (generator or UPS), priced as a lump sum by type and size. Standby generator up to 50 kVA with enclosure, fuel tank and changeover switch
   - options: S-0048-01 "Type: Generator · Size: Small" (from level 3); S-0048-02 "Type: UPS · Size: Small" (from level 3); S-0048-03 "Type: Generator · Size: Medium" (from level 3) [default]; S-0048-04 "Type: UPS · Size: Medium" (from level 3); S-0048-05 "Type: Generator · Size: Large" (from level 3); S-0048-06 "Type: UPS · Size: Large" (from level 3)
-- **S-0049 Fire alarm** — Fire safety; unit m²; pick One; uses ALL; qty estimated
-  - includes: Detection and alarm system
+- **S-0049 Fire alarm** — Fire safety; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Fire detection and alarm system: panel, detectors, sounders, call points and cabling
   - options: S-0049-01 "Standard" (from level 3) [default]
-- **S-0050 Sprinklers** — Fire safety; unit m²; pick One; uses ALL; qty estimated
-  - includes: Sprinklers and dry or wet risers
+- **S-0050 Sprinklers** — Fire safety; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Sprinklers or mist system with tank and pumps, and dry or wet risers where needed
   - options: S-0050-01 "Standard" (from level 3) [default]
-- **S-0052 Data and IT** — Data and security; unit m²; pick One; uses ALL; qty estimated
-  - includes: Structured cabling, Wi-Fi and comms rooms
+- **S-0052 Data and IT** — Data and security; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Structured data cabling, Wi-Fi access points, comms cabinets and containment
   - options: S-0052-01 "Standard" (from level 2) [default]
-- **S-0053 Security** — Data and security; unit m²; pick One; uses ALL; qty estimated
-  - includes: Access control, CCTV and door entry
+- **S-0053 Security** — Data and security; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Access control, CCTV, intruder alarm and door entry
   - options: S-0053-01 "Standard" (from level 3) [default]
-- **S-0054 Lifts** — Lifts; unit Nr; pick Several; uses ALL; qty estimated
-  - includes: Lift installation
+- **S-0054 Lifts** — Lifts; unit nr lifts; pick Several; uses ALL; qty estimated
+  - includes: Per lift: lift car, machine, doors at each floor, installation and commissioning
   - options: S-0054-01 "Type: Passenger" (from level 3) [default]; S-0054-02 "Type: Platform" (from level 3); S-0054-03 "Type: Goods or bed" (from level 3)
 - **S-0055 Solar PV** — Renewables and EV; unit kWp; pick One; uses ALL; qty estimated
-  - includes: Panels, inverters and connection (roof, canopy or ground)
+  - includes: Solar panels, mounting, inverters, cabling and grid connection (roof, canopy or ground-mounted)
   - options: S-0055-01 "Standard" (from level 3) [default]
 - **S-0056 Battery storage** — Renewables and EV; unit kWh; pick One; uses ALL; qty ENTER
-  - includes: Battery and inverter
+  - includes: Battery storage units, inverter and connection
   - options: S-0056-01 "Standard" (from level 3) [default]
 - **S-0057 EV charging** — Renewables and EV; unit nr chargers; pick One; uses ALL; qty estimated
-  - includes: Charge points and cabling
+  - includes: Per charger: 7–22 kW charge point, cabling, ducting and connection to the building supply
   - options: S-0057-01 "Standard" (from level 3) [default]
 - **S-0058 Compressed air** — Specialist services; unit band; pick One; uses EDU/IND; qty estimated
-  - includes: Compressed air plant and pipework
+  - includes: Compressed air plant and pipework, priced as a lump sum by size. Small: one compressor, receiver and a short pipework run (workshop scale)
   - options: S-0058-01 "Size: Small" (from level 3); S-0058-02 "Size: Medium" (from level 3) [default]; S-0058-03 "Size: Large" (from level 3)
 - **S-0059 Fume extraction** — Specialist services; unit band; pick One; uses EDU/HEA/IND; qty estimated
-  - includes: Extract ductwork and fans for fume cupboards and processes
+  - includes: Extract ductwork and fans for fume cupboards and processes, priced as a lump sum by size. Small: extract fan and ductwork for one or two fume cupboards
   - options: S-0059-01 "Size: Small" (from level 3); S-0059-02 "Size: Medium" (from level 3) [default]; S-0059-03 "Size: Large" (from level 3)
 - **S-0060 Process drainage** — Specialist services; unit m² process area; pick One; uses IND; qty ENTER
-  - includes: Trade and process drainage
+  - includes: Trade and process drainage: channels, gullies, interceptors and separators
   - options: S-0060-01 "Standard" (from level 3) [default]
 - **S-0061 Medical gases** — Specialist services; unit nr outlets; pick One; uses HEA; qty estimated
-  - includes: Medical gas pipework and outlets
+  - includes: Medical gas pipework, outlets, alarms and area valve units (oxygen, air, vacuum)
   - options: S-0061-01 "Standard" (from level 3) [default]
-- **S-0062 Nurse call** — Specialist services; unit Nr; pick One; uses RES/HEA; qty estimated
-  - includes: Nurse call system
+- **S-0062 Nurse call** — Specialist services; unit nr beds; pick One; uses RES/HEA; qty estimated
+  - includes: Nurse call per bed: call points, indicators, staff attack and panels
   - options: S-0062-01 "Standard" (from level 3) [default]
 - **S-0063 Server room cooling** — Specialist services; unit band; pick One; uses OFF/EDU/HEA/RET/IND/HOS; qty estimated
-  - includes: Precision cooling for server or comms rooms
+  - includes: Precision cooling for server or comms rooms, priced as a lump sum by size. Small: split cooling unit for a comms room (one or two racks)
   - options: S-0063-01 "Size: Small" (from level 3); S-0063-02 "Size: Medium" (from level 3) [default]; S-0063-03 "Size: Large" (from level 3)

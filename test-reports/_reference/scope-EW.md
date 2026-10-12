@@ -17,76 +17,73 @@ uses = building-use codes the item is tagged for (others see it under "More item
 
 
 ### Group 0 — Facilitating works
-- **S-0001 Asbestos removal** — null; unit m²; pick One; uses ALL; qty estimated
-  - includes: Removal of asbestos and other hazardous materials in the building
+- **S-0001 Asbestos removal** — null; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Survey-led removal and disposal of asbestos and other hazardous materials from the building worked on (on New build: the building being demolished), incl. enclosures, air testing and licensed disposal
   - options: S-0001-01 "Standard" [default]
 - **S-0002 Demolition of existing building** — null; unit m² demolished; pick One; uses ALL; qty estimated
-  - includes: Whole-building demolition, soft strip and service disconnections
+  - includes: Demolition of the whole existing building to ground level: soft strip, disconnection of services, breaking out ground slab and shallow foundations, removal and disposal of arisings
   - options: S-0002-01 "Standard" [default]
-- **S-0004 Contaminated land** — null; unit m²; pick One; uses ALL; qty estimated
-  - includes: Remediation of contaminated ground
+- **S-0004 Contaminated land** — null; unit m² GIFA; pick One; uses ALL; qty estimated
+  - includes: Treatment or removal and disposal of contaminated ground under the building (on External works only: the site area), incl. capping layer and verification
   - options: S-0004-01 "Standard" [default]
-- **S-0005 Ground improvement** — null; unit m²; pick One; uses ALL; qty estimated
-  - includes: Ground stabilisation and mine-working treatment (not piling)
+- **S-0005 Ground improvement** — null; unit m² footprint; pick One; uses ALL; qty estimated
+  - includes: Ground stabilisation under the building footprint: mine-working grouting, vibro-compaction or soil improvement
   - options: S-0005-01 "Standard" [default]
 - **S-0006 Tree removal** — null; unit nr trees; pick One; uses ALL; qty ENTER
-  - includes: Felling and arboricultural works
+  - includes: Per tree: felling, stump grinding or removal, and disposal
   - options: S-0006-01 "Standard" [default]
-- **S-0007 Service diversions** — null; unit band; pick One; uses ALL; qty estimated
-  - includes: Diverting existing underground services
-  - options: S-0007-01 "Size: Small"; S-0007-02 "Size: Medium" [default]; S-0007-03 "Size: Large"
+- **S-0007 Service diversions** — null; unit m² footprint; pick One; uses ALL; qty estimated
+  - includes: Diverting or protecting existing underground services (drains, cables, pipes) that cross the building footprint, incl. utility company charges for the diversion
+  - options: S-0007-01 "Standard" [default]
 
 ### Group 5 — Services
 - **S-0044 Electricity supply upgrade** — Electrical; unit band; pick One; uses ALL; qty estimated
-  - includes: New or upgraded supply from the DNO, incl. substation
+  - includes: New or upgraded electricity supply from the network, priced as a lump sum by size. Small: capacity increase on the existing supply — new meter, cut-out and incoming cable, no DNO network works
   - options: S-0044-01 "Size: Small"; S-0044-02 "Size: Medium" [default]; S-0044-03 "Size: Large"
 - **S-0055 Solar PV** — Renewables and EV; unit kWp; pick One; uses ALL; qty estimated
-  - includes: Panels, inverters and connection (roof, canopy or ground)
+  - includes: Solar panels, mounting, inverters, cabling and grid connection (roof, canopy or ground-mounted)
   - options: S-0055-01 "Standard" [default]
 - **S-0056 Battery storage** — Renewables and EV; unit kWh; pick One; uses ALL; qty ENTER
-  - includes: Battery and inverter
+  - includes: Battery storage units, inverter and connection
   - options: S-0056-01 "Standard" [default]
 - **S-0057 EV charging** — Renewables and EV; unit nr chargers; pick One; uses ALL; qty estimated
-  - includes: Charge points and cabling
+  - includes: Per charger: 7–22 kW charge point, cabling, ducting and connection to the building supply
   - options: S-0057-01 "Standard" [default]
 
 ### Group 8 — External works
 - **S-0067 Site clearance and preparation** — Site, access and drainage; unit m² external; pick One; uses ALL; qty estimated
-  - includes: Clearance, topsoil strip and levelling
+  - includes: Site clearance, vegetation removal, topsoil strip, cut and fill, levelling
   - options: S-0067-01 "Standard" [default]
 - **S-0068 Surface water drainage** — Site, access and drainage; unit m² external; pick One; uses ALL; qty estimated
-  - includes: Drainage, SuDS and attenuation
+  - includes: Surface water drainage: gullies, channels, pipework, manholes, SuDS and attenuation
   - options: S-0068-01 "Standard" [default]
 - **S-0071 Highways and site access** — Site, access and drainage; unit band; pick One; uses ALL; qty estimated
-  - includes: New access and S278 works
+  - includes: New site access and highway works (Section 278), priced as a lump sum by size. Small: new or widened vehicle crossover and dropped kerb
   - options: S-0071-01 "Size: Small"; S-0071-02 "Size: Medium" [default]; S-0071-03 "Size: Large"
 - **S-0072 Retaining walls and earthworks** — Site, access and drainage; unit band; pick One; uses ALL; qty estimated
-  - includes: For sloping sites
+  - includes: Retaining walls and earthworks for sloping sites, priced as a lump sum by size. Small: short retaining walls under about 1.2 m and minor regrading
   - options: S-0072-01 "Size: Small"; S-0072-02 "Size: Medium" [default]; S-0072-03 "Size: Large"
 - **S-0073 Roads, paths and paving** — Paving and landscaping; unit m² hard surface; pick One; uses ALL; qty estimated
-  - includes: Roads, footpaths and hard landscaping
+  - includes: Roads, footpaths and hard landscaping: sub-base, surfacing, kerbs and edgings
   - options: S-0073-01 "Standard" [default]
-- **S-0074 Car parking** — Paving and landscaping; unit Nr; pick One; uses ALL; qty ENTER
-  - includes: Surface car parking
+- **S-0074 Car parking** — Paving and landscaping; unit nr spaces; pick One; uses ALL; qty ENTER
+  - includes: Per surface parking space: sub-base, surfacing, kerbs, marking, drainage and share of lighting
   - options: S-0074-01 "Standard" [default]
-- **S-0075 HGV yard** — Paving and landscaping; unit m²; pick One; uses IND; qty ENTER
-  - includes: Hardstanding and turning area
+- **S-0075 HGV yard** — Paving and landscaping; unit m² yard; pick One; uses IND; qty ENTER
+  - includes: Heavy-duty concrete hardstanding and turning area for HGVs
   - options: S-0075-01 "Standard" [default]
-- **S-0076 Soft landscaping** — Paving and landscaping; unit m² soft landscape; pick One; uses ALL; qty estimated
-  - includes: Planting, grass and trees
+- **S-0076 Soft landscaping** — Paving and landscaping; unit m² soft; pick One; uses ALL; qty estimated
+  - includes: Topsoil, grass seeding or turf, planting and trees, first-year maintenance
   - options: S-0076-01 "Standard" [default]
 - **S-0078 Biodiversity net gain** — Paving and landscaping; unit band; pick One; uses ALL; qty estimated
-  - includes: On-site enhancement or off-site units
+  - includes: Biodiversity net gain: on-site habitat work or off-site units, priced as a lump sum by size. Small: on-site habitat enhancement (planting, habitat boxes) and monitoring
   - options: S-0078-01 "Size: Small"; S-0078-02 "Size: Medium" [default]; S-0078-03 "Size: Large"
 - **S-0079 Fences, gates and walls** — Boundaries and fixtures; unit m; pick One; uses ALL; qty estimated
-  - includes: Boundary treatment
+  - includes: Boundary fencing, walls and gates, per linear metre of boundary
   - options: S-0079-01 "Standard" [default]
 - **S-0080 External lighting** — Boundaries and fixtures; unit m² external; pick One; uses ALL; qty estimated
-  - includes: Site and car park lighting
+  - includes: Site and car park lighting columns or bollards, cabling and controls
   - options: S-0080-01 "Standard" [default]
-- **S-0081 Cycle storage** — Boundaries and fixtures; unit Nr; pick One; uses ALL; qty ENTER
-  - includes: Cycle stands and shelters
+- **S-0081 Cycle storage** — Boundaries and fixtures; unit nr spaces; pick One; uses ALL; qty ENTER
+  - includes: Per cycle space: stands and a share of a covered shelter
   - options: S-0081-01 "Standard" [default]
-- **S-0082 Bin store** — Boundaries and fixtures; unit band; pick One; uses ALL; qty estimated
-  - includes: Bin store and waste enclosure
-  - options: S-0082-01 "Size: Small"; S-0082-02 "Size: Medium" [default]; S-0082-03 "Size: Large"

@@ -25,10 +25,12 @@ window.__fill = async (plan, section) => {
     }
     if (!c) return misses.push(`${q}: question not on the page`)
     if (Array.isArray(value)) {
+      // Q4.4 is ranked: a ticked option's text starts with its rank badge, so read its aria-label.
+      const name = b => (b.getAttribute('aria-label') || txt(b)).replace(/, ranked \d+$/, '')
       const opts = [...c.querySelectorAll('[role=checkbox]')]
-      for (const b of opts) if (b.getAttribute('aria-checked') === 'true' && !value.includes(txt(b))) { b.click(); await sleep(80) }
+      for (const b of opts) if (b.getAttribute('aria-checked') === 'true' && !value.includes(name(b))) { b.click(); await sleep(80) }
       for (const v of value) {
-        const b = [...c.querySelectorAll('[role=checkbox]')].find(x => txt(x) === v)
+        const b = [...c.querySelectorAll('[role=checkbox]')].find(x => name(x) === v)
         if (!b) misses.push(`${q}: no option "${v}"`)
         else if (b.getAttribute('aria-checked') !== 'true') { b.click(); await sleep(80) }
       }

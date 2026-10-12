@@ -1,0 +1,135 @@
+{
+ "id": "DM-7-healthcare",
+ "projectType": "Demolition only",
+ "sections": {
+  "1": [
+   {
+    "q": "Q1.0",
+    "value": "[TEST3] Ward block demolition for diagnostics centre"
+   },
+   {
+    "q": "Q1.1",
+    "value": "NE4"
+   },
+   {
+    "q": "Q1.2",
+    "value": "Demolition only"
+   },
+   {
+    "q": "Q1.3",
+    "value": "Healthcare"
+   },
+   {
+    "q": "Q1.4",
+    "value": "1900–1979"
+   },
+   {
+    "q": "Q1.5",
+    "value": "3200"
+   }
+  ],
+  "2": [
+   {
+    "q": "Q2.1",
+    "value": "Soft strip, remove all asbestos, and demolish a vacant three-storey ward block, cut back and make good the link bridge to the occupied outpatients building, cap services and leave a level, cleared site for the new diagnostics centre."
+   }
+  ],
+  "3": [
+   {
+    "q": "Q3.1",
+    "value": [
+     "Asbestos known or suspected",
+     "Structures attached to neighbouring buildings"
+    ]
+   },
+   {
+    "q": "Q3.2",
+    "value": "Ward closed 2023; services isolated but not cut back."
+   },
+   {
+    "q": "Q3.3",
+    "value": [
+     "Asbestos refurbishment & demolition survey",
+     "Structural",
+     "Ecological appraisal"
+    ]
+   },
+   {
+    "q": "Q3.4",
+    "value": "Prior approval"
+   },
+   {
+    "q": "Q3.5",
+    "value": [
+     "Shared access with other occupiers",
+     "No vehicle access or restricted deliveries"
+    ]
+   },
+   {
+    "q": "Q3.6",
+    "value": "Partially occupied"
+   },
+   {
+    "q": "Q3.7",
+    "value": "Bat roost recorded in roof void in 2025 — licence needed. Ambulance route alongside must stay open."
+   },
+   {
+    "q": "Q3.8",
+    "value": [
+     "Ecological features — roof voids, mature trees, water bodies, bat roost potential",
+     "Attached to or within 3 m of a neighbouring building (party wall)"
+    ]
+   }
+  ],
+  "4": [
+   {
+    "q": "Q4.1",
+    "value": "2027-12-31"
+   },
+   {
+    "q": "Q4.2",
+    "value": "2026-11-09"
+   },
+   {
+    "q": "Q4.3",
+    "value": "1100000"
+   },
+   {
+    "q": "Q4.4",
+    "value": [
+     "Minimise disruption",
+     "Fixed / certain final cost",
+     "Speed"
+    ]
+   },
+   {
+    "q": "Q4.5",
+    "value": "Concept complete (Stage 2)"
+   },
+   {
+    "q": "Q4.6",
+    "value": "Single phase"
+   },
+   {
+    "q": "Q4.7",
+    "value": "Grant or public funding"
+   },
+   {
+    "q": "Q4.8",
+    "value": "Yes"
+   }
+  ]
+ },
+ "scope": {
+  "typical": true,
+  "add": [
+   "S-0007",
+   "S-0067",
+   "S-0079"
+  ],
+  "remove": [],
+  "options": [],
+  "quantities": [],
+  "method": null
+ }
+}

@@ -42,7 +42,7 @@ try {
       })
       const title = i => pages[i]?.querySelector('.r-band h2')?.textContent || ''
       if (title(2) !== 'Scope of Works') problems.push(`page 3 is "${title(2)}", expected Scope of Works`)
-      const lastIdx = pages.findIndex(pg => pg.querySelector('.r-band h2')?.textContent === 'Recommendations and Next Steps')
+      const lastIdx = pages.findIndex(pg => /Next Steps$/.test(pg.querySelector('.r-band h2')?.textContent || ''))
       if (lastIdx < 0 || pages.slice(lastIdx + 1).some(pg => !/Appendix A/.test(pg.querySelector('.r-band h2')?.textContent || ''))) problems.push('Next Steps is not the last page before the appendix')
       return { count: pages.length, problems }
     })

@@ -23,7 +23,12 @@ import {
   showsHeightQuestion, KNOWN_ISSUE_NONE, SURVEY_NONE,
   sectionCounts, unansweredRequired, progressPercent, QUESTIONS_BY_SECTION,
   PRIORITY_OPTIONS, PRIORITY_MAX, PUBLIC_CLIENT_OPTIONS,
-  isPhased, PHASE_COUNT_MIN, PHASE_COUNT_MAX, PHASE_GAP_MAX,
+  isPhased, PHASE_COUNT_MIN, PHASE_COUNT_MAX, PHASE_GAP_MAX, STOREYS_MAX,
+  asksOfficeSplit, MAIN_SPACE_OPTIONS,
+  VAT_RECOVERY_OPTIONS, isZeroRatedNewBuild,
+  ACCESS_OPTIONS, ACCESS_NONE, migrateAccessAnswers,
+  ACCESS, WORK_WINDOW,
+  BLACKOUT, BLACKOUT_OPTIONS, BLACKOUT_DATES, BLACKOUT_DATES_MAX, blackoutOptionsFor,
 } from '../../lib/questionSets.js'
 
 const STORAGE_KEY = 'estatesAI_v4_answers'
@@ -55,7 +60,11 @@ const MIGRATABLE_SCHEMA_VERSIONS = [4]
 // the three can't drift apart the way Q1.2a and Q1.6 briefly did (Q1.6's own
 // gate forgot the project-type half of this and derived higher-risk status
 // for Demolition only / External works only off a stale storeys value).
-const STOREYS_TYPES = ['New Build', 'Refurbishment', 'Extension']
+// October 2026: Demolition only and Other or mixed ask storeys too — without
+// it their footprint (and so roofs, slabs and service diversions) was the whole
+// floor area. Q1.6 stays with the types that can be higher-risk buildings.
+const STOREYS_TYPES = ['New Build', 'Refurbishment', 'Extension', 'Demolition only', 'Other or mixed']
+const HEIGHT_TYPES = ['New Build', 'Refurbishment', 'Extension', 'Other or mixed']
 
 // Four steps, down from six.
 //
@@ -133,12 +142,8 @@ const PLANNING_OPTIONS = [
   'Full planning + Listed Building Consent', 'Change of use', 'Unsure (pre-application advice)',
 ]
 
-const ACCESS_OPTIONS = [
-  'Restricted working hours', 'Shared access with other occupiers',
-  'No vehicle access or restricted deliveries', 'Height or weight restrictions on site',
-  'Scaffold licence or highway encroachment required', 'Term-time only working',
-  'No access constraints', 'Other',
-]
+// Q3.5 options (ACCESS_OPTIONS) and Q3.5a live in lib/questionSets.js, where
+// the engines read the same keys.
 
 // Was five options. "Full decant", "Currently vacant" and "Not applicable" are
 // indistinguishable to both engines — 0pp on Prelims, 0pp on Risk, and no OCC
@@ -716,7 +721,24 @@ export default function QuestionnairePage() {
         (parsed.schemaVersion === STORAGE_SCHEMA_VERSION || MIGRATABLE_SCHEMA_VERSIONS.includes(parsed.schemaVersion)) &&
         parsed.answers && typeof parsed.answers === 'object' && !Array.isArray(parsed.answers)
       ) {
-        setAnswers(parsed.answers)
+        // Q3.5 was reworded in October 2026; old ticks are translated, and an
+        // old "Term-time only working" becomes the holidays-only window.
+        const a = parsed.answers
+        // Since the construction-blackout question (Q4.2a), "Works limited to
+        // certain periods" is not offered in Q3.5: it is taken out of a draft,
+        // and its stop dates (Q3.5b "any time except") carry over as specific
+        // dates. Other windows are dropped; Q4.2a is required, so the user
+        // answers it again rather than keep an answer they cannot see.
+        const access = Array.isArray(a.q3_5_accessConstraints) ? migrateAccessAnswers(a.q3_5_accessConstraints) : a.q3_5_accessConstraints
+        const stopDates = a.q3_5a_workWindow === WORK_WINDOW.except && Array.isArray(a.q3_5b_workPeriods) && a.q3_5b_workPeriods.length
+        const rest = { ...a }
+        delete rest.q3_5a_workWindow
+        delete rest.q3_5b_workPeriods
+        setAnswers({
+          ...rest,
+          ...(Array.isArray(access) && { q3_5_accessConstraints: access.filter(x => x !== ACCESS.periods) }),
+          ...(stopDates && !a.q4_2a_blackout && { q4_2a_blackout: BLACKOUT.yes, q4_2b_blackouts: [BLACKOUT_DATES], q4_2c_blackoutDates: a.q3_5b_workPeriods }),
+        })
       } else {
         localStorage.removeItem(STORAGE_KEY)
       }
@@ -877,7 +899,7 @@ export default function QuestionnairePage() {
       // switch clears both in the same pass rather than leaving Q1.6 stale
       // for one extra render.
       const nextStoreys = STOREYS_TYPES.includes(pt) ? prev.q1_2_storeys : undefined
-      const nextHeight = showsHeightQuestion(nextStoreys) ? prev.q1_6_heightOver18m : undefined
+      const nextHeight = HEIGHT_TYPES.includes(pt) && showsHeightQuestion(nextStoreys) ? prev.q1_6_heightOver18m : undefined
 
       const nextAge = isQuestionShown('q1_4_buildingAge', pt) ? prev.q1_4_buildingAge : undefined
       // Level of intervention is only asked for Refurbishment and Fit-out
@@ -938,6 +960,11 @@ export default function QuestionnairePage() {
       // prices at a building-use rate), AND senseCheck finds no ▶ benchmarks band, so the COST_LOW / COST_HIGH checks — the main
       // guard against a mispriced estimate — silently never run.
       if (!answers.q1_3_buildingUse) errs.q1_3_buildingUse = 'Building use is required'
+      if (asksOfficeSplit(answers)) {
+        const v = answers.q1_3a_officeShare
+        if (String(v ?? '').trim() !== '' && !(Number(v) >= 0 && Number(v) <= 100)) errs.q1_3a_officeShare = 'Enter a share from 0 to 100%'
+        if (!answers.q1_3b_mainSpace) errs.q1_3b_mainSpace = 'Say what the rest of the building is'
+      }
     }
     if (sec === 2) {
       if (!answers.q2_1_objective?.trim()) errs.q2_1_objective = 'Project objective is required'
@@ -971,12 +998,29 @@ export default function QuestionnairePage() {
       q3_6_occupation:        'Occupation during works',
       q3_8_siteContext:       'Site and building context',
       q4_5_designStage:       'Design stage already reached',
+      q4_2a_blackout:         'Restricted periods for site works',
+      q4_2b_blackouts:        'Restricted periods',
     }
     // The client-type question has no "None" option to point at.
     const PLAIN = {
       q4_8_publicClient: 'Say whether the client is a public-sector body — Yes or No',
       q4_6a_phaseCount: `Enter the number of phases (${PHASE_COUNT_MIN}–${PHASE_COUNT_MAX})`,
       q4_6b_phaseGapWeeks: 'Enter the gap between phases in weeks — 0 if the next phase starts straight away',
+      q4_2c_blackoutDates: 'Enter at least one period (from and to dates)',
+    }
+    // Construction blackouts: a tick must be one this building use is offered
+    // (a building-use change can leave a stale one), and every date row that
+    // has been started must be a complete, ordered range.
+    if (sec === 4 && answers.q4_2a_blackout === BLACKOUT.yes) {
+      const offered = [...blackoutOptionsFor(scopeData?.blackouts, answers.q1_3_buildingUse).map(o => o.label), BLACKOUT_DATES]
+      const ticked = (answers.q4_2b_blackouts || []).filter(v => offered.includes(v))
+      if (!ticked.length) errs.q4_2b_blackouts = 'Tick at least one restricted period, or answer No above'
+      const dates = Array.isArray(answers.q4_2c_blackoutDates) ? answers.q4_2c_blackoutDates : []
+      if (ticked.includes(BLACKOUT_DATES)) {
+        if (dates.some(p => (p?.from || p?.to) && !(p?.from && p?.to && p.from <= p.to))) {
+          errs.q4_2c_blackoutDates = 'Each period needs a from date and a to date, with the to date not before the from date'
+        } else if (!dates.some(p => p?.from && p?.to)) errs.q4_2c_blackoutDates = 'Enter at least one period (from and to dates)'
+      }
     }
     // Phased construction: answered is not enough, the figures must be usable.
     if (sec === 4 && isPhased(answers)) {
@@ -1322,17 +1366,14 @@ export default function QuestionnairePage() {
               {STOREYS_TYPES.includes(answers.q1_2_projectType) && (
                 <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
                   <Label>Q1.2a — Number of storeys{answers.q1_2_projectType === 'Extension' ? ' in the extension' : ''}</Label>
-                  <SelectInput value={answers.q1_2_storeys || '1'} onChange={v => set('q1_2_storeys', v)}>
-                    <option value="1">1 storey</option>
-                    <option value="2">2 storeys</option>
-                    <option value="3">3 storeys</option>
-                    <option value="4">4 storeys</option>
-                    <option value="5">5 storeys</option>
-                    <option value="6">6 storeys</option>
-                    {/* 7+ is the Building Safety Act higher-risk threshold for
-                        residential / care / hospital use — see Q1.6. */}
-                    <option value="7">7 or more storeys</option>
-                  </SelectInput>
+                  {/* An exact number since October 2026: "7 or more" priced a
+                      13-storey tower as 7 storeys. 7+ is still the Building
+                      Safety Act threshold for residential use — see Q1.6. */}
+                  <input type="number" inputMode="numeric" min={1} max={STOREYS_MAX} step={1} aria-label="Number of storeys"
+                    value={answers.q1_2_storeys || '1'}
+                    onChange={e => set('q1_2_storeys', e.target.value)}
+                    onBlur={e => set('q1_2_storeys', String(Math.min(STOREYS_MAX, Math.max(1, Math.round(Number(e.target.value) || 1)))))}
+                    className="w-full rounded-xl border px-4 py-3" style={{ borderColor: 'var(--border)', maxWidth: 160 }} />
                 </div>
               )}
             </QCard>
@@ -1350,6 +1391,32 @@ export default function QuestionnairePage() {
                   <TextInput value={answers.q1_3_buildingUseOther} onChange={v => set('q1_3_buildingUseOther', v)} placeholder="Please describe the building use" />
                 </div>
               )}
+              {/* Industrial / warehouse new build and extensions (October 2026):
+                  fit-out items are priced on the offices share only, services
+                  also on a production floor. The suggestion is the NRM1
+                  workbook's office_share ratio; blank = that suggestion. */}
+              {asksOfficeSplit(answers) && (() => {
+                const suggested = Math.round(((catalogue?.settings.ratios || []).find(r => r.key === 'office_share' && r.use === 'ALL')?.value ?? 0) * 100)
+                return (
+                  <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+                    <Label>Q1.3a — Offices, welfare and staff areas</Label>
+                    <HelpText>About what share of the floor is offices, welfare and staff areas? They are priced with full fit-out; the rest of the building is not.{suggested ? ` Suggested: ${suggested}% — leave it blank to use the suggestion, or change it if you know.` : ''}</HelpText>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, maxWidth: 200 }}>
+                      <input type="number" inputMode="decimal" min={0} max={100} step={1} aria-label="Offices share of the floor, per cent"
+                        value={answers.q1_3a_officeShare ?? ''} placeholder={suggested ? String(suggested) : ''}
+                        onChange={e => set('q1_3a_officeShare', e.target.value)}
+                        className="w-full rounded-xl border px-4 py-3" style={{ borderColor: 'var(--border)' }} />
+                      <span aria-hidden="true">%</span>
+                    </div>
+                    {validationErrors.q1_3a_officeShare && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_3a_officeShare}</p>}
+                    <div style={{ marginTop: 16 }}>
+                      <Label required>Q1.3b — The rest of the building is mainly</Label>
+                      <RadioGroup options={MAIN_SPACE_OPTIONS} value={answers.q1_3b_mainSpace} onChange={v => set('q1_3b_mainSpace', v)} ariaLabel="The rest of the building is mainly" />
+                      {validationErrors.q1_3b_mainSpace && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_3b_mainSpace}</p>}
+                    </div>
+                  </div>
+                )
+              })()}
             </QCard>
 
             {isQuestionShown('q1_4_buildingAge', answers.q1_2_projectType) && (
@@ -1362,7 +1429,7 @@ export default function QuestionnairePage() {
               </QCard>
             )}
 
-            {STOREYS_TYPES.includes(answers.q1_2_projectType) && showsHeightQuestion(answers.q1_2_storeys) && (
+            {HEIGHT_TYPES.includes(answers.q1_2_projectType) && showsHeightQuestion(answers.q1_2_storeys) && (
               <QCard>
                 <Label>Q1.6 — Building height</Label>
                 {/* Q1.2a asks for the EXTENSION's own storeys on this type, not
@@ -1602,13 +1669,13 @@ export default function QuestionnairePage() {
             </QCard>
 
             <QCard qkey="q3_5_accessConstraints">
-              <Label required>Q3.5 — Access constraints</Label>
-              <HelpText>Select all that apply. These affect the contractor’s preliminaries allowance.</HelpText>
+              <Label required>Q3.5 — Site access and working restrictions</Label>
+              <HelpText>Select all that apply. Each one adds to the contractor’s preliminaries and the construction time, and appears in the risk register.</HelpText>
               {/* "No access constraints" must be exclusive: ticked alongside a
                   real constraint it silently suppressed every access risk seed
                   in the generated report. */}
               <CheckboxGroup options={ACCESS_OPTIONS} values={answers.q3_5_accessConstraints}
-                onChange={v => set('q3_5_accessConstraints', applyNoneMutex(answers.q3_5_accessConstraints || [], v, 'No access constraints'))}
+                onChange={v => set('q3_5_accessConstraints', applyNoneMutex(answers.q3_5_accessConstraints || [], v, ACCESS_NONE))}
                 describedBy={validationErrors.q3_5_accessConstraints ? 'err-q3_5_accessConstraints' : undefined} />
               {Array.isArray(answers.q3_5_accessConstraints) && answers.q3_5_accessConstraints.includes('Other') && (
                 <div className="mt-3">
@@ -1699,6 +1766,53 @@ export default function QuestionnairePage() {
                 style={{ border: '1.5px solid var(--border)', minHeight: '48px', fontSize: '16px', color: '#1A1A1A', backgroundColor: '#FFF', boxSizing: 'border-box' }} />
             </QCard>
 
+            {/* Construction blackouts (October 2026, owner's design): one yes /
+                no, then tick the periods. The building-use options come from
+                the Programme workbook (sheet Restrictions); specific dates are
+                always offered. Replaces Q3.5 "Works limited to certain periods". */}
+            <QCard qkey="q4_2a_blackout">
+              <Label required>Q4.2a — Are site works restricted at certain times of year?</Label>
+              <HelpText>For example term time, exams or Christmas trading. The programme is planned around them.</HelpText>
+              <RadioGroup options={BLACKOUT_OPTIONS} value={answers.q4_2a_blackout} onChange={v => set('q4_2a_blackout', v)}
+                required describedBy={validationErrors.q4_2a_blackout ? 'err-q4_2a_blackout' : undefined} />
+              {validationErrors.q4_2a_blackout && <p id="err-q4_2a_blackout" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_2a_blackout}</p>}
+              {answers.q4_2a_blackout === BLACKOUT.yes && (
+                <div className="mt-4" data-qkey="q4_2b_blackouts">
+                  <Label required>Q4.2b — Which periods are restricted?</Label>
+                  <HelpText>Tick all that apply. Dates are typical; use Specific dates for anything else.</HelpText>
+                  <CheckboxGroup
+                    options={[...blackoutOptionsFor(scopeData?.blackouts, answers.q1_3_buildingUse).map(o => o.label), BLACKOUT_DATES]}
+                    values={answers.q4_2b_blackouts} onChange={v => set('q4_2b_blackouts', v)}
+                    describedBy={validationErrors.q4_2b_blackouts ? 'err-q4_2b_blackouts' : undefined} />
+                  {validationErrors.q4_2b_blackouts && <p id="err-q4_2b_blackouts" className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_2b_blackouts}</p>}
+                  {(answers.q4_2b_blackouts || []).includes(BLACKOUT_DATES) && (
+                    <div className="mt-4" data-qkey="q4_2c_blackoutDates">
+                      {Array.from({ length: BLACKOUT_DATES_MAX }, (_, i) => {
+                        const periods = Array.isArray(answers.q4_2c_blackoutDates) ? answers.q4_2c_blackoutDates : []
+                        const p = periods[i] || {}
+                        const update = (field, value) => {
+                          const next = Array.from({ length: BLACKOUT_DATES_MAX }, (_, j) => ({ ...(periods[j] || {}) }))
+                          next[i][field] = value
+                          set('q4_2c_blackoutDates', next.filter(x => x.from || x.to))
+                        }
+                        return (
+                          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 6 }}>
+                            <span className="text-sm" style={{ width: 70 }}>Period {i + 1}</span>
+                            <input type="date" aria-label={`No work from, period ${i + 1}`} value={p.from || ''} onChange={e => update('from', e.target.value)}
+                              className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: 'var(--border)' }} />
+                            <span className="text-sm">to</span>
+                            <input type="date" aria-label={`No work to, period ${i + 1}`} value={p.to || ''} onChange={e => update('to', e.target.value)}
+                              className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: 'var(--border)' }} />
+                          </div>
+                        )
+                      })}
+                      {validationErrors.q4_2c_blackoutDates && <p className="mt-2 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q4_2c_blackoutDates}</p>}
+                    </div>
+                  )}
+                </div>
+              )}
+            </QCard>
+
             {/* The old "Do you have a budget figure?" gate (q4_2_budgetKnown) is
                 gone. Its value was read by nothing — not the calculators, the AI
                 prompt, the confidence grade or the report — it only decided
@@ -1722,12 +1836,20 @@ export default function QuestionnairePage() {
               </div>
             </QCard>
 
-            {/* There is no VAT-position question. It briefly existed as Q4.3a
-                and was removed: it never changed a cost, only the wording of
-                the budget comparison, which is a poor return for asking a user
-                to classify their organisation's VAT recovery. The budget check
-                grosses up by the full workbook VAT rate, which is the
-                conservative reading. */}
+            {/* Q4.3a (back in October 2026, owner's decision): the budget check
+                used to add full VAT to every project, so zero-rated housing and
+                VAT-recovering councils showed false shortfalls. Asked only with
+                a budget; new-build homes are zero-rated without asking. */}
+            {Number(answers.q4_3_budget) > 0 && !isZeroRatedNewBuild(answers) && (
+              <QCard qkey="q4_3a_vatRecovery">
+                <Label>Q4.3a — Can the client recover the VAT on this project?</Label>
+                <HelpText>Councils, NHS bodies, academies and VAT-registered businesses often can. The budget check counts VAT only where it is a real cost.</HelpText>
+                <RadioGroup options={VAT_RECOVERY_OPTIONS} value={answers.q4_3a_vatRecovery} onChange={v => set('q4_3a_vatRecovery', v)} />
+              </QCard>
+            )}
+            {Number(answers.q4_3_budget) > 0 && isZeroRatedNewBuild(answers) && (
+              <p className="text-sm" style={{ color: 'var(--text-mid)', margin: '-6px 0 18px' }}>New-build homes are zero-rated for VAT, so the budget check counts no VAT.</p>
+            )}
 
             {/* Ranked, not just ticked: the order is the client's. Rank 1 is
                 the top priority the Procurement Reference scores (weighted

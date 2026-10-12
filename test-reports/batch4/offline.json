@@ -1,0 +1,424 @@
+[
+ {
+  "id": "RES-1",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 2605000,
+  "total": [
+   3093000,
+   4123000
+  ],
+  "weeks": 76,
+  "grade": "B"
+ },
+ {
+  "id": "RES-2",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 2421000,
+  "total": [
+   2892000,
+   4247000
+  ],
+  "weeks": 94,
+  "grade": "C"
+ },
+ {
+  "id": "RES-3",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 322000,
+  "total": [
+   360000,
+   481000
+  ],
+  "weeks": 42,
+  "grade": "B"
+ },
+ {
+  "id": "STU-1",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 15296000,
+  "total": [
+   18083000,
+   26598000
+  ],
+  "weeks": 131,
+  "grade": "C"
+ },
+ {
+  "id": "STU-2",
+  "problems": [
+   "Q3.5 \"Works limited to certain periods (holidays, seasons or blackout dates)\"",
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 1211000,
+  "total": [
+   1287000,
+   1895000
+  ],
+  "weeks": 41,
+  "grade": "C"
+ },
+ {
+  "id": "STU-3",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 1362000,
+  "total": [
+   1567000,
+   2640000
+  ],
+  "weeks": 65,
+  "grade": "D"
+ },
+ {
+  "id": "OFF-1",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 1515000,
+  "total": [
+   1680000,
+   2242000
+  ],
+  "weeks": 32,
+  "grade": "B"
+ },
+ {
+  "id": "OFF-2",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 2672000,
+  "total": [
+   3238000,
+   4313000
+  ],
+  "weeks": 73,
+  "grade": "B"
+ },
+ {
+  "id": "OFF-3",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 1974000,
+  "total": [
+   2477000,
+   3305000
+  ],
+  "weeks": 80,
+  "grade": "B"
+ },
+ {
+  "id": "EDU-1",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 771000,
+  "total": [
+   889000,
+   1501000
+  ],
+  "weeks": 54,
+  "grade": "D"
+ },
+ {
+  "id": "EDU-2",
+  "problems": [
+   "Q3.5 \"Works limited to certain periods (holidays, seasons or blackout dates)\"",
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 438000,
+  "total": [
+   460000,
+   774000
+  ],
+  "weeks": 90,
+  "grade": "D"
+ },
+ {
+  "id": "EDU-3",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 1304000,
+  "total": [
+   1445000,
+   2125000
+  ],
+  "weeks": 50,
+  "grade": "C"
+ },
+ {
+  "id": "HEA-1",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 2510000,
+  "total": [
+   3007000,
+   4008000
+  ],
+  "weeks": 78,
+  "grade": "B"
+ },
+ {
+  "id": "HEA-2",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 296000,
+  "total": [
+   338000,
+   568000
+  ],
+  "weeks": 43,
+  "grade": "D"
+ },
+ {
+  "id": "HEA-3",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 5946000,
+  "total": [
+   6608000,
+   11144000
+  ],
+  "weeks": 81,
+  "grade": "D"
+ },
+ {
+  "id": "RET-1",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 131000,
+  "total": [
+   152000,
+   203000
+  ],
+  "weeks": 16,
+  "grade": "B"
+ },
+ {
+  "id": "RET-2",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 1768000,
+  "total": [
+   2172000,
+   3193000
+  ],
+  "weeks": 91,
+  "grade": "C"
+ },
+ {
+  "id": "RET-3",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 216000,
+  "total": [
+   252000,
+   338000
+  ],
+  "weeks": 30,
+  "grade": "B"
+ },
+ {
+  "id": "IND-1",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 8721000,
+  "total": [
+   10499000,
+   13999000
+  ],
+  "weeks": 84,
+  "grade": "B"
+ },
+ {
+  "id": "IND-2",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 1957000,
+  "total": [
+   2240000,
+   3780000
+  ],
+  "weeks": 75,
+  "grade": "D"
+ },
+ {
+  "id": "IND-3",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 763000,
+  "total": [
+   889000,
+   1184000
+  ],
+  "weeks": 54,
+  "grade": "B"
+ },
+ {
+  "id": "HOS-1",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 766000,
+  "total": [
+   891000,
+   1312000
+  ],
+  "weeks": 35,
+  "grade": "C"
+ },
+ {
+  "id": "HOS-2",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 1891000,
+  "total": [
+   1954000,
+   3297000
+  ],
+  "weeks": 62,
+  "grade": "D"
+ },
+ {
+  "id": "HOS-3",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 7863000,
+  "total": [
+   9695000,
+   12927000
+  ],
+  "weeks": 97,
+  "grade": "B"
+ },
+ {
+  "id": "MIX-1",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 1884000,
+  "total": [
+   2217000,
+   3743000
+  ],
+  "weeks": 67,
+  "grade": "D"
+ },
+ {
+  "id": "MIX-2",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 9853000,
+  "total": [
+   10632000,
+   15639000
+  ],
+  "weeks": 100,
+  "grade": "C"
+ },
+ {
+  "id": "MIX-3",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 453000,
+  "total": [
+   530000,
+   781000
+  ],
+  "weeks": 36,
+  "grade": "C"
+ },
+ {
+  "id": "OTH-1",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 1249000,
+  "total": [
+   1446000,
+   2124000
+  ],
+  "weeks": 57,
+  "grade": "C"
+ },
+ {
+  "id": "OTH-2",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 307000,
+  "total": [
+   375000,
+   554000
+  ],
+  "weeks": 44,
+  "grade": "C"
+ },
+ {
+  "id": "OTH-3",
+  "problems": [
+   "S4 missing q4_2a_blackout"
+  ],
+  "enter": [],
+  "construction": 310000,
+  "total": [
+   369000,
+   490000
+  ],
+  "weeks": 27,
+  "grade": "B"
+ }
+]

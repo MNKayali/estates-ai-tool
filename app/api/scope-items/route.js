@@ -13,11 +13,17 @@
  * parse and saves the questionnaire a second round-trip on mount.
  */
 import { getScopeCatalogue, getBcisRegions } from '../../../lib/costCalculator.js'
+import { getBlackoutOptions } from '../../../lib/programmeCalculator.js'
 
+// `blackouts`: the Programme workbook's construction blackout options (Q4.2b)
+// and the building uses that see them. A Programme workbook that cannot be
+// read leaves only "Specific dates" on the form, never the whole catalogue.
 export async function GET() {
   try {
-    const [catalogue, bcisRegions] = await Promise.all([getScopeCatalogue(), getBcisRegions()])
-    return Response.json({ catalogue, bcisRegions }, {
+    const [catalogue, bcisRegions, blackouts] = await Promise.all([
+      getScopeCatalogue(), getBcisRegions(), getBlackoutOptions().catch(() => []),
+    ])
+    return Response.json({ catalogue, bcisRegions, blackouts }, {
       // Items change only when the workbook does (cached 10 min in-module).
       headers: { 'Cache-Control': 'public, max-age=300, stale-while-revalidate=600' },
     })

@@ -1,0 +1,482 @@
+{
+ "RES-1": {
+  "reportId": "96f932ad785446dc",
+  "status": "complete",
+  "constructionMid": 2617000,
+  "total": [
+   3123000,
+   3470000,
+   4166000
+  ],
+  "constructionWeeks": 43,
+  "totalWeeks": 89,
+  "grade": "B",
+  "budget": "insufficient",
+  "riskLevel": "Low",
+  "procurement": "Traditional"
+ },
+ "RES-2": {
+  "reportId": "e4106c1a0562476e",
+  "status": "complete",
+  "constructionMid": 2421000,
+  "total": [
+   2914000,
+   3425000,
+   4279000
+  ],
+  "constructionWeeks": 42,
+  "totalWeeks": 112,
+  "grade": "C",
+  "budget": "none",
+  "riskLevel": "High",
+  "procurement": "Two-stage (PCSA)"
+ },
+ "RES-3": {
+  "reportId": "3301fe2084cf42e6",
+  "status": "complete",
+  "constructionMid": 322000,
+  "total": [
+   364000,
+   405000,
+   486000
+  ],
+  "constructionWeeks": 19,
+  "totalWeeks": 62,
+  "grade": "B",
+  "budget": "tight",
+  "riskLevel": "Low",
+  "procurement": "Traditional"
+ },
+ "STU-1": {
+  "reportId": "c617fd4759094df6",
+  "status": "complete",
+  "constructionMid": 15296000,
+  "total": [
+   18302000,
+   21535000,
+   26919000
+  ],
+  "constructionWeeks": 80,
+  "totalWeeks": 163,
+  "grade": "C",
+  "budget": "tight",
+  "riskLevel": "Low",
+  "procurement": "Two-stage (PCSA)"
+ },
+ "STU-2": {
+  "reportId": "eb56dd9077bb4d28",
+  "status": "complete",
+  "constructionMid": 1211000,
+  "total": [
+   1287000,
+   1516000,
+   1895000
+  ],
+  "constructionWeeks": 14,
+  "totalWeeks": 42,
+  "grade": "C",
+  "budget": "sufficient",
+  "riskLevel": "Low",
+  "procurement": "Two-stage (PCSA)"
+ },
+ "STU-3": {
+  "reportId": "adebcb25d69c4deb",
+  "status": "complete",
+  "constructionMid": 1369000,
+  "total": [
+   1585000,
+   1981000,
+   2674000
+  ],
+  "constructionWeeks": 32,
+  "totalWeeks": 81,
+  "grade": "D",
+  "budget": "none",
+  "riskLevel": "High",
+  "procurement": "Traditional"
+ },
+ "OFF-1": {
+  "reportId": "e06a5d30de8d4283",
+  "status": "complete",
+  "constructionMid": 1515000,
+  "total": [
+   1685000,
+   1872000,
+   2249000
+  ],
+  "constructionWeeks": 23,
+  "totalWeeks": 42,
+  "grade": "B",
+  "budget": "tight",
+  "riskLevel": "Low",
+  "procurement": "Design and build (single stage)"
+ },
+ "OFF-2": {
+  "reportId": "1c49f3825a7e48ed",
+  "status": "complete",
+  "constructionMid": 2684000,
+  "total": [
+   3263000,
+   3627000,
+   4349000
+  ],
+  "constructionWeeks": 32,
+  "totalWeeks": 83,
+  "grade": "B",
+  "budget": "sufficient",
+  "riskLevel": "Low",
+  "procurement": "Traditional"
+ },
+ "OFF-3": {
+  "reportId": "5e554c82a9254483",
+  "status": "complete",
+  "constructionMid": 1974000,
+  "total": [
+   2494000,
+   2774000,
+   3327000
+  ],
+  "constructionWeeks": 39,
+  "totalWeeks": 94,
+  "grade": "B",
+  "budget": "none",
+  "riskLevel": "Low",
+  "procurement": "Traditional"
+ },
+ "EDU-1": {
+  "reportId": "504b6a2814704e9e",
+  "status": "complete",
+  "constructionMid": 771000,
+  "total": [
+   892000,
+   1117000,
+   1507000
+  ],
+  "constructionWeeks": 15,
+  "totalWeeks": 59,
+  "grade": "D",
+  "budget": "tight",
+  "riskLevel": "High",
+  "procurement": "Traditional"
+ },
+ "EDU-2": {
+  "reportId": "fb10d2cf8bd34c22",
+  "status": "complete",
+  "constructionMid": 438000,
+  "total": [
+   463000,
+   577000,
+   780000
+  ],
+  "constructionWeeks": 73,
+  "totalWeeks": 114,
+  "grade": "D",
+  "budget": "sufficient",
+  "riskLevel": "Medium",
+  "procurement": "Traditional"
+ },
+ "EDU-3": {
+  "reportId": "abe0970ea3a040c8",
+  "status": "complete",
+  "constructionMid": 1304000,
+  "total": [
+   1455000,
+   1711000,
+   2139000
+  ],
+  "constructionWeeks": 20,
+  "totalWeeks": 64,
+  "grade": "C",
+  "budget": "tight",
+  "riskLevel": "Low",
+  "procurement": "Traditional"
+ },
+ "HEA-1": {
+  "reportId": "b53e6743cb0a492d",
+  "status": "complete",
+  "constructionMid": 2522000,
+  "total": [
+   3021000,
+   3356000,
+   4029000
+  ],
+  "constructionWeeks": 54,
+  "totalWeeks": 101,
+  "grade": "B",
+  "budget": "tight",
+  "riskLevel": "Low",
+  "procurement": "Design and build (single stage)"
+ },
+ "HEA-2": {
+  "reportId": "302d0a789a264395",
+  "status": "complete",
+  "constructionMid": 296000,
+  "total": [
+   343000,
+   425000,
+   575000
+  ],
+  "constructionWeeks": 17,
+  "totalWeeks": 65,
+  "grade": "D",
+  "budget": "tight",
+  "riskLevel": "High",
+  "procurement": "Traditional"
+ },
+ "HEA-3": {
+  "reportId": "5ebc54177cb84070",
+  "status": "complete",
+  "constructionMid": 5946000,
+  "total": [
+   6645000,
+   8302000,
+   11207000
+  ],
+  "constructionWeeks": 51,
+  "totalWeeks": 96,
+  "grade": "D",
+  "budget": "tight",
+  "riskLevel": "High",
+  "procurement": "Two-stage (PCSA)"
+ },
+ "RET-1": {
+  "reportId": "a7947cf88d5d4d69",
+  "status": "complete",
+  "constructionMid": 131000,
+  "total": [
+   152000,
+   168000,
+   204000
+  ],
+  "constructionWeeks": 5,
+  "totalWeeks": 19,
+  "grade": "B",
+  "budget": "tight",
+  "riskLevel": "Medium",
+  "procurement": "Traditional"
+ },
+ "RET-2": {
+  "reportId": "82bfb43318864e66",
+  "status": "complete",
+  "constructionMid": 1768000,
+  "total": [
+   2186000,
+   2573000,
+   3214000
+  ],
+  "constructionWeeks": 39,
+  "totalWeeks": 106,
+  "grade": "C",
+  "budget": "none",
+  "riskLevel": "High",
+  "procurement": "Two-stage (PCSA)"
+ },
+ "RET-3": {
+  "reportId": "f0408cc053774e23",
+  "status": "complete",
+  "constructionMid": 216000,
+  "total": [
+   254000,
+   283000,
+   340000
+  ],
+  "constructionWeeks": 6,
+  "totalWeeks": 41,
+  "grade": "B",
+  "budget": "insufficient",
+  "riskLevel": "Low",
+  "procurement": "Traditional"
+ },
+ "IND-1": {
+  "reportId": "e81f15db83864097",
+  "status": "complete",
+  "constructionMid": 8721000,
+  "total": [
+   10648000,
+   11830000,
+   14198000
+  ],
+  "constructionWeeks": 60,
+  "totalWeeks": 122,
+  "grade": "B",
+  "budget": "insufficient",
+  "riskLevel": "Low",
+  "procurement": "Traditional"
+ },
+ "IND-2": {
+  "reportId": "07d501ccdd464518",
+  "status": "complete",
+  "constructionMid": 1957000,
+  "total": [
+   2252000,
+   2816000,
+   3802000
+  ],
+  "constructionWeeks": 32,
+  "totalWeeks": 87,
+  "grade": "D",
+  "budget": "none",
+  "riskLevel": "High",
+  "procurement": "Design and build (single stage)"
+ },
+ "IND-3": {
+  "reportId": "d984edd9e0ba4d17",
+  "status": "complete",
+  "constructionMid": 763000,
+  "total": [
+   896000,
+   996000,
+   1193000
+  ],
+  "constructionWeeks": 26,
+  "totalWeeks": 75,
+  "grade": "B",
+  "budget": "tight",
+  "riskLevel": "Low",
+  "procurement": "Traditional"
+ },
+ "HOS-1": {
+  "reportId": "f2939a7659f74967",
+  "status": "complete",
+  "constructionMid": 766000,
+  "total": [
+   896000,
+   1056000,
+   1318000
+  ],
+  "constructionWeeks": 8,
+  "totalWeeks": 45,
+  "grade": "C",
+  "budget": "insufficient",
+  "riskLevel": "Medium",
+  "procurement": "Traditional"
+ },
+ "HOS-2": {
+  "reportId": "7f920b5676b146d6",
+  "status": "complete",
+  "constructionMid": 1891000,
+  "total": [
+   1952000,
+   2439000,
+   3294000
+  ],
+  "constructionWeeks": 31,
+  "totalWeeks": 63,
+  "grade": "D",
+  "budget": "sufficient",
+  "riskLevel": "Low",
+  "procurement": "Two-stage (PCSA)"
+ },
+ "HOS-3": {
+  "reportId": "99a049031ae54fd3",
+  "status": "complete",
+  "constructionMid": 7863000,
+  "total": [
+   9768000,
+   10854000,
+   13024000
+  ],
+  "constructionWeeks": 54,
+  "totalWeeks": 117,
+  "grade": "B",
+  "budget": "tight",
+  "riskLevel": "Low",
+  "procurement": "Traditional"
+ },
+ "MIX-1": {
+  "reportId": "87fc3d627a394e24",
+  "status": "complete",
+  "constructionMid": 1893000,
+  "total": [
+   2239000,
+   2799000,
+   3782000
+  ],
+  "constructionWeeks": 20,
+  "totalWeeks": 80,
+  "grade": "D",
+  "budget": "tight",
+  "riskLevel": "High",
+  "procurement": "Traditional"
+ },
+ "MIX-2": {
+  "reportId": "766c6ea9ed054088",
+  "status": "complete",
+  "constructionMid": 9853000,
+  "total": [
+   10703000,
+   12597000,
+   15743000
+  ],
+  "constructionWeeks": 80,
+  "totalWeeks": 122,
+  "grade": "C",
+  "budget": "insufficient",
+  "riskLevel": "Low",
+  "procurement": "Design and build (single stage)"
+ },
+ "MIX-3": {
+  "reportId": "82bdb8fcd9b240cb",
+  "status": "complete",
+  "constructionMid": 453000,
+  "total": [
+   537000,
+   632000,
+   791000
+  ],
+  "constructionWeeks": 10,
+  "totalWeeks": 56,
+  "grade": "C",
+  "budget": "none",
+  "riskLevel": "High",
+  "procurement": "Traditional"
+ },
+ "OTH-1": {
+  "reportId": "73e49cd5107e41f7",
+  "status": "complete",
+  "constructionMid": 1249000,
+  "total": [
+   1457000,
+   1712000,
+   2140000
+  ],
+  "constructionWeeks": 23,
+  "totalWeeks": 74,
+  "grade": "C",
+  "budget": "insufficient",
+  "riskLevel": "Medium",
+  "procurement": "Traditional"
+ },
+ "OTH-2": {
+  "reportId": "80d9e5e3d1d540a5",
+  "status": "complete",
+  "constructionMid": 307000,
+  "total": [
+   380000,
+   449000,
+   561000
+  ],
+  "constructionWeeks": 13,
+  "totalWeeks": 66,
+  "grade": "C",
+  "budget": "sufficient",
+  "riskLevel": "High",
+  "procurement": "Traditional"
+ },
+ "OTH-3": {
+  "reportId": "cdea78a268874ac2",
+  "status": "complete",
+  "constructionMid": 310000,
+  "total": [
+   373000,
+   414000,
+   496000
+  ],
+  "constructionWeeks": 7,
+  "totalWeeks": 46,
+  "grade": "B",
+  "budget": "sufficient",
+  "riskLevel": "Low",
+  "procurement": "Traditional"
+ }
+}
