@@ -58,13 +58,12 @@ export default function LandingPage() {
           <div style={{ paddingTop: 96, paddingBottom: 92, maxWidth: 780 }}>
             <div className="rise rise-1"><Badge dark>RIBA Stage 0–1 · Feasibility</Badge></div>
             <h1 className="rise rise-2" style={{ fontSize: 'clamp(38px, 6vw, 64px)', lineHeight: 1.12, margin: '22px 0 0', color: '#fff', fontWeight: 700, fontFamily: 'var(--font-body)' }}>
-              Early decisions,<br />clearly costed.
+              Early decisions,<br />on solid ground.
             </h1>
             <div className="rise rise-2" style={{ width: 64, height: 3, background: 'var(--amber)', margin: '26px 0 0' }} />
             <p className="rise rise-3" style={{ fontSize: 18, lineHeight: 1.65, color: '#B7C3D8', maxWidth: 560, margin: '24px 0 0' }}>
-              Feasibility reporting for capital projects at RIBA Stage 0–1. Cost range, programme, risks
-              and procurement route in one report, built on NRM1 rates checked against real UK tender
-              returns, with every figure traceable to its source.
+              Cost, programme, risk and procurement for capital projects at RIBA Stage 0–1, built on
+              NRM1 rates checked against real UK tender returns, with every figure traceable to its source.
             </p>
             <div className="rise rise-4" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 36 }}>
               <Link href="/questionnaire" className="btn btn-accent" style={{ fontSize: 16, padding: '14px 26px' }}>{signedIn ? 'Start a new report ▸' : 'Try it free ▸'}</Link>
@@ -159,7 +158,7 @@ export default function LandingPage() {
         <Card className="panel-dark" style={{ padding: '48px 44px', border: 'none', display: 'flex',
           flexWrap: 'wrap', gap: 24, alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h2 style={{ fontSize: 30, margin: 0, color: '#fff', fontWeight: 700 }}>Ready to scope a project?</h2>
+            <h2 style={{ fontSize: 30, margin: 0, color: '#fff', fontWeight: 700 }}>Better projects start with better early decisions.</h2>
             <p style={{ color: '#B7C3D8', margin: '10px 0 0', fontSize: 16 }}>Answer the questionnaire and download a formatted feasibility report. Your first three are free, no account needed.</p>
           </div>
           <Link href="/questionnaire" className="btn btn-accent" style={{ fontSize: 16, padding: '14px 28px' }}>{signedIn ? 'Begin assessment ▸' : 'Try it free ▸'}</Link>
