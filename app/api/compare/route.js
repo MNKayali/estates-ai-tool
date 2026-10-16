@@ -15,6 +15,7 @@
 import { runDeterministicPipeline } from '@/lib/pipeline'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 import { requireCaller } from '@/lib/auth'
+import { limitAnswers } from '@/lib/answerLimits'
 import { isQuestionShown } from '@/lib/questionSets'
 import { getScopeCatalogue } from '@/lib/costCalculator'
 import { loadNrmWorkbook, distinctSpecLevels } from '@/lib/nrmWorkbook'
@@ -57,8 +58,10 @@ export async function POST(request) {
 
   let body
   try { body = await request.json() } catch { return Response.json({ error: 'Invalid JSON body.' }, { status: 400 }) }
-  const { answers, axis } = body || {}
-  if (!answers || typeof answers !== 'object') return Response.json({ error: 'Missing answers.' }, { status: 400 })
+  const { axis } = body || {}
+  const limited = limitAnswers(body?.answers)
+  if (limited.problem) return Response.json({ error: limited.problem }, { status: limited.tooLarge ? 413 : 400 })
+  const { answers } = limited
   const def = AXES[axis]
   if (!def) return Response.json({ error: `Unknown axis. Use one of: ${Object.keys(AXES).join(', ')}.` }, { status: 400 })
   const gifa = Number(answers.q1_5_size)

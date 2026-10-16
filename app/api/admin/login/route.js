@@ -7,7 +7,8 @@
  * own cookie, separate from the user accounts (lib/users.js).
  */
 import { NextResponse } from 'next/server'
-import { signAccessCode } from '@/lib/cookieAuth'
+import { createHash, timingSafeEqual } from 'node:crypto'
+import { signAccessCode, ADMIN_MAX_AGE } from '@/lib/cookieAuth'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 
 export async function POST(request) {
@@ -16,6 +17,12 @@ export async function POST(request) {
   // naming which secrets are unset).
   const rl = await checkRateLimit('admin-login', request, { requests: 5, window: '10 m' })
   if (!rl.allowed) return rateLimitedResponse(rl.retryAfterSeconds)
+  // And a ceiling across every caller, so guessing from many IPs is bounded
+  // too. The cost: a guessing run can lock the real admin out for up to an
+  // hour — acceptable for a single shared code with no user data behind the
+  // login itself.
+  const all = await checkRateLimit('admin-login-all', request, { requests: 30, window: '1 h', key: 'all' })
+  if (!all.allowed) return rateLimitedResponse(all.retryAfterSeconds)
 
   try {
     const { code } = await request.json()
@@ -38,7 +45,7 @@ export async function POST(request) {
       return res
     }
 
-    if (!code || String(code).trim() !== validCode) {
+    if (!code || !sameCode(String(code).trim(), validCode)) {
       // Small delay to slow brute-force guessing
       await new Promise(r => setTimeout(r, 600))
       return NextResponse.json({ error: 'Invalid admin code' }, { status: 401 })
@@ -51,10 +58,18 @@ export async function POST(request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
+      maxAge: ADMIN_MAX_AGE, // the token's own expiry matches
     })
     return res
   } catch {
     return NextResponse.json({ error: 'Bad request' }, { status: 400 })
   }
+}
+
+// Constant-time comparison: hashing first gives equal-length buffers whatever
+// was typed.
+function sameCode(typed, valid) {
+  const a = createHash('sha256').update(typed).digest()
+  const b = createHash('sha256').update(valid).digest()
+  return timingSafeEqual(a, b)
 }

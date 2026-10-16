@@ -18,6 +18,7 @@ import { BRAND } from '../../lib/brand.js'
 import { DATA_PAGE, ENTRY_NOTICE_TAIL } from '../../lib/siteNotice.js'
 import SiteFooter from '../components/SiteFooter'
 import { titleLooksThin } from '../../lib/reportContent.js'
+import { TEXT_INPUT_MAX, TEXTAREA_MAX } from '../../lib/answerLimits.js'
 import {
   isQuestionShown, knownIssuesFor, surveysFor, occupationCopyFor,
   showsHeightQuestion, KNOWN_ISSUE_NONE, SURVEY_NONE,
@@ -244,7 +245,7 @@ function Disclosure({ open, onToggle, label, note }) {
 }
 function TextInput({ value, onChange, placeholder }) {
   return (
-    <input type="text" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+    <input type="text" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} maxLength={TEXT_INPUT_MAX}
       className="field" style={{ minHeight: '48px', fontSize: '16px' }} />
   )
 }
@@ -256,7 +257,7 @@ function NumberInput({ value, onChange, placeholder, min = 0 }) {
 }
 function Textarea({ value, onChange, placeholder, rows = 4 }) {
   return (
-    <textarea value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows}
+    <textarea value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} maxLength={TEXTAREA_MAX}
       className="field" style={{ fontSize: '16px', lineHeight: '1.6', resize: 'none' }} />
   )
 }
