@@ -217,7 +217,7 @@ Per `Q3_5_Access_Constraints_Spec.md`:
 2. **Cost is live:** edit a Tab 2 rate (e.g. 3.2 floor finishes Rfb Std), push, redeploy → the line and total change.
 3. **Programme is live:** edit a `Durations` cell, push, redeploy → the programme total changes. *(New — impossible today.)*
 4. **Key fixes:** Stage 2 design → fees ≈ 11.5%; BREEAM → +1% C; Multiple phases → longer programme; grant funding → +4–8 wks; PV kWp at Q1.5 → 5.11 priced; restricted-hours/term-time → ACC uplift + risk entries.
-5. **Sanity totals:** an M&E-heavy occupied refurb no longer reads light vs the ~£900–£1,600/m² BCIS benchmark (validate against 2–3 real Warwick projects; calibrate rates in Tab 2 only).
+5. **Sanity totals:** an M&E-heavy occupied refurb no longer reads light vs the ~£900–£1,600/m² BCIS benchmark (validate against 2–3 real client projects; calibrate rates in Tab 2 only).
 6. `/api/rates-check` shows `ratesOk: true` **and** `programmeOk: true` with real samples.
 7. **Form rules (§3A):** choosing *Fabric and finishes only* disables the M&E scope items; a Residential project hides the non-domestic M&E lines; a Fit-out shows only groups 3/4/5; an Other-scope entry with no value appears as a provisional exclusion (not in the total); "No direct return" hides the ROI section.
 

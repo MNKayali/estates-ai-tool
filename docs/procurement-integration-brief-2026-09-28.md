@@ -117,5 +117,5 @@ Also add unit tests for:
 
 ## Known dependencies
 
-- **Phasing bug.** The programme currently adds phases end to end: about 123 construction weeks for Lakeside instead of about 52. That pushes phased projects into D3 and changes their result. Fix it first, or in the same piece of work.
+- **Phasing bug.** The programme currently adds phases end to end: about 123 construction weeks for an occupied six-phase residential refurbishment (Project A) instead of about 52. That pushes phased projects into D3 and changes their result. Fix it first, or in the same piece of work.
 - **Rate base.** The refurbishment rate base is currently low, so some projects fall into a lower value level than a QS would put them in. The procurement logic is right; its input will improve once the rates are recalibrated.
