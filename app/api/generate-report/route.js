@@ -43,6 +43,7 @@ import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 import { getSessionUser, getTrialId } from '@/lib/auth'
 import { TRIAL_LIMIT, reserveTrialReport, recordTrialReport } from '@/lib/trial'
 import { recordActivity } from '@/lib/users'
+import { limitAnswers } from '@/lib/answerLimits'
 
 // Report a caught pipeline failure to Sentry with a scrubbed projection of the
 // answers that triggered it, so a crash a colleague never reports still arrives
@@ -78,6 +79,12 @@ export async function POST(request) {
   // A signed-in user, or a free-trial visitor within their allowance. The
   // report is stamped with one or the other (ownerId / anonId).
   const user = await getSessionUser(request)
+  // A daily ceiling per account as well as per IP: sign-up is free, so the IP
+  // limit alone does not bound one person's spend on the AI prose.
+  if (user) {
+    const daily = await checkRateLimit('generate-report-user', request, { requests: 50, window: '1 d', key: user.uid })
+    if (!daily.allowed) return rateLimitedResponse(daily.retryAfterSeconds)
+  }
   let trialId = null
   let reservation = null
   if (!user) {
@@ -128,8 +135,12 @@ async function generate(request, { user, trialId }, outcome) {
   const requestStart = Date.now()
   try {
     const body = await request.json()
-    const { answers } = body
-    if (!answers) return Response.json({ error: 'Missing answers' }, { status: 400 })
+    // Free text is cut to the questionnaire's own limits and an oversized
+    // payload refused: the answers go into the AI prompt and the stored record
+    // (lib/answerLimits.js).
+    const limited = limitAnswers(body?.answers)
+    if (limited.problem) return Response.json({ error: limited.problem }, { status: limited.tooLarge ? 413 : 400 })
+    const { answers } = limited
 
     const required = ['q1_0_projectName', 'q1_2_projectType', 'q1_1_postcode', 'q1_5_size']
     const missing = required.filter(f => !answers[f])

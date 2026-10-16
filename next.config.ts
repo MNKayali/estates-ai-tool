@@ -1,7 +1,23 @@
 import type { NextConfig } from 'next'
 import { withSentryConfig } from '@sentry/nextjs'
 
+// Security headers on every response (security review, October 2026). The
+// CSP is deliberately narrow: it forbids framing (clickjacking on the admin
+// area and report delete), plugins, <base> hijacking and off-site form posts.
+// It does not restrict scripts or styles — Next's inline bootstrap, Sentry and
+// next/font would need nonces first, and getting that wrong breaks every page.
+const SECURITY_HEADERS = [
+  { key: 'Content-Security-Policy', value: "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'" },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+]
+
 const nextConfig: NextConfig = {
+  async headers() {
+    return [{ source: '/:path*', headers: SECURITY_HEADERS }]
+  },
   // puppeteer is a devDependency, but app/api/report-pdf imports it at runtime on
   // the non-Vercel branch. Because `process.env.VERCEL` is only known at runtime
   // the bundler cannot eliminate that import, so it must be externalised too or
