@@ -2,7 +2,8 @@
  * GET /api/admin/overview
  *
  * Single aggregated payload for the admin dashboard: configuration presence
- * (booleans only — never values), usage counts, weekly usage (sign-ups, reports
+ * (booleans only — never values), visitor figures for the last 30 days
+ * (lib/visits.js), usage counts, weekly usage (sign-ups, reports
  * by account holders and by free-trial visitors), trial conversion, the report
  * index, and recent feedback. Gated by proxy.ts (estate_admin cookie vs
  * ADMIN_CODE); when ADMIN_CODE is unset the gate passes through for local dev.
@@ -15,6 +16,7 @@ import { listUsers } from '@/lib/users'
 import { trialStats } from '@/lib/trial'
 import { weeklyUsage } from '@/lib/usageStats'
 import { emailEnabled } from '@/lib/email'
+import { visitStats } from '@/lib/visits'
 
 export async function GET() {
   const config = {
@@ -29,13 +31,14 @@ export async function GET() {
     email:        emailEnabled(),
   }
 
-  const [reports, reportCount, feedback, reportWeeks, users, trial] = await Promise.all([
+  const [reports, reportCount, feedback, reportWeeks, users, trial, visits] = await Promise.all([
     listReports(),
     countReports(),
     listFeedback(),
     reportStats(),
     listUsers().catch(() => []),
     trialStats().catch(() => ({ limitHit: 0, converted: 0 })),
+    visitStats({ days: 30 }),
   ])
 
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
@@ -56,6 +59,7 @@ export async function GET() {
       weeks: weeklyUsage({ users, reportWeeks }),
       trial,
     },
+    visits,
     reports,
     feedback,
   })

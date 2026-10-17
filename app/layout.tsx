@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Sans, DM_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
+import VisitTracker from "./components/VisitTracker";
 import "./globals.css";
 import { BRAND } from "@/lib/brand";
 
@@ -54,6 +55,7 @@ export default function RootLayout({
       <body>
         {children}
         <Analytics />
+        <VisitTracker />
       </body>
     </html>
   );
