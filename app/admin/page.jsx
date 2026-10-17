@@ -118,6 +118,7 @@ function Dashboard({ data, health, onRefresh }) {
 
       {/* Visitors */}
       <SectionHeader number="1" title="Visitors — last 30 days" />
+      <ExportBar />
       <VisitsPanel visits={visits} />
 
       {/* Usage counts */}
@@ -385,6 +386,29 @@ function VisitsPanel({ visits }) {
           </tbody>
         </table>
       </div>
+    </div>
+  )
+}
+
+// Downloads the usage data to keep, or to hand to an AI for ideas: the JSON
+// explains every figure and is anonymised (/api/admin/export).
+function ExportBar() {
+  const [days, setDays] = useState(90)
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, margin: '-4px 0 16px' }}>
+      <label htmlFor="export-days" style={{ fontSize: 13, color: 'var(--text-mid)' }}>Export</label>
+      <select id="export-days" value={days} onChange={e => setDays(Number(e.target.value))}
+        style={{ padding: '6px 10px', fontSize: 13, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--tint)' }}>
+        <option value={30}>Last 30 days</option>
+        <option value={90}>Last 90 days</option>
+        <option value={365}>Last 12 months</option>
+      </select>
+      <a className="btn btn-primary" style={{ padding: '6px 14px', fontSize: 13 }} href={`/api/admin/export?days=${days}`} download>
+        Download for AI (JSON)
+      </a>
+      <a className="btn btn-ghost" style={{ padding: '6px 14px', fontSize: 13 }} href={`/api/admin/export?days=${days}&format=csv`} download>
+        Daily figures (CSV)
+      </a>
     </div>
   )
 }
