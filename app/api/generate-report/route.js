@@ -38,6 +38,7 @@ import { validatePostcode } from '@/lib/postcodeRegion'
 import { runDeterministicPipeline } from '@/lib/pipeline'
 import { buildReport } from '@/lib/reportBuilder'
 import { createReport, recordReportStat } from '@/lib/kv'
+import { recordReportDay } from '@/lib/visits'
 import { runProseSequential, scrubAnswers } from '@/lib/prose'
 import { checkRateLimit, rateLimitedResponse } from '@/lib/rateLimit'
 import { getSessionUser, getTrialId } from '@/lib/auth'
@@ -123,7 +124,7 @@ export async function POST(request) {
     else await reservation.release()
   }
   if (outcome.reportId) {
-    await recordReportStat(user ? 'user' : 'anon')
+    await Promise.all([recordReportStat(user ? 'user' : 'anon'), recordReportDay()])
     if (user) await recordActivity(user.uid)
   }
   return response

@@ -15,6 +15,7 @@ import { createAccount, normaliseEmail, isValidEmail, passwordProblem } from '@/
 import { createSessionToken, sessionCookieOptions, SESSION_COOKIE } from '@/lib/session'
 import { getTrialId } from '@/lib/auth'
 import { claimTrialReports } from '@/lib/trial'
+import { sourceForRequest, recordSignup } from '@/lib/visits'
 
 export async function POST(request) {
   const rl = await checkRateLimit('signup', request, { requests: 10, window: '10 m' })
@@ -33,9 +34,13 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Please accept the Terms and Privacy Notice to create an account.', field: 'acceptTerms' }, { status: 400 })
   }
 
+  // Where this visitor came from today (lib/visits.js) — shown in the admin's
+  // Users list and counted against the source. Null if it was not seen.
+  const source = await sourceForRequest(request)
+
   let user
   try {
-    user = await createAccount({ email, name, password })
+    user = await createAccount({ email, name, password, source })
   } catch (e) {
     if (e.message === 'exists') {
       return NextResponse.json({ error: 'An account with this email already exists. Sign in instead.', field: 'email', exists: true }, { status: 409 })
@@ -49,6 +54,8 @@ export async function POST(request) {
     console.error('[signup] COOKIE_SECRET is not set — refusing to issue a session in production')
     return NextResponse.json({ error: 'Sign-up is not configured on this server.' }, { status: 503 })
   }
+
+  await recordSignup(source || 'Unknown')
 
   let claimed = 0
   try {

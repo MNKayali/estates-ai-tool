@@ -81,6 +81,9 @@ function run([cmd, ...a]) {
     case 'LTRIM': { const l = list(k); const end = Number(a[2]); store.set(k, l.slice(Number(a[1]), end < 0 ? l.length + end + 1 : end + 1)); return 'OK' }
     case 'LRANGE': { const l = list(k); const end = Number(a[2]); return l.slice(Number(a[1]), end < 0 ? l.length + end + 1 : end + 1) }
     case 'LLEN': return list(k).length
+    // HyperLogLog as an exact set (lib/visits.js); PFCOUNT of several keys is their union.
+    case 'PFADD': { const s = set(k); const n = s.size; for (const m of a.slice(1)) s.add(String(m)); store.set(k, s); return s.size > n ? 1 : 0 }
+    case 'PFCOUNT': { const u = new Set(); for (const key of a) for (const m of set(key)) u.add(m); return u.size }
     default: throw new Error(`ERR dev-kv does not implement ${c}`)
   }
 }

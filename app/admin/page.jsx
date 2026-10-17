@@ -104,7 +104,7 @@ function Header() {
 
 // ─── Dashboard ──────────────────────────────────────────────────────────────
 function Dashboard({ data, health, onRefresh }) {
-  const { config, counts, reports, feedback, usage } = data
+  const { config, counts, reports, feedback, usage, visits } = data
   const [users, setUsers] = useState([])
   return (
     <div className="rise rise-1">
@@ -116,8 +116,13 @@ function Dashboard({ data, health, onRefresh }) {
         <button className="btn btn-ghost" onClick={onRefresh}>↻ Refresh</button>
       </div>
 
+      {/* Visitors */}
+      <SectionHeader number="1" title="Visitors — last 30 days" />
+      <ExportBar />
+      <VisitsPanel visits={visits} />
+
       {/* Usage counts */}
-      <SectionHeader number="1" title="Usage" />
+      <SectionHeader number="2" title="Reports and accounts" />
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(160px, 100%), 1fr))', gap: 14, marginBottom: 32 }}>
         <Card style={{ padding: '18px 20px' }}><Stat value={counts.reports}       label="Reports completed" /></Card>
         <Card style={{ padding: '18px 20px' }}><Stat value={counts.reportsLast7d} label="Last 7 days" /></Card>
@@ -127,19 +132,19 @@ function Dashboard({ data, health, onRefresh }) {
       {usage && <UsagePanel usage={usage} />}
 
       {/* System health */}
-      <SectionHeader number="2" title="System health" />
+      <SectionHeader number="3" title="System health" />
       <HealthPanel config={config} health={health} />
 
       {/* Users */}
-      <SectionHeader number="3" title="Users" />
+      <SectionHeader number="4" title="Users" />
       <UsersPanel onUsers={setUsers} />
 
       {/* Reports browser */}
-      <SectionHeader number="4" title="Reports" />
+      <SectionHeader number="5" title="Reports" />
       <ReportsTable reports={reports} kvOn={config.kv} users={users} />
 
       {/* Feedback */}
-      <SectionHeader number="5" title="Recent feedback" />
+      <SectionHeader number="6" title="Recent feedback" />
       <FeedbackList feedback={feedback} />
     </div>
   )
@@ -296,6 +301,137 @@ function UsagePanel({ usage }) {
   )
 }
 
+// ─── Visitors ────────────────────────────────────────────────────────────────
+// The site's own cookieless counts (lib/visits.js): unique visitors per day,
+// visits (arrivals from outside the site), time on screen, where visits came
+// from and which sources turned into sign-ups. Counting started with this
+// release; earlier days show 0.
+function fmtDuration(s) {
+  if (s == null) return '—'
+  if (s < 60) return `${s}s`
+  return `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s`
+}
+const pct = (n, d) => (d ? `${Math.round((n / d) * 100)}%` : '—')
+
+function VisitsPanel({ visits }) {
+  if (!visits) {
+    return (
+      <Card style={{ padding: 20, marginBottom: 32 }}>
+        <p style={{ margin: 0, fontSize: 14, color: 'var(--text-mid)' }}>Visitor figures need KV and appear once the first visits are counted.</p>
+      </Card>
+    )
+  }
+  const t = visits.totals
+  const t7 = visits.totals7
+  const funnel = [
+    ['Visitors', t.visitors],
+    ['Opened the questionnaire', t.questionnaireVisitors],
+    ['Reports created', t.reports],
+    ['Sign-ups', t.signups],
+  ]
+  const recent = [...visits.daily].reverse().slice(0, 14)
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(150px, 100%), 1fr))', gap: 14, marginBottom: 14 }}>
+        <Card style={{ padding: '18px 20px' }}><Stat value={t.visitors} label={`Visitors (${t7.visitors} in 7 days)`} /></Card>
+        <Card style={{ padding: '18px 20px' }}><Stat value={t.visits} label={`Visits (${t7.visits} in 7 days)`} /></Card>
+        <Card style={{ padding: '18px 20px' }}><Stat value={fmtDuration(t.avgVisitSeconds)} label="Average time per visit" /></Card>
+        <Card style={{ padding: '18px 20px' }}><Stat value={t.pagesPerVisit ?? '—'} label="Pages per visit" /></Card>
+        <Card style={{ padding: '18px 20px' }}><Stat value={t.signupRate == null ? '—' : `${t.signupRate}%`} label="Visitors who signed up" /></Card>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: 14, marginBottom: 14 }}>
+        <Card style={{ padding: 0 }}>
+          <MiniTable caption="Where visits came from" head={['Source', 'Visits', 'Sign-ups']}
+            rows={visits.sources.map(r => [r.name, r.count, r.signups])} empty="No visits counted yet." />
+        </Card>
+        <Card style={{ padding: 0 }}>
+          <MiniTable caption="Journey (30 days)" head={['Step', 'People', 'Of visitors']}
+            rows={funnel.map(([label, n]) => [label, n, pct(n, t.visitors)])} />
+        </Card>
+        <Card style={{ padding: 0 }}>
+          <MiniTable caption="Most viewed pages" head={['Page', 'Views']}
+            rows={visits.pages.map(r => [<span key="p" className="mono" style={{ fontSize: 12.5 }}>{r.name}</span>, r.count])} empty="No page views yet." />
+        </Card>
+        <Card style={{ padding: 0 }}>
+          <MiniTable caption="Countries and devices" head={['Country / device', 'Visits']}
+            rows={[...visits.countries.map(r => [r.name, r.count]), ...visits.devices.map(r => [r.name, r.count])]} empty="No visits counted yet." />
+        </Card>
+      </div>
+
+      <div className="tbl-wrap">
+        <table className="tbl">
+          <caption className="sr-only">Visitors per day, most recent first</caption>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left' }}>Day</th>
+              <th style={{ textAlign: 'right' }}>Visitors</th>
+              <th style={{ textAlign: 'right' }}>Visits</th>
+              <th style={{ textAlign: 'right' }}>Page views</th>
+              <th style={{ textAlign: 'right' }}>Reports</th>
+              <th style={{ textAlign: 'right' }}>Sign-ups</th>
+            </tr>
+          </thead>
+          <tbody>
+            {recent.map(d => (
+              <tr key={d.date}>
+                <td className="mono" style={{ fontSize: 12.5 }}>{d.date}</td>
+                <td style={{ textAlign: 'right' }}>{d.visitors}</td>
+                <td style={{ textAlign: 'right' }}>{d.visits}</td>
+                <td style={{ textAlign: 'right' }}>{d.views}</td>
+                <td style={{ textAlign: 'right' }}>{d.reports}</td>
+                <td style={{ textAlign: 'right' }}>{d.signups}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// Downloads the usage data to keep, or to hand to an AI for ideas: the JSON
+// explains every figure and is anonymised (/api/admin/export).
+function ExportBar() {
+  const [days, setDays] = useState(90)
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, margin: '-4px 0 16px' }}>
+      <label htmlFor="export-days" style={{ fontSize: 13, color: 'var(--text-mid)' }}>Export</label>
+      <select id="export-days" value={days} onChange={e => setDays(Number(e.target.value))}
+        style={{ padding: '6px 10px', fontSize: 13, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--tint)' }}>
+        <option value={30}>Last 30 days</option>
+        <option value={90}>Last 90 days</option>
+        <option value={365}>Last 12 months</option>
+      </select>
+      <a className="btn btn-primary" style={{ padding: '6px 14px', fontSize: 13 }} href={`/api/admin/export?days=${days}`} download>
+        Download for AI (JSON)
+      </a>
+      <a className="btn btn-ghost" style={{ padding: '6px 14px', fontSize: 13 }} href={`/api/admin/export?days=${days}&format=csv`} download>
+        Daily figures (CSV)
+      </a>
+    </div>
+  )
+}
+
+function MiniTable({ caption, head, rows, empty }) {
+  return (
+    <table className="tbl" style={{ margin: 0 }}>
+      <caption style={{ textAlign: 'left', padding: '12px 14px 4px', fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{caption}</caption>
+      <thead>
+        <tr>{head.map((h, i) => <th key={i} style={{ textAlign: i === 0 ? 'left' : 'right' }}>{h}</th>)}</tr>
+      </thead>
+      <tbody>
+        {rows.length === 0 && empty && (
+          <tr><td colSpan={head.length} style={{ color: 'var(--text-mid)', fontSize: 13 }}>{empty}</td></tr>
+        )}
+        {rows.map((r, i) => (
+          <tr key={i}>{r.map((c, j) => <td key={j} style={{ textAlign: j === 0 ? 'left' : 'right', fontSize: 13 }}>{c}</td>)}</tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
 // ─── Users ───────────────────────────────────────────────────────────────────
 async function fetchUsers() {
   try {
@@ -437,6 +573,7 @@ function UsersPanel({ onUsers }) {
                 <th style={{ textAlign: 'left' }}>Email</th>
                 <th style={{ textAlign: 'left' }}>Status</th>
                 <th style={{ textAlign: 'left' }}>Tier</th>
+                <th style={{ textAlign: 'left' }}>Came from</th>
                 <th style={{ textAlign: 'right' }}>Reports</th>
                 <th style={{ textAlign: 'left' }}>Joined</th>
                 <th style={{ textAlign: 'left' }}>Last active</th>
@@ -450,6 +587,7 @@ function UsersPanel({ onUsers }) {
                   <td style={{ fontSize: 13 }}>{u.email}</td>
                   <td><span className={`rag ${u.status === 'active' ? 'rag-low' : u.status === 'invited' ? 'rag-med' : 'rag-high'}`}>{STATUS_LABEL[u.status] || u.status}</span></td>
                   <td style={{ fontSize: 13 }}>{u.tier || 'free'}</td>
+                  <td style={{ fontSize: 13 }}>{u.source || '—'}</td>
                   <td style={{ textAlign: 'right' }}>{u.reportCount ?? '—'}</td>
                   <td style={{ whiteSpace: 'nowrap', color: 'var(--text-mid)', fontSize: 13 }}>{fmtDate(u.createdAt)}</td>
                   <td style={{ whiteSpace: 'nowrap', color: 'var(--text-mid)', fontSize: 13 }}>{u.lastActiveAt ? fmtDate(u.lastActiveAt) : '—'}</td>

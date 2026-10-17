@@ -143,6 +143,11 @@ export default function PrivacyPage() {
               'Legitimate interests: maintaining a reliable service',
             ],
             [
+              'Visit counts — the pages you view, how long each is on screen, the site or campaign link that brought you, your country and device type. You are counted by a one-way code made from your network address, browser type and the date; the code changes every day and your network address is not stored. If you create an account, the source of that day’s visit (for example “Google” or “LinkedIn”) is saved with it.',
+              'Knowing how many people use the tool, how they find it and where they stop, so we can improve it.',
+              'Legitimate interests: product improvement. Nothing is stored on your device.',
+            ],
+            [
               'Aggregated usage events — pages visited, download button clicks (no cookies, no personal identifiers)',
               'Understanding how the tool is used so we can improve it. Collected via Vercel Analytics.',
               'Legitimate interests: product improvement. No consent required under current ICO guidance as no tracking cookies are used.',
@@ -205,6 +210,7 @@ export default function PrivacyPage() {
             <li style={li}><strong>Session cookie</strong> — expires 30 days after you sign in, or when you sign out. The free-trial cookie expires after one year.</li>
             <li style={li}><strong>Error logs (Sentry)</strong> — retained by Sentry for up to 90 days on our current plan, then deleted.</li>
             <li style={li}><strong>Analytics events (Vercel)</strong> — aggregated counts only; no individual event records are retained.</li>
+            <li style={li}><strong>Visit counts</strong> — daily totals kept for about 13 months; the daily visitor code is used only for counting and the source of a visit is kept for 2 days (or with your account, if you create one that day).</li>
           </ul>
         </Section>
 
@@ -221,7 +227,7 @@ export default function PrivacyPage() {
             The administrator&apos;s area uses a third cookie of the same kind, <code style={{ background: '#F0F2F4', padding: '1px 5px', borderRadius: '3px' }}>estate_admin</code>.
           </p>
           <p style={body}>
-            Vercel Analytics does <strong>not</strong> set any cookies. No consent banner is required
+            Vercel Analytics and our own visit counts do <strong>not</strong> set cookies or store anything on your device. No consent banner is required
             for this tool under UK PECR, because no tracking cookies or equivalent technologies
             are used.
           </p>
