@@ -4,19 +4,25 @@
  * Single aggregated payload for the admin dashboard: configuration presence
  * (booleans only — never values), visitor figures for the last 30 days
  * (lib/visits.js), usage counts, weekly usage (sign-ups, reports
- * by account holders and by free-trial visitors), trial conversion, the report
- * index, and recent feedback. Gated by proxy.ts (estate_admin cookie vs
+ * by account holders and by free-trial visitors), trial conversion, every
+ * account (for the Users panel, so it needs no second request) and the most
+ * recent feedback. The report list itself is on /admin/reports
+ * (/api/admin/reports) — only its counts are here, so the dashboard stays
+ * small however many reports there are. Gated by proxy.ts (estate_admin cookie vs
  * ADMIN_CODE); when ADMIN_CODE is unset the gate passes through for local dev.
  *
  * Workbook health is NOT included here — the dashboard calls /api/rates-check
  * (admin-only) for that.
  */
-import { listReports, countReports, listFeedback, reportStats } from '@/lib/kv'
-import { listUsers } from '@/lib/users'
+import { reportCounts, listFeedback, reportStats, countUserReports } from '@/lib/kv'
+import { listUsers, publicUser } from '@/lib/users'
 import { trialStats } from '@/lib/trial'
 import { weeklyUsage } from '@/lib/usageStats'
 import { emailEnabled } from '@/lib/email'
 import { visitStats } from '@/lib/visits'
+
+// The dashboard shows the latest few; the export has them all.
+const RECENT_FEEDBACK = 10
 
 export async function GET() {
   const config = {
@@ -31,27 +37,21 @@ export async function GET() {
     email:        emailEnabled(),
   }
 
-  const [reports, reportCount, feedback, reportWeeks, users, trial, visits] = await Promise.all([
-    listReports(),
-    countReports(),
+  const [reports, feedback, reportWeeks, users, trial, visits] = await Promise.all([
+    reportCounts(),
     listFeedback(),
     reportStats(),
     listUsers().catch(() => []),
     trialStats().catch(() => ({ limitHit: 0, converted: 0 })),
     visitStats({ days: 30 }),
   ])
-
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
-  const reportsLast7d = reports.filter(r => {
-    const t = Date.parse(r?.generatedAt)
-    return Number.isFinite(t) && t >= sevenDaysAgo
-  }).length
+  const userReports = await Promise.all(users.map(u => countUserReports(u.uid)))
 
   return Response.json({
     config,
     counts: {
-      reports:       reportCount,
-      reportsLast7d,
+      reports:       reports.total,
+      reportsLast7d: reports.recent,
       feedback:      feedback.length,
       users:         users.length,
     },
@@ -60,7 +60,8 @@ export async function GET() {
       trial,
     },
     visits,
-    reports,
-    feedback,
+    users: users.map((u, i) => ({ ...publicUser(u), reportCount: userReports[i] })),
+    emailEnabled: config.email,
+    feedback: feedback.slice(0, RECENT_FEEDBACK),
   })
 }
