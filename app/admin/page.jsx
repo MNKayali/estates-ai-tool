@@ -1,20 +1,20 @@
 'use client'
 
 /**
- * /admin — private status dashboard + reports browser.
+ * /admin — private status dashboard. Every report is on /admin/reports.
  *
  * Self-gating: the page shell is public, but every piece of data comes from
  * /api/admin/overview which is gated against ADMIN_CODE (see proxy.ts). On a 401
  * the page shows an inline admin-code form (POST /api/admin/login) and refetches.
- * Workbook health comes from /api/rates-check. Users (invite, disable, issue a
- * set-password link) come from /api/admin/users.
+ * Workbook health comes from /api/rates-check. The users list arrives with the
+ * overview; after a change (invite, disable, set-password link) the Users panel
+ * reloads it from /api/admin/users.
  */
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { Card, Stat, Badge, SectionHeader } from '../components/ui'
-import Logo from '../components/Logo'
-
-const f1k = n => (n == null ? '—' : `£${(Math.round(n / 1000) * 1000).toLocaleString('en-GB')}`)
+import { Header, AdminLogin, Centered, Spinner, fmtDate } from './shared'
 
 const CONFIG_LABELS = {
   aiKey:        'AI API key',
@@ -80,32 +80,9 @@ export default function AdminPage() {
   )
 }
 
-// ─── Header ─────────────────────────────────────────────────────────────────
-function Header() {
-  // The estate_admin cookie previously had no way to revoke short of clearing
-  // browser data by hand — the more sensitive of the app's two cookies to
-  // leave signed in on a shared machine.
-  async function logout() {
-    try { await fetch('/api/logout', { method: 'POST' }) } catch {}
-    window.location.reload()
-  }
-  return (
-    <header style={{ position: 'sticky', top: 0, zIndex: 10, background: 'rgba(250,248,243,.82)', backdropFilter: 'blur(10px)', borderBottom: '1px solid var(--border)' }}>
-      <div style={{ maxWidth: 1040, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <Logo variant="navy" height={24} />
-        <Badge>Admin</Badge>
-        <button onClick={logout} className="btn btn-ghost" style={{ marginLeft: 'auto', padding: '6px 14px', fontSize: 13 }}>
-          Log out
-        </button>
-      </div>
-    </header>
-  )
-}
-
 // ─── Dashboard ──────────────────────────────────────────────────────────────
 function Dashboard({ data, health, onRefresh }) {
-  const { config, counts, reports, feedback, usage, visits } = data
-  const [users, setUsers] = useState([])
+  const { config, counts, feedback, usage, visits, users, emailEnabled } = data
   return (
     <div className="rise rise-1">
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
@@ -123,6 +100,9 @@ function Dashboard({ data, health, onRefresh }) {
 
       {/* Usage counts */}
       <SectionHeader number="2" title="Reports and accounts" />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '-4px 0 12px' }}>
+        <Link href="/admin/reports" className="btn btn-ghost" style={{ padding: '6px 14px', fontSize: 13 }}>View all reports →</Link>
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(160px, 100%), 1fr))', gap: 14, marginBottom: 32 }}>
         <Card style={{ padding: '18px 20px' }}><Stat value={counts.reports}       label="Reports completed" /></Card>
         <Card style={{ padding: '18px 20px' }}><Stat value={counts.reportsLast7d} label="Last 7 days" /></Card>
@@ -137,15 +117,11 @@ function Dashboard({ data, health, onRefresh }) {
 
       {/* Users */}
       <SectionHeader number="4" title="Users" />
-      <UsersPanel onUsers={setUsers} />
-
-      {/* Reports browser */}
-      <SectionHeader number="5" title="Reports" />
-      <ReportsTable reports={reports} kvOn={config.kv} users={users} />
+      <UsersPanel initialUsers={users} initialEmailOn={emailEnabled} />
 
       {/* Feedback */}
-      <SectionHeader number="6" title="Recent feedback" />
-      <FeedbackList feedback={feedback} />
+      <SectionHeader number="5" title="Recent feedback" />
+      <FeedbackList feedback={feedback} total={counts.feedback} />
     </div>
   )
 }
@@ -187,74 +163,6 @@ function StatusRow({ label, ok, detail }) {
         <span className={`rag ${ok ? 'rag-low' : 'rag-high'}`}>{ok ? 'OK' : 'OFF'}</span>
       </span>
     </div>
-  )
-}
-
-// ─── Reports table ──────────────────────────────────────────────────────────
-function ReportsTable({ reports, kvOn, users = [] }) {
-  const emailOf = uid => users.find(u => u.uid === uid)?.email
-  if (!reports?.length) {
-    return (
-      <Card style={{ padding: 24, marginBottom: 32 }}>
-        <p style={{ color: 'var(--text-mute)', fontSize: 14, margin: 0 }}>
-          {kvOn
-            ? 'No reports generated yet. They will appear here as people use the tool.'
-            : 'Persistence (KV) is not configured, so reports are not indexed. Set KV_REST_API_URL / KV_REST_API_TOKEN to enable the reports browser.'}
-        </p>
-      </Card>
-    )
-  }
-  return (
-    <div className="tbl-wrap" style={{ marginBottom: 32 }}>
-      <table className="tbl">
-        <thead>
-          <tr>
-            <th style={{ textAlign: 'left' }}>Project</th>
-            <th style={{ textAlign: 'left' }}>Created by</th>
-            <th style={{ textAlign: 'left' }}>Generated</th>
-            <th style={{ textAlign: 'right' }}>Cost range (excl. VAT)</th>
-            <th style={{ textAlign: 'right' }}>Weeks</th>
-            <th style={{ textAlign: 'left' }}>Checks</th>
-            <th style={{ textAlign: 'right' }}>Report</th>
-          </tr>
-        </thead>
-        <tbody>
-          {reports.map((r, i) => (
-            <tr key={r.reportId || i}>
-              <td style={{ fontWeight: 600 }}>{r.projectName || 'Untitled'}</td>
-              <td style={{ color: 'var(--text-mid)', fontSize: 13 }}>{r.ownerId ? (emailOf(r.ownerId) || 'Account (deleted?)') : r.trial ? 'Free trial' : 'Access code (legacy)'}</td>
-              <td style={{ whiteSpace: 'nowrap', color: 'var(--text-mid)' }}>{fmtDate(r.generatedAt)}</td>
-              <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{f1k(r.totalLow)} – {f1k(r.totalHigh)}</td>
-              <td style={{ textAlign: 'right' }}>{r.totalWeeks ?? '—'}</td>
-              <td style={{ fontSize: 13 }}><Checks checks={r.checks} /></td>
-              <td style={{ textAlign: 'right' }}>
-                {r.reportId
-                  ? <a className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: 12 }} href={`/report/${r.reportId}`} target="_blank" rel="noopener noreferrer">View ↗</a>
-                  : '—'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-// The report's own consistency checks (lib/consistency.js): text that
-// contradicts the register, programme or budget. Advisory — nothing blocks a
-// report — so they are listed here for whoever reviews reports.
-function Checks({ checks }) {
-  if (!Array.isArray(checks)) return <span style={{ color: 'var(--text-mid)' }}>—</span>
-  if (checks.length === 0) return <span style={{ color: 'var(--text-mid)' }}>No issues</span>
-  return (
-    <details>
-      <summary style={{ cursor: 'pointer', color: 'var(--warn)', fontWeight: 600 }}>
-        {checks.length} {checks.length === 1 ? 'warning' : 'warnings'}
-      </summary>
-      <ul style={{ margin: '6px 0 0', paddingLeft: 16, maxWidth: 360 }}>
-        {checks.map((c, i) => <li key={i} style={{ marginBottom: 4 }}>{c.message}</li>)}
-      </ul>
-    </details>
   )
 }
 
@@ -444,9 +352,9 @@ async function fetchUsers() {
 
 const STATUS_LABEL = { active: 'Active', invited: 'Invited', disabled: 'Disabled' }
 
-function UsersPanel({ onUsers }) {
-  const [users, setUsers]   = useState(null)
-  const [emailOn, setEmailOn] = useState(false)
+function UsersPanel({ initialUsers, initialEmailOn }) {
+  const [users, setUsers]   = useState(initialUsers ?? null)
+  const [emailOn, setEmailOn] = useState(!!initialEmailOn)
   const [name, setName]     = useState('')
   const [email, setEmail]   = useState('')
   const [busy, setBusy]     = useState('')
@@ -458,15 +366,8 @@ function UsersPanel({ onUsers }) {
     if (!ok) { setError(data.error || `Users could not be loaded (${status || 'network error'}).`); setUsers([]); return }
     setUsers(data.users || [])
     setEmailOn(!!data.emailEnabled)
-    onUsers?.(data.users || [])
-  }, [onUsers])
+  }, [])
   const load = useCallback(() => fetchUsers().then(apply), [apply])
-
-  useEffect(() => {
-    let cancelled = false
-    fetchUsers().then(r => { if (!cancelled) apply(r) })
-    return () => { cancelled = true }
-  }, [apply])
 
   async function invite(e) {
     e.preventDefault()
@@ -621,7 +522,7 @@ function UsersPanel({ onUsers }) {
 }
 
 // ─── Feedback list ──────────────────────────────────────────────────────────
-function FeedbackList({ feedback }) {
+function FeedbackList({ feedback, total }) {
   if (!feedback?.length) {
     return (
       <Card style={{ padding: 24 }}>
@@ -646,83 +547,12 @@ function FeedbackList({ feedback }) {
           <p style={{ margin: 0, fontSize: 14, color: 'var(--text)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{fb.message}</p>
         </Card>
       ))}
+      {total > feedback.length && (
+        <p className="help" style={{ margin: 0 }}>
+          The latest {feedback.length} of {total}. Every item is in the “Download for AI (JSON)” export.
+        </p>
+      )}
     </div>
   )
 }
 
-// ─── Admin login (inline, shown on 401) ─────────────────────────────────────
-function AdminLogin({ onSuccess }) {
-  const [code, setCode]       = useState('')
-  const [error, setError]     = useState('')
-  const [loading, setLoading] = useState(false)
-
-  async function submit(e) {
-    e.preventDefault()
-    if (!code.trim()) return
-    setLoading(true)
-    setError('')
-    try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code.trim() }),
-      })
-      if (res.ok) { onSuccess() }
-      else { setError('Incorrect admin code.'); setCode('') }
-    } catch {
-      setError('Network error. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <Centered>
-      <Card className="rise rise-1" style={{ width: '100%', maxWidth: 420, padding: '36px 32px' }}>
-        <div className="eyebrow">Restricted</div>
-        <h1 style={{ fontSize: 24, margin: '8px 0 6px', color: 'var(--ink)' }}>Admin access</h1>
-        <p style={{ fontSize: 14, color: 'var(--text-soft)', margin: '0 0 22px', lineHeight: 1.6 }}>
-          Enter the admin code to manage accounts and view system status and all generated reports.
-        </p>
-        <form onSubmit={submit}>
-          <label className="label">Admin code</label>
-          <input
-            className="field"
-            type="password"
-            value={code}
-            onChange={e => setCode(e.target.value)}
-            placeholder="Enter admin code"
-            autoFocus
-            autoComplete="off"
-            style={{ fontFamily: 'var(--font-mono)', letterSpacing: '.18em', borderColor: error ? 'var(--danger)' : undefined }}
-          />
-          {error && <p style={{ color: 'var(--danger)', fontSize: 13, margin: '8px 0 0' }}>{error}</p>}
-          <button type="submit" className="btn btn-primary" disabled={loading || !code.trim()}
-            style={{ width: '100%', justifyContent: 'center', marginTop: 16, padding: 13 }}>
-            {loading ? 'Verifying…' : 'Unlock ▸'}
-          </button>
-        </form>
-      </Card>
-    </Centered>
-  )
-}
-
-// ─── Small helpers ──────────────────────────────────────────────────────────
-function Centered({ children }) {
-  return <div style={{ minHeight: '60vh', display: 'grid', placeItems: 'center' }}>{children}</div>
-}
-
-function Spinner() {
-  return (
-    <>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      <div style={{ width: 34, height: 34, border: '4px solid var(--navy)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
-    </>
-  )
-}
-
-function fmtDate(iso) {
-  const t = Date.parse(iso)
-  if (!Number.isFinite(t)) return '—'
-  return new Date(t).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-}
