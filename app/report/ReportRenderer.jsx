@@ -37,10 +37,17 @@ const FONT_BODY = "var(--font-dm-sans), 'DM Sans', 'Segoe UI', sans-serif"
 // stay visible but open the sign-up dialog, and once the account exists (the
 // server has moved this report into it) the chosen download runs. The download
 // routes refuse a trial visitor themselves; this is the friendly half.
-export default function ReportRenderer({ data, reportId, sample = false, accountRequired = false, signedIn = true, onAccountCreated }) {
-  const router = useRouter()
+export default function ReportRenderer(props) {
   const searchParams = useSearchParams()
-  const isPdf = searchParams?.get('pdf') === '1'   // server-side Puppeteer render
+  return <ReportView {...props} isPdf={searchParams?.get('pdf') === '1'} />   // pdf=1: server-side Puppeteer render
+}
+
+// The renderer without useSearchParams, so a static page (/sample) can be
+// prerendered with the whole report in its HTML. useSearchParams would make
+// Next render it in the browser only, and a crawler or AI fetch tool that
+// does not run scripts would see an empty page.
+export function ReportView({ data, reportId, sample = false, accountRequired = false, signedIn = true, onAccountCreated, isPdf = false }) {
+  const router = useRouter()
   const [downloading, setDownloading]   = useState(false)
   const [downloadError, setDownloadError] = useState('')
   const [copied, setCopied]             = useState(false)
