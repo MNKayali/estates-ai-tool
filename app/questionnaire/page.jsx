@@ -81,11 +81,15 @@ const HEIGHT_TYPES = ['New Build', 'Refurbishment', 'Extension', 'Other or mixed
 // "PROJECT" — two of six steps indistinguishable. Captions are now written, not
 // derived, so they stay distinct if a title changes.
 const SECTIONS = [
-  { id: 1, short: 'Project',     title: 'Project & Location',            subtitle: 'Tell us about your building and where it is' },
-  { id: 2, short: 'Scope',       title: 'Project Scope',                 subtitle: 'What work needs to be done?' },
-  { id: 3, short: 'Condition',   title: 'Condition & Constraints',       subtitle: 'What do you know about the building?' },
-  { id: 4, short: 'Programme',   title: 'Programme, Budget & Delivery',  subtitle: 'Timelines, costs, funding and the report itself' },
+  { id: 1, short: 'Project',     title: 'Project & Location',            subtitle: 'Tell us about your building and where it is', mins: 3 },
+  { id: 2, short: 'Scope',       title: 'Project Scope',                 subtitle: 'What work needs to be done?', mins: 5 },
+  { id: 3, short: 'Condition',   title: 'Condition & Constraints',       subtitle: 'What do you know about the building?', mins: 3 },
+  { id: 4, short: 'Programme',   title: 'Programme, Budget & Delivery',  subtitle: 'Timelines, costs, funding and the report itself', mins: 4 },
 ]
+
+// Rough time to finish, from the start of this section: shown beside the
+// percentage so the form never feels open-ended.
+const minutesLeft = section => SECTIONS.slice(section - 1).reduce((t, s) => t + s.mins, 0)
 
 // Step-by-step generation indicator for the deterministic pipeline only — this
 // call no longer writes the AI narrative (that runs on the report page once
@@ -1255,7 +1259,7 @@ export default function QuestionnairePage() {
           </div>
           <div style={{ marginTop: 8, textAlign: 'right' }}>
             <span className="mono" style={{ fontSize: 10, letterSpacing: '.06em', color: 'var(--text-mute)' }}>
-              {progressPercent(section, SECTIONS.length)}% COMPLETE
+              {progressPercent(section, SECTIONS.length)}% COMPLETE · ABOUT {minutesLeft(section)} MIN LEFT
             </span>
           </div>
         </div>
@@ -1320,7 +1324,7 @@ export default function QuestionnairePage() {
           <div className="flex flex-col gap-5 section-enter">
             <QCard qkey="q1_0_projectName">
               <Label required>Q1.0 — Project title</Label>
-              <HelpText>This becomes the heading of your report. Include the work type, building type, and location — e.g. “Full Refurbishment — Accommodation Flat, B91 1SF, Solihull” or “New Sports Hall, University of Birmingham, Edgbaston”.</HelpText>
+              <HelpText>The heading of your report: the work, the building and where it is.</HelpText>
               <TextInput value={answers.q1_0_projectName} onChange={v => set('q1_0_projectName', v)} placeholder="e.g. Full Refurbishment — Accommodation Flat, B91 1SF, Solihull" />
               {validationErrors.q1_0_projectName && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_0_projectName}</p>}
               {/* The title is the largest text on the report cover — show it,
@@ -1339,7 +1343,7 @@ export default function QuestionnairePage() {
 
             <QCard qkey="q1_1_postcode">
               <Label required>Q1.1 — Postcode</Label>
-              <HelpText>Used to apply the BCIS regional cost factor. First 2–3 characters are sufficient.</HelpText>
+              <HelpText>Sets the regional price level. The first part is enough, e.g. B15.</HelpText>
               <TextInput value={answers.q1_1_postcode} onChange={v => set('q1_1_postcode', v)} placeholder="e.g. B15" />
               {validationErrors.q1_1_postcode && <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>{validationErrors.q1_1_postcode}</p>}
               <BcisResolver
@@ -1381,7 +1385,7 @@ export default function QuestionnairePage() {
 
             <QCard qkey="q1_3_buildingUse">
               <Label required>Q1.3 — Building use</Label>
-              <HelpText>Puts the scope items that apply to this use first (nothing is hidden), picks building-use rates, and selects the benchmark band the estimate is sense-checked against.</HelpText>
+              <HelpText>Used to suggest the typical scope and to check the estimate against similar buildings.</HelpText>
               <SelectInput value={answers.q1_3_buildingUse} onChange={v => set('q1_3_buildingUse', v)}>
                 <option value="">Select building use...</option>
                 {(catalogue?.settings.buildingUses.filter(u => u.code !== 'ALL').map(u => u.label) || BUILDING_USE_LABELS).map(v => <option key={v}>{v}</option>)}
