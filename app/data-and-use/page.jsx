@@ -83,8 +83,8 @@ export default function DataAndUsePage() {
         <Section title="Your control">
           <p style={body}>
             You can delete any report at any time from{' '}
-            <Link href="/reports" style={link}>My reports</Link>. To close your account and remove all your
-            data, email <a href={`mailto:${BRAND.email}`} style={link}>{BRAND.email}</a>. Full details are in
+            <Link href="/reports" style={link}>My reports</Link>. You can also delete your account there, which
+            removes all your data at once, or email <a href={`mailto:${BRAND.email}`} style={link}>{BRAND.email}</a> and we will do it for you. Full details are in
             our <Link href="/privacy" style={link}>Privacy Notice</Link>.
           </p>
         </Section>

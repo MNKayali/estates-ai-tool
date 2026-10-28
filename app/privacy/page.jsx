@@ -1,7 +1,7 @@
 /**
  * /privacy — Privacy Notice (UK GDPR / Data Protection Act 2018)
  * Operator: Projento
- * Last reviewed: 12 October 2026
+ * Last reviewed: 28 October 2026
  * Contact email: BRAND.email (lib/brand.js), the same address the report's contact card shows.
  */
 import Link from 'next/link'
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
           Privacy Notice
         </h1>
         <p style={{ ...body, color: '#666', marginBottom: '32px' }}>
-          Last reviewed: 12 October 2026 &nbsp;|&nbsp; This notice applies to everyone who uses {BRAND.name}: visitors trying it free, and account holders.
+          Last reviewed: 28 October 2026 &nbsp;|&nbsp; This notice applies to everyone who uses {BRAND.name}: visitors trying it free, and account holders.
         </p>
         <p style={{ ...body, background: '#F8F1E2', border: `1px solid ${BLUE}`, borderRadius: '4px', padding: '12px 14px', marginBottom: '32px' }}>
           {BRAND.name} is in research and development. The information you enter and the reports you create are
@@ -204,7 +204,7 @@ export default function PrivacyPage() {
           <ul style={{ paddingLeft: '20px', margin: '0 0 10px' }}>
             <li style={li}><strong>Reports in your account</strong> — kept until you delete them from “My reports”, or until your account is closed. Deletion is immediate and permanent.</li>
             <li style={li}><strong>Free-trial reports</strong> — deleted automatically 90 days after they were generated, unless you create an account or sign in on the same browser first, in which case they move into your account and are kept like any other report. Reports created before accounts were introduced are also deleted 90 days after they were generated.</li>
-            <li style={li}><strong>Account details</strong> — kept while your account exists. Contact us to close your account: the account, all its reports and every signed-in session are deleted at once.</li>
+            <li style={li}><strong>Account details</strong> — kept while your account exists. Delete your account yourself from “My reports” (or ask us to): the account, all its reports and every signed-in session are deleted at once.</li>
             <li style={li}><strong>Free-trial count</strong> — the visitor ID and its count of free reports are kept for one year; the hashed network count for 30 days.</li>
             <li style={li}><strong>Invitation and reset links</strong> — expire after 7 days and 1 hour respectively, and work only once.</li>
             <li style={li}><strong>Session cookie</strong> — expires 30 days after you sign in, or when you sign out. The free-trial cookie expires after one year.</li>
@@ -237,7 +237,7 @@ export default function PrivacyPage() {
           <p style={body}>You have the right to:</p>
           <ul style={{ paddingLeft: '20px', margin: '0 0 10px' }}>
             <li style={li}><strong>Access</strong> — ask for a copy of personal data we hold about you.</li>
-            <li style={li}><strong>Erasure</strong> — delete any of your reports yourself from “My reports”, or ask us to close your account and delete everything linked to it (account deletion is handled by us on request for now).</li>
+            <li style={li}><strong>Erasure</strong> — delete any of your reports yourself from “My reports”, or delete your account and everything linked to it from the same page (you can also ask us to do it for you).</li>
             <li style={li}><strong>Rectification</strong> — ask us to correct inaccurate data.</li>
             <li style={li}><strong>Restriction</strong> — ask us to pause processing while a query is resolved.</li>
             <li style={li}><strong>Object</strong> — object to processing based on legitimate interests, including the use of anonymised information to improve the tool.</li>
@@ -291,7 +291,7 @@ export default function PrivacyPage() {
           <a href="/terms" style={{ color: BLUE }}>Terms of Use</a>
           &nbsp;·&nbsp;
           <a href="/reports" style={{ color: BLUE }}>Return to tool</a>
-          &nbsp;·&nbsp; Last reviewed 12 October 2026
+          &nbsp;·&nbsp; Last reviewed 28 October 2026
         </p>
       </footer>
 

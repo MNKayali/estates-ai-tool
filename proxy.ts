@@ -36,7 +36,7 @@ import { getSessionUser, getTrialId, isAdminRequest } from '@/lib/auth'
 import { TRIAL_COOKIE, createTrialToken, sessionCookieOptions, TRIAL_MAX_AGE } from '@/lib/session'
 
 const ACCOUNT_PAGES = ['/reports']
-const ACCOUNT_API   = ['/api/my-reports', '/api/auth/me', '/api/auth/change-password']
+const ACCOUNT_API   = ['/api/my-reports', '/api/auth/me', '/api/auth/change-password', '/api/auth/delete-account']
 // /api/warm-prose is gated because it is expensive to call, not because it
 // returns anything secret: it makes two real Anthropic requests (and is
 // throttled globally in the route). /api/rates-check is admin only since the
@@ -142,6 +142,7 @@ export const config = {
     '/api/my-reports/:path*',
     '/api/auth/me/:path*',
     '/api/auth/change-password/:path*',
+    '/api/auth/delete-account/:path*',
     '/api/admin/:path*',
   ],
 }
