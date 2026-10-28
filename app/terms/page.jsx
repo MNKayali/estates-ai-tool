@@ -1,7 +1,7 @@
 /**
  * /terms — Terms of Use
  * Operator: Projento
- * Last reviewed: 12 October 2026
+ * Last reviewed: 28 October 2026
  * Governing law: England and Wales
  */
 import Link from 'next/link'
@@ -46,7 +46,7 @@ export default function TermsPage() {
           Terms of Use
         </h1>
         <p style={{ ...body, color: '#666', marginBottom: '32px' }}>
-          Last reviewed: 12 October 2026 &nbsp;|&nbsp; Governing law: England and Wales
+          Last reviewed: 28 October 2026 &nbsp;|&nbsp; Governing law: England and Wales
         </p>
 
         <Section title="1. About this tool">
@@ -189,7 +189,7 @@ export default function TermsPage() {
             These terms may be updated from time to time. The current version is always available at{' '}
             <code>/terms</code>, with its date at the top. We will email account holders about a significant
             change before it takes effect. Using the tool after a change takes effect means you accept it;
-            if you do not, you can stop using it and ask us to close your account.
+            if you do not, you can stop using it and delete your account from “My reports”.
           </p>
         </Section>
 
@@ -220,7 +220,7 @@ export default function TermsPage() {
           <a href="/privacy" style={{ color: BLUE }}>Privacy Notice</a>
           &nbsp;·&nbsp;
           <a href="/reports" style={{ color: BLUE }}>Return to tool</a>
-          &nbsp;·&nbsp; Last reviewed 12 October 2026
+          &nbsp;·&nbsp; Last reviewed 28 October 2026
         </p>
       </footer>
 

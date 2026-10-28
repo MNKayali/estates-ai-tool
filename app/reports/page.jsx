@@ -33,6 +33,7 @@ export default function MyReportsPage() {
   const [reports, setReports] = useState(null)
   const [error, setError]     = useState('')
   const [deleting, setDeleting] = useState(null)
+  const [accountDeleted, setAccountDeleted] = useState(false)
 
   const router = useRouter()
 
@@ -84,11 +85,24 @@ export default function MyReportsPage() {
           <Link href="/" aria-label={`${BRAND.name} home`} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <Logo variant="navy" height={24} compactBelow360 />
           </Link>
-          <span style={{ marginLeft: 'auto', fontSize: 13, color: 'var(--text-soft)' }}>{user?.name || user?.email || ''}</span>
-          <button onClick={logout} className="btn btn-ghost" style={{ padding: '6px 14px', fontSize: 13 }}>Sign out</button>
+          {!accountDeleted && <>
+            <span style={{ marginLeft: 'auto', fontSize: 13, color: 'var(--text-soft)' }}>{user?.name || user?.email || ''}</span>
+            <button onClick={logout} className="btn btn-ghost" style={{ padding: '6px 14px', fontSize: 13 }}>Sign out</button>
+          </>}
         </div>
       </header>
 
+      {accountDeleted ? (
+      <main style={{ maxWidth: 1040, margin: '0 auto', padding: '28px 24px 64px', position: 'relative' }}>
+        <Card style={{ padding: 24, maxWidth: 480 }}>
+          <h1 role="status" style={{ fontSize: 22, margin: '0 0 8px', color: 'var(--ink)' }}>Your account has been deleted</h1>
+          <p style={{ color: 'var(--text-soft)', fontSize: 14, margin: 0, lineHeight: 1.6 }}>
+            Your sign-in and reports have been removed and you are signed out.{' '}
+            <Link href="/" style={{ color: 'var(--navy)' }}>Back to the home page</Link>.
+          </p>
+        </Card>
+      </main>
+      ) : (
       <main style={{ maxWidth: 1040, margin: '0 auto', padding: '28px 24px 64px', position: 'relative' }}>
         <div className="rise rise-1" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
           <div>
@@ -109,7 +123,11 @@ export default function MyReportsPage() {
 
         <SectionHeader number="2" title="Password" />
         <ChangePassword />
+
+        <SectionHeader number="3" title="Delete account" />
+        <DeleteAccount reportCount={reports?.length ?? 0} onDeleted={() => setAccountDeleted(true)} />
       </main>
+      )}
       <SiteFooter />
     </div>
   )
@@ -203,6 +221,63 @@ function DownloadButton({ report, kind }) {
       aria-label={`Download ${report.projectName || 'Untitled'} as ${label}`}>
       {state === 'busy' ? 'Preparing…' : state === 'error' ? `${label} failed — retry` : `⬇ ${label}`}
     </button>
+  )
+}
+
+// Deletes the account and every report in it, after the password is typed
+// again (POST /api/auth/delete-account). Signs this browser out on success.
+function DeleteAccount({ reportCount, onDeleted }) {
+  const [open, setOpen]         = useState(false)
+  const [password, setPassword] = useState('')
+  const [error, setError]       = useState('')
+  const [loading, setLoading]   = useState(false)
+
+  async function submit(e) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const res = await fetch('/api/auth/delete-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) { setError(data.error || 'Your account could not be deleted.'); return }
+      onDeleted()
+    } catch {
+      setError('Network error. Your account was not deleted.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const reportsLine = reportCount === 1 ? 'your 1 report' : `all ${reportCount} of your reports`
+  return (
+    <Card style={{ padding: 24, maxWidth: 480, marginTop: 8 }}>
+      <p style={{ color: 'var(--text-soft)', fontSize: 14, margin: 0, lineHeight: 1.6 }}>
+        Deleting your account removes your sign-in, {reportCount ? reportsLine : 'your account details'} and
+        every share link at once. It cannot be undone. Download any report you want to keep first.
+      </p>
+      {!open ? (
+        <button className="btn btn-ghost" onClick={() => setOpen(true)} aria-expanded={false}
+          style={{ marginTop: 14, color: 'var(--danger)' }}>Delete my account</button>
+      ) : (
+        <form onSubmit={submit} noValidate style={{ marginTop: 14 }}>
+          <label className="label" htmlFor="da-password">Type your password to confirm</label>
+          <input id="da-password" className="field" type="password" autoComplete="current-password"
+            value={password} onChange={e => setPassword(e.target.value)} />
+          <FormError>{error}</FormError>
+          <div style={{ display: 'flex', gap: 10, marginTop: 18, flexWrap: 'wrap' }}>
+            <button type="submit" className="btn btn-primary" disabled={loading || !password}
+              style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}>
+              {loading ? 'Deleting…' : 'Permanently delete my account'}
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={() => { setOpen(false); setError(''); setPassword('') }} aria-expanded>Cancel</button>
+          </div>
+        </form>
+      )}
+    </Card>
   )
 }
 
