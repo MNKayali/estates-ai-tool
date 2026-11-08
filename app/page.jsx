@@ -8,9 +8,9 @@ import { BRAND } from '@/lib/brand'
 import { SiteNotice } from './components/SiteFooter'
 
 const INCLUDED = [
-  { k: '01', t: 'NRM1 Cost Estimate', d: 'Order-of-cost with low, mid and high ranges, built deterministically from NRM1 benchmark rates, BCIS location factor, prelims, fees, risk and inflation. No figure is ever invented.' },
-  { k: '02', t: 'RIBA Programme', d: 'Stage-by-stage design, surveys, planning and construction durations — size-banded and adjusted for complexity modifiers, with a Gantt overview.' },
-  { k: '03', t: 'Risk Register', d: 'A project-specific risk table, RAG-rated and seeded deterministically from your inputs, with mitigations written in plain English.' },
+  { k: '01', t: 'NRM1 Cost Estimate', d: 'An indicative cost estimate with low, mid and high ranges, using benchmark rates and allowances for location, preliminaries, fees, risk and inflation. Review the assumptions with your quantity surveyor.' },
+  { k: '02', t: 'RIBA Programme', d: 'An indicative programme covering design, surveys, planning and construction, adjusted for project size and complexity, with a Gantt overview.' },
+  { k: '03', t: 'Risk Register', d: 'A project-specific risk register based on your answers, with red, amber and green ratings and practical mitigation measures.' },
   { k: '04', t: 'Procurement Suggestion', d: 'A suggested procurement route, commercial model, route to market and contract, with an alternative, matched to your project\'s value, programme, risks and priorities. For guidance, to be developed with a procurement professional or QS.' },
 ]
 
@@ -48,12 +48,12 @@ export default function LandingPage() {
           <div style={{ padding: '96px 0 92px', maxWidth: 780 }}>
             <div className="rise rise-1"><Badge dark>RIBA Stage 0–1 · Feasibility</Badge></div>
             <h1 className="rise rise-2" style={{ fontSize: 'clamp(38px, 6vw, 64px)', lineHeight: 1.12, margin: '22px 0 0', color: '#fff', fontWeight: 700, fontFamily: 'var(--font-body)' }}>
-              Feasibility intelligence<br />for capital projects.
+              Scope your capital project.<br />Understand the likely cost.
             </h1>
             <div className="rise rise-2" style={{ width: 64, height: 3, background: 'var(--amber)', margin: '26px 0 0' }} />
             <p className="rise rise-3" style={{ fontSize: 18, lineHeight: 1.65, color: '#B7C3D8', maxWidth: 560, margin: '24px 0 0' }}>
-              Answer a guided questionnaire and get a complete NRM1 cost estimate, RIBA stage
-              programme and risk register — a costed, programmed Stage&nbsp;1 report in minutes, not weeks.
+              Answer a guided questionnaire to create an initial feasibility report with an indicative cost estimate,
+              programme, risk register and procurement guidance for early project decisions.
             </p>
             <div className="rise rise-4" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 36 }}>
               <Link href="/questionnaire" className="btn btn-accent" style={{ fontSize: 16, padding: '14px 26px' }}>{signedIn ? 'Start a new report ▸' : 'Try it free ▸'}</Link>
@@ -74,8 +74,8 @@ export default function LandingPage() {
       <section style={{ ...wrap(1120), marginTop: -36, position: 'relative', zIndex: 5 }}>
         <Card className="rise rise-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(180px, 100%), 1fr))', gap: 28, padding: '26px 30px', borderTop: '3px solid var(--amber)' }}>
           <Stat value="NRM1" label="Cost methodology" />
-          <Stat value="S1–S7" label="Programme size bands" />
-          <Stat value="100%" label="Figures traced to benchmark data" />
+          <Stat value="RIBA" label="Stage-by-stage programme" />
+          <Stat value="Costs" label="Based on benchmark rates" />
           <Stat value="Saved" label="Reports kept in your account" />
         </Card>
       </section>
@@ -83,7 +83,7 @@ export default function LandingPage() {
       {/* ── What's included ── */}
       <section style={{ ...wrap(1120), padding: '76px 0 24px' }}>
         <div className="eyebrow">What the report includes</div>
-        <h2 style={{ fontSize: 32, margin: '12px 0 30px', color: 'var(--ink)', fontWeight: 700 }}>Every report, four deterministic pillars</h2>
+        <h2 style={{ fontSize: 32, margin: '12px 0 30px', color: 'var(--ink)', fontWeight: 700 }}>Costs, programme, risks and procurement</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(250px, 100%), 1fr))', gap: 18 }}>
           {INCLUDED.map((c, i) => (
             <Card key={c.k} lift className={`rise rise-${(i % 4) + 1}`} style={{ padding: '26px 24px' }}>
@@ -101,7 +101,7 @@ export default function LandingPage() {
           flexWrap: 'wrap', gap: 24, alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <h2 style={{ fontSize: 30, margin: 0, color: '#fff', fontWeight: 700 }}>Ready to scope a project?</h2>
-            <p style={{ color: '#B7C3D8', margin: '10px 0 0', fontSize: 16 }}>Answer the questionnaire and get a board-ready report. Your first three are free, no account needed.</p>
+            <p style={{ color: '#B7C3D8', margin: '10px 0 0', fontSize: 16 }}>Create a starting point for your project brief and early business case. Review the assumptions and seek professional validation before relying on the report. Your first three reports are free; no account needed to start.</p>
           </div>
           <Link href="/questionnaire" className="btn btn-accent" style={{ fontSize: 16, padding: '14px 28px' }}>{signedIn ? 'Begin assessment ▸' : 'Try it free ▸'}</Link>
         </Card>
@@ -126,7 +126,7 @@ function Footer() {
       <div style={{ ...wrap(1120), padding: '26px 0', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <span className="mono" style={{ fontSize: 12, color: 'var(--text-mute)' }}>{BRAND.name.toUpperCase()} · {BRAND.tagline.toUpperCase()}</span>
         <span style={{ fontSize: 12, color: 'var(--text-mute)', maxWidth: 620, textAlign: 'right' }}>
-          Costs derived from NRM1 benchmark data — every calculation deterministic and traceable to its source.
+          Indicative costs calculated using benchmark rates and project assumptions.
           Indicative at Stage 0–1 only; always verify with a Chartered Quantity Surveyor.
         </span>
       </div>
