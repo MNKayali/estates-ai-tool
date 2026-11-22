@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { roles } from '@/lib/office/roles.mjs'
 import { Header } from '../admin/shared'
+import VoiceControls from './VoiceControls'
+import Meetings from './Meetings'
 import styles from './office.module.css'
 
 const steps = {
@@ -67,7 +69,7 @@ export default function Office() {
       const data = await response.json()
       if (!response.ok) throw new Error(data.error)
       setState(data)
-      onSuccess?.()
+      onSuccess?.(data)
     } catch (failure) {
       setError(failure.message || 'Could not complete the action.')
     } finally {
@@ -137,6 +139,7 @@ export default function Office() {
               ))}
             </ol>
           )}
+          <VoiceControls key={role} role={role} text={chat.at(-1)?.content} onTranscript={setMessage} disabled={busy || !state?.modelReady} />
           {role === 'omar' && (
             <button type="button" disabled={busy || !state?.modelReady}
               onClick={() => act('chat', { role, message: 'Give me my office briefing: what was completed, what is planned next, blockers, and decisions I need to make.' })}>
@@ -151,6 +154,7 @@ export default function Office() {
         </section>
       </div>
 
+      <Meetings state={state} act={act} busy={busy} />
       <div className={styles.workspace}>
         <section className={styles.panel} aria-labelledby="assignment-heading">
           <h2 id="assignment-heading">New assignment for Omar</h2>

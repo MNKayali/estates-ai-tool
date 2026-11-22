@@ -16,7 +16,12 @@ const SECURITY_HEADERS = [
 
 const nextConfig: NextConfig = {
   async headers() {
-    return [{ source: '/:path*', headers: SECURITY_HEADERS }]
+    return [
+      { source: '/:path*', headers: SECURITY_HEADERS },
+      { source: '/office', headers: [
+        { key: 'Permissions-Policy', value: 'camera=(), microphone=(self), geolocation=(), payment=()' },
+      ] },
+    ]
   },
   // puppeteer is a devDependency, but app/api/report-pdf imports it at runtime on
   // the non-Vercel branch. Because `process.env.VERCEL` is only known at runtime

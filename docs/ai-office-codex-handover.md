@@ -59,3 +59,13 @@ Set `OFFICE_KV_REST_API_URL` and `OFFICE_KV_REST_API_TOKEN` to a dedicated Redis
 To try the workflow, sign in as the owner, submit a short assignment, then run each stage in order. Omar assigns it to a specialist, the specialist produces a draft, and Emma reviews its current version. A quality pass advances the draft to the owner for a recorded decision. Select any desk to open a direct conversation. Omar's on-demand briefing draws from the task board and current strategy. Reporting cadence and KPI targets are open for agreement.
 
 The pilot permits one office write at a time, with a maximum of 12 model calls per UTC day, one model call per action, and no automatic paid retries. These are usage limits. Actual spend depends on the configured model's pricing. The pilot retains the latest 30 conversation turns per teammate and up to 40 assignments.
+
+## Voice and meetings
+
+The office includes optional browser speech input and speech playback. Each teammate has a locally saved voice selection. Select and preview female voices for Sarah and Emma and male voices for Omar, Daniel and Ahmed from the device's available voice list. Browser voices have no reliable gender metadata, so the owner selects the voices by listening. Browser support and installed voices vary.
+
+Use microphone captures one contribution, for up to 60 seconds. Check the transcription and send it, then use Hear reply to play the saved answer. Speech recognition may use the browser vendor's remote speech service. Audio is not stored by the office. Unsupported or denied microphone access leaves typing available. Microphone permission is enabled only for the office page.
+
+The meeting room saves a topic, selected participants and the discussion. Invite each participant to respond to the shared transcript in turn. Ended meetings remain readable. Each response uses the existing model call limit. Meetings are limited to 40 contributions and 20 saved meetings for the pilot. Meeting proposals can be entered as assignments through Omar's existing task form.
+
+Verification uses test model responses. Live microphone quality, device voice availability and live AI responses still require verification on the owner's device with an approved configured model.

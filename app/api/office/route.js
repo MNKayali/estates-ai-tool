@@ -1,3 +1,4 @@
+import { meetingAction } from '@/lib/office/meetings.mjs'
 import { isOfficeOwner } from '@/lib/office/access'
 import { buildBriefing, createAssignment, recordOwnerDecision, supplyEvidence } from '@/lib/office/assignment.mjs'
 import { companyContext, roles } from '@/lib/office/roles.mjs'
@@ -58,6 +59,9 @@ export async function POST(request) {
       return generateOfficeOutput(request)
     }
     const state = await updateOffice(store, body.revision, async (current) => {
+      if (typeof body.action === 'string' && body.action.startsWith('meeting_')) {
+        return meetingAction(current, body, generate)
+      }
       if (body.action === 'strategy') {
         return { ...current, strategy: textField(body.strategy, 'Strategy', 4000) }
       }
