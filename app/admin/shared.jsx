@@ -27,7 +27,7 @@ export function Header({ current = 'dashboard' }) {
         <Logo variant="navy" height={24} />
         <Badge>Admin</Badge>
         <nav aria-label="Admin" style={{ display: 'flex', gap: 4, marginLeft: 12 }}>
-          {[['dashboard', '/admin', 'Dashboard'], ['reports', '/admin/reports', 'All reports']].map(([key, href, label]) => (
+          {[['dashboard', '/admin', 'Dashboard'], ['reports', '/admin/reports', 'All reports'], ['office', '/office', 'AI Office']].map(([key, href, label]) => (
             <Link key={key} href={href} className="btn btn-ghost" aria-current={current === key ? 'page' : undefined}
               style={{ padding: '6px 12px', fontSize: 13, fontWeight: current === key ? 600 : 400, color: current === key ? 'var(--ink)' : 'var(--text-mid)' }}>
               {label}

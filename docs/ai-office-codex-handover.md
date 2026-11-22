@@ -52,7 +52,7 @@ A working protected pilot, on a non-production preview or safely testable local 
 
 ## Owner-only pilot setup
 
-Run this branch on a private preview or local installation. The entry point is `/office`. It uses Projento's existing account login and checks the exact active user ID on the page and on every office API request. Create a preview-only account and set `OFFICE_OWNER_UID` to that account's user ID. Use an isolated preview account store and leave `AUTH_OPEN` unset.
+Run this branch on a private preview or local installation. The entry point is `/office`. It uses Projento's existing admin login and verifies the signed admin cookie on the page and on every office API request. Set ADMIN_CODE and COOKIE_SECRET in the test environment. An unset admin code denies office access in every environment. The admin navigation includes an AI Office link.
 
 Set `OFFICE_KV_REST_API_URL` and `OFFICE_KV_REST_API_TOKEN` to a dedicated Redis REST store for office data. Set `OFFICE_AI_API_KEY` and `OFFICE_AI_MODEL` only after approving live model calls. The office sends the supplied brief, relevant evidence and conversation context to Anthropic during a model call. Use a sanitised report for the first assignment.
 

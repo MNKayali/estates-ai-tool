@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { roles } from '@/lib/office/roles.mjs'
+import { Header } from '../admin/shared'
 import styles from './office.module.css'
 
 const steps = {
@@ -84,6 +85,8 @@ export default function Office() {
   }
 
   return (
+    <>
+    <Header current="office" />
     <main className={styles.office}>
       <header className={styles.header}>
         <h1>Projento Office</h1>
@@ -226,5 +229,6 @@ export default function Office() {
         ))}
       </section>
     </main>
+    </>
   )
 }
