@@ -52,9 +52,9 @@ A working protected pilot, on a non-production preview or safely testable local 
 
 ## Owner-only pilot setup
 
-Run this branch on a private preview or local installation. The entry point is `/office`. It uses Projento's existing admin login and verifies the signed admin cookie on the page and on every office API request. Set ADMIN_CODE and COOKIE_SECRET in the test environment. An unset admin code denies office access in every environment. The admin navigation includes an AI Office link.
+The entry point is `/office`, also linked as AI Office in the admin navigation. Entry requires the signed-in account matching OFFICE_OWNER_EMAIL and a valid signed admin cookie. The owner signs in with their existing Projento email and password, then enters the existing admin code if prompted. Both credentials are checked on every office API request. This also protects the office while normal site signup has no email ownership verification.
 
-Set `OFFICE_KV_REST_API_URL` and `OFFICE_KV_REST_API_TOKEN` to a dedicated Redis REST store for office data. Set `OFFICE_AI_API_KEY` and `OFFICE_AI_MODEL` only after approving live model calls. The office sends the supplied brief, relevant evidence and conversation context to Anthropic during a model call. Use a sanitised report for the first assignment.
+The office uses the existing KV service with isolated `projento:office:v1:` keys. OFFICE_KV_REST_API_URL and OFFICE_KV_REST_API_TOKEN can override it with a separate store. The office uses the existing Anthropic key and report model by default. OFFICE_AI_API_KEY and OFFICE_AI_MODEL can override them. Each requested agent reply sends the supplied context to Anthropic and counts against the 12-call daily limit.
 
 To try the workflow, sign in as the owner, submit a short assignment, then run each stage in order. Omar assigns it to a specialist, the specialist produces a draft, and Emma reviews its current version. A quality pass advances the draft to the owner for a recorded decision. Select any desk to open a direct conversation. Omar's on-demand briefing draws from the task board and current strategy. Reporting cadence and KPI targets are open for agreement.
 
