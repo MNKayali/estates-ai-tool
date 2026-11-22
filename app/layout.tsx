@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Sans, DM_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
+import SiteAnalytics from "./components/SiteAnalytics";
 import VisitTracker from "./components/VisitTracker";
 import "./globals.css";
 import { BRAND } from "@/lib/brand";
@@ -54,7 +54,7 @@ export default function RootLayout({
     <html lang="en" className={`${playfair.variable} ${dmSans.variable} ${dmMono.variable}`}>
       <body>
         {children}
-        <Analytics />
+        <SiteAnalytics />
         <VisitTracker />
       </body>
     </html>

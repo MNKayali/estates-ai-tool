@@ -49,3 +49,13 @@ Owner requests: 'Review the quality of a sample Projento feasibility report and 
 
 ## Definition of done for Codex's first milestone
 A working protected pilot, on a non-production preview or safely testable local environment, allowing one task to flow Omar → Emma → saved review → owner review; automated checks pass; no interference with customer-facing Projento; an unmerged PR and concise handover to the owner. If integration details or required permissions are missing, implement independently testable parts and state the blocker precisely.
+
+## Owner-only pilot setup
+
+Run this branch on a private preview or local installation. The entry point is `/office`. It uses Projento's existing account login and checks the exact active user ID on the page and on every office API request. Create a preview-only account and set `OFFICE_OWNER_UID` to that account's user ID. Use an isolated preview account store and leave `AUTH_OPEN` unset.
+
+Set `OFFICE_KV_REST_API_URL` and `OFFICE_KV_REST_API_TOKEN` to a dedicated Redis REST store for office data. Set `OFFICE_AI_API_KEY` and `OFFICE_AI_MODEL` only after approving live model calls. The office sends the supplied brief, relevant evidence and conversation context to Anthropic during a model call. Use a sanitised report for the first assignment.
+
+To try the workflow, sign in as the owner, submit a short assignment, then run each stage in order. Omar assigns it to a specialist, the specialist produces a draft, and Emma reviews its current version. A quality pass advances the draft to the owner for a recorded decision. Select any desk to open a direct conversation. Omar's on-demand briefing draws from the task board and current strategy. Reporting cadence and KPI targets are open for agreement.
+
+The pilot permits one office write at a time, with a maximum of 12 model calls per UTC day, one model call per action, and no automatic paid retries. These are usage limits. Actual spend depends on the configured model's pricing. The pilot retains the latest 30 conversation turns per teammate and up to 40 assignments.
