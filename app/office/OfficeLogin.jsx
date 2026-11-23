@@ -5,5 +5,7 @@ import { AdminLogin } from '../admin/shared'
 
 export default function OfficeLogin() {
   const router = useRouter()
-  return <AdminLogin onSuccess={() => router.refresh()} />
+  return <AdminLogin title="Enter your Projento office"
+    description="Enter your existing admin code to unlock your private office."
+    buttonLabel="Enter office" onSuccess={() => router.refresh()} />
 }

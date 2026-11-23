@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { roles } from '@/lib/office/roles.mjs'
-import { Header } from '../admin/shared'
 import VoiceControls from './VoiceControls'
 import Meetings from './Meetings'
 import styles from './office.module.css'
@@ -31,6 +30,7 @@ export default function Office() {
   const [state, setState] = useState(null)
   const [role, setRole] = useState('omar')
   const [busy, setBusy] = useState(false)
+  const [workingRole, setWorkingRole] = useState(null)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [strategy, setStrategy] = useState('')
@@ -60,6 +60,10 @@ export default function Office() {
   async function act(action, fields, onSuccess) {
     setError('')
     setBusy(true)
+    const task = state.assignments.find(item => item.id === fields.id)
+    const taskRole = task?.status === 'queued' ? 'omar'
+      : task?.status === 'awaiting_quality_review' ? 'emma' : task?.delegation?.specialist
+    setWorkingRole(fields.role ?? (action === 'run' ? taskRole : null))
     try {
       const response = await fetch('/api/office', {
         method: 'POST',
@@ -74,6 +78,7 @@ export default function Office() {
       setError(failure.message || 'Could not complete the action.')
     } finally {
       setBusy(false)
+      setWorkingRole(null)
     }
   }
 
@@ -88,11 +93,21 @@ export default function Office() {
 
   return (
     <>
-    <Header current="office" />
     <main className={styles.office}>
       <header className={styles.header}>
-        <h1>Projento Office</h1>
-        <span>Owner workspace</span>
+        <div><span className={styles.brand}>PROJENTO</span><h1>Your AI office</h1></div>
+        <nav aria-label="Office">
+          <a href="#floor-heading">Team</a>
+          <a href="#meetings-title">Meetings</a>
+          <a href="#work-heading">Assignments</a>
+          <button type="button" disabled={busy} onClick={async () => {
+            try {
+              const response = await fetch('/api/logout', { method: 'POST' })
+              if (!response.ok) throw new Error('Could not sign out. Please try again.')
+              window.location.reload()
+            } catch (failure) { setError(failure.message) }
+          }}>Sign out</button>
+        </nav>
       </header>
       {error && <p className={styles.error} role="alert">{error}</p>}
       {!state && <button type="button" onClick={refresh}>Reload office</button>}
@@ -100,9 +115,10 @@ export default function Office() {
       <div className={styles.workspace}>
         <section aria-labelledby="floor-heading">
           <div className={styles.heading}>
-            <h2 id="floor-heading">Office floor</h2>
+            <h2 id="floor-heading">Meet your team</h2>
             <span>{counts.open} open · {counts.blocked} blocked · {counts.decision} for your decision</span>
           </div>
+          <p className={styles.availability}>The team works when you start a conversation or task. Choose a desk to speak with a teammate.</p>
           <div className={styles.floor}>
             {Object.entries(roles).map(([key, member]) => {
               const relevant = assignments.filter(({ status, delegation }) =>
@@ -112,10 +128,14 @@ export default function Office() {
               return (
                 <button className={styles.desk} type="button" key={key} aria-pressed={role === key}
                   disabled={busy} onClick={() => { setRole(key); setMessage('') }}>
-                  <span className={styles.avatar} aria-hidden="true">{member.name[0]}</span>
+                  <span className={styles.workstation} aria-hidden="true">
+                    <span className={styles.chair} />
+                    <span className={styles.portrait} data-person={key} />
+                    <span className={styles.table}><span className={styles.laptop} /><span className={styles.notebook} /><span className={styles.cup} /></span>
+                  </span>
                   <strong>{member.name}</strong>
                   <span>{member.title}</span>
-                  <small>{relevant.length ? `${relevant.length} awaiting action` : 'No tasks awaiting action'}</small>
+                  <small className={styles.presence} data-working={workingRole === key}>{!state ? 'Loading status…' : workingRole === key ? 'Working on your request' : relevant.length ? `${relevant.length} waiting for your instruction` : 'Ready when you need me'}</small>
                 </button>
               )
             })}
