@@ -1,12 +1,14 @@
+import { commission, gmInstruction } from '@/lib/office/commission.mjs'
 import { meetingAction } from '@/lib/office/meetings.mjs'
 import { isOfficeOwner } from '@/lib/office/access'
-import { buildBriefing, createAssignment, recordOwnerDecision, supplyEvidence } from '@/lib/office/assignment.mjs'
-import { companyContext, roles } from '@/lib/office/roles.mjs'
-import { runStage } from '@/lib/office/run-stage.mjs'
+import { createAssignment, recordOwnerDecision, supplyEvidence } from '@/lib/office/assignment.mjs'
+import { companyContext, roles, sharedWork } from '@/lib/office/roles.mjs'
+import { after } from 'next/server'
+import { manageAssignment, needsManagement } from '@/lib/office/manage.mjs'
 import { generateOfficeOutput, officeProviderConfigured } from '@/lib/office/provider.mjs'
 import { OfficeError, officeStore, readOffice, reserveOfficeCall, updateOffice } from '@/lib/office/store.mjs'
 
-export const maxDuration = 40
+export const maxDuration = 300
 const at = () => new Date().toISOString()
 const reply = (data, status = 200) => Response.json(data, {
   status, headers: { 'Cache-Control': 'private, no-store' },
@@ -59,6 +61,18 @@ export async function POST(request) {
       await reserveOfficeCall(store)
       return generateOfficeOutput(request)
     }
+    function schedule(state) {
+      if (!officeProviderConfigured()) return
+      const pending = state.assignments.filter(needsManagement).slice(0, 3)
+      if (pending.length) after(async () => {
+        await Promise.all(pending.map(task => manageAssignment(store, task.id, generate)))
+      })
+    }
+    if (body.action === 'resume') {
+      const saved = await readOffice(store)
+      schedule(saved)
+      return reply({ ...saved, modelReady: officeProviderConfigured() })
+    }
     const state = await updateOffice(store, body.revision, async (current) => {
       if (typeof body.action === 'string' && body.action.startsWith('meeting_')) {
         return meetingAction(current, body, generate)
@@ -77,42 +91,38 @@ export async function POST(request) {
         if (!Object.hasOwn(roles, body.role)) throw new OfficeError('Select a teammate.', 400)
         const message = textField(body.message, 'Message', 4000)
         const conversation = current.chats[body.role] ?? []
-        const briefing = body.role === 'omar' ? Object.fromEntries(Object.entries(buildBriefing(current.assignments, {
-          since: new Date(Date.now() - 86400000).toISOString(), strategy: current.strategy,
-        })).map(([key, value]) => [key, Array.isArray(value) ? value.slice(0, 6).map(({ brief, status, delegation, history }) => ({
-          brief: brief.slice(0, 500), status, owner: delegation?.specialist,
-          latestNote: (history.at(-1)?.note ?? history.at(-1)?.reasons ?? '').slice(0, 500),
-        })) : value])) : undefined
-        const assignments = current.assignments
-          .filter(task => task.delegation?.specialist === body.role
-            || (body.role === 'emma' && task.status === 'awaiting_quality_review'))
-          .slice(0, 6)
-          .map(task => ({
-            brief: task.brief.slice(0, 500), status: task.status,
-            instructions: task.delegation?.instructions?.slice(0, 500),
-            criteria: task.delegation?.criteria?.slice(0, 350),
-          }))
+        const assignments = sharedWork(current)
+        const canCommission = body.role === 'omar' && !body.briefingOnly
         const output = await generate({
           companyContext, job: roles[body.role],
-          instruction: 'Answer as the named teammate in clear British English. Speak naturally to Nabil, as a colleague. Start with the answer. Skip greetings, recaps and generic offers of help. For several points give one short line per point in the same order. For an office briefing cover today’s priority, blockers and decisions using the supplied records, including when there is nothing awaiting him. In a follow-up use the previous exchange. Usually use fewer than 75 words unless he asks for detail. For requests relating to your work, explain the next step you can take and ask a focused question only if needed. Use the supplied records and distinguish what you know from a proposal. A chat cannot create, change or complete assignments. Never invent or calculate project figures. Return content and a spokenSummary with the main takeaway and any decision in one or two short, complete sentences.',
+          instruction: 'Answer as the named teammate in clear British English. Speak naturally to Nabil, as a colleague. Start with the answer. Skip greetings, recaps and generic offers of help. For several points give one short line per point in the same order. For an office briefing cover today’s priority, blockers and decisions using the supplied records, including when there is nothing awaiting him. In a follow-up use the previous exchange. Usually use fewer than 75 words unless he asks for detail. For requests relating to your work, explain the next step you can take and ask a focused question only if needed. Use the supplied records and distinguish what you know from a proposal. Do not claim work happened without a recorded handover. Never invent or calculate project figures. Return content and a spokenSummary with the main takeaway and any decision in one or two short, complete sentences.' + (canCommission
+            ? ' ' + gmInstruction
+            : ' This exchange is advisory. Use shared records for your answer.'),
           input: {
-            message, briefing, assignments, strategy: current.strategy,
+            message, assignments, strategy: current.strategy,
             conversation: conversation.slice(-4).map(turn => ({
-              message: turn.message.slice(0, 1500), content: turn.content.slice(0, 2500),
+              message: turn.message.slice(0, 900), content: turn.content.slice(0, 1400),
             })),
           },
         })
         const content = textField(output.content, 'Agent response', 10000)
-        return { ...current, chats: { ...current.chats, [body.role]: [...conversation, { message, content, spokenSummary: typeof output.spokenSummary === 'string' ? output.spokenSummary.trim().slice(0, 650) : undefined, at: at() }].slice(-30) } }
+        const work = canCommission ? commission(current.assignments, output.assignmentBrief, message, at()) : current.assignments
+        const turn = {
+          message, content, at: at(),
+          assignmentId: work === current.assignments ? undefined : work[0].id,
+          spokenSummary: typeof output.spokenSummary === 'string' ? output.spokenSummary.trim().slice(0, 650) : undefined,
+        }
+        return { ...current, assignments: work, chats: { ...current.chats, [body.role]: [...conversation, turn].slice(-30) } }
       }
 
       const task = current.assignments.find(({ id }) => id === body.id)
       if (!task) throw new OfficeError('Assignment unavailable.', 404)
       let updated
-      if (body.action === 'run' && ['queued', 'assigned', 'revision_requested', 'awaiting_quality_review'].includes(task.status)) {
-        if (task.history.length >= 25) throw new OfficeError('This assignment has reached the pilot revision limit.', 409)
-        updated = await runStage(task, { generate, strategy: current.strategy })
-      } else if (body.action === 'unblock' && task.status === 'blocked') {
+      if (body.action === 'retry' && task.pause) {
+        updated = { ...task, pause: null }
+      } else if (body.action === 'run' && needsManagement(task)) {
+        updated = task
+      } else if (body.action === 'unblock' && ['blocked', 'quality_blocked'].includes(task.status)) {
         const evidence = textField(body.evidence, 'Evidence', 12000)
         if (task.evidence.length + evidence.length + (task.evidence ? 2 : 0) > 12000) {
           throw new OfficeError('Combined evidence must fit within 12,000 characters.', 400)
@@ -125,6 +135,7 @@ export async function POST(request) {
       }
       return { ...current, assignments: current.assignments.map((assignment) => assignment.id === task.id ? updated : assignment) }
     })
+    schedule(state)
     return reply({ ...state, modelReady: officeProviderConfigured() })
   } catch (error) {
     return failure(error)

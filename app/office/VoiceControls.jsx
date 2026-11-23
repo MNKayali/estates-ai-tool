@@ -44,9 +44,22 @@ export default function VoiceControls({ role, text, draft, onTranscript, onSend,
   const playback = useRef(null)
   const speechTimer = useRef(null)
 
+  const neural = useRef(null)
+  const player = useRef(null)
+  function stopNeural() {
+    neural.current?.terminate()
+    neural.current = null
+    if (player.current) {
+      player.current.pause()
+      URL.revokeObjectURL(player.current.src)
+      player.current = null
+    }
+  }
+
   useEffect(() => () => {
     clearTimeout(listenTimer.current)
     clearTimeout(speechTimer.current)
+    stopNeural()
     if (playback.current) {
       playback.current = null
       window.speechSynthesis?.cancel()
@@ -59,6 +72,7 @@ export default function VoiceControls({ role, text, draft, onTranscript, onSend,
   }, [])
 
   function stopSpeech() {
+    stopNeural()
     clearTimeout(speechTimer.current)
     playback.current = null
     window.speechSynthesis?.cancel()
@@ -138,6 +152,48 @@ export default function VoiceControls({ role, text, draft, onTranscript, onSend,
     try { recorder.start() } catch { finish('The microphone could not start. Try again or type your message.') }
   }
 
+  function speakAsOmar(sample = false) {
+    clearTimeout(speechTimer.current)
+    const audio = new Audio()
+    const events = new AbortController()
+    player.current = audio
+    setSpeaking(true)
+    function end(message, keepVoice = false) {
+      events.abort()
+      if (player.current !== audio) return
+      clearTimeout(speechTimer.current)
+      if (keepVoice) {
+        URL.revokeObjectURL(audio.src)
+        player.current = null
+      } else stopNeural()
+      setSpeaking(false)
+      setStatus(message)
+    }
+    function play(url) {
+      if (player.current !== audio) return
+      clearTimeout(speechTimer.current)
+      audio.src = url
+      audio.onended = () => end('Finished speaking.', true)
+      audio.onerror = () => end('Playback stopped. The written reply is available.')
+      void audio.play().then(() => setStatus('Omar is speaking…'), () => end('Playback could not start. Try again.'))
+    }
+    if (sample || !text) { play('/office/omar-voice.mp3'); return }
+    setStatus('Preparing Omar’s voice on your device. The first use downloads the voice.')
+    try {
+      const worker = neural.current ?? new Worker(new URL('./omar-voice.worker.js', import.meta.url))
+      neural.current = worker
+      worker.addEventListener('message', ({ data }) => {
+        if (player.current !== audio) return
+        if (data.recording) play(URL.createObjectURL(data.recording))
+        else if (data.error) end('The voice could not load. Your written reply is ready.')
+        else setStatus(data.progress < 100 ? 'Downloading Omar’s voice · ' + data.progress + '%' : 'Preparing the spoken reply…')
+      }, { signal: events.signal })
+      worker.addEventListener('error', () => end('Omar’s voice could not start on this device. Your written reply is ready.'), { signal: events.signal })
+      speechTimer.current = setTimeout(() => end('The voice took too long to load. You can try again.'), 120000)
+      worker.postMessage(text.slice(0, 1200))
+    } catch { end('Omar’s voice could not start. Your written reply is ready.') }
+  }
+
   function speak() {
     const synth = window.speechSynthesis
     if (!synth || !window.SpeechSynthesisUtterance) {
@@ -199,7 +255,8 @@ export default function VoiceControls({ role, text, draft, onTranscript, onSend,
         : <button type="button" onClick={listen} disabled={disabled}>Speak</button>}
       {speaking
         ? <button type="button" onClick={() => { stopSpeech(); setStatus('Playback stopped.') }}>Stop speaking</button>
-        : <button type="button" onClick={speak} disabled={listening}>{text ? 'Hear summary' : `Hear ${roles[role].name}’s voice`}</button>}
+        : <button type="button" onClick={role === 'omar' ? () => speakAsOmar() : speak} disabled={listening}>{text ? 'Hear summary' : `Hear ${roles[role].name}’s voice`}</button>}
+      {role === 'omar' && text && !speaking && !listening && <button type="button" onClick={() => speakAsOmar(true)}>Preview voice</button>}
       {status && <p role="status">{status}</p>}
       {heard && <p>{heard}</p>}
       <small>Your browser handles voice input.</small>

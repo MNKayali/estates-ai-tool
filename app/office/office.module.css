@@ -145,3 +145,8 @@
 
 .office > .error { position: sticky; top: .5rem; z-index: 5; border: 1px solid #eab8b0; border-radius: .5rem; }
 .office fieldset label:has(input[type='checkbox']) { display: inline-flex; align-items: center; gap: .35rem; margin-right: .85rem; }
+
+.header nav button[aria-pressed='false'] { background: transparent; color: #225643; border: 1px solid #a7b8ad; }
+.office > .panel { margin-bottom: .75rem; }
+.office > details > summary { cursor: pointer; font-weight: 600; }
+.office > section[aria-labelledby='chat-heading'] { max-width: 55rem; }

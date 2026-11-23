@@ -1,0 +1,5 @@
+Omar's synthetic voice uses the Piper northern English male medium model.
+Model and training credits: https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_GB/northern_english_male/medium/MODEL_CARD
+Training recordings: Google UK and Ireland English Dialect Speech Data, OpenSLR 83, https://www.openslr.org/83/
+The preview is new speech generated from the model and encoded as MP3.
+Voice sample licence: Creative Commons Attribution-ShareAlike 4.0 International, https://creativecommons.org/licenses/by-sa/4.0/

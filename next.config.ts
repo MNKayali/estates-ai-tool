@@ -15,6 +15,10 @@ const SECURITY_HEADERS = [
 ]
 
 const nextConfig: NextConfig = {
+  // Piper also ships a Node file loader. Its browser worker only fetches assets.
+  turbopack: {
+    resolveAlias: { fs: { browser: 'next/dist/compiled/server-only/empty.js' } },
+  },
   async headers() {
     return [
       { source: '/:path*', headers: SECURITY_HEADERS },
