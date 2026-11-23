@@ -14,7 +14,8 @@ const reply = (data, status = 200) => Response.json(data, {
 
 function failure(error) {
   if (error instanceof OfficeError) return reply({ error: error.message }, error.status)
-  return reply({ error: 'The office could not complete this action. Refresh before retrying.' }, 503)
+  console.error('[office-action]', { failure: error?.name ?? 'UnknownError' })
+  return reply({ error: 'The office could not save or complete this action. Your earlier work is saved. Please refresh before retrying.' }, 503)
 }
 
 export async function GET(request) {
