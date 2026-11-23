@@ -94,7 +94,7 @@ export async function POST(request) {
           }))
         const output = await generate({
           companyContext, job: roles[body.role],
-          instruction: 'Answer as the named teammate in clear British English. Address the owner’s question first. Keep simple answers brief. For requests relating to your work, explain the next step you can take and ask a focused question only if needed. Use the supplied records and distinguish what you know from a proposal. A chat cannot create, change or complete assignments. Never invent project figures. Return content.',
+          instruction: 'Answer as the named teammate in clear British English. Speak naturally to Nabil, as a colleague. Start with the answer. Skip greetings, recaps and generic offers of help. For several points give one short line per point in the same order. For an office briefing cover today’s priority, blockers and decisions using the supplied records, including when there is nothing awaiting him. In a follow-up use the previous exchange. Usually use fewer than 75 words unless he asks for detail. For requests relating to your work, explain the next step you can take and ask a focused question only if needed. Use the supplied records and distinguish what you know from a proposal. A chat cannot create, change or complete assignments. Never invent or calculate project figures. Return content and a spokenSummary with the main takeaway and any decision in one or two short, complete sentences.',
           input: {
             message, briefing, assignments, strategy: current.strategy,
             conversation: conversation.slice(-4).map(turn => ({
@@ -103,7 +103,7 @@ export async function POST(request) {
           },
         })
         const content = textField(output.content, 'Agent response', 10000)
-        return { ...current, chats: { ...current.chats, [body.role]: [...conversation, { message, content, at: at() }].slice(-30) } }
+        return { ...current, chats: { ...current.chats, [body.role]: [...conversation, { message, content, spokenSummary: typeof output.spokenSummary === 'string' ? output.spokenSummary.trim().slice(0, 650) : undefined, at: at() }].slice(-30) } }
       }
 
       const task = current.assignments.find(({ id }) => id === body.id)

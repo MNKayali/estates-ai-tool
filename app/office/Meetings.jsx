@@ -13,7 +13,14 @@ export default function Meetings({ state, act, busy, workingRole }) {
   const meetings = state?.meetings ?? []
   const meeting = meetings.find(item => item.id === selectedId) ?? meetings.at(-1)
   const activeSpeaker = meeting?.participants.includes(speaker) ? speaker : meeting?.participants[0] ?? 'omar'
-  const lastReply = meeting?.turns.filter(turn => turn.role === activeSpeaker).at(-1)?.content
+  const lastReply = meeting?.turns.filter(turn => turn.role === activeSpeaker).at(-1)
+
+  function ask(words) {
+    if (!words.trim()) return
+    void act('meeting_ask', { id: meeting.id, role: activeSpeaker, message: words }, () => {
+      setMessage(current => current === words ? '' : current)
+    })
+  }
 
   return (
     <section aria-labelledby="meetings-title">
@@ -53,19 +60,13 @@ export default function Meetings({ state, act, busy, workingRole }) {
         <select id="meeting-speaker" value={activeSpeaker} disabled={busy} onChange={event => setSpeaker(event.target.value)}>
           {meeting.participants.map(key => <option value={key} key={key}>{roles[key].name}</option>)}
         </select>
-        <VoiceControls key={meeting.id + activeSpeaker} role={activeSpeaker} text={lastReply}
-          onTranscript={value => {
-            setMessage(value)
-            document.getElementById('meeting-message')?.focus()
-          }} disabled={busy || meeting.status !== 'open'} />
+        <VoiceControls key={meeting.id + activeSpeaker} role={activeSpeaker} text={lastReply?.spokenSummary || lastReply?.content}
+          draft={message} onTranscript={setMessage} onSend={ask} disabled={busy || !state?.modelReady || meeting.status !== 'open'} />
         {meeting.status === 'open' && <>
-          <form onSubmit={event => {
-            event.preventDefault()
-            void act('meeting_message', { id: meeting.id, message }, () => setMessage(''))
-          }}>
+          <form onSubmit={event => { event.preventDefault(); ask(message) }}>
             <label htmlFor="meeting-message">Your contribution</label>
             <textarea id="meeting-message" value={message} onChange={event => setMessage(event.target.value)} maxLength={4000} required />
-            <button disabled={busy}>Send to the meeting</button>
+            <button disabled={busy || !state.modelReady || !message.trim()}>Ask {roles[activeSpeaker].name}</button>
           </form>
           {workingRole && <p role="status">{roles[workingRole].name} is working…</p>}
           <button type="button" disabled={busy || !state.modelReady}

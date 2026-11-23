@@ -4,27 +4,40 @@ import { useEffect, useRef, useState } from 'react'
 import { roles } from '@/lib/office/roles.mjs'
 
 const profiles = {
-  omar: { names: ['daniel', 'ryan', 'george', 'uk english male', 'british english male'], pitch: .88, rate: .92 },
-  sarah: { names: ['sonia', 'kate', 'hazel', 'uk english female', 'british english female'], pitch: 1.1, rate: 1 },
-  daniel: { names: ['ryan', 'thomas', 'guy', 'daniel', 'uk english male', 'british english male'], pitch: 1.05, rate: .98 },
-  ahmed: { names: ['george', 'oli', 'ryan', 'daniel', 'uk english male', 'british english male'], pitch: .8, rate: .94 },
-  emma: { names: ['serena', 'libby', 'susan', 'sonia', 'uk english female', 'british english female'], pitch: .96, rate: .89 },
+  omar: { names: ['ryan', 'daniel', 'george', 'uk english male', 'british english male'] },
+  sarah: { names: ['sonia', 'kate', 'hazel', 'uk english female', 'british english female'] },
+  daniel: { names: ['daniel', 'thomas', 'guy', 'ryan', 'uk english male', 'british english male'] },
+  ahmed: { names: ['george', 'oli', 'ryan', 'daniel', 'uk english male', 'british english male'] },
+  emma: { names: ['serena', 'libby', 'susan', 'sonia', 'uk english female', 'british english female'] },
 }
 
 function findVoice(voices, profile) {
   const english = voices.filter(voice => /^en(?:[-_]|$)/i.test(voice.lang))
-  for (const name of profile.names) {
-    const match = english.find(voice => voice.name.toLowerCase().includes(name))
-    if (match) return match
-  }
-  return english.find(voice => voice.lang === 'en-GB')
+  const matched = english.filter(voice => profile.names.some(name => voice.name.toLowerCase().includes(name)))
+  const quality = voice => /natural|neural|premium|enhanced/i.test(voice.name)
+  const preferred = profile.names.slice(0, 2).flatMap(name => matched.filter(voice => voice.name.toLowerCase().includes(name)))
+  return preferred.find(quality)
+    ?? preferred.find(voice => voice.localService === false)
+    ?? (preferred.length && profile !== profiles.omar ? preferred[0] : undefined)
+    ?? matched.find(quality)
+    ?? matched.find(voice => /google/i.test(voice.name))
+    ?? profile.names.map(name => matched.find(voice => voice.name.toLowerCase().includes(name))).find(Boolean)
+    ?? english.find(voice => voice.lang === 'en-GB' && quality(voice))
+    ?? english.find(voice => voice.lang === 'en-GB')
     ?? english.find(voice => voice.default)
     ?? english[0]
 }
 
-export default function VoiceControls({ role, text, onTranscript, disabled }) {
+export default function VoiceControls({ role, text, draft, onTranscript, onSend, disabled }) {
   const [status, setStatus] = useState('')
-  const [listening, setListening] = useState(false)
+  const [phase, setPhase] = useState('idle')
+  const [heard, setHeard] = useState('')
+  const listening = phase !== 'idle'
+  const current = useRef({ draft, onTranscript, onSend, disabled })
+  useEffect(() => {
+    current.current = { draft, onTranscript, onSend, disabled }
+  }, [draft, onTranscript, onSend, disabled])
+  useEffect(() => { window.speechSynthesis?.getVoices() }, [])
   const [speaking, setSpeaking] = useState(false)
   const recognition = useRef(null)
   const listenTimer = useRef(null)
@@ -39,11 +52,9 @@ export default function VoiceControls({ role, text, onTranscript, disabled }) {
       window.speechSynthesis?.cancel()
     }
     if (recognition.current) {
-      recognition.current.onresult = null
-      recognition.current.onerror = null
-      recognition.current.onend = null
-      recognition.current.abort()
+      const recorder = recognition.current
       recognition.current = null
+      recorder.abort()
     }
   }, [])
 
@@ -65,43 +76,66 @@ export default function VoiceControls({ role, text, onTranscript, disabled }) {
     const recorder = new Recognition()
     recognition.current = recorder
     recorder.lang = 'en-GB'
-    let heardWords = false
-    recorder.onresult = event => {
-      const transcript = Array.from(event.results).map(result => result[0].transcript).join(' ').trim()
-      if (!transcript) return
-      heardWords = true
-      onTranscript(transcript.slice(0, 4000))
-      setStatus('Check your words, then send your message.')
-    }
-    recorder.onerror = event => {
-      heardWords = true
-      setStatus(['not-allowed', 'service-not-allowed'].includes(event.error)
-        ? 'Microphone permission was denied. You can type your message.'
-        : 'Could not hear that. Try again or type your message.')
-    }
-    recorder.onend = () => {
+    recorder.continuous = true
+    recorder.interimResults = true
+    let words = ''
+    let sendRequested = false
+
+    function finish(problem = '') {
+      if (recognition.current !== recorder) return
       clearTimeout(listenTimer.current)
       recognition.current = null
-      setListening(false)
-      if (!heardWords) setStatus('No speech was heard. Try again or type your message.')
+      setPhase('idle')
+      setHeard('')
+      const latest = current.current
+      const message = [latest.draft.trim(), words.trim()].filter(Boolean).join(' ')
+      if (words) latest.onTranscript(message)
+      if (message.length > 4000) {
+        setStatus('Please shorten your words before sending.')
+      } else if (words && sendRequested && !problem && !latest.disabled) {
+        setStatus('')
+        latest.onSend(message)
+      } else {
+        setStatus(problem || (words ? 'Your words are in the message box. You can edit or send them.' : 'No words came through. Try again or type your message.'))
+      }
     }
-    try {
-      recorder.start()
+
+    function timeoutAfter(ms, message) {
+      clearTimeout(listenTimer.current)
       listenTimer.current = setTimeout(() => {
-        recorder.onend = null
-        recorder.onresult = null
-        recorder.onerror = null
+        finish(message)
         recorder.abort()
-        recognition.current = null
-        setListening(false)
-        setStatus('The microphone timed out. Try again or type your message.')
-      }, 45000)
-      setListening(true)
-      setStatus('Listening…')
-    } catch {
-      recognition.current = null
-      setStatus('The microphone could not start. Try again or type your message.')
+      }, ms)
     }
+
+    recorder.onstart = () => {
+      if (recognition.current !== recorder) return
+      setPhase('listening')
+      setStatus('Listening. Speak now.')
+      timeoutAfter(90000, 'The microphone stopped. Check your message before sending.')
+    }
+    recorder.onresult = event => {
+      if (recognition.current !== recorder) return
+      words = Array.from(event.results).map(result => result[0].transcript.trim()).filter(Boolean).join(' ')
+      setHeard(words)
+    }
+    recorder.onerror = event => finish(['not-allowed', 'service-not-allowed'].includes(event.error)
+      ? 'Allow microphone access in your browser, or type your message.'
+      : 'The microphone stopped. You can type or try again.')
+    recorder.onend = () => finish()
+    recorder.finishAndSend = () => {
+      if (sendRequested) return
+      sendRequested = true
+      setPhase('finishing')
+      setStatus('Finishing your message…')
+      timeoutAfter(4500, 'Check your words in the message box and press Send.')
+      try { recorder.stop() } catch { finish('Check your message before sending.') }
+    }
+    setPhase('starting')
+    setHeard('')
+    setStatus('Starting microphone…')
+    timeoutAfter(10000, 'The microphone did not start. Check microphone access or type your message.')
+    try { recorder.start() } catch { finish('The microphone could not start. Try again or type your message.') }
   }
 
   function speak() {
@@ -113,9 +147,10 @@ export default function VoiceControls({ role, text, onTranscript, disabled }) {
     stopSpeech()
     const profile = profiles[role]
     const voice = findVoice(synth.getVoices(), profile)
-    const words = (text || `Hello, I’m ${roles[role].name}. What would you like to discuss?`)
-      .replace(/[*#_`]/g, '').replace(/\s+/g, ' ').trim()
-      .match(/.{1,150}(?:\s|$)|.{1,150}/g) ?? []
+    const sentences = (text || `Hello, I’m ${roles[role].name}. What would you like to discuss?`)
+      .replace(/[*#_`]/g, '').trim()
+      .match(/[^.!?\n]+[.!?]*|[.!?]+/g) ?? []
+    const words = sentences.flatMap(sentence => sentence.match(/.{1,200}(?:\s|$)|.{1,200}/g) ?? [])
     const request = {}
     playback.current = request
     function finish(message) {
@@ -134,8 +169,8 @@ export default function VoiceControls({ role, text, onTranscript, disabled }) {
       const utterance = new SpeechSynthesisUtterance(words[index].trim())
       if (voice) utterance.voice = voice
       utterance.lang = voice?.lang ?? 'en-GB'
-      utterance.pitch = profile.pitch
-      utterance.rate = profile.rate
+      utterance.pitch = 1
+      utterance.rate = 1
       utterance.onend = () => {
         if (playback.current !== request) return
         clearTimeout(speechTimer.current)
@@ -156,15 +191,18 @@ export default function VoiceControls({ role, text, onTranscript, disabled }) {
 
   return (
     <fieldset>
-      <legend>Voice conversation</legend>
+      <legend>Voice</legend>
       {listening
-        ? <button type="button" onClick={() => { recognition.current?.stop(); setStatus('Processing your words…') }}>Finish speaking</button>
-        : <button type="button" onClick={listen} disabled={disabled}>Use microphone</button>}
+        ? <button type="button" disabled={phase !== 'listening' || disabled} onClick={() => recognition.current?.finishAndSend()}>
+          {phase === 'starting' ? 'Starting microphone…' : phase === 'finishing' ? 'Finishing…' : 'Finish and send'}
+        </button>
+        : <button type="button" onClick={listen} disabled={disabled}>Speak</button>}
       {speaking
         ? <button type="button" onClick={() => { stopSpeech(); setStatus('Playback stopped.') }}>Stop speaking</button>
-        : <button type="button" onClick={speak} disabled={listening}>{text ? 'Hear reply' : `Hear ${roles[role].name}’s voice`}</button>}
-      <p>Voice input uses your browser’s speech service. Only the message you send is saved in the office.</p>
-      <p role="status">{status}</p>
+        : <button type="button" onClick={speak} disabled={listening}>{text ? 'Hear summary' : `Hear ${roles[role].name}’s voice`}</button>}
+      {status && <p role="status">{status}</p>}
+      {heard && <p>{heard}</p>}
+      <small>Your browser handles voice input.</small>
     </fieldset>
   )
 }

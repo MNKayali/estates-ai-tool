@@ -103,6 +103,13 @@ export default function Office() {
   const teamMember = roles[role]
   const assignments = state?.assignments ?? []
   const chat = state?.chats[role] ?? []
+  const latest = chat.at(-1)
+  function sendMessage(words) {
+    if (!words.trim()) return
+    void act('chat', { role, message: words }, () => {
+      setDrafts(previous => previous[role] === words ? { ...previous, [role]: '' } : previous)
+    })
+  }
   const counts = {
     open: assignments.filter(({ status }) => status !== 'completed').length,
     blocked: assignments.filter(({ status }) => ['blocked', 'quality_blocked'].includes(status)).length,
@@ -173,33 +180,31 @@ export default function Office() {
           {busy && <p role="status">{workingRole
             ? `${roles[workingRole].name} is working. You can still view other desks.`
             : 'Saving your changes…'}</p>}
-          {chat.length > 0 && (
-            <ol className={styles.chat} aria-label={`Conversation with ${teamMember.name}`}>
-              {chat.map((turn, index) => (
-                <li key={index}>
-                  <p><strong>You</strong> {turn.message}</p>
-                  <p><strong>{teamMember.name}</strong> {turn.content}</p>
-                </li>
-              ))}
-            </ol>
-          )}
-          <VoiceControls key={role} role={role} text={chat.at(-1)?.content} onTranscript={value => {
-            setMessage(value)
-            document.getElementById('office-message')?.focus()
-          }} disabled={busy || !state?.modelReady} />
-          {role === 'omar' && (
-            <button type="button" disabled={busy || !state?.modelReady}
-              onClick={() => act('chat', { role, message: 'Give me my office briefing: what was completed, what is planned next, blockers, and decisions I need to make.' })}>
-              Get a briefing
-            </button>
-          )}
-          <form onSubmit={(event) => { event.preventDefault(); void act('chat', { role, message }, () => {
-              setDrafts(previous => previous[role] === message ? { ...previous, [role]: '' } : previous)
-            }) }}>
+          {role === 'omar' && <button type="button" disabled={busy || !state?.modelReady}
+            onClick={() => act('chat', { role, message: 'Give me my office briefing. What matters today? What is held up? What needs my decision?' })}>
+            Quick briefing
+          </button>}
+          {latest && <div className={styles.content} aria-live="polite">
+            <p><strong>{teamMember.name}</strong></p>
+            <p>{latest.content}</p>
+          </div>}
+          <form onSubmit={event => { event.preventDefault(); sendMessage(message) }}>
             <label htmlFor="office-message">Message for {teamMember.name}</label>
-            <textarea id="office-message" value={message} maxLength={4000} onChange={(event) => setMessage(event.target.value)} required />
-            <button type="submit" disabled={busy || !state?.modelReady}>{workingRole === role ? `${teamMember.name} is working…` : 'Send message'}</button>
+            <textarea id="office-message" value={message} maxLength={4000} onChange={event => setMessage(event.target.value)}
+              placeholder="What would you like to cover?" required />
+            <button type="submit" disabled={busy || !state?.modelReady || !message.trim()}>Send message</button>
           </form>
+          <VoiceControls key={role} role={role} text={latest?.spokenSummary || latest?.content}
+            draft={message} onTranscript={setMessage} onSend={sendMessage} disabled={busy || !state?.modelReady} />
+          {chat.length > 0 && <details key={role + '-history'}>
+            <summary>Conversation history</summary>
+            <ol className={styles.chat} aria-label={`Conversation with ${teamMember.name}`}>
+              {chat.map((turn, index) => <li key={index}>
+                <p><strong>You</strong> {turn.message}</p>
+                <p className={styles.content}><strong>{teamMember.name}</strong> {turn.content}</p>
+              </li>)}
+            </ol>
+          </details>}
         </section>
       </div>
 
