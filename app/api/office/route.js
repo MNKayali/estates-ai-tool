@@ -77,16 +77,30 @@ export async function POST(request) {
         if (!Object.hasOwn(roles, body.role)) throw new OfficeError('Select a teammate.', 400)
         const message = textField(body.message, 'Message', 4000)
         const conversation = current.chats[body.role] ?? []
-        const summary = body.role === 'omar' ? Object.fromEntries(Object.entries(buildBriefing(current.assignments, {
+        const briefing = body.role === 'omar' ? Object.fromEntries(Object.entries(buildBriefing(current.assignments, {
           since: new Date(Date.now() - 86400000).toISOString(), strategy: current.strategy,
         })).map(([key, value]) => [key, Array.isArray(value) ? value.slice(0, 6).map(({ brief, status, delegation, history }) => ({
           brief: brief.slice(0, 500), status, owner: delegation?.specialist,
           latestNote: (history.at(-1)?.note ?? history.at(-1)?.reasons ?? '').slice(0, 500),
         })) : value])) : undefined
+        const assignments = current.assignments
+          .filter(task => task.delegation?.specialist === body.role
+            || (body.role === 'emma' && task.status === 'awaiting_quality_review'))
+          .slice(0, 6)
+          .map(task => ({
+            brief: task.brief.slice(0, 500), status: task.status,
+            instructions: task.delegation?.instructions?.slice(0, 500),
+            criteria: task.delegation?.criteria?.slice(0, 350),
+          }))
         const output = await generate({
           companyContext, job: roles[body.role],
-          instruction: 'Answer the owner directly. Return an object with content. Explain evidence gaps and use only the supplied record for claims about office activity. A conversation does not change assignment records.',
-          input: { message, summary, conversation: conversation.slice(-4) },
+          instruction: 'Answer as the named teammate in clear British English. Address the owner’s question first. Keep simple answers brief. For requests relating to your work, explain the next step you can take and ask a focused question only if needed. Use the supplied records and distinguish what you know from a proposal. A chat cannot create, change or complete assignments. Never invent project figures. Return content.',
+          input: {
+            message, briefing, assignments, strategy: current.strategy,
+            conversation: conversation.slice(-4).map(turn => ({
+              message: turn.message.slice(0, 1500), content: turn.content.slice(0, 2500),
+            })),
+          },
         })
         const content = textField(output.content, 'Agent response', 10000)
         return { ...current, chats: { ...current.chats, [body.role]: [...conversation, { message, content, at: at() }].slice(-30) } }

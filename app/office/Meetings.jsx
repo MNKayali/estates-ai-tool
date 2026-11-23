@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { roles } from '@/lib/office/roles.mjs'
 import VoiceControls from './VoiceControls'
 
-export default function Meetings({ state, act, busy }) {
+export default function Meetings({ state, act, busy, workingRole }) {
   const [topic, setTopic] = useState('')
   const [participants, setParticipants] = useState(['omar', 'emma'])
   const [selectedId, setSelectedId] = useState('')
@@ -54,7 +54,10 @@ export default function Meetings({ state, act, busy }) {
           {meeting.participants.map(key => <option value={key} key={key}>{roles[key].name}</option>)}
         </select>
         <VoiceControls key={meeting.id + activeSpeaker} role={activeSpeaker} text={lastReply}
-          onTranscript={setMessage} disabled={busy || meeting.status !== 'open'} />
+          onTranscript={value => {
+            setMessage(value)
+            document.getElementById('meeting-message')?.focus()
+          }} disabled={busy || meeting.status !== 'open'} />
         {meeting.status === 'open' && <>
           <form onSubmit={event => {
             event.preventDefault()
@@ -64,6 +67,7 @@ export default function Meetings({ state, act, busy }) {
             <textarea id="meeting-message" value={message} onChange={event => setMessage(event.target.value)} maxLength={4000} required />
             <button disabled={busy}>Send to the meeting</button>
           </form>
+          {workingRole && <p role="status">{roles[workingRole].name} is working…</p>}
           <button type="button" disabled={busy || !state.modelReady}
             onClick={() => act('meeting_turn', { id: meeting.id, role: activeSpeaker })}>Invite {roles[activeSpeaker].name} to respond</button>
           <button type="button" disabled={busy} onClick={() => act('meeting_end', { id: meeting.id })}>End meeting</button>

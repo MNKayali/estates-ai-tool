@@ -62,9 +62,9 @@ The pilot permits one office write at a time, with a maximum of 12 model calls p
 
 ## Voice and meetings
 
-The office includes optional browser speech input and speech playback. Each teammate has a locally saved voice selection. Select and preview female voices for Sarah and Emma and male voices for Omar, Daniel and Ahmed from the device's available voice list. Browser voices have no reliable gender metadata, so the owner selects the voices by listening. Browser support and installed voices vary.
+The office includes optional browser speech input and speech playback. Each teammate has an assigned voice profile. The office prefers matching English voices for that character and uses an available English voice if the preferred voice is unavailable. The voice and microphone both depend on browser support and installed voices.
 
-Use microphone captures one contribution, for up to 60 seconds. Check the transcription and send it, then use Hear reply to play the saved answer. Speech recognition may use the browser vendor's remote speech service. Audio is not stored by the office. Unsupported or denied microphone access leaves typing available. Microphone permission is enabled only for the office page.
+Use microphone captures one contribution, for up to 45 seconds. Check the transcription and send it, then use Hear reply to play the saved answer. Speech recognition may use the browser vendor's remote speech service. Audio is not stored by the office. Unsupported or denied microphone access leaves typing available. Microphone permission is enabled only for the office page.
 
 The meeting room saves a topic, selected participants and the discussion. Invite each participant to respond to the shared transcript in turn. Ended meetings remain readable. Each response uses the existing model call limit. Meetings are limited to 40 contributions and 20 saved meetings for the pilot. Meeting proposals can be entered as assignments through Omar's existing task form.
 

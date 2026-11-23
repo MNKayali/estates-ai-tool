@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { roles } from '@/lib/office/roles.mjs'
 import VoiceControls from './VoiceControls'
 import Meetings from './Meetings'
@@ -19,11 +19,11 @@ const labels = {
   awaiting_quality_review: 'With Emma', awaiting_owner_review: 'Your decision', completed: 'Completed',
 }
 
-async function loadOffice(signal) {
+async function loadOffice(signal = AbortSignal.timeout(8000)) {
   const response = await fetch('/api/office', { cache: 'no-store', signal })
-  const data = await response.json()
-  if (!response.ok) throw new Error(data.error)
-  return data
+  if (response.status === 403) throw new Error('Your office sign-in has expired. Reload the page to sign in again.')
+  if (!response.ok) throw new Error('Could not load the office. Try Reload office.')
+  return response.json()
 }
 
 export default function Office() {
@@ -32,14 +32,19 @@ export default function Office() {
   const [busy, setBusy] = useState(false)
   const [workingRole, setWorkingRole] = useState(null)
   const [error, setError] = useState('')
-  const [message, setMessage] = useState('')
+  const [drafts, setDrafts] = useState({})
+  const actionInFlight = useRef(false)
+  const message = drafts[role] ?? ''
+  function setMessage(value) {
+    setDrafts(previous => ({ ...previous, [role]: value }))
+  }
   const [strategy, setStrategy] = useState('')
   const [brief, setBrief] = useState('')
   const [evidence, setEvidence] = useState('')
 
   function displayOffice(data) {
     setState(data)
-    setStrategy(data.strategy)
+    setStrategy(draft => draft || data.strategy)
     setError('')
   }
 
@@ -53,30 +58,43 @@ export default function Office() {
 
   useEffect(() => {
     const controller = new AbortController()
-    void loadOffice(controller.signal).then(displayOffice, showLoadError)
+    void loadOffice(AbortSignal.any([controller.signal, AbortSignal.timeout(8000)])).then(displayOffice, showLoadError)
     return () => controller.abort()
   }, [])
 
   async function act(action, fields, onSuccess) {
+    if (!state || actionInFlight.current) return
+    actionInFlight.current = true
     setError('')
     setBusy(true)
-    const task = state.assignments.find(item => item.id === fields.id)
+    const task = action === 'run' ? state.assignments.find(item => item.id === fields.id) : null
     const taskRole = task?.status === 'queued' ? 'omar'
       : task?.status === 'awaiting_quality_review' ? 'emma' : task?.delegation?.specialist
     setWorkingRole(fields.role ?? (action === 'run' ? taskRole : null))
     try {
       const response = await fetch('/api/office', {
         method: 'POST',
+        signal: AbortSignal.timeout(43000),
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, revision: state.revision, ...fields }),
       })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error)
+      const data = await response.json().catch(() => null)
+      if (response.status === 403) throw new Error('Your office sign-in has expired. Reload the page to sign in again.')
+      if (!response.ok || !data) {
+        if (response.status === 409) {
+          const latest = await loadOffice().catch(() => null)
+          if (latest) setState(latest)
+        }
+        throw new Error(data?.error || 'The office did not return a reply. Check the conversation before trying again.')
+      }
       setState(data)
       onSuccess?.(data)
     } catch (failure) {
-      setError(failure.message || 'Could not complete the action.')
+      setError(failure.name === 'TimeoutError' || failure.name === 'AbortError'
+        ? 'The office did not answer in time. Your draft is still here. Refresh to check whether a reply was saved before trying again.'
+        : failure.message || 'Could not complete the action.')
     } finally {
+      actionInFlight.current = false
       setBusy(false)
       setWorkingRole(null)
     }
@@ -127,7 +145,10 @@ export default function Office() {
                     : delegation?.specialist === key && ['assigned', 'revision_requested', 'blocked'].includes(status))
               return (
                 <button className={styles.desk} type="button" key={key} aria-pressed={role === key}
-                  disabled={busy} onClick={() => { setRole(key); setMessage('') }}>
+                  onClick={() => {
+                    setRole(key)
+                    document.getElementById('chat-heading')?.focus()
+                  }}>
                   <span className={styles.workstation} aria-hidden="true">
                     <span className={styles.chair} />
                     <span className={styles.portrait} data-person={key} />
@@ -142,13 +163,16 @@ export default function Office() {
           </div>
         </section>
         <section className={styles.panel} aria-labelledby="chat-heading">
-          <h2 id="chat-heading">Talk to {teamMember.name}</h2>
+          <h2 id="chat-heading" tabIndex={-1}>Talk to {teamMember.name}</h2>
           <p>{teamMember.title} · Reports to {teamMember.reportsTo.toLowerCase() === 'owner' ? 'you' : teamMember.reportsTo}</p>
           <details>
             <summary>Responsibilities, goals and draft KPIs</summary>
             <p>{teamMember.responsibilities}</p>
             {[...teamMember.goals, ...teamMember.proposedKpis].map((item) => <p key={item}>{item}</p>)}
           </details>
+          {busy && <p role="status">{workingRole
+            ? `${roles[workingRole].name} is working. You can still view other desks.`
+            : 'Saving your changes…'}</p>}
           {chat.length > 0 && (
             <ol className={styles.chat} aria-label={`Conversation with ${teamMember.name}`}>
               {chat.map((turn, index) => (
@@ -159,22 +183,27 @@ export default function Office() {
               ))}
             </ol>
           )}
-          <VoiceControls key={role} role={role} text={chat.at(-1)?.content} onTranscript={setMessage} disabled={busy || !state?.modelReady} />
+          <VoiceControls key={role} role={role} text={chat.at(-1)?.content} onTranscript={value => {
+            setMessage(value)
+            document.getElementById('office-message')?.focus()
+          }} disabled={busy || !state?.modelReady} />
           {role === 'omar' && (
             <button type="button" disabled={busy || !state?.modelReady}
               onClick={() => act('chat', { role, message: 'Give me my office briefing: what was completed, what is planned next, blockers, and decisions I need to make.' })}>
               Get a briefing
             </button>
           )}
-          <form onSubmit={(event) => { event.preventDefault(); void act('chat', { role, message }, () => setMessage('')) }}>
+          <form onSubmit={(event) => { event.preventDefault(); void act('chat', { role, message }, () => {
+              setDrafts(previous => previous[role] === message ? { ...previous, [role]: '' } : previous)
+            }) }}>
             <label htmlFor="office-message">Message for {teamMember.name}</label>
             <textarea id="office-message" value={message} maxLength={4000} onChange={(event) => setMessage(event.target.value)} required />
-            <button type="submit" disabled={busy || !state?.modelReady}>Send message</button>
+            <button type="submit" disabled={busy || !state?.modelReady}>{workingRole === role ? `${teamMember.name} is working…` : 'Send message'}</button>
           </form>
         </section>
       </div>
 
-      <Meetings state={state} act={act} busy={busy} />
+      <Meetings state={state} act={act} busy={busy} workingRole={workingRole} />
       <div className={styles.workspace}>
         <section className={styles.panel} aria-labelledby="assignment-heading">
           <h2 id="assignment-heading">New assignment for Omar</h2>
