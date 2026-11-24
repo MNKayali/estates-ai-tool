@@ -150,3 +150,49 @@
 .office > .panel { margin-bottom: .75rem; }
 .office > details > summary { cursor: pointer; font-weight: 600; }
 .office > section[aria-labelledby='chat-heading'] { max-width: 55rem; }
+
+.homeGrid { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(15rem, .8fr); gap: 1.25rem; align-items: start; }
+.homeGrid h2, .org strong { font-family: Georgia, serif; }
+.thread { height: clamp(12rem, 32vh, 23rem); overflow-y: auto; overscroll-behavior: contain; padding: .75rem; background: #f5f7f3; border-radius: .55rem; margin: .7rem 0; }
+.thread p, .ownerMessage { white-space: pre-wrap; overflow-wrap: anywhere; }
+.exchange { display: grid; gap: .4rem; margin-bottom: 1.1rem; }
+.office .ownerMessage, .agentMessage { padding: .65rem .85rem; border-radius: .65rem; max-width: 94%; }
+.office .ownerMessage { margin-left: auto; background: #e0eee6; }
+.agentMessage { justify-self: start; background: white; border: 1px solid #dae2d9; }
+.thread strong, .thread small, .org small, .workSummary small { display: block; }
+.workSummary { background: #e9efe7; padding: 1.3rem; border-radius: .8rem; }
+.workSummary dl { display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; margin: 1rem 0; }
+.workSummary dd { font-size: 1.65rem; margin: 0; font-weight: 600; }
+.workSummary dt { font-size: .85rem; }
+.office .workSummary button { display: block; width: 100%; text-align: left; margin-top: .5rem; background: white; color: #224434; border: 1px solid #c7d7c8; overflow-wrap: anywhere; }
+.org { text-align: center; background: #eff3ec; padding: 1rem; border-radius: .6rem; margin: 1rem 0; }
+.org > strong { display: inline-block; padding: .5rem 1.8rem; background: #203f36; color: white; border-radius: .4rem; }
+.branches,.reports { display: flex; justify-content: space-around; gap: .6rem; margin: 1rem auto; border-top: 2px solid #97aa9c; }
+.branches > div,.reports > div { padding-top: .85rem; position: relative; }
+.branches > div::before,.reports > div::before { content: ''; position: absolute; height: .85rem; width: 2px; background: #97aa9c; top: 0; left: 50%; }
+.office .org button { background: white; border: 1px solid #a8bbad; color: #203e32; }
+.scrollTable { overflow-x: auto; margin: 1rem 0; }
+.scrollTable table { width: 100%; text-align: left; border-collapse: collapse; }
+.scrollTable caption { text-align: left; font-size: .85rem; padding: .4rem 0; }
+.scrollTable th,.scrollTable td { padding: .65rem; border-bottom: 1px solid #d7e0d7; }
+.scrollTable thead { background: #edf3ed; }
+@media (max-width: 760px) {
+  .homeGrid { grid-template-columns: minmax(0,1fr); }
+  .office { padding: 1rem; }
+  .reports { flex-direction: column; border-left: 2px solid #97aa9c; border-top: 0; padding-left: .5rem; }
+  .reports > div { padding: 0; }
+  .reports > div::before { display: none; }
+  .org { padding: .5rem; }
+  .branches > div { min-width: 0; flex: 1; }
+}
+.contactHeader { display: flex; align-items: center; gap: .8rem; }
+.contactHeader h2 { font-size: 1.7rem; }
+.office .contactHeader p { margin: .1rem 0; color: #486558; font-size: .88rem; }
+.face { display: inline-block; width: 3.2rem; height: 3.2rem; border-radius: 50%; background: #e2e9dd url('/office/team-portraits.png') 0% 20% / 500% auto no-repeat; }
+.face[data-person='sarah'] { background-position-x: 25%; }
+.face[data-person='daniel'] { background-position-x: 50%; }
+.face[data-person='ahmed'] { background-position-x: 75%; }
+.face[data-person='emma'] { background-position-x: 100%; }
+.contactList { display: flex; flex-wrap: wrap; gap: .2rem; margin: .6rem 0; }
+.office .contactList button { color: #496557; background: transparent; border-radius: 1rem; font-size: .85rem; padding: .3rem .65rem; }
+.office .contactList button[aria-pressed='true'] { background: #dce9dc; color: #193e2d; }

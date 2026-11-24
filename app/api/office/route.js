@@ -3,10 +3,12 @@ import { meetingAction } from '@/lib/office/meetings.mjs'
 import { isOfficeOwner } from '@/lib/office/access'
 import { createAssignment, recordOwnerDecision, supplyEvidence } from '@/lib/office/assignment.mjs'
 import { companyContext, roles, sharedWork } from '@/lib/office/roles.mjs'
+import { trackedReply, usageSummary, pricedModel } from '@/lib/office/usage.mjs'
+import { officeBriefing } from '@/lib/office/dashboard.mjs'
 import { after } from 'next/server'
 import { manageAssignment, needsManagement } from '@/lib/office/manage.mjs'
-import { generateOfficeOutput, officeProviderConfigured } from '@/lib/office/provider.mjs'
-import { OfficeError, officeStore, readOffice, reserveOfficeCall, updateOffice } from '@/lib/office/store.mjs'
+import { officeProviderConfigured, officeModel } from '@/lib/office/provider.mjs'
+import { OfficeError, officeStore, readOffice, updateOffice } from '@/lib/office/store.mjs'
 
 export const maxDuration = 300
 const at = () => new Date().toISOString()
@@ -23,7 +25,8 @@ function failure(error) {
 export async function GET(request) {
   if (!await isOfficeOwner(request)) return reply({ error: 'Owner access required.' }, 403)
   try {
-    return reply({ ...await readOffice(officeStore()), modelReady: officeProviderConfigured() })
+    const store = officeStore()
+    return reply({ ...await readOffice(store), usage: await usageSummary(store).catch(() => null), modelReady: officeProviderConfigured() })
   } catch (error) {
     return failure(error)
   }
@@ -56,26 +59,32 @@ export async function POST(request) {
       return reply({ error: 'Refresh the office before submitting this action.' }, 400)
     }
     const store = officeStore()
-    const generate = async (request) => {
+    const generate = async (request, taskId) => {
       if (!officeProviderConfigured()) throw new OfficeError('The office model is not configured.', 503)
-      await reserveOfficeCall(store)
-      return generateOfficeOutput(request)
+      return trackedReply(store, request, { role: request.role || request.job.name.toLowerCase(), taskId, background: Boolean(taskId) })
     }
     function schedule(state) {
       if (!officeProviderConfigured()) return
       const pending = state.assignments.filter(needsManagement).slice(0, 3)
       if (pending.length) after(async () => {
-        await Promise.all(pending.map(task => manageAssignment(store, task.id, generate)))
+        await Promise.all(pending.map(task => manageAssignment(store, task.id, request => generate(request, task.id))))
       })
     }
     if (body.action === 'resume') {
       const saved = await readOffice(store)
       schedule(saved)
-      return reply({ ...saved, modelReady: officeProviderConfigured() })
+      return reply({ ...saved, usage: await usageSummary(store).catch(() => null), modelReady: officeProviderConfigured() })
     }
     const state = await updateOffice(store, body.revision, async (current) => {
       if (typeof body.action === 'string' && body.action.startsWith('meeting_')) {
         return meetingAction(current, body, generate)
+      }
+      if (body.action === 'budget') {
+        const cents = body.monthlyBudgetCents
+        if (!Number.isSafeInteger(cents) || cents < 0 || cents > 10000000) throw new OfficeError('Enter a valid monthly budget in US dollars.', 400)
+        if (cents && !pricedModel(officeModel())) throw new OfficeError('The current model does not have a verified price.', 400)
+        return { ...current, monthlyBudgetCents: cents, assignments: current.assignments.map(task =>
+          task.pause && /daily limit|12 calls today|monthly budget/i.test(task.pause) ? { ...task, pause: null } : task) }
       }
       if (body.action === 'strategy') {
         return { ...current, strategy: textField(body.strategy, 'Strategy', 4000) }
@@ -93,7 +102,7 @@ export async function POST(request) {
         const conversation = current.chats[body.role] ?? []
         const assignments = sharedWork(current)
         const canCommission = body.role === 'omar' && !body.briefingOnly
-        const output = await generate({
+        const output = body.role === 'omar' && body.briefingOnly === true ? officeBriefing(current) : await generate({
           companyContext, job: roles[body.role],
           instruction: 'Answer as the named teammate in clear British English. Speak naturally to Nabil, as a colleague. Start with the answer. Skip greetings, recaps and generic offers of help. For several points give one short line per point in the same order. For an office briefing cover today’s priority, blockers and decisions using the supplied records, including when there is nothing awaiting him. In a follow-up use the previous exchange. Usually use fewer than 75 words unless he asks for detail. For requests relating to your work, explain the next step you can take and ask a focused question only if needed. Use the supplied records and distinguish what you know from a proposal. Do not claim work happened without a recorded handover. Never invent or calculate project figures. Return content and a spokenSummary with the main takeaway and any decision in one or two short, complete sentences.' + (canCommission
             ? ' ' + gmInstruction
@@ -109,6 +118,7 @@ export async function POST(request) {
         const work = canCommission ? commission(current.assignments, output.assignmentBrief, message, at()) : current.assignments
         const turn = {
           message, content, at: at(),
+          relatedAssignments: output.relatedAssignments,
           assignmentId: work === current.assignments ? undefined : work[0].id,
           spokenSummary: typeof output.spokenSummary === 'string' ? output.spokenSummary.trim().slice(0, 650) : undefined,
         }
@@ -136,7 +146,7 @@ export async function POST(request) {
       return { ...current, assignments: current.assignments.map((assignment) => assignment.id === task.id ? updated : assignment) }
     })
     schedule(state)
-    return reply({ ...state, modelReady: officeProviderConfigured() })
+    return reply({ ...state, usage: await usageSummary(store).catch(() => null), modelReady: officeProviderConfigured() })
   } catch (error) {
     return failure(error)
   }

@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { roles } from '@/lib/office/roles.mjs'
 import VoiceControls from './VoiceControls'
 import Meetings from './Meetings'
+import { Organisation, Usage, WorkSummary } from './OfficeOverview'
+import { nextStep } from '@/lib/office/dashboard.mjs'
 import styles from './office.module.css'
 
 const labels = {
@@ -23,6 +25,9 @@ export default function Office() {
   const [state, setState] = useState(null)
   const [view, setView] = useState('brief')
   const [role, setRole] = useState('omar')
+  const [selectedTask, setSelectedTask] = useState('')
+  const [pending, setPending] = useState(null)
+  const thread = useRef(null)
   const [busy, setBusy] = useState(false)
   const [workingRole, setWorkingRole] = useState(null)
   const [error, setError] = useState('')
@@ -82,6 +87,7 @@ export default function Office() {
     setError('')
     setBusy(true)
     setWorkingRole(fields.role ?? null)
+    if (action === 'chat') setPending({ role: fields.role, words: fields.message })
     try {
       const response = await fetch('/api/office', {
         method: 'POST',
@@ -108,6 +114,7 @@ export default function Office() {
       actionInFlight.current = false
       setBusy(false)
       setWorkingRole(null)
+      setPending(null)
     }
   }
 
@@ -115,6 +122,21 @@ export default function Office() {
   const assignments = state?.assignments ?? []
   const chat = state?.chats[role] ?? []
   const latest = chat.at(-1)
+  useEffect(() => {
+    if (thread.current) thread.current.scrollTop = thread.current.scrollHeight
+  }, [role, latest, pending, view])
+  useEffect(() => {
+    if (selectedTask) document.getElementById('task-' + selectedTask)?.scrollIntoView({ block: 'center' })
+  }, [selectedTask, view])
+  function openTask(task) {
+    setSelectedTask(task.id)
+    setView(task.status === 'awaiting_owner_review' ? 'decision' : 'work')
+  }
+  function visit(id) {
+    setRole(id)
+    setView('brief')
+    requestAnimationFrame(() => document.getElementById('office-message')?.focus())
+  }
   function sendMessage(words) {
     if (!words.trim()) return
     void act('chat', { role, message: words }, () => {
@@ -136,6 +158,8 @@ export default function Office() {
           <button type="button" aria-pressed={view === 'brief'} onClick={() => { setRole('omar'); setView('brief') }}>Brief Omar</button>
           <button type="button" aria-pressed={view === 'work'} onClick={() => setView('work')}>In progress</button>
           <button type="button" aria-pressed={view === 'decision'} onClick={() => setView('decision')}>For your approval ({counts.decision})</button>
+          <button type="button" aria-pressed={view === 'team'} onClick={() => setView('team')}>Organisation</button>
+          <button type="button" aria-pressed={view === 'usage'} onClick={() => setView('usage')}>Usage</button>
           <button type="button" disabled={busy} onClick={async () => {
             try {
               const response = await fetch('/api/logout', { method: 'POST' })
@@ -150,31 +174,32 @@ export default function Office() {
       {!state && !error && <p role="status">Opening your office…</p>}
       {state && !state.modelReady && <p role="status">Agent conversations and execution need an office model to be configured.</p>}
       {view === 'brief' && <>
+        <div className={styles.homeGrid}>
         <section className={styles.panel} aria-labelledby="chat-heading">
-          <h2 id="chat-heading" tabIndex={-1}>{role === 'omar' ? 'Brief Omar' : 'Talk to ' + teamMember.name}</h2>
-          <p>{role === 'omar' ? 'Give Omar an outcome. He assigns the work, arranges review and brings it back for your decision.' : teamMember.responsibilities}</p>
-          <p>{teamMember.title} · Reports to {teamMember.reportsTo.toLowerCase() === 'owner' ? 'you' : teamMember.reportsTo}</p>
-          <details>
-            <summary>Responsibilities, goals and draft KPIs</summary>
-            <p>{teamMember.responsibilities}</p>
-            <p>{teamMember.collaboration}</p>
-            {[...teamMember.goals, ...teamMember.proposedKpis].map((item) => <p key={item}>{item}</p>)}
-          </details>
-          {busy && <p role="status">{workingRole
-            ? `${roles[workingRole].name} is working. You can still view other desks.`
-            : 'Saving your changes…'}</p>}
-          {role === 'omar' && <button type="button" disabled={busy || !state?.modelReady}
-            onClick={() => act('chat', { role, briefingOnly: true, message: 'Give me my office briefing. What matters today? What is held up? What needs my decision?' })}>
+          <div className={styles.contactHeader}>
+            <span className={styles.face} data-person={role} aria-hidden="true" />
+            <div><h2 id="chat-heading" tabIndex={-1}>{role === 'omar' ? 'Brief Omar' : 'Talk to ' + teamMember.name}</h2>
+          <p>{teamMember.title} · {role === 'omar' || role === 'emma' ? 'Reports to you' : 'Reports to Omar'}</p></div>
+          </div>
+          <div className={styles.contactList} aria-label="Select teammate">
+            {Object.entries(roles).map(([id,member])=><button type="button" key={id} aria-pressed={id===role} onClick={()=>visit(id)}>{member.name}</button>)}
+          </div>
+          <div className={styles.thread} ref={thread} aria-label={'Conversation with ' + teamMember.name} role="log">
+            {!chat.length && !pending && <p>What would you like {teamMember.name} to help you with?</p>}
+            {chat.map((turn, i) => <div key={i} className={styles.exchange}>
+              <p className={styles.ownerMessage}><strong>You</strong>{turn.message}</p>
+              <div className={styles.agentMessage}><strong>{teamMember.name}</strong>
+              <p>{turn.content.replace(/\*\*(.*?)\*\*/g, '$1')}</p>
+              {[...new Set([turn.assignmentId, ...(turn.relatedAssignments ?? [])])].map(id => {
+                const task = assignments.find(item => item.id === id)
+                return task && <button type="button" key={id} onClick={() => openTask(task)}>{task.brief}</button>
+              })}</div></div>)}
+            {pending?.role === role && <p className={styles.ownerMessage}><strong>You</strong>{pending.words}<small>{teamMember.name} is responding…</small></p>}
+          </div>
+          {role === 'omar' && <button type="button" disabled={busy || !state}
+            onClick={() => act('chat', { role, briefingOnly: true, message: 'What is finished, what is held up and what needs my decision?' })}>
             Quick briefing
           </button>}
-          {latest && <div className={styles.content} aria-live="polite">
-            <p><strong>{teamMember.name}</strong></p>
-            <p>{latest.content}</p>
-            {latest.assignmentId && <button type="button" onClick={() => {
-              const task = assignments.find(item => item.id === latest.assignmentId)
-              setView(task?.status === 'awaiting_owner_review' ? 'decision' : 'work')
-            }}>View team work</button>}
-          </div>}
           <form onSubmit={event => { event.preventDefault(); sendMessage(message) }}>
             <label htmlFor="office-message">Message for {teamMember.name}</label>
             <textarea id="office-message" value={message} maxLength={4000} onChange={event => setMessage(event.target.value)}
@@ -183,17 +208,9 @@ export default function Office() {
           </form>
           <VoiceControls key={role} role={role} text={latest?.spokenSummary || latest?.content}
             draft={message} onTranscript={setMessage} onSend={sendMessage} disabled={busy || !state?.modelReady} />
-          {chat.length > 0 && <details key={role + '-history'}>
-            <summary>Conversation history</summary>
-            <ol className={styles.chat} aria-label={`Conversation with ${teamMember.name}`}>
-              {chat.map((turn, index) => <li key={index}>
-                <p><strong>You</strong> {turn.message}</p>
-                <p className={styles.content}><strong>{teamMember.name}</strong> {turn.content}</p>
-              </li>)}
-            </ol>
-          </details>}
         </section>
-
+        <WorkSummary tasks={assignments} open={openTask} />
+        </div>
         <details className={styles.panel}>
           <summary>Visit a teammate</summary>
           <div className={styles.heading}>
@@ -242,7 +259,9 @@ export default function Office() {
       </details>
       </>}
 
-      {view !== 'brief' && <section className={styles.panel} aria-labelledby="work-heading" aria-busy={busy}>
+      {view === 'team' && <Organisation visit={visit} />}
+      {view === 'usage' && <Usage state={state} act={act} busy={busy} open={openTask} />}
+      {['work','decision'].includes(view) && <section className={styles.panel} aria-labelledby="work-heading" aria-busy={busy}>
         <div className={styles.heading}>
           <h2 id="work-heading">{view === 'decision' ? 'For your approval' : 'Team work'}</h2>
           <button type="button" disabled={busy} onClick={refresh}>Refresh</button>
@@ -251,12 +270,20 @@ export default function Office() {
         {view === 'decision' && !counts.decision && <p>Nothing needs your approval.</p>}
         {view === 'work' && !assignments.some(task => !['awaiting_owner_review', 'completed'].includes(task.status)) && <p>No work in progress.</p>}
         {assignments.filter(task => view === 'decision' ? task.status === 'awaiting_owner_review' : !['awaiting_owner_review', 'completed'].includes(task.status)).map((task) => (
-          <article key={task.id} className={styles.task}>
+          <article id={'task-' + task.id} key={task.id} className={styles.task}>
             <div className={styles.heading}>
               <strong>{task.brief}</strong>
               <span>{labels[task.status]}</span>
             </div>
-            {task.delegation && <p>Assigned to {roles[task.delegation.specialist].name}</p>}
+            <p><strong>Next</strong> {nextStep(task)}</p>
+            {task.delegation && <details><summary>Omar’s plan · Lead: {roles[task.delegation.specialist].name}</summary>
+              {task.delegation.goal && <p><strong>Goal</strong> {task.delegation.goal}</p>}
+              <p>{task.delegation.instructions}</p>
+              {task.delegation.planSteps?.length > 0 && <ol>{task.delegation.planSteps.map((step,i)=><li key={i}>{step}</li>)}</ol>}
+              <p><strong>Success criteria</strong> {task.delegation.criteria}</p>
+              {task.delegation.consultations?.map(item=><p key={item.role}><strong>{roles[item.role].name}</strong> · {item.question}</p>)}
+            </details>}
+            <p><small>Latest handover · {roles[task.history.at(-1)?.by]?.name || 'You'} · {task.history.at(-1)?.action.replaceAll('_',' ')}</small></p>
             {task.status === 'awaiting_owner_review' && task.recommendation && <p><strong>Omar recommends</strong> {task.recommendation}</p>}
             {task.deliverable && <p className={styles.content}>{task.deliverable.content}</p>}
             {task.status === 'blocked' && <p>{task.history.at(-1)?.note}</p>}
@@ -299,9 +326,9 @@ export default function Office() {
             )}
           </article>
         ))}
-        {view === 'work' && assignments.some(task => task.status === 'completed') && <details>
+        {view === 'work' && assignments.some(task => task.status === 'completed') && <details open={assignments.some(task => task.id === selectedTask && task.status === 'completed') || undefined}>
           <summary>Approved work</summary>
-          {assignments.filter(task => task.status === 'completed').map(task => <article key={task.id}>
+          {assignments.filter(task => task.status === 'completed').map(task => <article id={'task-' + task.id} key={task.id}>
             <strong>{task.brief}</strong><p className={styles.content}>{task.deliverable?.content}</p>
           </article>)}
         </details>}
