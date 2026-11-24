@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { roles } from '@/lib/office/roles.mjs'
+import { eventLabel, eventText } from '@/lib/office/task-conversation.mjs'
 import VoiceControls from './VoiceControls'
 import Meetings from './Meetings'
 import { Organisation, Usage, WorkSummary } from './OfficeOverview'
@@ -19,6 +20,20 @@ async function loadOffice(signal = AbortSignal.timeout(8000)) {
   if (response.status === 403) throw new Error('Your office sign-in has expired. Reload the page to sign in again.')
   if (!response.ok) throw new Error('Could not load the office. Try Reload office.')
   return response.json()
+}
+
+function SavedRecords({ task, source }) {
+  if (!task || !source?.events.length) return null
+  return <details>
+    <summary>See the records Omar used</summary>
+    {source.events.map(index => {
+      const event = task.history[index]
+      return event && <details key={index}>
+        <summary>{eventLabel(event)} · {roles[event.by]?.name || 'You'}</summary>
+        <p className={styles.content}>{eventText(event)}</p>
+      </details>
+    })}
+  </details>
 }
 
 export default function Office() {
@@ -137,6 +152,13 @@ export default function Office() {
     setView('brief')
     requestAnimationFrame(() => document.getElementById('office-message')?.focus())
   }
+  function askOmar(task, question = 'What changed, why, and what do you need me to decide?') {
+    visit('omar')
+    void act('chat', { role: 'omar', message: question, assignmentId: task.id })
+  }
+  function askButton(task) {
+    return <button type="button" disabled={busy || !state?.modelReady} onClick={() => askOmar(task)}>Ask Omar about this</button>
+  }
   function sendMessage(words) {
     if (!words.trim()) return
     void act('chat', { role, message: words }, () => {
@@ -190,6 +212,11 @@ export default function Office() {
               <p className={styles.ownerMessage}><strong>You</strong>{turn.message}</p>
               <div className={styles.agentMessage}><strong>{teamMember.name}</strong>
               <p>{turn.content.replace(/\*\*(.*?)\*\*/g, '$1')}</p>
+              {turn.choices?.map(id => {
+                const task = assignments.find(item => item.id === id)
+                return task && <button type="button" key={id} disabled={busy || !state?.modelReady} onClick={() => askOmar(task, turn.message)}>{task.brief}</button>
+              })}
+              <SavedRecords task={assignments.find(task => task.id === turn.recordSource?.id)} source={turn.recordSource} />
               {[...new Set([turn.assignmentId, ...(turn.relatedAssignments ?? [])])].map(id => {
                 const task = assignments.find(item => item.id === id)
                 return task && <button type="button" key={id} onClick={() => openTask(task)}>{task.brief}</button>
@@ -276,6 +303,7 @@ export default function Office() {
               <span>{labels[task.status]}</span>
             </div>
             <p><strong>Next</strong> {nextStep(task)}</p>
+            {askButton(task)}
             {task.delegation && <details><summary>Omar’s plan · Lead: {roles[task.delegation.specialist].name}</summary>
               {task.delegation.goal && <p><strong>Goal</strong> {task.delegation.goal}</p>}
               <p>{task.delegation.instructions}</p>
@@ -330,6 +358,7 @@ export default function Office() {
           <summary>Approved work</summary>
           {assignments.filter(task => task.status === 'completed').map(task => <article id={'task-' + task.id} key={task.id}>
             <strong>{task.brief}</strong><p className={styles.content}>{task.deliverable?.content}</p>
+            {askButton(task)}
           </article>)}
         </details>}
       </section>}

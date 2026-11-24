@@ -4,6 +4,7 @@ import { isOfficeOwner } from '@/lib/office/access'
 import { createAssignment, recordOwnerDecision, supplyEvidence } from '@/lib/office/assignment.mjs'
 import { companyContext, roles, sharedWork } from '@/lib/office/roles.mjs'
 import { trackedReply, usageSummary, pricedModel } from '@/lib/office/usage.mjs'
+import { findDiscussionTasks, discussionInput } from '@/lib/office/task-conversation.mjs'
 import { officeBriefing } from '@/lib/office/dashboard.mjs'
 import { after } from 'next/server'
 import { manageAssignment, needsManagement } from '@/lib/office/manage.mjs'
@@ -59,15 +60,15 @@ export async function POST(request) {
       return reply({ error: 'Refresh the office before submitting this action.' }, 400)
     }
     const store = officeStore()
-    const generate = async (request, taskId) => {
+    const generate = async (request, taskId, background = false) => {
       if (!officeProviderConfigured()) throw new OfficeError('The office model is not configured.', 503)
-      return trackedReply(store, request, { role: request.role || request.job.name.toLowerCase(), taskId, background: Boolean(taskId) })
+      return trackedReply(store, request, { role: request.role || request.job.name.toLowerCase(), taskId, background })
     }
     function schedule(state) {
       if (!officeProviderConfigured()) return
       const pending = state.assignments.filter(needsManagement).slice(0, 3)
       if (pending.length) after(async () => {
-        await Promise.all(pending.map(task => manageAssignment(store, task.id, request => generate(request, task.id))))
+        await Promise.all(pending.map(task => manageAssignment(store, task.id, request => generate(request, task.id, true))))
       })
     }
     if (body.action === 'resume') {
@@ -103,24 +104,44 @@ export async function POST(request) {
         const message = textField(body.message, 'Message', 4000)
         const conversation = current.chats[body.role] ?? []
         const assignments = sharedWork(current)
-        const canCommission = body.role === 'omar' && !body.briefingOnly
-        const output = body.role === 'omar' && body.briefingOnly === true ? officeBriefing(current) : await generate({
-          companyContext, job: roles[body.role],
-          instruction: 'Answer as the named teammate in clear British English. Speak naturally to Nabil, as a colleague. Start with the answer. Skip greetings, recaps and generic offers of help. For several points give one short line per point in the same order. For an office briefing cover today’s priority, blockers and decisions using the supplied records, including when there is nothing awaiting him. In a follow-up use the previous exchange. Usually use fewer than 75 words unless he asks for detail. For requests relating to your work, explain the next step you can take and ask a focused question only if needed. Use the supplied records and distinguish what you know from a proposal. Do not claim work happened without a recorded handover. Never invent or calculate project figures. Return content and a spokenSummary with the main takeaway and any decision in one or two short, complete sentences.' + (canCommission
-            ? ' ' + gmInstruction
-            : ' This exchange is advisory. Use shared records for your answer.'),
-          input: {
-            message, assignments, strategy: current.strategy,
-            conversation: conversation.slice(-4).map(turn => ({
-              message: turn.message.slice(0, 900), content: turn.content.slice(0, 1400),
-            })),
-          },
-        })
+        const omarChat = body.role === 'omar' && !body.briefingOnly
+        let matches = []
+        if (body.assignmentId !== undefined) {
+          const task = current.assignments.find(item => item.id === body.assignmentId)
+          if (!omarChat || !task) throw new OfficeError('This assignment is unavailable for discussion.', 400)
+          matches = [task]
+        } else if (omarChat) {
+          matches = findDiscussionTasks(current.assignments, message, conversation.at(-1))
+        }
+        const discussion = matches.length === 1 ? discussionInput(matches[0], message, current.strategy, conversation) : null
+        const canCommission = omarChat && !matches.length
+        let output
+        if (body.role === 'omar' && body.briefingOnly === true) {
+          output = officeBriefing(current)
+        } else if (matches.length > 1) {
+          output = { content: 'Which assignment shall I check?', choices: matches.map(task => task.id) }
+        } else {
+          output = await generate({
+            companyContext, job: roles[body.role],
+            instruction: 'Answer as the named teammate in clear British English. Speak naturally to Nabil, as a colleague. Start with the answer. Skip greetings, recaps and generic offers of help. For several points give one short line per point in the same order. For an office briefing cover today’s priority, blockers and decisions using the supplied records, including when there is nothing awaiting him. In a follow-up use the previous exchange. Usually use fewer than 75 words unless he asks for detail. For requests relating to your work, explain the next step you can take and ask a focused question only if needed. Use the supplied records and distinguish what you know from a proposal. Do not claim work happened without a recorded handover. Never invent or calculate project figures. Return content and a spokenSummary with the main takeaway and any decision in one or two short, complete sentences.' + (canCommission
+              ? ' ' + gmInstruction
+              : discussion ? ' Answer this question from the selected assignment. Compare the two most recent drafts when asked what changed. Attribute the reason to recorded feedback or say the reason is unrecorded. Explain the decision needed only if the current status is awaiting_owner_review. Treat a quality pass, recommendation and owner approval as different events. If the record or excerpt is insufficient, say precisely what is missing. This is a discussion of saved work. Omit assignmentBrief.'
+              : ' This exchange is advisory. Use shared records for your answer.'),
+            input: discussion?.input ?? {
+              message, assignments, strategy: current.strategy,
+              conversation: conversation.slice(-4).map(turn => ({
+                message: turn.message.slice(0, 900), content: turn.content.slice(0, 1400),
+              })),
+            },
+          }, discussion?.recordSource.id)
+        }
         const content = textField(output.content, 'Agent response', 10000)
         const work = canCommission ? commission(current.assignments, output.assignmentBrief, message, at()) : current.assignments
         const turn = {
           message, content, at: at(),
-          relatedAssignments: output.relatedAssignments,
+          recordSource: discussion?.recordSource,
+          choices: output.choices,
+          relatedAssignments: discussion ? [matches[0].id] : output.relatedAssignments,
           assignmentId: work === current.assignments ? undefined : work[0].id,
           spokenSummary: typeof output.spokenSummary === 'string' ? output.spokenSummary.trim().slice(0, 650) : undefined,
         }
