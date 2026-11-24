@@ -83,8 +83,10 @@ export async function POST(request) {
         const cents = body.monthlyBudgetCents
         if (!Number.isSafeInteger(cents) || cents < 0 || cents > 10000000) throw new OfficeError('Enter a valid monthly budget in US dollars.', 400)
         if (cents && !pricedModel(officeModel())) throw new OfficeError('The current model does not have a verified price.', 400)
+        const previous = current.monthlyBudgetCents || 0
+        const resumePaused = cents > previous || (cents === 0 && previous > 0)
         return { ...current, monthlyBudgetCents: cents, assignments: current.assignments.map(task =>
-          task.pause && /daily limit|12 calls today|monthly budget/i.test(task.pause) ? { ...task, pause: null } : task) }
+          resumePaused && task.pause && /daily limit|12 calls today|monthly budget/i.test(task.pause) ? { ...task, pause: null } : task) }
       }
       if (body.action === 'strategy') {
         return { ...current, strategy: textField(body.strategy, 'Strategy', 4000) }
