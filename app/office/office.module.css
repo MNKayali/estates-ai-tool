@@ -196,3 +196,15 @@
 .contactList { display: flex; flex-wrap: wrap; gap: .2rem; margin: .6rem 0; }
 .office .contactList button { color: #496557; background: transparent; border-radius: 1rem; font-size: .85rem; padding: .3rem .65rem; }
 .office .contactList button[aria-pressed='true'] { background: #dce9dc; color: #193e2d; }
+
+.metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.75rem; margin:1rem 0; }
+.office .metrics button,.office .workLink { text-align:left; background:#fff; color:#1b3e34; border:1px solid #d1ddd6; border-radius:.75rem; padding:1rem; }
+.metrics strong,.workLink small { display:block; }
+.metrics strong { font-size:1.8rem; line-height:1.2; }
+.office .workLink { display:block; width:100%; margin:.5rem 0; overflow-wrap:anywhere; }
+.office h3 { white-space:pre-line; }
+.office summary { cursor:pointer; }
+.office .panel { overflow-wrap:anywhere; }
+@media (max-width:640px) { .metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (prefers-reduced-motion:no-preference) { .office button { transition:background-color 150ms,border-color 150ms; } }
+.homeGrid + .panel { margin-top:1rem; }

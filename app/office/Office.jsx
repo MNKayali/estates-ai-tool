@@ -6,7 +6,8 @@ import { eventLabel, eventText } from '@/lib/office/task-conversation.mjs'
 import VoiceControls from './VoiceControls'
 import Meetings from './Meetings'
 import { Organisation, Usage, WorkSummary } from './OfficeOverview'
-import { nextStep } from '@/lib/office/dashboard.mjs'
+import { GoalHome, GoalCard } from './GoalBoard'
+import { nextStep, needsDecision, finished, blocked } from '@/lib/office/dashboard.mjs'
 import styles from './office.module.css'
 
 const labels = {
@@ -38,7 +39,7 @@ function SavedRecords({ task, source }) {
 
 export default function Office() {
   const [state, setState] = useState(null)
-  const [view, setView] = useState('brief')
+  const [view, setView] = useState('home')
   const [role, setRole] = useState('omar')
   const [selectedTask, setSelectedTask] = useState('')
   const [pending, setPending] = useState(null)
@@ -74,8 +75,7 @@ export default function Office() {
     return () => controller.abort()
   }, [])
 
-  const managing = state?.assignments.some(task =>
-    !task.pause && ['queued', 'assigned', 'in_progress', 'revision_requested', 'awaiting_quality_review', 'with_gm'].includes(task.status))
+  const managing = state?.assignments.some(task => task.kind && !task.pause && ['scoping','consulting','proposing','checking_strategy','queued','assigned','in_progress','revision_requested','awaiting_quality_review','with_gm'].includes(task.status)) || state?.meetings?.some(m=>m.status === 'running' && !m.pause)
   useEffect(() => {
     if (!managing || !state?.modelReady) return
     const controller = new AbortController()
@@ -145,7 +145,7 @@ export default function Office() {
   }, [selectedTask, view])
   function openTask(task) {
     setSelectedTask(task.id)
-    setView(task.status === 'awaiting_owner_review' ? 'decision' : 'work')
+    setView(needsDecision(task) ? 'decision' : 'work')
   }
   function visit(id) {
     setRole(id)
@@ -166,9 +166,9 @@ export default function Office() {
     })
   }
   const counts = {
-    open: assignments.filter(({ status }) => status !== 'completed').length,
-    blocked: assignments.filter(({ status }) => ['blocked', 'quality_blocked'].includes(status)).length,
-    decision: assignments.filter(({ status }) => status === 'awaiting_owner_review').length,
+    open: assignments.filter(t=>!finished(t)).length,
+    blocked: assignments.filter(blocked).length,
+    decision: assignments.filter(needsDecision).length,
   }
 
   return (
@@ -177,9 +177,11 @@ export default function Office() {
       <header className={styles.header}>
         <div><span className={styles.brand}>PROJENTO</span><h1>Your AI office</h1></div>
         <nav aria-label="Office">
+          <button type="button" aria-pressed={view === 'home'} onClick={()=>setView('home')}>Overview</button>
           <button type="button" aria-pressed={view === 'brief'} onClick={() => { setRole('omar'); setView('brief') }}>Brief Omar</button>
-          <button type="button" aria-pressed={view === 'work'} onClick={() => setView('work')}>In progress</button>
+          <button type="button" aria-pressed={view === 'work'} onClick={() => setView('work')}>Work board</button>
           <button type="button" aria-pressed={view === 'decision'} onClick={() => setView('decision')}>For your approval ({counts.decision})</button>
+          <button type="button" aria-pressed={view === 'meetings'} onClick={()=>setView('meetings')}>Meetings</button>
           <button type="button" aria-pressed={view === 'team'} onClick={() => setView('team')}>Organisation</button>
           <button type="button" aria-pressed={view === 'usage'} onClick={() => setView('usage')}>Usage</button>
           <button type="button" disabled={busy} onClick={async () => {
@@ -195,6 +197,7 @@ export default function Office() {
       {!state && error && <button type="button" onClick={refresh}>Reload office</button>}
       {!state && !error && <p role="status">Opening your office…</p>}
       {state && !state.modelReady && <p role="status">Agent conversations and execution need an office model to be configured.</p>}
+      {view === 'home' && state && <GoalHome state={state} act={act} busy={busy} open={openTask} navigate={setView} />}
       {view === 'brief' && <>
         <div className={styles.homeGrid}>
         <section className={styles.panel} aria-labelledby="chat-heading">
@@ -271,10 +274,8 @@ export default function Office() {
           </div>
         </details>
 
-      <details className={styles.panel}><summary>Meeting room</summary>
-        <Meetings state={state} act={act} busy={busy} workingRole={workingRole} />
-      </details>
-      <details className={styles.panel}><summary>Office strategy</summary>
+
+      <details className={styles.panel}><summary>Company priorities and approved information</summary>
         <section className={styles.panel} aria-labelledby="strategy-heading">
           <h2 id="strategy-heading">Office strategy</h2>
           <form onSubmit={(event) => { event.preventDefault(); void act('strategy', { strategy }) }}>
@@ -282,10 +283,16 @@ export default function Office() {
             <textarea id="office-strategy" value={strategy} onChange={(event) => setStrategy(event.target.value)} maxLength={4000} required />
             <button type="submit" disabled={busy || !state}>Save strategy</button>
           </form>
+          <form onSubmit={e=>{e.preventDefault();const form=e.currentTarget;const data=new FormData(form);act('reference',{source:data.get('source'),fact:data.get('fact')},()=>form.reset())}}>
+            <label>Source<input required name="source" maxLength={160} /></label>
+            <label>Approved information<textarea required name="fact" maxLength={800} /></label><button disabled={busy}>Save to shared knowledge</button>
+          </form>
+          {state?.references?.map((r,i)=><p key={i}><strong>{r.source}</strong> · {r.fact}</p>)}
         </section>
       </details>
       </>}
 
+      {view === 'meetings' && <div className={styles.panel}><Meetings state={state} act={act} busy={busy} workingRole={workingRole} /></div>}
       {view === 'team' && <Organisation visit={visit} />}
       {view === 'usage' && <Usage state={state} act={act} busy={busy} open={openTask} />}
       {['work','decision'].includes(view) && <section className={styles.panel} aria-labelledby="work-heading" aria-busy={busy}>
@@ -296,7 +303,8 @@ export default function Office() {
         {busy && <p role="status">Office action in progress…</p>}
         {view === 'decision' && !counts.decision && <p>Nothing needs your approval.</p>}
         {view === 'work' && !assignments.some(task => !['awaiting_owner_review', 'completed'].includes(task.status)) && <p>No work in progress.</p>}
-        {assignments.filter(task => view === 'decision' ? task.status === 'awaiting_owner_review' : !['awaiting_owner_review', 'completed'].includes(task.status)).map((task) => (
+        {assignments.filter(t=>t.kind === 'goal' && (view === 'work' || needsDecision(t))).map(t=><GoalCard key={t.id} task={t} tasks={assignments} act={act} busy={busy} ask={askButton} open={openTask} />)}
+        {assignments.filter(t=>t.kind !== 'goal').filter(task => view === 'decision' ? task.status === 'awaiting_owner_review' : !['awaiting_owner_review', 'completed'].includes(task.status)).map((task) => (
           <article id={'task-' + task.id} key={task.id} className={styles.task}>
             <div className={styles.heading}>
               <strong>{task.brief}</strong>
@@ -304,6 +312,8 @@ export default function Office() {
             </div>
             <p><strong>Next</strong> {nextStep(task)}</p>
             {askButton(task)}
+            {!task.kind && <button disabled={busy} onClick={()=>act('plan_existing',{id:task.id})}>Review a strategy before continuing</button>}
+            {task.deadline && <p>Due · {task.deadline}</p>}
             {task.delegation && <details><summary>Omar’s plan · Lead: {roles[task.delegation.specialist].name}</summary>
               {task.delegation.goal && <p><strong>Goal</strong> {task.delegation.goal}</p>}
               <p>{task.delegation.instructions}</p>
@@ -355,9 +365,10 @@ export default function Office() {
           </article>
         ))}
         {view === 'work' && assignments.some(task => task.status === 'completed') && <details open={assignments.some(task => task.id === selectedTask && task.status === 'completed') || undefined}>
-          <summary>Approved work</summary>
+          <summary>Reviewed work</summary>
           {assignments.filter(task => task.status === 'completed').map(task => <article id={'task-' + task.id} key={task.id}>
             <strong>{task.brief}</strong><p className={styles.content}>{task.deliverable?.content}</p>
+            {task.kind === 'delivery' && <p>{roles[task.delegation.specialist].name} · {task.deadline} · Emma’s review: {task.review?.reasons}</p>}
             {askButton(task)}
           </article>)}
         </details>}
