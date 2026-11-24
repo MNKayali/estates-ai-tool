@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { roles } from '@/lib/office/roles.mjs'
-import { stages, nextStep } from '@/lib/office/dashboard.mjs'
+import { stages, nextStep, blocked, needsDecision, finished } from '@/lib/office/dashboard.mjs'
 import styles from './office.module.css'
 
 const money = nano => new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(nano / 1e9)
@@ -28,11 +28,11 @@ export function Organisation({ visit }) {
 }
 
 export function WorkSummary({ tasks, open }) {
-  const pending = tasks.filter(t=>t.status !== 'completed')
+  const pending = tasks.filter(t=>!finished(t))
   return <aside className={styles.workSummary}><h2>Office today</h2>
-    <dl>{[['In progress',pending.filter(t=>!t.pause && !['blocked','quality_blocked','awaiting_owner_review'].includes(t.status)).length],
-      ['Needs attention',pending.filter(t=>t.pause || ['blocked','quality_blocked'].includes(t.status)).length],
-      ['For your approval',pending.filter(t=>t.status === 'awaiting_owner_review').length],
+    <dl>{[['In progress',pending.filter(t=>!blocked(t) && !needsDecision(t)).length],
+      ['Needs attention',pending.filter(blocked).length],
+      ['For your approval',pending.filter(needsDecision).length],
       ['Completed',tasks.length-pending.length]].map(([name,n])=><div key={name}><dt>{name}</dt><dd>{n}</dd></div>)}</dl>
     {pending.slice(0,3).map(t=><button type="button" key={t.id} onClick={()=>open(t)}><strong>{t.brief}</strong><small>{nextStep(t)}</small></button>)}
   </aside>
@@ -57,6 +57,16 @@ export function Usage({ state, act, busy, open }) {
         const key = 'task.' + t.id + ':'
         return <p key={t.id}><button type="button" onClick={() => open(t)}>{t.brief}</button> · {duration(m[key+'ms'])} · {m[key+'tokens']} tokens · {money(m[key+'cost'])}</p>
       })}</details>}
+    <details><summary>Team spending and collaboration limits</summary>
+      <p>These limits cover planning and delivery together for each strategy, or one meeting. They also count failed attempts. A chaired meeting has one contribution per invitee and a closing record.</p>
+      <form onSubmit={e=>{e.preventDefault();const d=new FormData(e.currentTarget);act('limits',{maxTaskCents:Math.round(Number(d.get('cost'))*100),maxScopeCalls:Number(d.get('calls')),maxRounds:Number(d.get('rounds'))})}}>
+        <label>Maximum cost per strategy or meeting (USD)<input required name="cost" type="number" min=".01" max="1000" step=".01" defaultValue={(state.maxTaskCents ?? 100)/100} /></label>
+        <label>Maximum calls, including retries<input required name="calls" type="number" min="1" max="60" defaultValue={state.maxScopeCalls ?? 18} /></label>
+        <label>Maximum automatic draft rounds<input required name="rounds" type="number" min="1" max="4" defaultValue={state.maxRounds ?? 2} /></label>
+        <button disabled={busy}>Save team limits</button>
+      </form>
+      <p>Configured model · {usage.model}. {usage.priced && 'Haiku 4.5 standard rates are US$1 per million input tokens and US$5 per million output tokens.'}</p>
+    </details>
     <details><summary>Manage monthly budget</summary><p>Set a recurring office budget in US dollars to replace the daily limit. The final 20% is reserved for conversations. Enter zero to restore the daily limit.</p>
       <form onSubmit={e=>{e.preventDefault();act('budget',{ monthlyBudgetCents: Math.round(Number(limit)*100) },()=>setLimit(''))}}>
         <label htmlFor="office-budget">Monthly budget (USD)</label><input required id="office-budget" type="number" min="0" max="100000" step="0.01" value={limit} onChange={e=>setLimit(e.target.value)} />
