@@ -1,5 +1,16 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "git": { "deploymentEnabled": { "feature/office-goal-management": false } },
-  "ignoreCommand": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ] || [ -n \"$VERCEL_GIT_PULL_REQUEST_ID\" ]; then exit 1; else exit 0; fi"
+  "git": {
+    "deploymentEnabled": {
+      "feature/office-goal-management": false,
+      "feature/office-gm-workspace": false
+    }
+  },
+  "ignoreCommand": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ] || [ -n \"$VERCEL_GIT_PULL_REQUEST_ID\" ]; then exit 1; else exit 0; fi",
+  "crons": [
+    {
+      "path": "/api/office/pulse",
+      "schedule": "0 7 * * *"
+    }
+  ]
 }
