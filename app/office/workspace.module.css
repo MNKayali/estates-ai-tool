@@ -1,0 +1,267 @@
+.office {
+  --accent: #215445;
+  --soft: #edf4f0;
+  min-height: 100dvh;
+  max-width: 64rem;
+  background: white;
+  margin: auto;
+  padding: 1.5rem clamp(1rem, 4vw, 3rem) 3rem;
+  color: #1e2824;
+  font:
+    1rem/1.55 'Inter',
+    system-ui,
+    sans-serif;
+  overflow-wrap: anywhere;
+}
+.office header,
+.row,
+.actions,
+.composer,
+.pair {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+.brand {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+.brand span,
+.meta,
+.office small,
+.office dt {
+  color: #52645b;
+}
+.office nav {
+  display: flex;
+  gap: 1.5rem;
+  border-bottom: 1px solid #dce4df;
+  margin: 1rem 0 1.5rem;
+}
+.office button,
+.office summary {
+  cursor: pointer;
+  font: inherit;
+}
+.office button {
+  border: 1px solid #cad7d0;
+  color: var(--accent);
+  background: white;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.5rem;
+}
+.office button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.office nav button {
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  padding: 0.6rem 0.15rem;
+}
+.office nav button[aria-current] {
+  border-color: var(--accent);
+  font-weight: 650;
+}
+.office h1,
+.office h2,
+.office h3 {
+  color: #192c23;
+  line-height: 1.2;
+  margin: 0.3rem 0 0.5rem;
+}
+.office h1 {
+  font-size: clamp(1.7rem, 4vw, 2.25rem);
+  letter-spacing: -0.04em;
+}
+.office h2 {
+  font-size: 1.25rem;
+}
+.meta,
+.office small,
+.office dt {
+  font-size: 0.85rem;
+}
+.office label,
+.office dt,
+.office small,
+.file {
+  display: block;
+}
+.office label {
+  font-weight: 550;
+}
+.office input:not([type='checkbox']),
+.office select,
+.office textarea {
+  width: 100%;
+  color: inherit;
+  background: #fff;
+  font: inherit;
+  border-radius: 0.45rem;
+  border: 1px solid #adbbb2;
+  padding: 0.55rem;
+}
+.office input[type='checkbox'] {
+  margin-right: 0.6rem;
+}
+.office form {
+  display: grid;
+  gap: 0.85rem;
+}
+.office :focus-visible {
+  outline: 3px solid #62917e;
+  outline-offset: 2px;
+}
+.office .primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+.chat {
+  max-width: 46rem;
+  margin: auto;
+}
+.thread {
+  height: clamp(14rem, 52dvh, 38rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.6rem 0.3rem 0.8rem 0;
+}
+.own,
+.reply {
+  width: fit-content;
+  max-width: 92%;
+  margin: 0.7rem 0;
+  padding: 0.7rem 1rem;
+  border-radius: 0.7rem;
+}
+.own {
+  margin-left: auto;
+  background: var(--soft);
+}
+.reply {
+  border: 1px solid #dde5df;
+}
+.reply p,
+.own p,
+.paper {
+  white-space: pre-wrap;
+  margin: 0.25rem 0;
+}
+.office .composer {
+  display: flex;
+  border: 1px solid #a7b9ae;
+  border-radius: 0.7rem;
+  padding: 0.45rem;
+  margin-top: 0.65rem;
+}
+.composer textarea {
+  resize: vertical;
+}
+.office .composer textarea {
+  border: 0;
+  flex: 1;
+  min-width: 0;
+}
+.composer button {
+  flex: none;
+  white-space: nowrap;
+}
+.voice,
+.office details {
+  margin-top: 0.8rem;
+}
+.voice summary {
+  font-size: 0.9rem;
+}
+.actions {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin: 0.6rem 0;
+}
+.file {
+  margin: 0.35rem 0;
+  text-align: left;
+}
+.approval,
+.paper,
+.settings,
+.card {
+  padding: 1rem;
+  border: 1px solid #dce4df;
+  border-radius: 0.7rem;
+}
+.approval {
+  margin-top: 0.75rem;
+}
+.settings {
+  margin-bottom: 1rem;
+  background: #f6f9f7;
+}
+.settings form {
+  max-width: 32rem;
+  margin: 1rem 0;
+}
+.team {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+.card dd {
+  margin: 0 0 0.65rem;
+}
+.office .output {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 0;
+  border-bottom: 1px solid #dce4df;
+  border-radius: 0;
+  padding: 1.1rem 0.1rem;
+  text-align: left;
+}
+.output span:last-child {
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 0.83rem;
+}
+.reader {
+  max-width: 45rem;
+}
+.paper {
+  margin: 1.3rem 0;
+  padding: 1.4rem;
+}
+.alert {
+  border-left: 3px solid var(--accent);
+  padding: 0.65rem;
+  background: var(--soft);
+}
+@media (max-width: 550px) {
+  .office {
+    padding: 1rem;
+  }
+  .thread {
+    height: 45dvh;
+  }
+  .office nav {
+    margin-bottom: 1rem;
+  }
+  .own,
+  .reply {
+    max-width: 97%;
+  }
+  .office .output {
+    align-items: start;
+  }
+  .pair {
+    align-items: start;
+  }
+}
