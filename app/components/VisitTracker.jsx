@@ -29,7 +29,7 @@ export default function VisitTracker() {
   const lastSent = useRef(null)
 
   useEffect(() => {
-    if (!pathname || /^\/(admin|report-fixture)(\/|$)/.test(pathname)) return
+    if (!pathname || /^\/(admin|office|report-fixture)(\/|$)/.test(pathname)) return
 
     // The first page after a full load is a visit's landing page when the
     // visitor came from elsewhere; later pages are in-app navigation.

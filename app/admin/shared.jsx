@@ -27,7 +27,7 @@ export function Header({ current = 'dashboard' }) {
         <Logo variant="navy" height={24} />
         <Badge>Admin</Badge>
         <nav aria-label="Admin" style={{ display: 'flex', gap: 4, marginLeft: 12 }}>
-          {[['dashboard', '/admin', 'Dashboard'], ['reports', '/admin/reports', 'All reports']].map(([key, href, label]) => (
+          {[['dashboard', '/admin', 'Dashboard'], ['reports', '/admin/reports', 'All reports'], ['office', '/office', 'AI Office']].map(([key, href, label]) => (
             <Link key={key} href={href} className="btn btn-ghost" aria-current={current === key ? 'page' : undefined}
               style={{ padding: '6px 12px', fontSize: 13, fontWeight: current === key ? 600 : 400, color: current === key ? 'var(--ink)' : 'var(--text-mid)' }}>
               {label}
@@ -43,7 +43,12 @@ export function Header({ current = 'dashboard' }) {
 }
 
 // ─── Admin login (inline, shown on 401) ─────────────────────────────────────
-export function AdminLogin({ onSuccess }) {
+export function AdminLogin({
+  onSuccess,
+  title = 'Admin access',
+  description = 'Enter the admin code to manage accounts and view system status and all generated reports.',
+  buttonLabel = 'Unlock ▸',
+}) {
   const [code, setCode]       = useState('')
   const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
@@ -72,9 +77,9 @@ export function AdminLogin({ onSuccess }) {
     <Centered>
       <Card className="rise rise-1" style={{ width: '100%', maxWidth: 420, padding: '36px 32px' }}>
         <div className="eyebrow">Restricted</div>
-        <h1 style={{ fontSize: 24, margin: '8px 0 6px', color: 'var(--ink)' }}>Admin access</h1>
+        <h1 style={{ fontSize: 24, margin: '8px 0 6px', color: 'var(--ink)' }}>{title}</h1>
         <p style={{ fontSize: 14, color: 'var(--text-soft)', margin: '0 0 22px', lineHeight: 1.6 }}>
-          Enter the admin code to manage accounts and view system status and all generated reports.
+          {description}
         </p>
         <form onSubmit={submit}>
           <label className="label">Admin code</label>
@@ -91,7 +96,7 @@ export function AdminLogin({ onSuccess }) {
           {error && <p style={{ color: 'var(--danger)', fontSize: 13, margin: '8px 0 0' }}>{error}</p>}
           <button type="submit" className="btn btn-primary" disabled={loading || !code.trim()}
             style={{ width: '100%', justifyContent: 'center', marginTop: 16, padding: 13 }}>
-            {loading ? 'Verifying…' : 'Unlock ▸'}
+            {loading ? 'Verifying…' : buttonLabel}
           </button>
         </form>
       </Card>
